@@ -1,0 +1,458 @@
+import { useMutation, useQuery } from "convex/react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  Loader2,
+  Plus,
+  Save,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { api } from "../../convex/_generated/api";
+import { chapters, PRIVACY_NOTE, type SubSection } from "../data/chapters";
+import { canAccessChapter, getTierByName } from "../data/tiers";
+import { LegalDocsBanner } from "../components/LegalDocsBanner";
+import { LucideIcon } from "../components/LucideIcon";
+
+export default function ChapterPage() {
+  const { chapterId } = useParams<{ chapterId: string }>();
+  const navigate = useNavigate();
+  const profile = useQuery(api.profile.getMyProfile);
+  const tier = profile?.tier || "vault";
+
+  const isAdmin = useQuery(api.admin.isAdmin);
+  const chapter = chapters.find((ch) => ch.id === chapterId);
+
+  if (!chapter) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-[#e8e6e1]/50">
+        <p>Chapter not found.</p>
+        <button onClick={() => navigate("/dashboard")} className="mt-4 text-gold-primary hover:text-gold-bright">
+          &larr; Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  if (!canAccessChapter(tier, chapter.chapterNumber)) {
+    const requiredTier = getTierByName(chapter.tier);
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <p className="text-[#e8e6e1]/50 mb-2">This chapter requires the {requiredTier?.name} Edition.</p>
+        <button onClick={() => navigate("/upgrade")} className="text-gold-primary hover:text-gold-bright">
+          View upgrade options &rarr;
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      {/* Back */}
+      <button
+        onClick={() => navigate("/dashboard")}
+        className="flex items-center gap-2 text-sm text-[#e8e6e1]/60 hover:text-gold-primary transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Dashboard
+      </button>
+
+      {/* Legal Documents Notice */}
+      <LegalDocsBanner />
+
+      {/* Chapter Header */}
+      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(217,204,160,0.04),_transparent_60%)]" />
+        <div className="relative">
+          <p className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">
+            Chapter {chapter.chapterNumber}
+          </p>
+          <h1
+            className="font-heading text-2xl md:text-3xl mt-1"
+            style={{ color: chapter.color }}
+          >
+            {chapter.title}
+          </h1>
+          <p className="text-sm text-[#e8e6e1]/50 mt-2 leading-relaxed">
+            {chapter.description}
+          </p>
+        </div>
+      </div>
+
+      {/* Accordion Sections */}
+      <div className="space-y-2">
+        {chapter.subSections.map((section) => (
+          <SectionAccordion
+            key={section.id}
+            section={section}
+            chapterId={chapter.id}
+            chapterColor={chapter.color}
+            canEdit={isAdmin === true}
+          />
+        ))}
+      </div>
+
+      {/* Privacy Note */}
+      <div className="border-l-2 border-gold-border/30 pl-4 py-2">
+        <p className="text-xs text-[#e8e6e1]/50 italic leading-relaxed">
+          {PRIVACY_NOTE}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SectionAccordion({
+  section,
+  chapterId,
+  chapterColor,
+  canEdit,
+}: {
+  section: SubSection;
+  chapterId: string;
+  chapterColor: string;
+  canEdit: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const rows = useQuery(api.sections.getRows, { chapterId, sectionId: section.id });
+  const fields = useQuery(api.sections.getFields, { chapterId, sectionId: section.id });
+  const addRow = useMutation(api.sections.addRow);
+  const updateRow = useMutation(api.sections.updateRow);
+  const deleteRow = useMutation(api.sections.deleteRow);
+  const saveField = useMutation(api.sections.saveField);
+
+  const [editingRow, setEditingRow] = useState<string | null>(null);
+  const [editData, setEditData] = useState<Record<string, string>>({});
+  const [addingRow, setAddingRow] = useState(false);
+  const [newRowData, setNewRowData] = useState<Record<string, string>>({});
+  const [fieldDrafts, setFieldDrafts] = useState<Record<string, string>>({});
+  const [savingField, setSavingField] = useState<string | null>(null);
+
+  const colCount = section.tableColumns?.length || 0;
+  const fieldDefCount = section.fields?.length || 0;
+  const totalFieldCount = colCount + fieldDefCount;
+  const rowCount = rows?.length || 0;
+  const fieldsObj = fields || {};
+  const fieldsFilled = Object.keys(fieldsObj).filter((k) => (fieldsObj as Record<string, string>)[k]).length;
+  const completed = rowCount + fieldsFilled;
+  const pct = totalFieldCount > 0 ? Math.round((completed / totalFieldCount) * 100) : 0;
+
+  // Init field drafts from server data
+  useEffect(() => {
+    if (fields && typeof fields === "object") {
+      setFieldDrafts((prev) => {
+        const next = { ...prev };
+        for (const [key, val] of Object.entries(fields as Record<string, string>)) {
+          if (!(key in next)) next[key] = val as string;
+        }
+        return next;
+      });
+    }
+  }, [fields]);
+
+  const handleSaveField = useCallback(
+    async (fieldId: string, value: string) => {
+      if (!canEdit) return;
+      setSavingField(fieldId);
+      try {
+        await saveField({ chapterId, sectionId: section.id, fieldId, value });
+      } finally {
+        setSavingField(null);
+      }
+    },
+    [saveField, chapterId, section.id, canEdit]
+  );
+
+  const handleAddRow = async () => {
+    if (!canEdit) return;
+    await addRow({
+      chapterId,
+      sectionId: section.id,
+      data: JSON.stringify(newRowData),
+    });
+    setNewRowData({});
+    setAddingRow(false);
+  };
+
+  const handleUpdateRow = async (rowId: string) => {
+    if (!canEdit) return;
+    await updateRow({
+      chapterId,
+      sectionId: section.id,
+      rowId,
+      data: JSON.stringify(editData),
+    });
+    setEditingRow(null);
+    setEditData({});
+  };
+
+  const handleDeleteRow = async (rowId: string) => {
+    if (!canEdit) return;
+    await deleteRow({ chapterId, sectionId: section.id, rowId });
+  };
+
+  return (
+    <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/50 overflow-hidden">
+      {/* Accordion Header */}
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between p-4 hover:bg-[#161514] transition-colors text-left"
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {section.icon && (
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+              style={{ backgroundColor: `${chapterColor}15` }}
+            >
+              <LucideIcon name={section.icon} className="w-4 h-4" style={{ color: chapterColor }} />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-heading text-sm text-[#e8e6e1]">{section.title}</h3>
+            {/* Mini progress bar */}
+            <div className="flex items-center gap-2 mt-1">
+              <div className="h-1 flex-1 max-w-[120px] bg-[#1a1a1a] rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${Math.max(pct, 2)}%`,
+                    background: `linear-gradient(90deg, ${chapterColor}88, ${chapterColor})`,
+                    boxShadow: pct > 0 ? `0 0 6px ${chapterColor}40` : undefined,
+                  }}
+                />
+              </div>
+              <span className="text-[10px] text-[#e8e6e1]/50">
+                {completed} of {totalFieldCount}
+              </span>
+            </div>
+          </div>
+        </div>
+        <ChevronDown
+          className={`w-4 h-4 text-[#e8e6e1]/50 transition-transform duration-200 shrink-0 ml-2 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {/* Accordion Content */}
+      {open && (
+        <div className="border-t border-gold-border/30 p-4 space-y-4">
+          {!canEdit && (
+            <div className="rounded-lg border border-gold-border/30 bg-black/40 px-3 py-2 text-xs text-[#e8e6e1]/55">
+              Chapter sections are view-only in the client portal. Contact Legacy Architect RVA to request a change.
+            </div>
+          )}
+          {section.description && (
+            <p className="text-xs text-[#e8e6e1]/60 leading-relaxed">{section.description}</p>
+          )}
+
+          {/* Standalone fields (textarea, text, checkbox) */}
+          {section.fields && section.fields.length > 0 && (
+            <div className="space-y-3">
+              {section.fields.map((field) => (
+                <div key={field.id} className="space-y-1">
+                  <label className="text-xs text-[#e8e6e1]/50 font-medium">
+                    {field.label}
+                  </label>
+                  {field.type === "textarea" ? (
+                    <div className="relative">
+                      <textarea
+                        className="w-full bg-black border border-gold-border/40 rounded-lg p-3 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/60 focus:border-gold-primary/50 focus:outline-none resize-y min-h-[80px]"
+                        placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}...`}
+                        value={fieldDrafts[field.id] || ""}
+                        disabled={!canEdit}
+                        readOnly={!canEdit}
+                        onChange={(e) => canEdit && setFieldDrafts((p) => ({ ...p, [field.id]: e.target.value }))}
+                        onBlur={() => {
+                          const val = fieldDrafts[field.id];
+                          if (val !== undefined && val !== ((fields as Record<string, string>)?.[field.id] || "")) {
+                            handleSaveField(field.id, val);
+                          }
+                        }}
+                      />
+                      {savingField === field.id && (
+                        <Loader2 className="absolute top-3 right-3 w-3 h-3 animate-spin text-gold-muted" />
+                      )}
+                    </div>
+                  ) : field.type === "checkbox" ? (
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={fieldDrafts[field.id] === "true"}
+                        onChange={(e) => {
+                          const val = e.target.checked ? "true" : "false";
+                          setFieldDrafts((p) => ({ ...p, [field.id]: val }));
+                          handleSaveField(field.id, val);
+                        }}
+                        className="accent-[#d9cca0]"
+                      />
+                      <span className="text-xs text-[#e8e6e1]/60">{field.placeholder || field.label}</span>
+                    </label>
+                  ) : (
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/60 focus:border-gold-primary/50 focus:outline-none"
+                        placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}...`}
+                        value={fieldDrafts[field.id] || ""}
+                        disabled={!canEdit}
+                        readOnly={!canEdit}
+                        onChange={(e) => canEdit && setFieldDrafts((p) => ({ ...p, [field.id]: e.target.value }))}
+                        onBlur={() => {
+                          const val = fieldDrafts[field.id];
+                          if (val !== undefined && val !== ((fields as Record<string, string>)?.[field.id] || "")) {
+                            handleSaveField(field.id, val);
+                          }
+                        }}
+                      />
+                      {savingField === field.id && (
+                        <Loader2 className="absolute top-2 right-3 w-3 h-3 animate-spin text-gold-muted" />
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Table rows (CRUD) */}
+          {section.tableColumns && section.tableColumns.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">Records</h4>
+                <button
+                  onClick={() => {
+                    setAddingRow(true);
+                    setNewRowData({});
+                  }}
+                  className="flex items-center gap-1 text-xs text-gold-primary hover:text-gold-bright transition-colors"
+                >
+                  <Plus className="w-3 h-3" /> Add Entry
+                </button>
+              </div>
+
+              {/* Add Row Form */}
+              {addingRow && (
+                <div className="bg-black rounded-lg border border-gold-primary/30 p-3 space-y-2">
+                  {section.tableColumns.map((col) => (
+                    <div key={col.key}>
+                      <label className="text-[10px] text-[#e8e6e1]/60 uppercase tracking-wider">{col.label}</label>
+                      <input
+                        type="text"
+                        className="w-full bg-[#0a0a0a] border border-gold-border/30 rounded px-2 py-1.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/35 focus:border-gold-primary/50 focus:outline-none mt-0.5"
+                        placeholder={col.label}
+                        value={newRowData[col.key] || ""}
+                        onChange={(e) => setNewRowData((p) => ({ ...p, [col.key]: e.target.value }))}
+                      />
+                    </div>
+                  ))}
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      onClick={handleAddRow}
+                      className="flex items-center gap-1 text-xs bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] px-3 py-1.5 rounded-lg font-heading font-medium hover:opacity-90 transition"
+                    >
+                      <Save className="w-3 h-3" /> Save
+                    </button>
+                    <button
+                      onClick={() => setAddingRow(false)}
+                      className="flex items-center gap-1 text-xs text-[#e8e6e1]/60 hover:text-[#e8e6e1]/60 px-3 py-1.5"
+                    >
+                      <X className="w-3 h-3" /> Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Existing Rows */}
+              {rows && rows.length > 0 ? (
+                <div className="space-y-2">
+                  {rows.map((row: any) => {
+                    const data = JSON.parse(row.data || "{}");
+                    const isEditing = editingRow === row.rowId;
+
+                    if (isEditing) {
+                      return (
+                        <div key={row.rowId} className="bg-black rounded-lg border border-gold-primary/30 p-3 space-y-2">
+                          {section.tableColumns.map((col) => (
+                            <div key={col.key}>
+                              <label className="text-[10px] text-[#e8e6e1]/60 uppercase tracking-wider">{col.label}</label>
+                              <input
+                                type="text"
+                                className="w-full bg-[#0a0a0a] border border-gold-border/30 rounded px-2 py-1.5 text-sm text-[#e8e6e1] focus:border-gold-primary/50 focus:outline-none mt-0.5"
+                                value={editData[col.key] || ""}
+                                onChange={(e) => setEditData((p) => ({ ...p, [col.key]: e.target.value }))}
+                              />
+                            </div>
+                          ))}
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              onClick={() => handleUpdateRow(row.rowId)}
+                              className="flex items-center gap-1 text-xs bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] px-3 py-1.5 rounded-lg font-heading font-medium"
+                            >
+                              <Check className="w-3 h-3" /> Update
+                            </button>
+                            <button
+                              onClick={() => setEditingRow(null)}
+                              className="text-xs text-[#e8e6e1]/60 hover:text-[#e8e6e1]/60 px-3 py-1.5"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={row.rowId}
+                        className="bg-black/50 rounded-lg border border-gold-border/20 p-3 hover:border-gold-border/40 transition-colors group"
+                      >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {section.tableColumns.map((col) => (
+                            <div key={col.key}>
+                              <span className="text-[10px] text-[#e8e6e1]/50 uppercase tracking-wider">{col.label}</span>
+                              <p className="text-sm text-[#e8e6e1]/80 mt-0.5">
+                                {data[col.key] || <span className="text-[#e8e6e1]/35 italic">Empty</span>}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                        {canEdit && (
+                        <div className="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => {
+                              setEditingRow(row.rowId);
+                              setEditData(data);
+                            }}
+                            className="text-[10px] text-gold-primary hover:text-gold-bright"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteRow(row.rowId)}
+                            className="text-[10px] text-red-400/60 hover:text-red-400 flex items-center gap-0.5"
+                          >
+                            <Trash2 className="w-3 h-3" /> Delete
+                          </button>
+                        </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                !addingRow && (
+                  <p className="text-xs text-[#e8e6e1]/60 text-center py-4">
+                    No entries yet. This section is view-only for clients.
+                  </p>
+                )
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
