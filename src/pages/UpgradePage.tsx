@@ -13,9 +13,9 @@ const reviewPrices: Record<string, number> = {
 };
 
 const tierImages: Record<string, string> = {
-  vault: "/tier-vault.png",
-  archive: "/tier-archive.png",
-  legacy: "/tier-legacy.png",
+  vault: "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/vault%20emblem.png",
+  archive: "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/archive%20emblem.png",
+  legacy: "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/legacy%20emblem.png",
 };
 
 // Edition color scheme: bronze=vault, silver=archive, gold=legacy
