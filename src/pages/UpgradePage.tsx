@@ -51,7 +51,7 @@ function normalizeTier(tier?: string) {
 export default function UpgradePage() {
   const navigate = useNavigate();
   const profile = useQuery(api.profile.getMyProfile);
-  const currentTier = normalizeTier(profile?.tier);
+  const currentTier = normalizeTier(profile?.tier ?? undefined);
   const currentRank = tierRank[currentTier];
   const isLegacy = currentTier === "legacy";
 
