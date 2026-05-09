@@ -2,107 +2,126 @@ import { useQuery } from "convex/react";
 import { ArrowRight, Check, Lock, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { tiers } from "../data/tiers";
 import { chapters } from "../data/chapters";
-import { canAccessChapter } from "../data/tiers";
-
-const reviewPrices: Record<string, number> = {
-  vault: 400,
-  archive: 800,
-  legacy: 1200,
-};
+import { canAccessChapter, tiers } from "../data/tiers";
 
 const tierImages: Record<string, string> = {
-  vault: "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/vault%20emblem.png",
-  archive: "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/archive%20emblem.png",
-  legacy: "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/legacy%20emblem.png",
+  vault:
+    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/vault%20emblem.png",
+  archive:
+    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/archive%20emblem.png",
+  legacy:
+    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/legacy%20emblem.png",
 };
 
-// Edition color scheme: bronze=vault, silver=archive, gold=legacy
-const tierColors: Record<string, { accent: string; accentRgb: string; label: string; gradient: string; border: string }> = {
+const tierRank: Record<string, number> = {
+  vault: 1,
+  archive: 2,
+  legacy: 3,
+};
+
+const tierColors: Record<
+  string,
+  { accent: string; accentRgb: string; label: string; border: string }
+> = {
   vault: {
-    accent: "#CD7F32",
-    accentRgb: "205, 127, 50",
+    accent: "#b87333",
+    accentRgb: "184, 115, 51",
     label: "Bronze",
-    gradient: "from-[#CD7F32] to-[#8B5E3C]",
-    border: "border-[#CD7F32]/30",
+    border: "border-[#b87333]/35",
   },
   archive: {
-    accent: "#C0C0C0",
-    accentRgb: "192, 192, 192",
+    accent: "#c8c8c8",
+    accentRgb: "200, 200, 200",
     label: "Silver",
-    gradient: "from-[#C0C0C0] to-[#808080]",
-    border: "border-[#C0C0C0]/30",
+    border: "border-[#c8c8c8]/35",
   },
   legacy: {
-    accent: "#FFD700",
-    accentRgb: "255, 215, 0",
+    accent: "#d6a84f",
+    accentRgb: "214, 168, 79",
     label: "Gold",
-    gradient: "from-[#FFD700] to-[#DAA520]",
-    border: "border-[#FFD700]/30",
+    border: "border-[#d6a84f]/40",
   },
 };
+
+function normalizeTier(tier?: string) {
+  return tierRank[tier || ""] ? tier || "vault" : "vault";
+}
 
 export default function UpgradePage() {
   const navigate = useNavigate();
   const profile = useQuery(api.profile.getMyProfile);
-  const currentTier = profile?.tier || "vault";
+  const currentTier = normalizeTier(profile?.tier);
+  const currentRank = tierRank[currentTier];
+  const isLegacy = currentTier === "legacy";
 
-  const tierOrder = ["vault", "archive", "legacy"];
-  const currentIndex = tierOrder.indexOf(currentTier);
+  const visibleTiers = isLegacy
+    ? tiers.filter((tier) => tier.id === "legacy")
+    : tiers.filter((tier) => tierRank[tier.id] >= currentRank);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
       <div>
         <h1 className="font-heading text-3xl text-gold-gradient">
           Upgrade Your Life Manual
         </h1>
         <p className="text-[#e8e6e1]/60 mt-2 leading-relaxed max-w-2xl">
-          Expand your Life Manual to cover more of your life. Each tier builds on
-          the previous one. Your existing data carries forward.
+          Portal upgrades begin with The Vault and move upward. Lower editions are
+          not offered once a higher edition is active.
         </p>
       </div>
 
-      {/* Tier Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {tiers.map((tier, idx) => {
+      {isLegacy && (
+        <div className="rounded-xl border border-[#d6a84f]/35 bg-[#0a0a0a] p-5 shadow-[0_0_35px_rgba(214,168,79,0.10)]">
+          <p className="font-heading text-[#d6a84f] text-lg">
+            Current Edition: The Legacy
+          </p>
+          <p className="text-sm text-[#e8e6e1]/65 mt-2 leading-relaxed">
+            You are already on the highest Life Manual edition. No Vault or
+            Archive upgrade options are available for this account.
+          </p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+        {visibleTiers.map((tier) => {
           const isCurrent = tier.id === currentTier;
-          const isUpgrade = idx > currentIndex;
-          const isLower = idx < currentIndex;
-          const reviewPrice = reviewPrices[tier.id];
+          const isUpgrade = tierRank[tier.id] > currentRank;
           const tierImage = tierImages[tier.id];
           const colors = tierColors[tier.id];
 
           return (
             <div
               key={tier.id}
-              className={`bg-[#0a0a0a] rounded-xl border p-5 relative overflow-hidden transition-all duration-300 ${
+              className={`bg-[#0a0a0a] rounded-xl border p-5 relative overflow-hidden transition-all duration-300 flex flex-col min-h-full ${
                 isCurrent
-                  ? `${colors.border} shadow-[0_0_25px_rgba(${colors.accentRgb},0.12)]`
+                  ? colors.border
                   : "border-gold-border hover:border-gold-border/40"
               }`}
-              style={isCurrent ? {
-                boxShadow: `0 0 25px rgba(${colors.accentRgb}, 0.12), 0 0 60px rgba(${colors.accentRgb}, 0.04)`
-              } : undefined}
+              style={
+                isCurrent
+                  ? {
+                      boxShadow: `0 0 25px rgba(${colors.accentRgb}, 0.12), 0 0 60px rgba(${colors.accentRgb}, 0.04)`,
+                    }
+                  : undefined
+              }
             >
-              {/* Top accent line */}
               <div
                 className="absolute top-0 left-0 right-0 h-[2px]"
-                style={{ background: `linear-gradient(90deg, transparent, ${colors.accent}, transparent)` }}
+                style={{
+                  background: `linear-gradient(90deg, transparent, ${colors.accent}, transparent)`,
+                }}
               />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(217,204,160,0.04),_transparent_60%)]" />
 
-              <div className="relative space-y-4">
-                {/* Tier Image */}
-                {tierImage && (
-                  <div className="flex justify-center py-3">
-                    <img
-                      src={tierImage}
-                      alt={tier.name}
-                      className="h-32 w-auto object-contain drop-shadow-lg"
-                    />
-                  </div>
-                )}
+              <div className="relative flex flex-col flex-1 space-y-4">
+                <div className="flex justify-center min-h-[120px] items-center py-2">
+                  <img
+                    src={tierImage}
+                    alt={tier.name}
+                    className="h-28 w-auto object-contain drop-shadow-lg"
+                  />
+                </div>
 
                 {isCurrent && (
                   <div className="flex justify-center">
@@ -114,47 +133,45 @@ export default function UpgradePage() {
                         borderColor: `rgba(${colors.accentRgb}, 0.25)`,
                       }}
                     >
-                      Current Plan
+                      Current Edition
                     </span>
                   </div>
                 )}
 
-                <div className="text-center">
+                <div className="text-center min-h-[90px] flex flex-col justify-start">
                   <h3
-                    className="font-heading text-xl text-[#e8e6e1]"
+                    className="font-heading text-2xl text-[#e8e6e1] leading-tight"
                     style={{ fontVariant: "small-caps" }}
                   >
                     {tier.name}
                   </h3>
                   <p
-                    className="font-heading text-3xl mt-1"
+                    className="font-heading text-3xl mt-2"
                     style={{ color: colors.accent }}
                   >
                     {tier.priceLabel}
                   </p>
                 </div>
 
-                <p className="text-xs text-[#e8e6e1]/60 leading-relaxed text-center">{tier.description}</p>
+                <p className="text-xs text-[#e8e6e1]/60 leading-relaxed text-center min-h-[52px]">
+                  {tier.description}
+                </p>
 
-                {/* Annual review info */}
-                <div className="text-xs text-center">
-                  <p className="italic text-[#e8e6e1]/50">Annual review available upon request</p>
-                  <p className="font-medium mt-0.5" style={{ color: `rgba(${colors.accentRgb}, 0.7)` }}>
-                    Annual Review: ${reviewPrice}
-                  </p>
-                </div>
-
-                {/* Features */}
-                <ul className="space-y-2">
+                <ul className="space-y-2 flex-1">
                   {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2 text-xs text-[#e8e6e1]/70">
-                      <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: colors.accent }} />
+                    <li
+                      key={feature}
+                      className="flex items-start gap-2 text-xs text-[#e8e6e1]/70"
+                    >
+                      <Check
+                        className="w-3.5 h-3.5 mt-0.5 shrink-0"
+                        style={{ color: colors.accent }}
+                      />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
 
-                {/* CTA Button */}
                 {isUpgrade && (
                   <button
                     type="button"
@@ -183,20 +200,20 @@ export default function UpgradePage() {
                   </div>
                 )}
 
-                {isLower && (
-                  <div className="w-full text-center text-xs text-[#e8e6e1]/50 py-2">
-                    Included in your current plan
-                  </div>
-                )}
-
-                {/* Chapters Included Section */}
                 <div className="border-t border-gold-border/30 pt-3 space-y-2">
-                  <h4 className="font-heading text-[10px] tracking-widest uppercase" style={{ color: `rgba(${colors.accentRgb}, 0.6)` }}>
+                  <h4
+                    className="font-heading text-[10px] tracking-widest uppercase"
+                    style={{ color: `rgba(${colors.accentRgb}, 0.6)` }}
+                  >
                     Chapters Included
                   </h4>
                   <ul className="space-y-1.5">
                     {chapters.map((ch) => {
-                      const included = canAccessChapter(tier.id, ch.chapterNumber);
+                      const included = canAccessChapter(
+                        tier.id,
+                        ch.chapterNumber,
+                      );
+
                       return (
                         <li
                           key={ch.id}
@@ -212,7 +229,9 @@ export default function UpgradePage() {
                           ) : (
                             <Lock className="w-3 h-3 text-[#e8e6e1]/30 shrink-0" />
                           )}
-                          <span>Ch. {ch.chapterNumber}: {ch.title}</span>
+                          <span>
+                            Ch. {ch.chapterNumber}: {ch.title}
+                          </span>
                         </li>
                       );
                     })}
@@ -224,18 +243,16 @@ export default function UpgradePage() {
         })}
       </div>
 
-      {/* Upgrade Info */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 text-center">
         <p className="text-sm text-[#e8e6e1]/60 leading-relaxed">
-          Upgrades are based on the price difference between tiers. Annual review fees can be
-          credited toward a future tier upgrade.
+          Upgrade options only show editions above the client&apos;s current
+          edition. Blueprint Session is intentionally excluded from the portal.
         </p>
       </div>
 
-      {/* Inclusions */}
       <div className="text-center text-xs text-[#e8e6e1]/50 py-4">
-        All Life Manuals include: Secure Client Portal access, premium branded PDF,
-        and 72-hour data self-destruct after delivery.
+        All Life Manuals include secure client portal access, a premium branded
+        PDF, and a 72-hour data purge after delivery.
       </div>
     </div>
   );
