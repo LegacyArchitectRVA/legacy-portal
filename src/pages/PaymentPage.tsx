@@ -16,7 +16,7 @@ export default function PaymentPage() {
   if (!targetTier) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <p className="text-[#e8e6e1]/50">Invalid tier selected.</p>
+        <p className="text-[#e8e6e1]/75">Invalid tier selected.</p>
         <button onClick={() => navigate("/upgrade")} className="mt-4 text-gold-primary hover:text-gold-bright">
           &larr; Back to Upgrade
         </button>
@@ -35,7 +35,7 @@ export default function PaymentPage() {
       {/* Back */}
       <button
         onClick={() => navigate("/upgrade")}
-        className="flex items-center gap-2 text-sm text-[#e8e6e1]/60 hover:text-gold-primary transition-colors"
+        className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Upgrade
@@ -46,7 +46,7 @@ export default function PaymentPage() {
         <h1 className="font-heading text-3xl text-gold-gradient">
           Upgrade to {targetTier.name}
         </h1>
-        <p className="text-[#e8e6e1]/50 leading-relaxed max-w-lg mx-auto">
+        <p className="text-[#e8e6e1]/75 leading-relaxed max-w-lg mx-auto">
           {targetTier.name}. Choose your payment option below.
         </p>
       </div>
@@ -55,7 +55,7 @@ export default function PaymentPage() {
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 text-center">
         <p className="text-xs text-gold-muted uppercase tracking-widest font-heading mb-2">Upgrade Price</p>
         <p className="font-heading text-4xl text-gold-bright">${priceDiff.toLocaleString()}</p>
-        <p className="text-xs text-[#e8e6e1]/50 mt-1">
+        <p className="text-xs text-[#e8e6e1]/75 mt-1">
           {currentTierInfo?.name} &rarr; {targetTier.name}
         </p>
       </div>
@@ -77,7 +77,7 @@ export default function PaymentPage() {
               <h3 className="font-heading text-lg text-[#e8e6e1] group-hover:text-gold-primary transition-colors">
                 Pay in Full
               </h3>
-              <p className="text-sm text-[#e8e6e1]/60 mt-1">
+              <p className="text-sm text-[#e8e6e1]/80 mt-1">
                 One-time payment of ${priceDiff.toLocaleString()}. Immediate full access to {targetTier.name}.
               </p>
             </div>
@@ -102,7 +102,7 @@ export default function PaymentPage() {
               <h3 className="font-heading text-lg text-[#e8e6e1] group-hover:text-gold-primary transition-colors">
                 50/50 Split
               </h3>
-              <p className="text-sm text-[#e8e6e1]/60 mt-1">
+              <p className="text-sm text-[#e8e6e1]/80 mt-1">
                 Two payments of ${Math.round(priceDiff / 2).toLocaleString()}. Access begins after first payment.
               </p>
             </div>
@@ -116,11 +116,11 @@ export default function PaymentPage() {
       {/* Info */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
         <h3 className="font-heading text-sm text-gold-primary">What's Included</h3>
-        <p className="text-xs text-[#e8e6e1]/60 leading-relaxed">
+        <p className="text-xs text-[#e8e6e1]/80 leading-relaxed">
           All Life Manuals include: Secure Client Portal access, premium branded PDF,
           and 72-hour data self-destruct after delivery.
         </p>
-        <ul className="text-xs text-[#e8e6e1]/50 space-y-1.5">
+        <ul className="text-xs text-[#e8e6e1]/75 space-y-1.5">
           {targetTier.features.map((f) => (
             <li key={f} className="flex items-center gap-2">
               <span className="w-1 h-1 rounded-full bg-gold-primary" />
@@ -131,7 +131,7 @@ export default function PaymentPage() {
       </div>
 
       {/* Security */}
-      <div className="flex items-center justify-center gap-2 text-[10px] text-[#e8e6e1]/50">
+      <div className="flex items-center justify-center gap-2 text-[10px] text-[#e8e6e1]/75">
         <Shield className="w-3 h-3" />
         <span>Secure payment processed by Stripe. Legacy Architect RVA never stores card data.</span>
       </div>

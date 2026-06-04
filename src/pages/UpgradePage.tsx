@@ -65,7 +65,7 @@ export default function UpgradePage() {
         <h1 className="font-heading text-3xl text-gold-gradient">
           Upgrade Your Life Manual
         </h1>
-        <p className="text-[#e8e6e1]/60 mt-2 leading-relaxed max-w-2xl">
+        <p className="text-[#e8e6e1]/80 mt-2 leading-relaxed max-w-2xl">
           Portal upgrades begin with The Vault and move upward. Lower editions are
           not offered once a higher edition is active.
         </p>
@@ -153,7 +153,7 @@ export default function UpgradePage() {
                   </p>
                 </div>
 
-                <p className="text-xs text-[#e8e6e1]/60 leading-relaxed text-center min-h-[52px]">
+                <p className="text-xs text-[#e8e6e1]/80 leading-relaxed text-center min-h-[52px]">
                   {tier.description}
                 </p>
 
@@ -244,13 +244,13 @@ export default function UpgradePage() {
       </div>
 
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 text-center">
-        <p className="text-sm text-[#e8e6e1]/60 leading-relaxed">
+        <p className="text-sm text-[#e8e6e1]/80 leading-relaxed">
           Upgrade options only show editions above the client&apos;s current
           edition. Blueprint Session is intentionally excluded from the portal.
         </p>
       </div>
 
-      <div className="text-center text-xs text-[#e8e6e1]/50 py-4">
+      <div className="text-center text-xs text-[#e8e6e1]/75 py-4">
         All Life Manuals include secure client portal access, a premium branded
         PDF, and a 72-hour data purge after delivery.
       </div>

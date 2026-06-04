@@ -35,19 +35,19 @@ export default function SettingsPage() {
         <h2 className="font-heading text-sm text-gold-primary">Account</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-[10px] text-[#e8e6e1]/50 uppercase tracking-widest">Name</p>
+            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Name</p>
             <p className="text-sm text-[#e8e6e1]">{profile?.name || "Not set"}</p>
           </div>
           <div>
-            <p className="text-[10px] text-[#e8e6e1]/50 uppercase tracking-widest">Email</p>
+            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Email</p>
             <p className="text-sm text-[#e8e6e1]">{profile?.email || "Not set"}</p>
           </div>
           <div>
-            <p className="text-[10px] text-[#e8e6e1]/50 uppercase tracking-widest">Tier</p>
+            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Tier</p>
             <p className="text-sm text-[#e8e6e1] capitalize">{profile?.tier || "Vault"}</p>
           </div>
           <div>
-            <p className="text-[10px] text-[#e8e6e1]/50 uppercase tracking-widest">Status</p>
+            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Status</p>
             <p className="text-sm text-[#e8e6e1]">{profile?.isActivated ? "Active" : "Pending"}</p>
           </div>
         </div>
@@ -59,7 +59,7 @@ export default function SettingsPage() {
           <Shield className="w-4 h-4 text-gold-primary" />
           <h2 className="font-heading text-sm text-gold-primary">Zero-Knowledge Standard</h2>
         </div>
-        <p className="text-xs text-[#e8e6e1]/60 leading-relaxed">
+        <p className="text-xs text-[#e8e6e1]/80 leading-relaxed">
           Legacy Architect RVA does not store or retain your credentials. All data is accessible
           only to you and can be purged at any time from this page.
         </p>
@@ -71,7 +71,7 @@ export default function SettingsPage() {
           <AlertTriangle className="w-4 h-4 text-red-400" />
           <h2 className="font-heading text-sm text-red-400">Danger Zone</h2>
         </div>
-        <p className="text-xs text-[#e8e6e1]/60 leading-relaxed">
+        <p className="text-xs text-[#e8e6e1]/80 leading-relaxed">
           All data across all 7 chapters will be permanently deleted.
           This action cannot be undone.
         </p>
@@ -99,7 +99,7 @@ export default function SettingsPage() {
               </button>
               <button
                 onClick={() => setShowPurge(false)}
-                className="text-xs text-[#e8e6e1]/60 hover:text-[#e8e6e1]/60 px-4 py-2"
+                className="text-xs text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80 px-4 py-2"
               >
                 Cancel
               </button>

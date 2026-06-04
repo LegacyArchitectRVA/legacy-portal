@@ -30,12 +30,12 @@ export default function DashboardPage() {
           <h1 className="font-heading text-3xl text-[#e8e6e1] tracking-wide uppercase">
             Agreement Pending
           </h1>
-          <p className="text-[#e8e6e1]/60 leading-relaxed">
+          <p className="text-[#e8e6e1]/80 leading-relaxed">
             Your account has been created, but your portal access hasn't been activated yet.
             Once your service agreement is signed and confirmed, your facilitator will unlock
             your Life Manual.
           </p>
-          <p className="text-sm text-[#e8e6e1]/60">
+          <p className="text-sm text-[#e8e6e1]/80">
             Questions?{" "}
             <a href="mailto:help@legacyarchitectrva.com" className="text-gold-primary hover:text-gold-bright transition-colors font-medium">
               help@legacyarchitectrva.com

@@ -71,13 +71,13 @@ export default function LoginPage() {
       <div className="relative w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="text-center space-y-4">
-          <div className="mx-auto w-14 h-14 rounded-xl bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center">
-            <Shield className="w-7 h-7 text-[#0a0a0a]" />
+          <div className="mx-auto w-16 h-16 rounded-xl bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center">
+            <Shield className="w-8 h-8 text-[#0a0a0a]" />
           </div>
           <h1 className="font-heading text-2xl text-[#e8e6e1] tracking-wide uppercase">
             Welcome Back
           </h1>
-          <p className="text-sm text-[#e8e6e1]/60">
+          <p className="text-sm text-[#e8e6e1]/80">
             Sign in to your Life Manual portal
           </p>
         </div>
@@ -85,7 +85,7 @@ export default function LoginPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs text-[#e8e6e1]/50 uppercase tracking-wider font-heading block mb-1">
+            <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
               Email
             </label>
             <input
@@ -94,12 +94,12 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/60 focus:border-gold-primary/50 focus:outline-none"
+              className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
               placeholder="your@email.com"
             />
           </div>
           <div>
-            <label className="text-xs text-[#e8e6e1]/50 uppercase tracking-wider font-heading block mb-1">
+            <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
               Password
             </label>
             <div className="relative">
@@ -109,13 +109,13 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/60 focus:border-gold-primary/50 focus:outline-none"
+                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e8e6e1]/60 hover:text-[#e8e6e1]/60"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -138,7 +138,7 @@ export default function LoginPage() {
         {/* Divider */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-gold-border/30" />
-          <span className="text-[10px] text-[#e8e6e1]/60 uppercase tracking-widest">or</span>
+          <span className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-widest">or</span>
           <div className="flex-1 h-px bg-gold-border/30" />
         </div>
 
@@ -146,13 +146,13 @@ export default function LoginPage() {
         <button
           onClick={handleTestUser}
           disabled={loading}
-          className="w-full border border-gold-border/40 text-[#e8e6e1]/60 hover:text-gold-primary hover:border-gold-primary/30 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
+          className="w-full border border-gold-border/40 text-[#e8e6e1]/80 hover:text-gold-primary hover:border-gold-primary/30 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
         >
           Continue as Test User
         </button>
 
         {/* Footer */}
-        <p className="text-center text-xs text-[#e8e6e1]/50">
+        <p className="text-center text-xs text-[#e8e6e1]/75">
           New client?{" "}
           <Link to="/signup" className="text-gold-primary hover:text-gold-bright transition-colors">
             Create an account

@@ -14,7 +14,7 @@ export default function LandingPage() {
             <img
               src="/logo.png"
               alt="Legacy Architect RVA"
-              className="w-12 h-12 rounded-lg object-contain"
+              className="w-14 h-14 rounded-lg object-contain"
             />
             <span className="text-sm font-heading tracking-wider text-gold-primary hidden sm:block">
               LEGACY ARCHITECT<br />
@@ -30,7 +30,7 @@ export default function LandingPage() {
             </Link>
             <Link
               to="/signup"
-              className="btn-gold px-5 py-2.5 rounded-md text-xs tracking-[0.15em] uppercase inline-flex items-center gap-2"
+              className="btn-gold px-5 py-2.5 text-xs tracking-[0.15em] uppercase inline-flex items-center gap-2"
             >
               Get Started
             </Link>
@@ -102,7 +102,7 @@ export default function LandingPage() {
             {isAuthenticated ? (
               <Link
                 to="/dashboard"
-                className="btn-gold px-8 py-3.5 rounded-lg text-sm tracking-widest uppercase inline-flex items-center gap-3"
+                className="btn-gold px-8 py-3.5 text-sm tracking-widest uppercase inline-flex items-center gap-3"
               >
                 Go to Dashboard
                 <ArrowRight className="w-4 h-4" />
@@ -110,7 +110,7 @@ export default function LandingPage() {
             ) : (
               <Link
                 to="/login"
-                className="btn-gold px-8 py-3.5 rounded-lg text-sm tracking-widest uppercase inline-flex items-center gap-3"
+                className="btn-gold px-8 py-3.5 text-sm tracking-widest uppercase inline-flex items-center gap-3"
               >
                 Sign In to Your Portal
                 <ArrowRight className="w-4 h-4" />
@@ -138,7 +138,7 @@ export default function LandingPage() {
             <div className="group relative rounded-lg bg-[#111111] border border-[#e8c46a]/10 p-6 transition-all duration-300 hover:border-[#e8c46a]/25 hover:shadow-[0_0_30px_rgba(232,196,106,0.05)]">
               <div className="absolute inset-0 bg-gradient-to-br from-[#e8c46a]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
               <div className="relative space-y-4 text-center">
-                <div className="w-12 h-12 rounded-lg bg-[#e8c46a]/10 flex items-center justify-center mx-auto">
+                <div className="w-14 h-14 rounded-lg bg-[#e8c46a]/10 flex items-center justify-center mx-auto">
                   <Lock className="w-5 h-5 text-[#e8c46a]" />
                 </div>
                 <h3
@@ -159,7 +159,7 @@ export default function LandingPage() {
             <div className="group relative rounded-lg bg-[#111111] border border-[#e8c46a]/10 p-6 transition-all duration-300 hover:border-[#e8c46a]/25 hover:shadow-[0_0_30px_rgba(232,196,106,0.05)]">
               <div className="absolute inset-0 bg-gradient-to-br from-[#e8c46a]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
               <div className="relative space-y-4 text-center">
-                <div className="w-12 h-12 rounded-lg bg-[#e8c46a]/10 flex items-center justify-center mx-auto">
+                <div className="w-14 h-14 rounded-lg bg-[#e8c46a]/10 flex items-center justify-center mx-auto">
                   <ShieldCheck className="w-5 h-5 text-[#e8c46a]" />
                 </div>
                 <h3
@@ -180,7 +180,7 @@ export default function LandingPage() {
             <div className="group relative rounded-lg bg-[#111111] border border-[#e8c46a]/10 p-6 transition-all duration-300 hover:border-[#e8c46a]/25 hover:shadow-[0_0_30px_rgba(232,196,106,0.05)]">
               <div className="absolute inset-0 bg-gradient-to-br from-[#e8c46a]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
               <div className="relative space-y-4 text-center">
-                <div className="w-12 h-12 rounded-lg bg-[#e8c46a]/10 flex items-center justify-center mx-auto">
+                <div className="w-14 h-14 rounded-lg bg-[#e8c46a]/10 flex items-center justify-center mx-auto">
                   <Eye className="w-5 h-5 text-[#e8c46a]" />
                 </div>
                 <h3
@@ -214,7 +214,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-[#e8c46a]/15 py-10">
         <div className="container">
-          <p className="text-center text-xs text-[#e8e6e1]/50">
+          <p className="text-center text-xs text-[#e8e6e1]/75">
             © {new Date().getFullYear()} Legacy Architect RVA. All rights reserved.
           </p>
         </div>

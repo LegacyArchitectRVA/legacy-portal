@@ -241,28 +241,28 @@ export default function IntroductionPage() {
         html.push(`<h3 class="font-heading text-base text-[#c1b085] mt-4 mb-1.5">${line.slice(4)}</h3>`);
       } else if (line.startsWith("- [ ] ")) {
         if (!inList) { html.push('<ul class="space-y-1.5 ml-1">'); inList = true; }
-        html.push(`<li class="flex items-start gap-2 text-sm text-[#e8e6e1]/70"><span class="text-[#e8e6e1]/30 mt-0.5">☐</span>${line.slice(6)}</li>`);
+        html.push(`<li class="flex items-start gap-2 text-sm text-[#e8e6e1]/85"><span class="text-[#e8e6e1]/30 mt-0.5">☐</span>${line.slice(6)}</li>`);
       } else if (line.startsWith("- ")) {
         if (!inList) { html.push('<ul class="space-y-1.5 ml-1">'); inList = true; }
-        html.push(`<li class="flex items-start gap-2 text-sm text-[#e8e6e1]/70"><span class="text-[#e8c46a]/60 mt-0.5">•</span>${line.slice(2)}</li>`);
+        html.push(`<li class="flex items-start gap-2 text-sm text-[#e8e6e1]/85"><span class="text-[#e8c46a]/75 mt-0.5">•</span>${line.slice(2)}</li>`);
       } else if (line.startsWith("---")) {
         if (inList) { html.push("</ul>"); inList = false; }
         html.push('<hr class="border-gold-border/20 my-4" />');
       } else if (line.startsWith("*") && line.endsWith("*")) {
-        html.push(`<p class="text-xs text-[#e8e6e1]/50 italic mt-2">${line.slice(1, -1)}</p>`);
+        html.push(`<p class="text-xs text-[#e8e6e1]/75 italic mt-2">${line.slice(1, -1)}</p>`);
       } else if (line.match(/^\d+\.\s/)) {
         if (inList) { html.push("</ul>"); inList = false; }
         const text = line.replace(/^\d+\.\s*/, "");
         const boldMatch = text.match(/\*\*(.+?)\*\*(.*)/);
         if (boldMatch) {
-          html.push(`<p class="text-sm text-[#e8e6e1]/70 ml-4 mb-1"><span class="text-[#d9cca0] font-medium">${boldMatch[1]}</span>${boldMatch[2]}</p>`);
+          html.push(`<p class="text-sm text-[#e8e6e1]/85 ml-4 mb-1"><span class="text-[#d9cca0] font-medium">${boldMatch[1]}</span>${boldMatch[2]}</p>`);
         } else {
-          html.push(`<p class="text-sm text-[#e8e6e1]/70 ml-4 mb-1">${text}</p>`);
+          html.push(`<p class="text-sm text-[#e8e6e1]/85 ml-4 mb-1">${text}</p>`);
         }
       } else if (line.trim() === "") {
         if (inList) { html.push("</ul>"); inList = false; }
       } else {
-        html.push(`<p class="text-sm text-[#e8e6e1]/70 mb-2 leading-relaxed">${line}</p>`);
+        html.push(`<p class="text-sm text-[#e8e6e1]/85 mb-2 leading-relaxed">${line}</p>`);
       }
     }
     if (inList) html.push("</ul>");
@@ -275,7 +275,7 @@ export default function IntroductionPage() {
         <button
           type="button"
           onClick={() => setViewingGuide(null)}
-          className="flex items-center gap-2 text-sm text-[#e8e6e1]/60 hover:text-gold-primary transition-colors font-heading"
+          className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors font-heading"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Introduction
@@ -308,7 +308,7 @@ export default function IntroductionPage() {
       {/* Header */}
       <div>
         <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">Introduction</h1>
-        <p className="text-sm text-[#e8e6e1]/60 mt-1">
+        <p className="text-sm text-[#e8e6e1]/80 mt-1">
           Start here. Review these guides before building your Life Manual.
         </p>
       </div>
@@ -319,10 +319,10 @@ export default function IntroductionPage() {
       {/* Welcome card */}
       <div className="bg-[#0a0a0a] rounded-xl p-6 border border-[#e8c46a]/20 bg-gradient-to-r from-[#e8c46a]/[0.04] to-transparent">
         <div className="flex items-start gap-4">
-          <img src="/logo.png" alt="Legacy Architect RVA" className="w-14 h-14 object-contain shrink-0" />
+          <img src="/logo.png" alt="Legacy Architect RVA" className="w-16 h-16 object-contain shrink-0" />
           <div>
             <h2 className="font-heading text-lg text-[#e8c46a]">Welcome to Legacy Architect RVA</h2>
-            <p className="text-sm text-[#e8e6e1]/70 mt-2 leading-relaxed">
+            <p className="text-sm text-[#e8e6e1]/85 mt-2 leading-relaxed">
               Your Life Manual puts every account, system, and instruction in one place so the people
               you love can act without guessing. Review the guides below to understand the process,
               then begin building your manual chapter by chapter.
@@ -354,7 +354,7 @@ export default function IntroductionPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-heading text-base text-[#e8e6e1]">{guide.title}</h3>
-                <p className="text-xs text-[#e8e6e1]/60 mt-1.5 leading-relaxed">
+                <p className="text-xs text-[#e8e6e1]/80 mt-1.5 leading-relaxed">
                   {guide.description}
                 </p>
               </div>
@@ -371,7 +371,7 @@ export default function IntroductionPage() {
               <button
                 type="button"
                 onClick={() => handleDownload(guide)}
-                className="flex items-center gap-2 text-[11px] font-heading tracking-wider uppercase text-[#e8e6e1]/60 hover:text-[#e8e6e1]/80 transition-colors px-3 py-2"
+                className="flex items-center gap-2 text-[11px] font-heading tracking-wider uppercase text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80 transition-colors px-3 py-2"
               >
                 <Download className="w-3.5 h-3.5" />
                 Download

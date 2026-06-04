@@ -18,7 +18,7 @@ export function LegalDocsBanner() {
           </h4>
           <AlertTriangle className="w-3 h-3 text-[#CD7F32]/60" />
         </div>
-        <p className="text-[11px] text-[#e8e6e1]/60 leading-relaxed mt-0.5">
+        <p className="text-[11px] text-[#e8e6e1]/80 leading-relaxed mt-0.5">
           If you have active legal documents (wills, trusts, powers of attorney, healthcare directives),
           those documents take legal precedence over anything recorded in your Life Manual.
           This portal is for organizational reference only and does not constitute legal advice.

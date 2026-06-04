@@ -26,7 +26,7 @@ export default function AdminPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <Crown className="w-10 h-10 text-gold-muted mb-4" />
-        <p className="text-[#e8e6e1]/50">Admin access required.</p>
+        <p className="text-[#e8e6e1]/75">Admin access required.</p>
       </div>
     );
   }
@@ -54,7 +54,7 @@ export default function AdminPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">Admin Dashboard</h1>
-          <p className="text-[#e8e6e1]/50 mt-1">
+          <p className="text-[#e8e6e1]/75 mt-1">
             Manage clients, tiers, and Life Manual generation
           </p>
         </div>
@@ -71,14 +71,14 @@ export default function AdminPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 text-center">
           <p className="text-2xl font-heading text-gold-bright">{clients?.length || 0}</p>
-          <p className="text-[10px] text-[#e8e6e1]/50 uppercase tracking-widest mt-1">Total Clients</p>
+          <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mt-1">Total Clients</p>
         </div>
         {tiers.map((t) => (
           <div key={t.id} className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 text-center">
             <p className="text-2xl font-heading text-gold-primary">
               {clients?.filter((c: any) => c.tier === t.id).length || 0}
             </p>
-            <p className="text-[10px] text-[#e8e6e1]/50 uppercase tracking-widest mt-1">{t.name}</p>
+            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mt-1">{t.name}</p>
           </div>
         ))}
       </div>
@@ -114,7 +114,7 @@ export default function AdminPage() {
                     <p className="text-sm text-[#e8e6e1] truncate font-medium">
                       {client.userName || client.userEmail || "Unknown"}
                     </p>
-                    <p className="text-[10px] text-[#e8e6e1]/50 truncate">{client.userEmail}</p>
+                    <p className="text-[10px] text-[#e8e6e1]/75 truncate">{client.userEmail}</p>
                   </div>
 
                   {/* Tier Selector */}
@@ -170,7 +170,7 @@ export default function AdminPage() {
             })}
           </div>
         ) : (
-          <div className="p-8 text-center text-sm text-[#e8e6e1]/50">
+          <div className="p-8 text-center text-sm text-[#e8e6e1]/75">
             No clients yet.
           </div>
         )}

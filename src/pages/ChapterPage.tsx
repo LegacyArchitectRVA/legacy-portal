@@ -28,7 +28,7 @@ export default function ChapterPage() {
 
   if (!chapter) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-[#e8e6e1]/50">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-[#e8e6e1]/75">
         <p>Chapter not found.</p>
         <button onClick={() => navigate("/dashboard")} className="mt-4 text-gold-primary hover:text-gold-bright">
           &larr; Dashboard
@@ -41,7 +41,7 @@ export default function ChapterPage() {
     const requiredTier = getTierByName(chapter.tier);
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <p className="text-[#e8e6e1]/50 mb-2">This chapter requires the {requiredTier?.name} Edition.</p>
+        <p className="text-[#e8e6e1]/75 mb-2">This chapter requires the {requiredTier?.name} Edition.</p>
         <button onClick={() => navigate("/upgrade")} className="text-gold-primary hover:text-gold-bright">
           View upgrade options &rarr;
         </button>
@@ -54,7 +54,7 @@ export default function ChapterPage() {
       {/* Back */}
       <button
         onClick={() => navigate("/dashboard")}
-        className="flex items-center gap-2 text-sm text-[#e8e6e1]/60 hover:text-gold-primary transition-colors"
+        className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Dashboard
@@ -76,7 +76,7 @@ export default function ChapterPage() {
           >
             {chapter.title}
           </h1>
-          <p className="text-sm text-[#e8e6e1]/50 mt-2 leading-relaxed">
+          <p className="text-sm text-[#e8e6e1]/75 mt-2 leading-relaxed">
             {chapter.description}
           </p>
         </div>
@@ -97,7 +97,7 @@ export default function ChapterPage() {
 
       {/* Privacy Note */}
       <div className="border-l-2 border-gold-border/30 pl-4 py-2">
-        <p className="text-xs text-[#e8e6e1]/50 italic leading-relaxed">
+        <p className="text-xs text-[#e8e6e1]/75 italic leading-relaxed">
           {PRIVACY_NOTE}
         </p>
       </div>
@@ -225,14 +225,14 @@ function SectionAccordion({
                   }}
                 />
               </div>
-              <span className="text-[10px] text-[#e8e6e1]/50">
+              <span className="text-[10px] text-[#e8e6e1]/75">
                 {completed} of {totalFieldCount}
               </span>
             </div>
           </div>
         </div>
         <ChevronDown
-          className={`w-4 h-4 text-[#e8e6e1]/50 transition-transform duration-200 shrink-0 ml-2 ${open ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-[#e8e6e1]/75 transition-transform duration-200 shrink-0 ml-2 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -240,12 +240,12 @@ function SectionAccordion({
       {open && (
         <div className="border-t border-gold-border/30 p-4 space-y-4">
           {!canEdit && (
-            <div className="rounded-lg border border-gold-border/30 bg-black/40 px-3 py-2 text-xs text-[#e8e6e1]/55">
+            <div className="rounded-lg border border-gold-border/30 bg-black/40 px-3 py-2 text-xs text-[#e8e6e1]/75">
               Chapter sections are view-only in the client portal. Contact Legacy Architect RVA to request a change.
             </div>
           )}
           {section.description && (
-            <p className="text-xs text-[#e8e6e1]/60 leading-relaxed">{section.description}</p>
+            <p className="text-xs text-[#e8e6e1]/80 leading-relaxed">{section.description}</p>
           )}
 
           {/* Standalone fields (textarea, text, checkbox) */}
@@ -253,13 +253,13 @@ function SectionAccordion({
             <div className="space-y-3">
               {section.fields.map((field) => (
                 <div key={field.id} className="space-y-1">
-                  <label className="text-xs text-[#e8e6e1]/50 font-medium">
+                  <label className="text-xs text-[#e8e6e1]/75 font-medium">
                     {field.label}
                   </label>
                   {field.type === "textarea" ? (
                     <div className="relative">
                       <textarea
-                        className="w-full bg-black border border-gold-border/40 rounded-lg p-3 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/60 focus:border-gold-primary/50 focus:outline-none resize-y min-h-[80px]"
+                        className="w-full bg-black border border-gold-border/40 rounded-lg p-3 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none resize-y min-h-[80px]"
                         placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}...`}
                         value={fieldDrafts[field.id] || ""}
                         disabled={!canEdit}
@@ -288,13 +288,13 @@ function SectionAccordion({
                         }}
                         className="accent-[#d9cca0]"
                       />
-                      <span className="text-xs text-[#e8e6e1]/60">{field.placeholder || field.label}</span>
+                      <span className="text-xs text-[#e8e6e1]/80">{field.placeholder || field.label}</span>
                     </label>
                   ) : (
                     <div className="relative">
                       <input
                         type="text"
-                        className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/60 focus:border-gold-primary/50 focus:outline-none"
+                        className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
                         placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}...`}
                         value={fieldDrafts[field.id] || ""}
                         disabled={!canEdit}
@@ -338,7 +338,7 @@ function SectionAccordion({
                 <div className="bg-black rounded-lg border border-gold-primary/30 p-3 space-y-2">
                   {section.tableColumns.map((col) => (
                     <div key={col.key}>
-                      <label className="text-[10px] text-[#e8e6e1]/60 uppercase tracking-wider">{col.label}</label>
+                      <label className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-wider">{col.label}</label>
                       <input
                         type="text"
                         className="w-full bg-[#0a0a0a] border border-gold-border/30 rounded px-2 py-1.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/35 focus:border-gold-primary/50 focus:outline-none mt-0.5"
@@ -357,7 +357,7 @@ function SectionAccordion({
                     </button>
                     <button
                       onClick={() => setAddingRow(false)}
-                      className="flex items-center gap-1 text-xs text-[#e8e6e1]/60 hover:text-[#e8e6e1]/60 px-3 py-1.5"
+                      className="flex items-center gap-1 text-xs text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80 px-3 py-1.5"
                     >
                       <X className="w-3 h-3" /> Cancel
                     </button>
@@ -377,7 +377,7 @@ function SectionAccordion({
                         <div key={row.rowId} className="bg-black rounded-lg border border-gold-primary/30 p-3 space-y-2">
                           {section.tableColumns.map((col) => (
                             <div key={col.key}>
-                              <label className="text-[10px] text-[#e8e6e1]/60 uppercase tracking-wider">{col.label}</label>
+                              <label className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-wider">{col.label}</label>
                               <input
                                 type="text"
                                 className="w-full bg-[#0a0a0a] border border-gold-border/30 rounded px-2 py-1.5 text-sm text-[#e8e6e1] focus:border-gold-primary/50 focus:outline-none mt-0.5"
@@ -395,7 +395,7 @@ function SectionAccordion({
                             </button>
                             <button
                               onClick={() => setEditingRow(null)}
-                              className="text-xs text-[#e8e6e1]/60 hover:text-[#e8e6e1]/60 px-3 py-1.5"
+                              className="text-xs text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80 px-3 py-1.5"
                             >
                               Cancel
                             </button>
@@ -412,7 +412,7 @@ function SectionAccordion({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {section.tableColumns.map((col) => (
                             <div key={col.key}>
-                              <span className="text-[10px] text-[#e8e6e1]/50 uppercase tracking-wider">{col.label}</span>
+                              <span className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-wider">{col.label}</span>
                               <p className="text-sm text-[#e8e6e1]/80 mt-0.5">
                                 {data[col.key] || <span className="text-[#e8e6e1]/35 italic">Empty</span>}
                               </p>
@@ -444,7 +444,7 @@ function SectionAccordion({
                 </div>
               ) : (
                 !addingRow && (
-                  <p className="text-xs text-[#e8e6e1]/60 text-center py-4">
+                  <p className="text-xs text-[#e8e6e1]/80 text-center py-4">
                     No entries yet. This section is view-only for clients.
                   </p>
                 )

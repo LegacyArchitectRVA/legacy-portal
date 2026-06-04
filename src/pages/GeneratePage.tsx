@@ -26,7 +26,7 @@ export default function GeneratePage() {
   if (!isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <p className="text-[#e8e6e1]/50">Admin access required.</p>
+        <p className="text-[#e8e6e1]/75">Admin access required.</p>
       </div>
     );
   }
@@ -132,7 +132,7 @@ export default function GeneratePage() {
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       <button
         onClick={() => navigate("/admin")}
-        className="flex items-center gap-2 text-sm text-[#e8e6e1]/60 hover:text-gold-primary transition-colors"
+        className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Admin
@@ -140,7 +140,7 @@ export default function GeneratePage() {
 
       <div>
         <h1 className="font-heading text-3xl text-gold-gradient">Generate Life Manual</h1>
-        <p className="text-[#e8e6e1]/50 mt-2">
+        <p className="text-[#e8e6e1]/75 mt-2">
           Generate a formatted Life Manual for a client. The manual includes all completed data
           from their portal organized by chapter.
         </p>
@@ -149,7 +149,7 @@ export default function GeneratePage() {
       {/* Client Selection */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
         <div>
-          <label className="text-xs text-[#e8e6e1]/50 uppercase tracking-wider font-heading">Select Client</label>
+          <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading">Select Client</label>
           <select
             value={selectedClient}
             onChange={(e) => {
@@ -190,7 +190,7 @@ export default function GeneratePage() {
             <FileText className="w-5 h-5" />
             <h3 className="font-heading text-lg">Manual Generated</h3>
           </div>
-          <p className="text-sm text-[#e8e6e1]/50">
+          <p className="text-sm text-[#e8e6e1]/75">
             Life Manual for {client?.userName} has been generated. Download the HTML file,
             then open it in a browser and print to PDF for a polished output.
           </p>
@@ -205,7 +205,7 @@ export default function GeneratePage() {
 
           <div className="bg-black rounded-lg border border-gold-border/20 p-3 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-            <p className="text-xs text-[#e8e6e1]/60">
+            <p className="text-xs text-[#e8e6e1]/80">
               After delivery, all files and access are purged. Your information stays with you.
             </p>
           </div>

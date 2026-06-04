@@ -44,13 +44,13 @@ export default function SignupPage() {
       <div className="relative w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="text-center space-y-4">
-          <div className="mx-auto w-14 h-14 rounded-xl bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center">
-            <Shield className="w-7 h-7 text-[#0a0a0a]" />
+          <div className="mx-auto w-16 h-16 rounded-xl bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center">
+            <Shield className="w-8 h-8 text-[#0a0a0a]" />
           </div>
           <h1 className="font-heading text-2xl text-[#e8e6e1] tracking-wide uppercase">
             Create Your Account
           </h1>
-          <p className="text-sm text-[#e8e6e1]/60">
+          <p className="text-sm text-[#e8e6e1]/80">
             Begin your Life Manual today
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function SignupPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs text-[#e8e6e1]/50 uppercase tracking-wider font-heading block mb-1">
+            <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
               Full Name
             </label>
             <input
@@ -67,12 +67,12 @@ export default function SignupPage() {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/60 focus:border-gold-primary/50 focus:outline-none"
+              className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
               placeholder="Your full name"
             />
           </div>
           <div>
-            <label className="text-xs text-[#e8e6e1]/50 uppercase tracking-wider font-heading block mb-1">
+            <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
               Email
             </label>
             <input
@@ -81,12 +81,12 @@ export default function SignupPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/60 focus:border-gold-primary/50 focus:outline-none"
+              className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
               placeholder="your@email.com"
             />
           </div>
           <div>
-            <label className="text-xs text-[#e8e6e1]/50 uppercase tracking-wider font-heading block mb-1">
+            <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
               Password
             </label>
             <div className="relative">
@@ -96,18 +96,18 @@ export default function SignupPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/60 focus:border-gold-primary/50 focus:outline-none"
+                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
                 placeholder="Choose a strong password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e8e6e1]/60 hover:text-[#e8e6e1]/60"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <p className="text-[10px] text-[#e8e6e1]/60 mt-1">Minimum 8 characters</p>
+            <p className="text-[10px] text-[#e8e6e1]/80 mt-1">Minimum 8 characters</p>
           </div>
 
           {error && (
@@ -124,7 +124,7 @@ export default function SignupPage() {
         </form>
 
         {/* Footer */}
-        <p className="text-center text-xs text-[#e8e6e1]/50">
+        <p className="text-center text-xs text-[#e8e6e1]/75">
           Already have an account?{" "}
           <Link to="/login" className="text-gold-primary hover:text-gold-bright transition-colors">
             Sign in

@@ -115,7 +115,7 @@ export default function ManualViewPage() {
 
   if (!isAdmin) {
     return (
-      <div className="p-6 text-center text-[#e8e6e1]/60">
+      <div className="p-6 text-center text-[#e8e6e1]/80">
         Admin access required.
       </div>
     );
@@ -140,7 +140,7 @@ export default function ManualViewPage() {
         <button
           type="button"
           onClick={() => window.print()}
-          className="btn-gold text-xs px-4 py-2 rounded-lg flex items-center gap-1.5"
+          className="btn-gold text-xs px-4 py-2 flex items-center gap-1.5"
         >
           <FileText className="w-3.5 h-3.5" />
           Print / Export
@@ -153,11 +153,11 @@ export default function ManualViewPage() {
         <h1 className="font-heading text-3xl font-bold text-gold-gradient mb-2">
           Life Manual
         </h1>
-        <p className="text-sm text-[#e8e6e1]/60">
+        <p className="text-sm text-[#e8e6e1]/80">
           Prepared for {client?.userName || "Client"} •{" "}
           <span className="capitalize">{tier}</span> Edition
         </p>
-        <p className="text-xs text-[#e8e6e1]/60 mt-2">
+        <p className="text-xs text-[#e8e6e1]/80 mt-2">
           Generated {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
         </p>
       </div>

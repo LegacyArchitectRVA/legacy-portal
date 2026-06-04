@@ -100,7 +100,7 @@ export function AppSidebar() {
           <img
             src="/logo.png"
             alt="Legacy Architect RVA"
-            className="w-12 h-12 rounded-lg object-contain flex-shrink-0"
+            className="w-14 h-14 rounded-lg object-contain flex-shrink-0"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
             }}
@@ -230,6 +230,7 @@ export function AppSidebar() {
                 <SidebarMenuButton
                   isActive={location.pathname === "/upgrade"}
                   onClick={() => navTo("/upgrade")}
+                  className="my-1"
                 >
                   <TrendingUp className="w-4 h-4 text-gold-bright" />
                   <span className="text-xs font-heading tracking-wide">Upgrade Plan</span>
@@ -239,7 +240,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <SidebarSeparator className="my-1" />
 
         {/* ADMIN Section */}
         {isAdmin && (
