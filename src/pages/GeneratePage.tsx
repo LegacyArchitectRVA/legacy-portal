@@ -10,7 +10,7 @@ import {
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { chapters } from "../data/chapters";
+import { chapters, PRIVACY_NOTE } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 
 export default function GeneratePage() {
@@ -51,25 +51,137 @@ export default function GeneratePage() {
 <head>
   <meta charset="utf-8">
   <title>Life Manual - ${client?.userName || "Client"}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Libre Baskerville', serif; background: #faf8f5; color: #1a1a1a; }
-    .cover { page-break-after: always; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: #0a0a0a; color: #d9cca0; padding: 2rem; }
-    .cover h1 { font-family: 'Cinzel', serif; font-size: 2.5rem; letter-spacing: 0.1em; }
-    .cover .subtitle { font-size: 0.9rem; opacity: 0.6; margin-top: 1rem; }
-    .cover .client-name { font-family: 'Cinzel', serif; font-size: 1.5rem; margin-top: 3rem; }
-    .cover .tier { font-size: 0.8rem; opacity: 0.5; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.2em; }
-    .chapter { page-break-before: always; padding: 2rem; }
-    .chapter h2 { font-family: 'Cinzel', serif; font-size: 1.5rem; margin-bottom: 0.5rem; border-bottom: 2px solid #d9cca0; padding-bottom: 0.5rem; }
-    .chapter .desc { font-size: 0.85rem; color: #666; margin-bottom: 1.5rem; }
-    .section { margin-bottom: 1.5rem; }
-    .section h3 { font-family: 'Cinzel', serif; font-size: 1.1rem; color: #333; margin-bottom: 0.5rem; }
-    table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
-    th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; font-size: 0.8rem; }
-    th { background: #f5f3f0; font-family: 'Cinzel', serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .empty { color: #999; font-style: italic; }
-    .footer { text-align: center; font-size: 0.7rem; color: #999; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; }
+    body {
+      font-family: 'Libre Baskerville', serif;
+      background: #000000;
+      color: #e8e6e1;
+      line-height: 1.6;
+    }
+    .cover {
+      page-break-after: always;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: #000000;
+      color: #d9cca0;
+      padding: 2rem;
+    }
+    .cover h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+    .cover .subtitle {
+      font-size: 0.9rem;
+      opacity: 0.6;
+      margin-top: 1rem;
+      font-family: 'Libre Baskerville', serif;
+    }
+    .cover .client-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      margin-top: 3rem;
+    }
+    .cover .tier {
+      font-size: 0.8rem;
+      opacity: 0.5;
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-family: 'Libre Baskerville', serif;
+    }
+    .chapter {
+      page-break-before: always;
+      padding: 2rem;
+      border-bottom: 1px solid rgba(217, 204, 160, 0.08);
+    }
+    .chapter h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #d9cca0;
+      letter-spacing: 0.02em;
+    }
+    .chapter .desc {
+      font-size: 0.85rem;
+      color: rgba(232, 230, 225, 0.7);
+      margin-bottom: 1.5rem;
+      font-family: 'Libre Baskerville', serif;
+    }
+    .section {
+      margin-bottom: 1.5rem;
+    }
+    .section h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #e8e6e1;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.02em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+    }
+    th, td {
+      border: 1px solid rgba(217, 204, 160, 0.08);
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background: #0e0e0e;
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(217, 204, 160, 0.7);
+    }
+    td {
+      color: rgba(232, 230, 225, 0.7);
+    }
+    .empty {
+      color: rgba(232, 230, 225, 0.4);
+      font-style: italic;
+      text-align: center;
+    }
+    .footer {
+      text-align: center;
+      font-size: 0.7rem;
+      color: rgba(232, 230, 225, 0.5);
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(217, 204, 160, 0.06);
+      font-family: 'Libre Baskerville', serif;
+    }
+    .privacy-note {
+      font-style: italic;
+      color: rgba(232, 230, 225, 0.4);
+      font-size: 0.8rem;
+      border-left: 2px solid rgba(217, 204, 160, 0.2);
+      padding-left: 1rem;
+      margin-top: 2rem;
+    }
+    @media print {
+      .cover { height: auto; min-height: 100vh; }
+      body { background: white; color: black; }
+      .cover { background: white; color: #0a0a0a; }
+      .cover h1 { color: #0a0a0a; }
+      .chapter h2 { color: #0a0a0a; }
+      th { background: #f5f5f5; color: #0a0a0a; }
+      td { color: #0a0a0a; }
+      .footer { color: #666; }
+      .privacy-note { color: #666; border-left-color: #ccc; }
+    }
   </style>
 </head>
 <body>
@@ -107,6 +219,9 @@ export default function GeneratePage() {
   <div class="footer">
     <p>Generated by Legacy Architect RVA &middot; ${new Date().toLocaleDateString()}</p>
     <p>This document contains sensitive information. Handle with care.</p>
+  </div>
+  <div class="privacy-note">
+    <p>${PRIVACY_NOTE}</p>
   </div>
 </body>
 </html>`;
