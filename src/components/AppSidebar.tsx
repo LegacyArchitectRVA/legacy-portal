@@ -10,6 +10,7 @@ import {
   BookOpen,
   TrendingUp,
   User,
+  File,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
@@ -266,6 +267,15 @@ export function AppSidebar() {
                   >
                     <BookOpen className="w-4 h-4" />
                     <span>Generate Manual</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={location.pathname === "/convert"}
+                    onClick={() => navTo("/convert")}
+                  >
+                    <File className="w-4 h-4" />
+                    <span>Document Conversion</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

@@ -19,6 +19,7 @@ import AdminPage from "./pages/AdminPage";
 import GeneratePage from "./pages/GeneratePage";
 import IntroductionPage from "./pages/IntroductionPage";
 import ManualViewPage from "./pages/ManualViewPage";
+import DocumentConversionPage from "./pages/DocumentConversionPage";
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/generate" element={<GeneratePage />} />
               <Route path="/manual/:clientUserId" element={<ManualViewPage />} />
+              <Route path="/convert" element={<DocumentConversionPage />} />
             </Route>
           </Route>
 
