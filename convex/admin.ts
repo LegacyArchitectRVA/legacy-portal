@@ -211,3 +211,128 @@ export const activateClient = mutation({
     await ctx.db.patch(clientId, { isActivated });
   },
 });
+
+// CMS Content Management
+export const listCMS = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    return await ctx.db.query("cmsContent").collect();
+  },
+});
+
+export const getCMS = query({
+  args: { key: v.string() },
+  handler: async (ctx, { key }) => {
+    const cms = await ctx.db
+      .query("cmsContent")
+      .withIndex("by_key", (q) => q.eq("key", key))
+      .unique();
+    return cms;
+  },
+});
+
+export const updateCMS = mutation({
+  args: {
+    key: v.string(),
+    value: v.string(),
+    metadata: v.optional(v.string()),
+  },
+  handler: async (ctx, { key, value, metadata }) => {
+    await requireAdmin(ctx);
+    const existing = await ctx.db
+      .query("cmsContent")
+      .withIndex("by_key", (q) => q.eq("key", key))
+      .unique();
+    if (existing) {
+      await ctx.db.patch(existing._id, { value, metadata });
+    } else {
+      await ctx.db.insert("cmsContent", { key, value, metadata });
+    }
+  },
+});
+
+export const deleteCMS = mutation({
+  args: { key: v.string() },
+  handler: async (ctx, { key }) => {
+    await requireAdmin(ctx);
+    const existing = await ctx.db
+      .query("cmsContent")
+      .withIndex("by_key", (q) => q.eq("key", key))
+      .unique();
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+  },
+});
+
+// HubSpot Integration (placeholder for API key)
+export const getHubSpotConfig = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const settings = await ctx.db
+      .query("settings")
+      .withIndex("by_key", (q) => q.eq("key", "hubspot_api_key"))
+      .unique();
+    return settings?.value || null;
+  },
+});
+
+export const setHubSpotConfig = mutation({
+  args: { apiKey: v.string() },
+  handler: async (ctx, { apiKey }) => {
+    await requireAdmin(ctx);
+    const existing = await ctx.db
+      .query("settings")
+      .withIndex("by_key", (q) => q.eq("key", "hubspot_api_key"))
+      .unique();
+    if (existing) {
+      await ctx.db.patch(existing._id, { value: apiKey });
+    } else {
+      await ctx.db.insert("settings", { key: "hubspot_api_key", value: apiKey });
+    }
+  },
+});
+
+export const syncToHubSpot = mutation({
+  args: { clientUserId: v.id("users") },
+  handler: async (ctx, { clientUserId }) => {
+    await requireAdmin(ctx);
+    // Get HubSpot API key
+    const apiKeySetting = await ctx.db
+      .query("settings")
+      .withIndex("by_key", (q) => q.eq("key", "hubspot_api_key"))
+      .unique();
+    
+    if (!apiKeySetting?.value) {
+      throw new Error("HubSpot API key not configured");
+    }
+    
+    // Get client data
+    const client = await ctx.db
+      .query("clients")
+      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .unique();
+    
+    if (!client) {
+      throw new Error("Client not found");
+    }
+    
+    const user = await ctx.db.get(client.userId);
+    
+    // TODO: Implement actual HubSpot sync logic
+    // This is a placeholder that returns the data that would be synced
+    return {
+      success: true,
+      message: "HubSpot sync placeholder - API key configured",
+      clientData: {
+        userId: client.userId,
+        email: user?.email,
+        name: user?.name,
+        tier: client.tier,
+        isActivated: client.isActivated,
+      },
+    };
+  },
+});

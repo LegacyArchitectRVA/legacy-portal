@@ -6,6 +6,8 @@ import {
   Eye,
   FileText,
   Loader2,
+  Paintbrush,
+  Settings,
   UserCog,
   XCircle,
 } from "lucide-react";
@@ -58,13 +60,29 @@ export default function AdminPage() {
             Manage clients, tiers, and Life Manual generation
           </p>
         </div>
-        <button
-          onClick={() => navigate("/generate")}
-          className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-        >
-          <BookOpen className="w-4 h-4" />
-          Generate Manual
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/admin/visual-editor")}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
+          >
+            <Paintbrush className="w-4 h-4" />
+            Visual Editor
+          </button>
+          <button
+            onClick={() => navigate("/admin/hubspot")}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
+          >
+            <Settings className="w-4 h-4" />
+            HubSpot
+          </button>
+          <button
+            onClick={() => navigate("/generate")}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+          >
+            <BookOpen className="w-4 h-4" />
+            Generate Manual
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

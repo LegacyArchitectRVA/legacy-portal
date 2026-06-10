@@ -76,6 +76,7 @@ const schema = defineSchema({
   cmsContent: defineTable({
     key: v.string(),
     value: v.string(),
+    metadata: v.optional(v.string()),
   }).index("by_key", ["key"]),
 
   // App settings

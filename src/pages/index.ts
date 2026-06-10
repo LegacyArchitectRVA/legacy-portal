@@ -9,5 +9,7 @@ export { default as SettingsPage } from "./SettingsPage";
 export { default as UpgradePage } from "./UpgradePage";
 export { default as PaymentPage } from "./PaymentPage";
 export { default as AdminPage } from "./AdminPage";
+export { default as AdminVisualEditorPage } from "./AdminVisualEditorPage";
+export { default as HubSpotSettingsPage } from "./HubSpotSettingsPage";
 export { default as GeneratePage } from "./GeneratePage";
 export { default as ManualViewPage } from "./ManualViewPage";

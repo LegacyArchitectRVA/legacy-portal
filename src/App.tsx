@@ -16,6 +16,8 @@ import SettingsPage from "./pages/SettingsPage";
 import UpgradePage from "./pages/UpgradePage";
 import PaymentPage from "./pages/PaymentPage";
 import AdminPage from "./pages/AdminPage";
+import AdminVisualEditorPage from "./pages/AdminVisualEditorPage";
+import HubSpotSettingsPage from "./pages/HubSpotSettingsPage";
 import GeneratePage from "./pages/GeneratePage";
 import IntroductionPage from "./pages/IntroductionPage";
 import ManualViewPage from "./pages/ManualViewPage";
@@ -46,6 +48,8 @@ function App() {
               <Route path="/upgrade" element={<UpgradePage />} />
               <Route path="/payment" element={<PaymentPage />} />
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/visual-editor" element={<AdminVisualEditorPage />} />
+              <Route path="/admin/hubspot" element={<HubSpotSettingsPage />} />
               <Route path="/generate" element={<GeneratePage />} />
               <Route path="/manual/:clientUserId" element={<ManualViewPage />} />
               <Route path="/convert" element={<DocumentConversionPage />} />
