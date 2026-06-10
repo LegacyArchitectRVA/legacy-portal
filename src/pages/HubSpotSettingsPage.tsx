@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Copy,
+  Eye,
   Key,
   Loader2,
   Save,
@@ -275,66 +276,5 @@ export default function HubSpotSettingsPage() {
         </div>
       </div>
     </div>
-  );
-}
-
-// Helper component for loading state
-function Loader2({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-      <path d="M12 3v3" />
-      <path d="M12 18v3" />
-      <path d="M3 12h3" />
-      <path d="M18 12h3" />
-      <path d="M19.12 4.88a2 2 0 0 0-2.24 0l-.88.88a2 2 0 0 0 0 2.82l.88.88a2 2 0 0 0 2.24 0l.88-.88a2 2 0 0 0 0-2.82l-.88-.88Z" />
-      <path d="M4.88 19.12a2 2 0 0 0 2.24 0l.88-.88a2 2 0 0 0 0-2.82l-.88-.88a2 2 0 0 0-2.24 0l-.88.88a2 2 0 0 0 0 2.82l.88.88Z" />
-      <path d="M19.12 19.12a2 2 0 0 0-2.24 0l-.88-.88a2 2 0 0 0-2.82 0l-.88.88a2 2 0 0 0 0 2.24l.88.88a2 2 0 0 0 2.24 0l.88-.88a2 2 0 0 0 0-2.82l-.88-.88Z" />
-      <path d="M4.88 4.88a2 2 0 0 0 2.24 0l.88.88a2 2 0 0 0 2.82 0l.88-.88a2 2 0 0 0 0-2.24l-.88-.88a2 2 0 0 0-2.82 0l-.88.88a2 2 0 0 0 0 2.24Z" />
-    </svg>
-  );
-}
-
-// Helper component for eye icon
-function Eye({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-// Helper component for arrow left
-function ArrowLeft({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 12H5" />
-      <path d="M12 19l-7-7 7-7" />
-    </svg>
   );
 }
