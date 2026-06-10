@@ -82,7 +82,7 @@ export default function HubSpotSettingsPage() {
             HubSpot Settings
           </h1>
           <p className="text-[#e8e6e1]/75 mt-1">
-            Configure HubSpot API integration for client sync
+            Configure HubSpot Service Key integration for client sync
           </p>
         </div>
         <button
@@ -107,11 +107,13 @@ export default function HubSpotSettingsPage() {
           {/* API Key Input */}
           <div>
             <label className="block text-sm font-medium text-[#e8e6e1] mb-2">
-              HubSpot API Key
+              HubSpot Service Key
             </label>
             <p className="text-[10px] text-[#e8e6e1]/50 mb-3">
-              Enter your HubSpot API key to enable client data synchronization.
+              Enter your HubSpot Service Key to enable client data synchronization.
               This key will be used to authenticate requests to the HubSpot API.
+              <br/>
+              <span className="text-gold-muted/70">Recommended scopes: crm.objects.contacts.* and crm.schemas.contacts.*</span>
             </p>
             <div className="relative">
               <input
@@ -121,7 +123,7 @@ export default function HubSpotSettingsPage() {
                   setApiKey(e.target.value);
                   setSaved(false);
                 }}
-                placeholder="hapikey-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                 className="w-full bg-black border border-gold-border/30 rounded-lg px-4 py-3 text-[#e8e6e1] placeholder:text-[#e8e6e1]/30 focus:outline-none focus:border-gold-primary font-mono text-sm"
               />
               <button
@@ -224,20 +226,34 @@ export default function HubSpotSettingsPage() {
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
                 4
               </span>
-              <span>Navigate to &quot;Integrations&quot; > &quot;API Key&quot;</span>
+              <span>Navigate to &quot;Integrations&quot; > &quot;Service Keys&quot;</span>
             </li>
             <li className="flex gap-3">
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
                 5
               </span>
-              <span>Click &quot;Generate API Key&quot; or copy your existing key</span>
+              <span>Click &quot;Create a service key&quot; and select required scopes</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
+                6
+              </span>
+              <span>Copy the Service Key (starts with &quot;sk-&quot;)</span>
             </li>
           </ol>
           
           <div className="mt-6 p-4 bg-black rounded-lg border border-gold-border/20">
             <p className="text-[10px] text-[#e8e6e1]/50">
-              <strong className="text-gold-muted">Note:</strong> Keep your API key secure. 
+              <strong className="text-gold-muted">Note:</strong> Keep your Service Key secure. 
               Anyone with access to this key can make API requests on behalf of your HubSpot account.
+              <br/>
+              <strong className="text-gold-muted">Recommended scopes:</strong> 
+              <code className="text-gold-muted/70">crm.objects.contacts.highly_sensitive.read</code>, 
+              <code className="text-gold-muted/70">crm.objects.contacts.read</code>, 
+              <code className="text-gold-muted/70">crm.objects.contacts.sensitive.read</code>, 
+              <code className="text-gold-muted/70">crm.objects.contacts.write</code>, 
+              <code className="text-gold-muted/70">crm.schemas.contacts.read</code>, 
+              <code className="text-gold-muted/70">crm.schemas.contacts.write</code>
             </p>
           </div>
         </div>
