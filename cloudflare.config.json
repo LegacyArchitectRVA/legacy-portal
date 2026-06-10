@@ -1,0 +1,13 @@
+{
+  "build": {
+    "command": "bun run build",
+    "output": "dist"
+  },
+  "static": {
+    "directory": "dist"
+  },
+  "environment": {
+    "NODE_ENV": "production",
+    "CONVEX_DEPLOYMENT": "production"
+  }
+}

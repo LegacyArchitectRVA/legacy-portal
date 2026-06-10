@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Legacy Architect RVA Portal - Production Deployment Script
-# This script automates the production deployment process
+# Legacy Architect RVA Portal - Cloudflare Pages Production Deployment Script
+# This script automates the production deployment process to Cloudflare Pages
 
 set -e
 
@@ -44,17 +44,22 @@ fi
 echo "✅ Pre-deployment checks passed"
 echo ""
 
-# Deploy to Vercel
-echo "🚀 Deploying to Vercel..."
-vercel --prod --confirm
+# Deploy to Cloudflare Pages
+echo "🚀 Deploying to Cloudflare Pages..."
+echo "   Note: This script assumes you have wrangler CLI configured"
+echo "   Run: wrangler pages publish dist"
+echo ""
+echo "Or use the Cloudflare dashboard to deploy from this branch"
 echo ""
 
 echo "=========================================="
-echo "✅ Deployment Complete!"
+echo "✅ Build Ready for Cloudflare Pages!"
 echo "=========================================="
 echo ""
 echo "Next steps:"
-echo "1. Configure environment variables in Vercel dashboard"
-echo "2. Set up custom domain if needed"
-echo "3. Test all admin features"
-echo "4. Notify Craig for final approval"
+echo "1. Push to main branch"
+echo "2. Deploy via Cloudflare Pages dashboard"
+echo "3. Configure environment variables in Cloudflare"
+echo "4. Set up custom domain if needed"
+echo "5. Test all admin features"
+echo "6. Notify Craig for final approval"
