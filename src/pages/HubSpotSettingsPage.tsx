@@ -220,25 +220,25 @@ export default function HubSpotSettingsPage() {
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
                 3
               </span>
-              <span>Select &quot;Settings&quot; from the dropdown menu</span>
+              <span>Select "Settings" from the dropdown menu</span>
             </li>
             <li className="flex gap-3">
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
                 4
               </span>
-              <span>Navigate to &quot;Integrations&quot; > &quot;Service Keys&quot;</span>
+              <span>Navigate to "Integrations" &gt; "Service Keys"</span>
             </li>
             <li className="flex gap-3">
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
                 5
               </span>
-              <span>Click &quot;Create a service key&quot; and select required scopes</span>
+              <span>Click "Create a service key" and select required scopes</span>
             </li>
             <li className="flex gap-3">
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
                 6
               </span>
-              <span>Copy the Service Key (starts with &quot;sk-&quot;)</span>
+              <span>Copy the Service Key (starts with "sk-")</span>
             </li>
           </ol>
           
