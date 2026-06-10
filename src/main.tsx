@@ -7,8 +7,13 @@ import App from "./App";
 import "./index.css";
 
 // Convex URL for production
-// Priority: 1. import.meta.env (build-time), 2. window.CONVEX_URL (runtime for Cloudflare)
-const convexUrl = import.meta.env.VITE_CONVEX_URL || (typeof window !== 'undefined' ? window.CONVEX_URL : '');
+// Cloudflare Pages injects this as a global variable
+// @ts-ignore - Cloudflare injects CONVEX_URL as a global
+const convexUrl = typeof window !== 'undefined' && window.CONVEX_URL 
+  ? window.CONVEX_URL 
+  : import.meta.env.VITE_CONVEX_URL 
+  ? import.meta.env.VITE_CONVEX_URL 
+  : '';
 
 // Check if we're in production without a Convex URL
 if (!convexUrl) {

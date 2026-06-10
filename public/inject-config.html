@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Inject Config</title>
+  <script>
+    // This will be replaced by Cloudflare Pages environment variables
+    window.__CONVEX_CONFIG__ = {
+      VITE_CONVEX_URL: "{{CONVEX_URL}}"
+    };
+    // Redirect to the actual app
+    window.location.href = "/";
+  </script>
+</head>
+<body>
+</body>
+</html>
