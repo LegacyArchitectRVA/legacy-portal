@@ -6,13 +6,12 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 
-// Convex URL for production - fallback to development if not set
-const convexUrl = import.meta.env.VITE_CONVEX_URL || "";
+// Convex URL for production
+// Priority: 1. import.meta.env (build-time), 2. window.CONVEX_URL (runtime for Cloudflare)
+const convexUrl = import.meta.env.VITE_CONVEX_URL || (typeof window !== 'undefined' ? window.CONVEX_URL : '');
 
 // Check if we're in production without a Convex URL
-if (!convexUrl && import.meta.env.PROD) {
-  // In production, we need a Convex URL
-  // For Cloudflare Pages, this should be set in the dashboard
+if (!convexUrl) {
   console.error("Convex URL not configured. Please set VITE_CONVEX_URL in Cloudflare Pages environment variables.");
 }
 
