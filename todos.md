@@ -30,4 +30,4 @@
 - [x] CMS management functions in convex/admin.ts
 - [x] Schema updated with metadata field for cmsContent
 - [x] Deployment script (scripts/deploy.sh)
-- [x] Production Vercel configuration (vercel.prod.json)
+- [x] Cloudflare Pages configuration (cloudflare.config.json)
