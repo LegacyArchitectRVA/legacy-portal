@@ -36,6 +36,8 @@ const schema = defineSchema({
     profilePicId: v.optional(v.id("_storage")),
     crestId: v.optional(v.id("_storage")),
     phoneNumber: v.optional(v.string()),
+    hubspotId: v.optional(v.string()),
+    hubspotSyncedAt: v.optional(v.number()),
   }).index("by_userId", ["userId"]),
 
   // Structured table row data per sub-section

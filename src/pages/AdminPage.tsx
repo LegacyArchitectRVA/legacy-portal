@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import {
   BookOpen,
   CheckCircle2,
@@ -10,6 +10,7 @@ import {
   Settings,
   UserCog,
   Users,
+  UploadCloud,
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
@@ -24,7 +25,23 @@ export default function AdminPage() {
   const clients = useQuery(api.admin.listClients);
   const updateTier = useMutation(api.admin.updateClientTier);
   const activateClient = useMutation(api.admin.activateClient);
+  const pushToHubSpot = useAction(api.hubspot.pushClientToHubSpot);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [hubspotSyncingId, setHubspotSyncingId] = useState<string | null>(null);
+  const [hubspotResult, setHubspotResult] = useState<{ id: string; ok: boolean; message: string } | null>(null);
+
+  const handlePushToHubSpot = async (client: any) => {
+    setHubspotSyncingId(client._id);
+    setHubspotResult(null);
+    try {
+      const result = await pushToHubSpot({ clientUserId: client.userId });
+      setHubspotResult({ id: client._id, ok: true, message: result.message });
+    } catch (err: any) {
+      setHubspotResult({ id: client._id, ok: false, message: err?.message || "Sync failed." });
+    } finally {
+      setHubspotSyncingId(null);
+    }
+  };
 
   if (!isAdmin) {
     return (
@@ -120,11 +137,14 @@ export default function AdminPage() {
           <div className="divide-y divide-gold-border/10">
             {clients.map((client: any) => {
               const isUpdating = updatingId === client._id;
+              const isSyncing = hubspotSyncingId === client._id;
+              const syncResult = hubspotResult?.id === client._id ? hubspotResult : null;
               return (
                 <div
                   key={client._id}
-                  className="px-4 py-3 flex items-center gap-4 hover:bg-[#e8c46a]/5 transition-colors"
+                  className="px-4 py-3 hover:bg-[#e8c46a]/5 transition-colors"
                 >
+                <div className="flex items-center gap-4">
                   {/* Status */}
                   <div className="shrink-0">
                     {client.isActivated ? (
@@ -190,6 +210,26 @@ export default function AdminPage() {
                   >
                     <FileText className="w-3 h-3" />
                   </button>
+
+                  {/* Push to HubSpot */}
+                  <button
+                    onClick={() => handlePushToHubSpot(client)}
+                    disabled={isSyncing}
+                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 disabled:opacity-50"
+                    title="Push to HubSpot"
+                  >
+                    {isSyncing ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <UploadCloud className="w-3 h-3" />
+                    )}
+                  </button>
+                </div>
+                {syncResult && (
+                  <p className={`text-[10px] mt-1.5 pl-8 ${syncResult.ok ? "text-emerald-400" : "text-red-400"}`}>
+                    {syncResult.message}
+                  </p>
+                )}
                 </div>
               );
             })}

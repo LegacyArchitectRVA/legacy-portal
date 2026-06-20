@@ -1,15 +1,34 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalQuery } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { v } from "convex/values";
 
-// Helper to verify admin status
-async function requireAdmin(ctx: any) {
+// Helper to verify admin status (for queries/mutations, where ctx.db exists directly)
+export async function requireAdmin(ctx: any) {
   const userId = await getAuthUserId(ctx);
   if (!userId) throw new Error("Not authenticated");
   const user = await ctx.db.get(userId);
   if (!user?.isAdmin) throw new Error("Not authorized — admin only");
   return userId;
 }
+
+// Helper to verify admin status from within an action, where ctx.db isn't
+// directly available, so this must go through getAuthUserId's own action
+// support plus a query for the user record.
+export async function requireAdminInAction(ctx: any) {
+  const userId = await getAuthUserId(ctx);
+  if (!userId) throw new Error("Not authenticated");
+  const user = await ctx.runQuery(internal.admin.getUserInternal, { userId });
+  if (!user?.isAdmin) throw new Error("Not authorized — admin only");
+  return userId;
+}
+
+export const getUserInternal = internalQuery({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    return await ctx.db.get(userId);
+  },
+});
 
 export const isAdmin = query({
   args: {},
@@ -292,47 +311,5 @@ export const setHubSpotConfig = mutation({
     } else {
       await ctx.db.insert("settings", { key: "hubspot_api_key", value: apiKey });
     }
-  },
-});
-
-export const syncToHubSpot = mutation({
-  args: { clientUserId: v.id("users") },
-  handler: async (ctx, { clientUserId }) => {
-    await requireAdmin(ctx);
-    // Get HubSpot API key
-    const apiKeySetting = await ctx.db
-      .query("settings")
-      .withIndex("by_key", (q) => q.eq("key", "hubspot_api_key"))
-      .unique();
-    
-    if (!apiKeySetting?.value) {
-      throw new Error("HubSpot API key not configured");
-    }
-    
-    // Get client data
-    const client = await ctx.db
-      .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
-      .unique();
-    
-    if (!client) {
-      throw new Error("Client not found");
-    }
-    
-    const user = await ctx.db.get(client.userId);
-    
-    // TODO: Implement actual HubSpot sync logic
-    // This is a placeholder that returns the data that would be synced
-    return {
-      success: true,
-      message: "HubSpot sync placeholder - API key configured",
-      clientData: {
-        userId: client.userId,
-        email: user?.email,
-        name: user?.name,
-        tier: client.tier,
-        isActivated: client.isActivated,
-      },
-    };
   },
 });

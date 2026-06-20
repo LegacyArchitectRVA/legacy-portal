@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from "convex/react";
-import { useState } from "react";
+import { useAction, useMutation, useQuery } from "convex/react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import {
@@ -19,15 +19,18 @@ export default function HubSpotSettingsPage() {
   const isAdmin = useQuery(api.admin.isAdmin);
   const hubSpotConfig = useQuery(api.admin.getHubSpotConfig);
   const setHubSpotConfig = useMutation(api.admin.setHubSpotConfig);
-  
+  const testConnectionAction = useAction(api.hubspot.testConnection);
+
   const [apiKey, setApiKey] = useState<string>("");
   const [saving, setSaving] = useState<boolean>(false);
   const [saved, setSaved] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState<boolean>(false);
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{ connected: boolean; message: string } | null>(null);
   
   // Load existing API key
-  useState(() => {
+  useEffect(() => {
     if (hubSpotConfig) {
       setApiKey(hubSpotConfig);
     }
@@ -59,9 +62,16 @@ export default function HubSpotSettingsPage() {
   };
   
   const handleTestConnection = async () => {
-    // This would test the HubSpot connection
-    // For now, just show a message
-    alert("HubSpot connection test: Placeholder - API key is configured");
+    setTesting(true);
+    setTestResult(null);
+    try {
+      const result = await testConnectionAction({});
+      setTestResult(result);
+    } catch (err: any) {
+      setTestResult({ connected: false, message: err?.message || "Test failed." });
+    } finally {
+      setTesting(false);
+    }
   };
   
   if (!isAdmin) {
@@ -182,14 +192,20 @@ export default function HubSpotSettingsPage() {
           
           {/* Test Connection */}
           {apiKey && (
-            <div className="pt-4 border-t border-gold-border/10">
+            <div className="pt-4 border-t border-gold-border/10 space-y-2">
               <button
                 onClick={handleTestConnection}
-                className="flex items-center gap-2 text-sm text-gold-muted hover:text-gold-primary transition-colors"
+                disabled={testing}
+                className="flex items-center gap-2 text-sm text-gold-muted hover:text-gold-primary transition-colors disabled:opacity-50"
               >
-                <Settings className="w-4 h-4" />
+                {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Settings className="w-4 h-4" />}
                 Test Connection
               </button>
+              {testResult && (
+                <p className={`text-xs ${testResult.connected ? "text-emerald-400" : "text-red-400"}`}>
+                  {testResult.message}
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -268,13 +284,27 @@ export default function HubSpotSettingsPage() {
           </h2>
         </div>
         <div className="p-6">
-          {hubSpotConfig ? (
+          {testResult ? (
+            <div className="flex items-center gap-3">
+              {testResult.connected ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              ) : (
+                <XCircle className="w-5 h-5 text-amber-400" />
+              )}
+              <div>
+                <p className="text-sm text-[#e8e6e1]">
+                  {testResult.connected ? "Connected to HubSpot" : "Not connected"}
+                </p>
+                <p className="text-[10px] text-[#e8e6e1]/50">{testResult.message}</p>
+              </div>
+            </div>
+          ) : hubSpotConfig ? (
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               <div>
                 <p className="text-sm text-[#e8e6e1]">HubSpot integration is configured</p>
                 <p className="text-[10px] text-[#e8e6e1]/50">
-                  API key is set and ready for synchronization
+                  A key is saved. Use Test Connection above to verify it actually works.
                 </p>
               </div>
             </div>
