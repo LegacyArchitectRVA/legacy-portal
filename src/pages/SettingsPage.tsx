@@ -1,14 +1,89 @@
+import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation, useQuery } from "convex/react";
-import { AlertTriangle, Loader2, Shield, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  Check,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Loader2,
+  Shield,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";
+import { Switch } from "../components/ui/switch";
 
 export default function SettingsPage() {
   const profile = useQuery(api.profile.getMyProfile);
   const purgeAllData = useMutation(api.sections.purgeAllMyData);
+  const updateNotificationPreference = useMutation(api.profile.updateNotificationPreference);
+  const { signIn } = useAuthActions();
+
   const [showPurge, setShowPurge] = useState(false);
   const [purging, setPurging] = useState(false);
   const [purgeResult, setPurgeResult] = useState<string | null>(null);
+
+  const [notifSaving, setNotifSaving] = useState(false);
+
+  const [pwMode, setPwMode] = useState<"idle" | "code-sent">("idle");
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwError, setPwError] = useState("");
+  const [pwInfo, setPwInfo] = useState("");
+  const [code, setCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
+  const isTestAccount = profile?.email?.endsWith("@test.local");
+
+  const handleToggleNotifications = async (checked: boolean) => {
+    setNotifSaving(true);
+    try {
+      await updateNotificationPreference({ emailNotifications: checked });
+    } finally {
+      setNotifSaving(false);
+    }
+  };
+
+  const handleSendCode = async () => {
+    if (!profile?.email) return;
+    setPwLoading(true);
+    setPwError("");
+    setPwInfo("");
+    try {
+      await signIn("password", { email: profile.email, flow: "reset" });
+      setPwInfo(`We sent a code to ${profile.email}.`);
+      setPwMode("code-sent");
+    } catch {
+      setPwError("Could not send a code. Try again in a moment.");
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile?.email) return;
+    setPwLoading(true);
+    setPwError("");
+    try {
+      await signIn("password", {
+        email: profile.email,
+        code,
+        newPassword,
+        flow: "reset-verification",
+      });
+      setPwInfo("Password updated.");
+      setPwMode("idle");
+      setCode("");
+      setNewPassword("");
+    } catch {
+      setPwError("That code didn't work. Check it and try again.");
+    } finally {
+      setPwLoading(false);
+    }
+  };
 
   const handlePurge = async () => {
     setPurging(true);
@@ -43,8 +118,12 @@ export default function SettingsPage() {
             <p className="text-sm text-[#e8e6e1] break-all">{profile?.email || "Not set"}</p>
           </div>
           <div>
-            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Tier</p>
-            <p className="text-sm text-[#e8e6e1] capitalize">{profile?.tier || "Vault"}</p>
+            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">
+              {profile?.isAdmin ? "Access" : "Tier"}
+            </p>
+            <p className="text-sm text-[#e8e6e1] capitalize">
+              {profile?.isAdmin ? "Administrator" : profile?.tier || "Vault"}
+            </p>
           </div>
           <div>
             <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Status</p>
@@ -52,6 +131,125 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Notifications */}
+      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
+        <div className="flex items-center gap-2">
+          <Bell className="w-4 h-4 text-gold-primary" />
+          <h2 className="font-heading text-sm text-gold-primary">Notifications</h2>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex-1 pr-4">
+            <p className="text-sm text-[#e8e6e1]">Email me about new messages</p>
+            <p className="text-xs text-[#e8e6e1]/75 mt-0.5">
+              We'll only email you when you have an unread message in your portal.
+            </p>
+          </div>
+          {profile === undefined ? (
+            <Loader2 className="w-4 h-4 animate-spin text-gold-muted" />
+          ) : (
+            <Switch
+              checked={profile?.emailNotifications !== false}
+              disabled={notifSaving}
+              onCheckedChange={handleToggleNotifications}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Change Password */}
+      {!isTestAccount && (
+        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <KeyRound className="w-4 h-4 text-gold-primary" />
+            <h2 className="font-heading text-sm text-gold-primary">Password</h2>
+          </div>
+
+          {pwMode === "idle" ? (
+            <>
+              <p className="text-xs text-[#e8e6e1]/80 leading-relaxed">
+                We'll send a one-time code to your email to confirm the change.
+              </p>
+              {pwInfo && <p className="text-xs text-emerald-400">{pwInfo}</p>}
+              {pwError && (
+                <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{pwError}</p>
+              )}
+              <button
+                onClick={handleSendCode}
+                disabled={pwLoading}
+                className="flex items-center gap-2 text-xs bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {pwLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <KeyRound className="w-3.5 h-3.5" />}
+                Change Password
+              </button>
+            </>
+          ) : (
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              {pwInfo && <p className="text-xs text-emerald-400">{pwInfo}</p>}
+              <div>
+                <label className="block text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mb-1">
+                  Code
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] tracking-widest focus:outline-none focus:border-gold-primary/50"
+                  placeholder="6-digit code"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mb-1">
+                  New Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 pr-9 text-sm text-[#e8e6e1] focus:outline-none focus:border-gold-primary/50"
+                    placeholder="At least 8 characters"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#e8e6e1]/75"
+                  >
+                    {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+              {pwError && (
+                <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{pwError}</p>
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={pwLoading}
+                  className="flex items-center gap-2 text-xs bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
+                >
+                  {pwLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                  Update Password
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPwMode("idle");
+                    setPwError("");
+                    setCode("");
+                    setNewPassword("");
+                  }}
+                  className="text-xs text-[#e8e6e1]/75 hover:text-[#e8e6e1] px-4 py-2"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
 
       {/* Zero-Knowledge Protocol */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">

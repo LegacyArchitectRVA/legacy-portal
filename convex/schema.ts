@@ -17,6 +17,7 @@ const schema = defineSchema({
     isAdmin: v.optional(v.boolean()),
     crestId: v.optional(v.id("_storage")),
     profilePicId: v.optional(v.id("_storage")),
+    emailNotifications: v.optional(v.boolean()),
   }).index("email", ["email"]).index("phone", ["phone"]),
 
   // Client profile / tier / activation

@@ -13,13 +13,16 @@ export const getMyProfile = query({
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
+    const profilePicId = (user as any)?.profilePicId || client?.profilePicId;
+    const crestId = (user as any)?.crestId || client?.crestId;
+
     let profilePicUrl: string | null = null;
     let crestUrl: string | null = null;
-    if (client?.profilePicId) {
-      profilePicUrl = await ctx.storage.getUrl(client.profilePicId) ?? null;
+    if (profilePicId) {
+      profilePicUrl = await ctx.storage.getUrl(profilePicId) ?? null;
     }
-    if (client?.crestId) {
-      crestUrl = await ctx.storage.getUrl(client.crestId) ?? null;
+    if (crestId) {
+      crestUrl = await ctx.storage.getUrl(crestId) ?? null;
     }
 
     return {
@@ -31,10 +34,20 @@ export const getMyProfile = query({
       isActivated: user?.isAdmin ? true : client?.isActivated || false,
       deliveryStatus: client?.deliveryStatus || "pending",
       deliveryDate: client?.deliveryDate || null,
-      phoneNumber: client?.phoneNumber || "",
+      phoneNumber: (user as any)?.contactPhone || client?.phoneNumber || "",
+      emailNotifications: (user as any)?.emailNotifications !== false,
       profilePicUrl,
       crestUrl,
     };
+  },
+});
+
+export const updateNotificationPreference = mutation({
+  args: { emailNotifications: v.boolean() },
+  handler: async (ctx, { emailNotifications }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    await ctx.db.patch(userId, { emailNotifications });
   },
 });
 
@@ -48,20 +61,32 @@ export const updateProfile = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
-    if (args.name !== undefined) {
-      await ctx.db.patch(userId, { name: args.name });
+
+    // Write directly to the user record so this works whether or not a
+    // clients row exists (admins, or any account before it's been added
+    // as a client, previously had these saves silently discarded).
+    const userPatch: Record<string, unknown> = {};
+    if (args.name !== undefined) userPatch.name = args.name;
+    if (args.phoneNumber !== undefined) userPatch.contactPhone = args.phoneNumber;
+    if (args.profilePicId !== undefined) userPatch.profilePicId = args.profilePicId;
+    if (args.crestId !== undefined) userPatch.crestId = args.crestId;
+    if (Object.keys(userPatch).length > 0) {
+      await ctx.db.patch(userId, userPatch);
     }
+
+    // Also keep the clients record in sync if one exists, for any
+    // older code path still reading from it.
     const client = await ctx.db
       .query("clients")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
     if (client) {
-      const patch: Record<string, unknown> = {};
-      if (args.phoneNumber !== undefined) patch.phoneNumber = args.phoneNumber;
-      if (args.profilePicId !== undefined) patch.profilePicId = args.profilePicId;
-      if (args.crestId !== undefined) patch.crestId = args.crestId;
-      if (Object.keys(patch).length > 0) {
-        await ctx.db.patch(client._id, patch);
+      const clientPatch: Record<string, unknown> = {};
+      if (args.phoneNumber !== undefined) clientPatch.phoneNumber = args.phoneNumber;
+      if (args.profilePicId !== undefined) clientPatch.profilePicId = args.profilePicId;
+      if (args.crestId !== undefined) clientPatch.crestId = args.crestId;
+      if (Object.keys(clientPatch).length > 0) {
+        await ctx.db.patch(client._id, clientPatch);
       }
     }
   },
