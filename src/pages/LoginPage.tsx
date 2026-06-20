@@ -254,21 +254,25 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-px bg-gold-border/30" />
-              <span className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-widest">or</span>
-              <div className="flex-1 h-px bg-gold-border/30" />
-            </div>
+            {import.meta.env.VITE_IS_PREVIEW === "true" && (
+              <>
+                {/* Divider */}
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-gold-border/30" />
+                  <span className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-widest">or</span>
+                  <div className="flex-1 h-px bg-gold-border/30" />
+                </div>
 
-            {/* Test User */}
-            <button
-              onClick={handleTestUser}
-              disabled={loading}
-              className="w-full border border-gold-border/40 text-[#e8e6e1]/80 hover:text-gold-primary hover:border-gold-primary/30 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
-            >
-              Continue as Test User
-            </button>
+                {/* Test User (internal testing builds only) */}
+                <button
+                  onClick={handleTestUser}
+                  disabled={loading}
+                  className="w-full border border-gold-border/40 text-[#e8e6e1]/80 hover:text-gold-primary hover:border-gold-primary/30 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  Continue as Test User
+                </button>
+              </>
+            )}
 
             {/* Footer */}
             <p className="text-center text-xs text-[#e8e6e1]/75">
