@@ -9,9 +9,20 @@ import {
   Type,
   File,
   BookOpen,
+  Palette,
+  Printer,
+  Sparkles,
+  Check,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { chapters, PRIVACY_NOTE } from "../data/chapters";
+import {
+  convertAffineToHtml,
+  convertAffineToPdf,
+  convertHtmlToPdf,
+  convertMarkdownToHtml,
+  ConversionOptions,
+} from "../lib/documentConversion";
 
 export default function DocumentConversionPage() {
   const navigate = useNavigate();
@@ -22,6 +33,10 @@ export default function DocumentConversionPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [conversionResult, setConversionResult] = useState<string | null>(null);
+  const [outputStyle, setOutputStyle] = useState<"luxury" | "print">("luxury");
+  const [includeTOC, setIncludeTOC] = useState(true);
+  const [includeHeader, setIncludeHeader] = useState(true);
+  const [includeFooter, setIncludeFooter] = useState(true);
 
   const TAB_CONFIG = {
     "affine-to-html": {
@@ -30,7 +45,51 @@ export default function DocumentConversionPage() {
       icon: File,
       description: "Convert AFFiNE documents to styled HTML",
       accept: ".json,.affine",
-      convert: convertAffineToHtml,
+      convert: (file: File) => convertAffineToHtml(file, {
+        style: outputStyle,
+        includeTOC,
+        includeHeader,
+        includeFooter,
+      }),
+    },
+    "affine-to-pdf": {
+      id: "affine-to-pdf",
+      label: "AFFiNE to PDF",
+      icon: BookOpen,
+      description: "Convert AFFiNE documents directly to PDF",
+      accept: ".json,.affine",
+      convert: (file: File) => convertAffineToPdf(file, {
+        style: "print",
+        includeTOC,
+        includeHeader,
+        includeFooter,
+      }),
+    },
+    "md-to-html": {
+      id: "md-to-html",
+      label: "Markdown to HTML",
+      icon: Type,
+      description: "Convert Markdown files to styled HTML",
+      accept: ".md,.markdown,.txt",
+      convert: (file: File) => convertMarkdownToHtml(file, {
+        style: outputStyle,
+        includeTOC,
+        includeHeader,
+        includeFooter,
+      }),
+    },
+    "md-to-pdf": {
+      id: "md-to-pdf",
+      label: "Markdown to PDF",
+      icon: BookOpen,
+      description: "Convert Markdown files to printable PDF",
+      accept: ".md,.markdown,.txt",
+      convert: (file: File) => convertMarkdownToHtml(file, {
+        style: "print",
+        includeTOC,
+        includeHeader,
+        includeFooter,
+      }),
     },
     "html-to-pdf": {
       id: "html-to-pdf",
@@ -39,22 +98,6 @@ export default function DocumentConversionPage() {
       description: "Convert HTML files to printable PDF",
       accept: ".html,.htm",
       convert: convertHtmlToPdf,
-    },
-    "affine-to-pdf": {
-      id: "affine-to-pdf",
-      label: "AFFiNE to PDF",
-      icon: BookOpen,
-      description: "Convert AFFiNE documents directly to PDF",
-      accept: ".json,.affine",
-      convert: convertAffineToPdf,
-    },
-    "word-to-html": {
-      id: "word-to-html",
-      label: "Word to HTML",
-      icon: Type,
-      description: "Convert Word documents to styled HTML",
-      accept: ".doc,.docx",
-      convert: convertWordToHtml,
     },
   };
 
@@ -84,23 +127,46 @@ export default function DocumentConversionPage() {
         }
       }
     },
-    [currentTab]
+    [currentTab, outputStyle, includeTOC, includeHeader, includeFooter]
   );
 
   const handleDownload = useCallback(() => {
     if (!conversionResult) return;
 
+    const isPdf = activeTab.includes("pdf");
     const blob = new Blob([conversionResult], {
-      type: activeTab.includes("pdf") ? "application/pdf" : "text/html",
+      type: isPdf ? "application/pdf" : "text/html",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileName.replace(/\.[^/.]+$/, "") + 
-      (activeTab.includes("pdf") ? ".pdf" : ".html");
+    a.download = fileName.replace(/\.[^.]+$/, "") +
+      (isPdf ? ".pdf" : ".html");
     a.click();
     URL.revokeObjectURL(url);
   }, [conversionResult, fileName, activeTab]);
+
+  const handleDownloadPdf = useCallback(() => {
+    if (!conversionResult) return;
+
+    // For HTML results, convert to PDF by opening print dialog
+    if (!activeTab.includes("pdf")) {
+      // Create a new window with the HTML and trigger print
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(conversionResult);
+        printWindow.document.close();
+        printWindow.focus();
+        // Give the browser time to render before printing
+        setTimeout(() => {
+          printWindow.print();
+        }, 250);
+      }
+    } else {
+      // Already PDF, just download
+      handleDownload();
+    }
+  }, [conversionResult, activeTab, handleDownload]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -145,14 +211,18 @@ export default function DocumentConversionPage() {
     }
   }, []);
 
+  const toggleOutputStyle = useCallback(() => {
+    setOutputStyle((prev) => (prev === "luxury" ? "print" : "luxury"));
+  }, []);
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 animate-fade-in">
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">Document Conversion</h1>
           <p className="text-[#e8e6e1]/75 mt-2">
-            Convert documents between formats while preserving Legacy Architect styling
+            Convert Affine, Markdown, and HTML files to styled documents with Legacy Architect branding
           </p>
         </div>
         <button
@@ -184,6 +254,69 @@ export default function DocumentConversionPage() {
         ))}
       </div>
 
+      {/* Options Panel */}
+      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/40 p-4 space-y-4">
+        <div className="flex items-center gap-4">
+          <h3 className="font-heading text-gold-primary text-sm uppercase tracking-wider">Output Options</h3>
+          <div className="flex-1" />
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[#e8e6e1]/60">Style:</span>
+            <button
+              onClick={toggleOutputStyle}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                outputStyle === "luxury"
+                  ? "bg-[#d9cca0] text-[#0a0a0a]"
+                  : "bg-[#0e0e0e] text-[#e8e6e1]/70 border border-gold-border/30"
+              }`}
+            >
+              {outputStyle === "luxury" ? (
+                <>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Black & Gold
+                </>
+              ) : (
+                <>
+                  <Printer className="w-3.5 h-3.5" />
+                  Printer-Friendly
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={includeTOC}
+              onChange={(e) => setIncludeTOC(e.target.checked)}
+              className="w-4 h-4 rounded border-gold-border/30 bg-[#0a0a0a] text-gold-primary focus:ring-gold-primary/30"
+            />
+            <span className="text-sm text-[#e8e6e1]/80">Include Table of Contents</span>
+          </label>
+          
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={includeHeader}
+              onChange={(e) => setIncludeHeader(e.target.checked)}
+              className="w-4 h-4 rounded border-gold-border/30 bg-[#0a0a0a] text-gold-primary focus:ring-gold-primary/30"
+            />
+            <span className="text-sm text-[#e8e6e1]/80">Include Header</span>
+          </label>
+          
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={includeFooter}
+              onChange={(e) => setIncludeFooter(e.target.checked)}
+              className="w-4 h-4 rounded border-gold-border/30 bg-[#0a0a0a] text-gold-primary focus:ring-gold-primary/30"
+            />
+            <span className="text-sm text-[#e8e6e1]/80">Include Footer</span>
+          </label>
+        </div>
+      </div>
+
       {/* Current Tab Description */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/40 p-4">
         <p className="text-[#e8e6e1]/80 text-sm">
@@ -191,6 +324,11 @@ export default function DocumentConversionPage() {
             {currentTab.label}
           </span>
           {currentTab.description}
+          {activeTab.includes("pdf") && (
+            <span className="ml-2 text-[#e8e6e1]/60">
+              (Print-ready with automatic page breaks)
+            </span>
+          )}
         </p>
       </div>
 
@@ -273,7 +411,7 @@ export default function DocumentConversionPage() {
       {success && (
         <div className="bg-[#0a0a0a] rounded-xl border border-emerald-500/20 p-4 flex items-start gap-3">
           <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
-            <span className="text-emerald-400 text-xs font-bold">✓</span>
+            <Check className="w-3.5 h-3.5 text-emerald-400" />
           </div>
           <div>
             <p className="text-emerald-400/80 text-sm font-medium">Success</p>
@@ -288,9 +426,9 @@ export default function DocumentConversionPage() {
         </div>
       )}
 
-      {/* Download Button */}
+      {/* Download Buttons */}
       {conversionResult && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/40 p-4 flex items-center justify-between">
+        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/40 p-4 space-y-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gold-primary/10 flex items-center justify-center">
               <Download className="w-5 h-5 text-gold-primary" />
@@ -302,13 +440,38 @@ export default function DocumentConversionPage() {
               </p>
             </div>
           </div>
-          <button
-            onClick={handleDownload}
-            className="btn-gold text-sm px-5 py-2.5 flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            Download {activeTab.includes("pdf") ? "PDF" : "HTML"}
-          </button>
+          
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handleDownload}
+              className="btn-gold text-sm px-5 py-2.5 flex items-center justify-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Download {activeTab.includes("pdf") ? "PDF" : "HTML"}
+            </button>
+            
+            {!activeTab.includes("pdf") && (
+              <button
+                onClick={handleDownloadPdf}
+                className="btn-gold-outline text-sm px-5 py-2.5 flex items-center justify-center gap-2"
+              >
+                <Printer className="w-4 h-4" />
+                Print / Save as PDF
+              </button>
+            )}
+            
+            <button
+              onClick={() => {
+                // Copy to clipboard
+                navigator.clipboard.writeText(conversionResult);
+                setSuccess("HTML copied to clipboard!");
+              }}
+              className="bg-[#0e0e0e] text-[#e8e6e1]/70 hover:text-[#e8e6e1] border border-gold-border/30 text-sm px-5 py-2.5 flex items-center justify-center gap-2 rounded-lg transition-colors"
+            >
+              <FileText className="w-4 h-4" />
+              Copy HTML
+            </button>
+          </div>
         </div>
       )}
 
@@ -318,12 +481,64 @@ export default function DocumentConversionPage() {
           <div className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-gold-primary/70" />
             <h3 className="font-heading text-[#e8e6e1] text-sm">HTML Preview</h3>
+            <span className="text-xs text-[#e8e6e1]/50 ml-auto">
+              Style: {outputStyle === "luxury" ? "Black & Gold" : "Printer-Friendly"}
+            </span>
           </div>
-          <div className="bg-[#000000] rounded-lg p-4 overflow-x-auto max-h-[400px] overflow-y-auto">
-            <pre className="text-xs text-[#e8e6e1]/80 whitespace-pre-wrap">
-              {conversionResult.substring(0, 2000)}
-              {conversionResult.length > 2000 && "..."}
-            </pre>
+          
+          <div className="bg-[#000000] rounded-lg p-4 overflow-x-auto max-h-[500px] overflow-y-auto border border-gold-border/20">
+            <div
+              className="prose prose-invert max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: conversionResult.substring(0, 5000) + (conversionResult.length > 5000 ? "..." : ""),
+              }}
+            />
+            {conversionResult.length > 5000 && (
+              <p className="text-xs text-[#e8e6e1]/40 mt-4 text-center">
+                Preview truncated. Full content will be in the downloaded file.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Style Preview Cards */}
+      {!conversionResult && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/40 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-5 h-5 text-gold-primary" />
+              <h3 className="font-heading text-[#e8e6e1] text-sm">Black & Gold Style</h3>
+            </div>
+            <p className="text-[#e8e6e1]/70 text-xs mb-3">
+              Luxury dark theme with gold accents, matching the Legacy Architect portal design
+            </p>
+            <div className="bg-[#000000] rounded-lg p-3 border border-gold-border/20">
+              <div className="text-xs text-gold-primary/80 mb-2">Sample Output:</div>
+              <div className="space-y-2">
+                <div className="h-2 w-24 bg-gold-primary/30 rounded" />
+                <div className="h-2 w-48 bg-[#e8e6e1]/10 rounded" />
+                <div className="h-2 w-32 bg-[#e8e6e1]/10 rounded" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/40 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Printer className="w-5 h-5 text-gold-primary" />
+              <h3 className="font-heading text-[#e8e6e1] text-sm">Printer-Friendly Style</h3>
+            </div>
+            <p className="text-[#e8e6e1]/70 text-xs mb-3">
+              Clean white background with black text, optimized for printing
+            </p>
+            <div className="bg-white rounded-lg p-3 border border-gold-border/20">
+              <div className="text-xs text-[#1a1a1a]/80 mb-2">Sample Output:</div>
+              <div className="space-y-2">
+                <div className="h-2 w-24 bg-[#1a1a1a]/10 rounded" />
+                <div className="h-2 w-48 bg-[#1a1a1a]/10 rounded" />
+                <div className="h-2 w-32 bg-[#1a1a1a]/10 rounded" />
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -334,184 +549,4 @@ export default function DocumentConversionPage() {
       </div>
     </div>
   );
-}
-
-// ============================================
-// Conversion Functions
-// ============================================
-
-async function convertAffineToHtml(file: File): Promise<string> {
-  const text = await file.text();
-  
-  try {
-    const affineData = JSON.parse(text);
-    
-    // Extract content from AFFiNE format
-    const pages = affineData.pages || [];
-    let htmlContent = "";
-    
-    for (const page of pages) {
-      const blocks = page.blocks || [];
-      for (const block of blocks) {
-        if (block.type === "text") {
-          htmlContent += `<div class="affine-text">${block.text || ""}</div>`;
-        } else if (block.type === "paragraph") {
-          htmlContent += `<p>${block.text || ""}</p>`;
-        } else if (block.type === "heading") {
-          const level = block.level || 1;
-          htmlContent += `<h${level}>${block.text || ""}</h${level}>`;
-        } else if (block.type === "list") {
-          htmlContent += `<ul>`;
-          for (const item of block.items || []) {
-            htmlContent += `<li>${item.text || ""}</li>`;
-          }
-          htmlContent += `</ul>`;
-        }
-      }
-    }
-
-    // Wrap in Legacy Architect styling
-    return generateLegacyHtml(htmlContent, "AFFiNE Document");
-  } catch (err) {
-    throw new Error("Invalid AFFiNE file format");
-  }
-}
-
-async function convertHtmlToPdf(file: File): Promise<string> {
-  const text = await file.text();
-  
-  // For HTML to PDF, we'll generate a printable version
-  // In a real implementation, this would use a library like html2pdf or puppeteer
-  // For now, we'll return the HTML with print styles
-  const printableHtml = addPrintStyles(text);
-  
-  // Note: Actual PDF conversion would happen client-side or server-side
-  // This is a placeholder that returns HTML ready for printing
-  return printableHtml;
-}
-
-async function convertAffineToPdf(file: File): Promise<string> {
-  // Convert AFFiNE to HTML first, then to PDF
-  const html = await convertAffineToHtml(file);
-  return addPrintStyles(html);
-}
-
-async function convertWordToHtml(file: File): Promise<string> {
-  // Word document conversion
-  // In a real implementation, this would parse .docx (which is a zip file with XML)
-  // For now, we'll handle it as a text extraction
-  
-  try {
-    // Try to read as text (for simple .doc files)
-    const text = await file.text();
-    
-    // Basic HTML conversion
-    const htmlContent = `<div class="word-content">${text
-      .replace(/\n\n/g, "</p><p>")
-      .replace(/\n/g, "<br>")}</div>`;
-
-    return generateLegacyHtml(htmlContent, "Word Document");
-  } catch (err) {
-    throw new Error("Could not parse Word document. Try uploading a .docx file.");
-  }
-}
-
-// ============================================
-// Helper Functions
-// ============================================
-
-function generateLegacyHtml(content: string, title: string): string {
-  return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title} - Legacy Architect RVA</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    body {
-      font-family: 'Libre Baskerville', serif;
-      background: #000000;
-      color: #e8e6e1;
-      line-height: 1.6;
-      padding: 2rem;
-    }
-    
-    h1, h2, h3, h4, h5, h6 {
-      font-family: 'Cinzel', serif;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      color: #d9cca0;
-      margin-bottom: 1rem;
-    }
-    
-    h1 { font-size: 2rem; border-bottom: 1px solid rgba(217, 204, 160, 0.2); padding-bottom: 0.5rem; }
-    h2 { font-size: 1.5rem; }
-    h3 { font-size: 1.25rem; }
-    
-    p { margin-bottom: 1rem; }
-    
-    ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
-    li { margin-bottom: 0.5rem; }
-    
-    .affine-text { margin-bottom: 1rem; }
-    .word-content { white-space: pre-wrap; }
-    
-    /* Print styles */
-    @media print {
-      body { background: white; color: black; }
-      h1, h2, h3, h4, h5, h6 { color: #0a0a0a; }
-    }
-    
-    /* Legacy Architect brand colors */
-    .brand-gold { color: #d9cca0; }
-    .brand-dark { background: #000000; color: #e8e6e1; }
-  </style>
-</head>
-<body>
-  <header class="text-center mb-4">
-    <h1>Legacy Architect RVA</h1>
-    <p class="text-sm" style="color: rgba(232, 230, 225, 0.7);">${title}</p>
-  </header>
-  
-  <main>
-    ${content}
-  </main>
-  
-  <footer class="mt-8 pt-4 border-top border-[rgba(217,204,160,0.1)] text-center text-xs" style="color: rgba(232, 230, 225, 0.5);">
-    <p>Generated by Legacy Architect RVA &middot; ${new Date().toLocaleDateString()}</p>
-    <p class="mt-2">${PRIVACY_NOTE}</p>
-  </footer>
-</body>
-</html>
-  `;
-}
-
-function addPrintStyles(html: string): string {
-  // Add print-specific styles to the HTML
-  const printStyles = `
-    <style>
-      @media print {
-        body { 
-          background: white !important; 
-          color: black !important; 
-          padding: 1in; 
-        }
-        h1, h2, h3, h4, h5, h6 { 
-          color: #0a0a0a !important; 
-          -webkit-print-color-adjust: exact; 
-          print-color-adjust: exact; 
-        }
-        .brand-gold { color: #b89f6b !important; }
-        .brand-dark { background: white !important; color: black !important; }
-        a { color: #0066cc !important; }
-      }
-    </style>
-  `;
-  
-  // Insert print styles before closing head tag
-  return html.replace(/<\/head>/i, `${printStyles}</head>`);
 }
