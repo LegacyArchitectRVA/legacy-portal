@@ -22,6 +22,7 @@ import GeneratePage from "./pages/GeneratePage";
 import IntroductionPage from "./pages/IntroductionPage";
 import ManualViewPage from "./pages/ManualViewPage";
 import DocumentConversionPage from "./pages/DocumentConversionPage";
+import LegalPage from "./pages/LegalPage";
 import { MobileMenuPage } from "./components/MobileMenuPage";
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/legal" element={<LegalPage />} />
               <Route path="/upgrade" element={<UpgradePage />} />
               <Route path="/payment" element={<PaymentPage />} />
               <Route path="/admin" element={<AdminPage />} />

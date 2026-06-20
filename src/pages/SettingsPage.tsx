@@ -1,24 +1,44 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import {
   AlertTriangle,
   Bell,
   Check,
+  ChevronRight,
   Eye,
   EyeOff,
+  FileText,
   KeyRound,
   Loader2,
+  LogOut,
+  MonitorSmartphone,
   Shield,
+  ShieldCheck,
+  Smartphone,
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { Switch } from "../components/ui/switch";
 
+function timeAgo(ms: number): string {
+  const diff = Date.now() - ms;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
 export default function SettingsPage() {
   const profile = useQuery(api.profile.getMyProfile);
+  const sessions = useQuery(api.security.getMySessions);
   const purgeAllData = useMutation(api.sections.purgeAllMyData);
   const updateNotificationPreference = useMutation(api.profile.updateNotificationPreference);
+  const signOutOtherSessions = useAction(api.security.signOutOtherSessions);
   const { signIn } = useAuthActions();
 
   const [showPurge, setShowPurge] = useState(false);
@@ -26,6 +46,8 @@ export default function SettingsPage() {
   const [purgeResult, setPurgeResult] = useState<string | null>(null);
 
   const [notifSaving, setNotifSaving] = useState(false);
+  const [signingOutOthers, setSigningOutOthers] = useState(false);
+  const [signOutResult, setSignOutResult] = useState<string | null>(null);
 
   const [pwMode, setPwMode] = useState<"idle" | "code-sent">("idle");
   const [pwLoading, setPwLoading] = useState(false);
@@ -36,6 +58,7 @@ export default function SettingsPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
 
   const isTestAccount = profile?.email?.endsWith("@test.local");
+  const otherSessionsCount = (sessions?.length || 0) - 1;
 
   const handleToggleNotifications = async (checked: boolean) => {
     setNotifSaving(true);
@@ -43,6 +66,19 @@ export default function SettingsPage() {
       await updateNotificationPreference({ emailNotifications: checked });
     } finally {
       setNotifSaving(false);
+    }
+  };
+
+  const handleSignOutOthers = async () => {
+    setSigningOutOthers(true);
+    setSignOutResult(null);
+    try {
+      await signOutOtherSessions({});
+      setSignOutResult("Signed out of all other devices.");
+    } catch {
+      setSignOutResult("Something went wrong. Try again.");
+    } finally {
+      setSigningOutOthers(false);
     }
   };
 
@@ -133,7 +169,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Notifications */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
+      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Bell className="w-4 h-4 text-gold-primary" />
           <h2 className="font-heading text-sm text-gold-primary">Notifications</h2>
@@ -155,101 +191,194 @@ export default function SettingsPage() {
             />
           )}
         </div>
+
+        <div className="flex items-center justify-between opacity-50">
+          <div className="flex-1 pr-4">
+            <p className="text-sm text-[#e8e6e1] flex items-center gap-2">
+              <Smartphone className="w-3.5 h-3.5" /> Text me about new messages
+            </p>
+            <p className="text-xs text-[#e8e6e1]/75 mt-0.5">
+              Not available yet, this needs a text-messaging provider connected on the
+              backend first. Ask Craig to set this up if you want it enabled.
+            </p>
+          </div>
+          <Switch checked={false} disabled />
+        </div>
       </div>
 
-      {/* Change Password */}
-      {!isTestAccount && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
-          <div className="flex items-center gap-2">
-            <KeyRound className="w-4 h-4 text-gold-primary" />
-            <h2 className="font-heading text-sm text-gold-primary">Password</h2>
-          </div>
+      {/* Security Center */}
+      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-gold-primary" />
+          <h2 className="font-heading text-sm text-gold-primary">Security Center</h2>
+        </div>
 
-          {pwMode === "idle" ? (
-            <>
-              <p className="text-xs text-[#e8e6e1]/80 leading-relaxed">
-                We'll send a one-time code to your email to confirm the change.
-              </p>
-              {pwInfo && <p className="text-xs text-emerald-400">{pwInfo}</p>}
-              {pwError && (
-                <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{pwError}</p>
-              )}
-              <button
-                onClick={handleSendCode}
-                disabled={pwLoading}
-                className="flex items-center gap-2 text-xs bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {pwLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <KeyRound className="w-3.5 h-3.5" />}
-                Change Password
-              </button>
-            </>
+        {/* Sessions */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm text-[#e8e6e1]">
+            <MonitorSmartphone className="w-3.5 h-3.5 text-gold-muted" />
+            Active Sessions
+          </div>
+          {sessions === undefined ? (
+            <Loader2 className="w-4 h-4 animate-spin text-gold-muted" />
           ) : (
-            <form onSubmit={handleChangePassword} className="space-y-3">
-              {pwInfo && <p className="text-xs text-emerald-400">{pwInfo}</p>}
-              <div>
-                <label className="block text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mb-1">
-                  Code
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] tracking-widest focus:outline-none focus:border-gold-primary/50"
-                  placeholder="6-digit code"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mb-1">
-                  New Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showNewPassword ? "text" : "password"}
-                    required
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 pr-9 text-sm text-[#e8e6e1] focus:outline-none focus:border-gold-primary/50"
-                    placeholder="At least 8 characters"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#e8e6e1]/75"
+            <>
+              <p className="text-xs text-[#e8e6e1]/75">
+                Signed in on {sessions.length} device{sessions.length === 1 ? "" : "s"}.
+              </p>
+              <div className="space-y-1.5">
+                {sessions.slice(0, 5).map((s) => (
+                  <div
+                    key={s._id}
+                    className="flex items-center justify-between text-xs bg-black/40 rounded-lg px-3 py-2"
                   >
-                    {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
+                    <span className="text-[#e8e6e1]/85">
+                      {s.isCurrent ? "This device" : "Another device"}
+                    </span>
+                    <span className="text-[#e8e6e1]/75">{timeAgo(s.createdAt)}</span>
+                  </div>
+                ))}
               </div>
-              {pwError && (
-                <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{pwError}</p>
+              {otherSessionsCount > 0 && (
+                <button
+                  onClick={handleSignOutOthers}
+                  disabled={signingOutOthers}
+                  className="flex items-center gap-2 text-xs bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 mt-2"
+                >
+                  {signingOutOthers ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <LogOut className="w-3.5 h-3.5" />
+                  )}
+                  Sign Out of Other Devices
+                </button>
               )}
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={pwLoading}
-                  className="flex items-center gap-2 text-xs bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
-                >
-                  {pwLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                  Update Password
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPwMode("idle");
-                    setPwError("");
-                    setCode("");
-                    setNewPassword("");
-                  }}
-                  className="text-xs text-[#e8e6e1]/75 hover:text-[#e8e6e1] px-4 py-2"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+              {signOutResult && <p className="text-xs text-emerald-400">{signOutResult}</p>}
+            </>
           )}
         </div>
-      )}
+
+        <div className="h-px bg-gold-border/15" />
+
+        {/* Change Password */}
+        {!isTestAccount && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-[#e8e6e1]">
+              <KeyRound className="w-3.5 h-3.5 text-gold-muted" />
+              Password
+            </div>
+            {pwMode === "idle" ? (
+              <>
+                <p className="text-xs text-[#e8e6e1]/75">
+                  We'll send a one-time code to your email to confirm any change.
+                </p>
+                {pwInfo && <p className="text-xs text-emerald-400">{pwInfo}</p>}
+                {pwError && (
+                  <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{pwError}</p>
+                )}
+                <button
+                  onClick={handleSendCode}
+                  disabled={pwLoading}
+                  className="flex items-center gap-2 text-xs bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {pwLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <KeyRound className="w-3.5 h-3.5" />}
+                  Change Password
+                </button>
+              </>
+            ) : (
+              <form onSubmit={handleChangePassword} className="space-y-3">
+                {pwInfo && <p className="text-xs text-emerald-400">{pwInfo}</p>}
+                <div>
+                  <label className="block text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mb-1">
+                    Code
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] tracking-widest focus:outline-none focus:border-gold-primary/50"
+                    placeholder="6-digit code"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mb-1">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? "text" : "password"}
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 pr-9 text-sm text-[#e8e6e1] focus:outline-none focus:border-gold-primary/50"
+                      placeholder="At least 8 characters"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#e8e6e1]/75"
+                    >
+                      {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+                {pwError && (
+                  <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{pwError}</p>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={pwLoading}
+                    className="flex items-center gap-2 text-xs bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
+                  >
+                    {pwLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                    Update Password
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPwMode("idle");
+                      setPwError("");
+                      setCode("");
+                      setNewPassword("");
+                    }}
+                    className="text-xs text-[#e8e6e1]/75 hover:text-[#e8e6e1] px-4 py-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+
+        <div className="h-px bg-gold-border/15" />
+
+        {/* Biometric login */}
+        <div className="flex items-center justify-between opacity-50">
+          <div className="flex-1 pr-4">
+            <p className="text-sm text-[#e8e6e1]">Face ID / Fingerprint Sign-In</p>
+            <p className="text-xs text-[#e8e6e1]/75 mt-0.5">
+              Not built yet. This needs a dedicated passkey (WebAuthn) feature, a
+              real build, not a toggle. Ask Craig if you'd like this prioritized next.
+            </p>
+          </div>
+          <Switch checked={false} disabled />
+        </div>
+      </div>
+
+      {/* Legal */}
+      <Link
+        to="/legal"
+        className="flex items-center justify-between bg-[#0a0a0a] rounded-xl border border-gold-border p-5 hover:border-gold-primary/40 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <FileText className="w-4 h-4 text-gold-primary" />
+          <span className="font-heading text-sm text-gold-primary">Privacy Policy & Terms of Service</span>
+        </div>
+        <ChevronRight className="w-4 h-4 text-[#e8e6e1]/50" />
+      </Link>
 
       {/* Zero-Knowledge Protocol */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
