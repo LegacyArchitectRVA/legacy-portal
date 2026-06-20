@@ -36,7 +36,10 @@ export function LegalDocsBar() {
         <span className="text-xs font-heading tracking-wide uppercase text-red-200">
           Legal Documents in Force
         </span>
-        <span className="ml-1 px-2 py-0.5 rounded-full bg-red-600 text-white text-[11px] font-bold tabular-nums">
+        <span
+          className="ml-1 px-2 py-0.5 rounded-full bg-transparent border border-[#e8c46a] text-[#e8c46a] font-bold tabular-nums"
+          style={{ fontSize: "11.55px" }}
+        >
           {activeCount} ACTIVE
         </span>
         <ChevronDown
@@ -47,7 +50,7 @@ export function LegalDocsBar() {
       </button>
 
       {expanded && (
-        <div className="px-4 pb-4 space-y-3 border-t border-red-900/30 pt-3">
+        <div className="px-4 pb-4 space-y-3 border-t border-red-900/30 pt-3 max-h-[60vh] overflow-y-auto">
           <p className="text-[11px] text-red-200/70 leading-relaxed">
             If you have active legal documents, those documents take legal
             precedence over anything recorded in your Life Manual. This
