@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "convex/react";
-import { Send, CheckCheck, Trash2, ArrowLeft, MessageSquare } from "lucide-react";
+import { Send, CheckCheck, Trash2, ArrowLeft, MessageSquare, Plus, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -169,8 +169,10 @@ export default function MessagesPage() {
 
   const isAdmin = profile?.isAdmin;
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  const [showNewMessage, setShowNewMessage] = useState(false);
 
   const conversations = useQuery(api.messages.getConversations, isAdmin ? {} : "skip");
+  const messageableUsers = useQuery(api.messages.listMessageableUsers, isAdmin ? {} : "skip");
   const adminThread = useQuery(
     api.messages.getThreadWithClient,
     isAdmin && selectedClient ? { clientUserId: selectedClient as Id<"users"> } : "skip"
@@ -195,17 +197,33 @@ export default function MessagesPage() {
   if (isAdmin && !selectedClient) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-4">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">Messages</h1>
-          <p className="text-xs text-[#e8e6e1]/80 mt-1">Conversations with your clients</p>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">Messages</h1>
+            <p className="text-xs text-[#e8e6e1]/80 mt-1">Conversations with your clients</p>
+          </div>
+          <button
+            onClick={() => setShowNewMessage(true)}
+            className="flex items-center gap-1.5 bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 text-xs font-heading px-3 py-2 rounded-lg transition-colors shrink-0"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            New
+          </button>
         </div>
 
         {conversations === undefined ? (
           <p className="text-sm text-[#e8e6e1]/75">Loading...</p>
         ) : conversations.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-16 text-[#e8e6e1]/75">
+          <div className="flex flex-col items-center gap-3 py-16 text-[#e8e6e1]/75">
             <MessageSquare className="w-8 h-8 opacity-40" />
             <p className="text-sm">No conversations yet.</p>
+            <button
+              onClick={() => setShowNewMessage(true)}
+              className="flex items-center gap-1.5 bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 text-xs font-heading px-4 py-2 rounded-lg transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Start a Conversation
+            </button>
           </div>
         ) : (
           <div className="space-y-2">
@@ -240,13 +258,62 @@ export default function MessagesPage() {
             ))}
           </div>
         )}
+
+        {showNewMessage && (
+          <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70"
+            onClick={() => setShowNewMessage(false)}
+          >
+            <div
+              className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[70vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-4 border-b border-gold-border/20">
+                <h2 className="font-heading text-sm text-gold-primary">New Message</h2>
+                <button onClick={() => setShowNewMessage(false)} className="text-[#e8e6e1]/75">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-1">
+                {messageableUsers === undefined ? (
+                  <p className="text-sm text-[#e8e6e1]/75 p-4">Loading...</p>
+                ) : messageableUsers.length === 0 ? (
+                  <p className="text-sm text-[#e8e6e1]/75 p-4">No clients to message yet.</p>
+                ) : (
+                  messageableUsers.map((u) => (
+                    <button
+                      key={u.userId}
+                      onClick={() => {
+                        setSelectedClient(u.userId);
+                        setShowNewMessage(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/5 transition-colors border-b border-gold-border/10"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gold-dark/20 flex items-center justify-center shrink-0">
+                        <span className="text-gold-primary text-xs font-heading">
+                          {(u.name || u.email).slice(0, 2).toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm text-[#e8e6e1] truncate">{u.name || u.email}</p>
+                        {u.name && <p className="text-xs text-[#e8e6e1]/75 truncate">{u.email}</p>}
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
   // --- Admin: open thread with a specific client ---
   if (isAdmin && selectedClient) {
-    const clientInfo = conversations?.find((c) => c.clientUserId === selectedClient);
+    const clientInfo =
+      conversations?.find((c) => c.clientUserId === selectedClient) ||
+      messageableUsers?.find((u) => u.userId === selectedClient);
     return (
       <div className="flex flex-col h-[calc(100vh-4rem)] max-w-3xl mx-auto p-6 animate-fade-in">
         <div className="mb-4 flex items-center gap-3">

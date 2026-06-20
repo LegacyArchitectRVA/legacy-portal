@@ -113,6 +113,21 @@ export const getThreadWithClient = query({
   },
 });
 
+/** Admin only: every non-admin user, so a new conversation can be started with anyone, not just existing clients. */
+export const listMessageableUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+    const user = await ctx.db.get(userId);
+    if (!user?.isAdmin) return [];
+    const all = await ctx.db.query("users").collect();
+    return all
+      .filter((u) => !u.isAdmin)
+      .map((u) => ({ userId: u._id, name: u.name || "", email: u.email || "Unknown" }));
+  },
+});
+
 export const sendMessage = mutation({
   args: { content: v.string(), toUserId: v.optional(v.id("users")) },
   handler: async (ctx, { content, toUserId }) => {
