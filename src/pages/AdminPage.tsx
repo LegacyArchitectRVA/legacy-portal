@@ -55,31 +55,31 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">Admin Dashboard</h1>
           <p className="text-[#e8e6e1]/75 mt-1">
             Manage clients, tiers, and Life Manual generation
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => navigate("/admin/visual-editor")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
           >
             <Paintbrush className="w-4 h-4" />
             Visual Editor
           </button>
           <button
             onClick={() => navigate("/admin/hubspot")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
           >
             <Settings className="w-4 h-4" />
             HubSpot
           </button>
           <button
             onClick={() => navigate("/generate")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
           >
             <BookOpen className="w-4 h-4" />
             Generate Manual

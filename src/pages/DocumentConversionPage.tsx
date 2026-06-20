@@ -148,7 +148,7 @@ export default function DocumentConversionPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">Document Conversion</h1>
           <p className="text-[#e8e6e1]/75 mt-2">
@@ -157,7 +157,7 @@ export default function DocumentConversionPage() {
         </div>
         <button
           onClick={() => navigate("/admin")}
-          className="btn-gold-outline text-xs px-4 py-2 flex items-center gap-1.5"
+          className="btn-gold-outline text-xs px-4 py-2 flex items-center gap-1.5 shrink-0 self-start"
         >
           Back to Admin
         </button>
@@ -327,11 +327,6 @@ export default function DocumentConversionPage() {
           </div>
         </div>
       )}
-
-      {/* Privacy Notice */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/20 p-4">
-        <p className="privacy-disclaimer">{PRIVACY_NOTE}</p>
-      </div>
     </div>
   );
 }

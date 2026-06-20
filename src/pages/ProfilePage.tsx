@@ -58,6 +58,7 @@ export default function ProfilePage() {
   const tierLabel = profile?.tier
     ? profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1)
     : "Vault";
+  const accessLabel = profile?.isAdmin ? "Administrator" : `${tierLabel} Edition`;
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6 animate-fade-in">
@@ -106,7 +107,7 @@ export default function ProfilePage() {
             </p>
             <p className="text-sm text-[#e8e6e1]/80 mt-0.5">{profile?.email}</p>
             <p className="text-sm text-[#d9cca0]/70 capitalize mt-0.5 font-heading">
-              {tierLabel} Edition
+              {accessLabel}
             </p>
           </div>
 

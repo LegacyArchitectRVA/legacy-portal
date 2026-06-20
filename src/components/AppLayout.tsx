@@ -32,7 +32,7 @@ export function AppLayout() {
           </div>
         </header>
         <LegalDocsBar />
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-4 pb-24 lg:p-6 lg:pb-24">
           <Outlet />
         </main>
         <FloatingChatButton />

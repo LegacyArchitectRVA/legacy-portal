@@ -52,6 +52,7 @@ function normalizeTier(tier?: string) {
 export default function UpgradePage() {
   const navigate = useNavigate();
   const profile = useQuery(api.profile.getMyProfile);
+  const isAdmin = useQuery(api.admin.isAdmin);
   const currentTier = normalizeTier(profile?.tier ?? undefined);
   const currentRank = tierRank[currentTier];
   const isLegacy = currentTier === "legacy";
@@ -70,6 +71,20 @@ export default function UpgradePage() {
   const visibleTiers = isLegacy
     ? tiers.filter((tier) => tier.id === "legacy")
     : tiers.filter((tier) => tierRank[tier.id] >= currentRank);
+
+  if (isAdmin) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <div className="rounded-xl border border-gold-border bg-[#0a0a0a] p-6 text-center space-y-2">
+          <Shield className="w-8 h-8 text-gold-primary mx-auto" />
+          <h1 className="font-heading text-xl text-gold-gradient">Administrator · Full Access</h1>
+          <p className="text-sm text-[#e8e6e1]/75">
+            Admin accounts bypass tier restrictions everywhere. There's nothing to upgrade.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-fade-in">

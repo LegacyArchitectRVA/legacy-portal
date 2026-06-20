@@ -76,7 +76,7 @@ export default function HubSpotSettingsPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">
             HubSpot Settings
