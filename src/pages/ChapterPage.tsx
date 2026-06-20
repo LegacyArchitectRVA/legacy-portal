@@ -36,7 +36,7 @@ export default function ChapterPage() {
     );
   }
 
-  if (!canAccessChapter(tier, chapter.chapterNumber)) {
+  if (!isAdmin && !canAccessChapter(tier, chapter.chapterNumber)) {
     const requiredTier = getTierByName(chapter.tier);
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">

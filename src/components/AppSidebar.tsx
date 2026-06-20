@@ -183,7 +183,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {chapters.map((ch) => {
-                const accessible = canAccessChapter(tier, ch.chapterNumber);
+                const accessible = isAdmin || canAccessChapter(tier, ch.chapterNumber);
                 const isActive = location.pathname === `/chapter/${ch.id}` ||
                   location.pathname.startsWith(`/chapter/${ch.id}/`);
                 const dotColor = chapterDotColors[ch.id] || "#94A3B8";
@@ -221,10 +221,10 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <SidebarSeparator className={isAdmin ? "hidden" : ""} />
 
-        {/* Upgrade Plan link */}
-        <SidebarGroup>
+        {/* Upgrade Plan link — hidden for admins, nothing to upgrade to */}
+        <SidebarGroup className={isAdmin ? "hidden" : ""}>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -298,11 +298,15 @@ export function AppSidebar() {
                     <span className="text-xs font-medium truncate w-full">
                       {profile?.email || "Loading..."}
                     </span>
-                    {profile?.tier && (
+                    {isAdmin ? (
+                      <span className="text-[10px] text-gold-bright">
+                        Administrator · Full Access
+                      </span>
+                    ) : profile?.tier ? (
                       <span className="text-[10px] text-gold-muted capitalize">
                         {profile.tier} Edition
                       </span>
-                    )}
+                    ) : null}
                   </div>
                   <ChevronUp className="w-4 h-4 text-muted-foreground" />
                 </SidebarMenuButton>

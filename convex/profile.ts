@@ -28,7 +28,7 @@ export const getMyProfile = query({
       email: user?.email || "",
       isAdmin: user?.isAdmin || false,
       tier: client?.tier || null,
-      isActivated: client?.isActivated || false,
+      isActivated: user?.isAdmin ? true : client?.isActivated || false,
       deliveryStatus: client?.deliveryStatus || "pending",
       deliveryDate: client?.deliveryDate || null,
       phoneNumber: client?.phoneNumber || "",

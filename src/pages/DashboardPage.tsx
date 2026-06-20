@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const profile = useQuery(api.profile.getMyProfile);
   const progress = useQuery(api.sections.getProgress);
+  const isAdmin = useQuery(api.admin.isAdmin);
   const tier = profile?.tier || "vault";
   const tierInfo = getTierByName(tier);
   const isActivated = profile?.isActivated !== false;
@@ -91,7 +92,19 @@ export default function DashboardPage() {
       </div>
 
       {/* Tier Badge with Image */}
-      {tierInfo && (
+      {isAdmin ? (
+        <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c46a]/20 bg-gradient-to-r from-[#e8c46a]/[0.06] to-transparent p-3 md:p-4">
+          <ShieldCheck className="w-14 h-14 text-[#e8c46a] shrink-0" />
+          <div className="flex-1">
+            <p className="font-semibold text-sm text-[#e8c46a] font-heading">
+              Administrator · Full Access
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              All 7 chapters unlocked, no tier restrictions
+            </p>
+          </div>
+        </div>
+      ) : tierInfo && (
         <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c46a]/20 bg-gradient-to-r from-[#e8c46a]/[0.06] to-transparent p-3 md:p-4">
           <img
             src={tierImages[tier] || tierImages.vault}
@@ -157,7 +170,7 @@ export default function DashboardPage() {
         <h2 className="font-heading text-lg text-[#e8e6e1]">Progress</h2>
         <div className="grid grid-cols-7 gap-2 md:gap-3">
           {chapterProgress.map((ch) => {
-            const accessible = canAccessChapter(tier, ch.chapterNumber);
+            const accessible = isAdmin || canAccessChapter(tier, ch.chapterNumber);
             return (
               <button
                 key={ch.id}
@@ -240,7 +253,7 @@ export default function DashboardPage() {
         <h2 className="font-heading text-lg text-[#e8e6e1]">Chapters</h2>
         <div className="grid gap-4">
           {chapterProgress.map((ch) => {
-            const accessible = canAccessChapter(tier, ch.chapterNumber);
+            const accessible = isAdmin || canAccessChapter(tier, ch.chapterNumber);
 
             if (!accessible) {
               const requiredTier = getTierByName(ch.tier);
