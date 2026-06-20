@@ -213,13 +213,122 @@ export default function IntroductionPage() {
   const activeGuide = guides.find((g) => g.id === viewingGuide);
 
   const handleDownload = (guide: Guide) => {
-    const blob = new Blob([guide.content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${guide.title.replace(/\s+/g, "-").toLowerCase()}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    // Reuse the same markdown parsing, emitting plain styled HTML instead
+    // of Tailwind classes, since the print window has no app stylesheet.
+    const lines = guide.content.split("\n");
+    const body: string[] = [];
+    let inList = false;
+    for (const line of lines) {
+      if (line.startsWith("# ")) {
+        if (inList) { body.push("</ul>"); inList = false; }
+        continue; // title already rendered in the document header
+      } else if (line.startsWith("## ")) {
+        if (inList) { body.push("</ul>"); inList = false; }
+        body.push(`<h2>${line.slice(3)}</h2>`);
+      } else if (line.startsWith("### ")) {
+        if (inList) { body.push("</ul>"); inList = false; }
+        body.push(`<h3>${line.slice(4)}</h3>`);
+      } else if (line.startsWith("- [ ] ")) {
+        if (!inList) { body.push("<ul>"); inList = true; }
+        body.push(`<li>☐ ${line.slice(6)}</li>`);
+      } else if (line.startsWith("- ")) {
+        if (!inList) { body.push("<ul>"); inList = true; }
+        body.push(`<li>${line.slice(2)}</li>`);
+      } else if (line.startsWith("---")) {
+        if (inList) { body.push("</ul>"); inList = false; }
+        body.push("<hr />");
+      } else if (line.startsWith("*") && line.endsWith("*") && line.length > 1) {
+        body.push(`<p class="note">${line.slice(1, -1)}</p>`);
+      } else if (line.match(/^\d+\.\s/)) {
+        if (inList) { body.push("</ul>"); inList = false; }
+        const text = line.replace(/^\d+\.\s*/, "");
+        const boldMatch = text.match(/\*\*(.+?)\*\*(.*)/);
+        body.push(boldMatch ? `<p><strong>${boldMatch[1]}</strong>${boldMatch[2]}</p>` : `<p>${text}</p>`);
+      } else if (line.trim() === "") {
+        if (inList) { body.push("</ul>"); inList = false; }
+      } else {
+        body.push(`<p>${line}</p>`);
+      }
+    }
+    if (inList) body.push("</ul>");
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${guide.title} - Legacy Architect RVA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 13pt;
+      line-height: 1.5;
+      color: #1a1a1a;
+      background: #fdfcfa;
+      padding: 1in 0.9in;
+    }
+    .title {
+      font-family: 'Cinzel', serif;
+      font-size: 20pt;
+      text-align: center;
+      letter-spacing: 0.05em;
+      color: #8a6d1f;
+      text-transform: uppercase;
+      margin-bottom: 0.3in;
+    }
+    h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 16pt;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #8a6d1f;
+      margin: 0.3in 0 0.12in;
+    }
+    h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 13pt;
+      color: #4a3a10;
+      margin: 0.22in 0 0.08in;
+    }
+    p { margin-bottom: 0.1in; }
+    p.note { font-style: italic; font-size: 11pt; color: #555; }
+    ul { margin: 0 0 0.15in 0.25in; }
+    li { margin-bottom: 0.06in; }
+    strong { color: #4a3a10; }
+    hr { border: none; border-top: 1px solid #d9cca0; margin: 0.25in 0; }
+    .footer {
+      margin-top: 0.5in;
+      padding-top: 0.2in;
+      border-top: 1px solid #d9cca0;
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-size: 10pt;
+      letter-spacing: 0.1em;
+      color: #8a6d1f;
+      text-transform: uppercase;
+    }
+    @media print {
+      body { padding: 0.6in 0.7in; }
+    }
+  </style>
+</head>
+<body>
+  <div class="title">${guide.title}</div>
+  ${body.join("\n  ")}
+  <div class="footer">Order in Your Absence</div>
+</body>
+</html>`;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.onload = () => {
+      printWindow.focus();
+      printWindow.print();
+    };
   };
 
   // Simple markdown-to-HTML renderer
@@ -293,7 +402,7 @@ export default function IntroductionPage() {
               className="btn-gold px-4 py-2 text-xs flex items-center gap-2"
             >
               <Download className="w-3.5 h-3.5" />
-              Download
+              Download PDF
             </button>
           </div>
           <div dangerouslySetInnerHTML={{ __html: renderMarkdown(activeGuide.content) }} />
@@ -372,7 +481,7 @@ export default function IntroductionPage() {
                 className="flex items-center gap-2 text-[11px] font-heading tracking-wider uppercase text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80 transition-colors px-3 py-2"
               >
                 <Download className="w-3.5 h-3.5" />
-                Download
+                Download PDF
               </button>
             </div>
           </div>

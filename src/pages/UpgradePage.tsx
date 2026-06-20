@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, tiers } from "../data/tiers";
+import { useCmsValue, useCmsStyle, cmsStyleToCss } from "../hooks/useCms";
 
 const tierImages: Record<string, string> = {
   vault:
@@ -55,6 +56,17 @@ export default function UpgradePage() {
   const currentRank = tierRank[currentTier];
   const isLegacy = currentTier === "legacy";
 
+  const titleText = useCmsValue("upgrade_title", "Upgrade Your Life Manual");
+  const titleStyle = useCmsStyle("upgrade_title");
+  const vaultDescOverride = useCmsValue("upgrade_vault_desc", "");
+  const archiveDescOverride = useCmsValue("upgrade_archive_desc", "");
+  const legacyDescOverride = useCmsValue("upgrade_legacy_desc", "");
+  const descOverrides: Record<string, string> = {
+    vault: vaultDescOverride,
+    archive: archiveDescOverride,
+    legacy: legacyDescOverride,
+  };
+
   const visibleTiers = isLegacy
     ? tiers.filter((tier) => tier.id === "legacy")
     : tiers.filter((tier) => tierRank[tier.id] >= currentRank);
@@ -62,8 +74,8 @@ export default function UpgradePage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
       <div>
-        <h1 className="font-heading text-3xl text-gold-gradient">
-          Upgrade Your Life Manual
+        <h1 className="font-heading text-3xl text-gold-gradient" style={cmsStyleToCss(titleStyle)}>
+          {titleText}
         </h1>
         <p className="text-[#e8e6e1]/80 mt-2 leading-relaxed max-w-2xl">
           Portal upgrades begin with The Vault and move upward. Lower editions are
@@ -154,7 +166,7 @@ export default function UpgradePage() {
                 </div>
 
                 <p className="text-xs text-[#e8e6e1]/80 leading-relaxed text-center min-h-[52px]">
-                  {tier.description}
+                  {descOverrides[tier.id] || tier.description}
                 </p>
 
                 <ul className="space-y-2 flex-1">

@@ -2,9 +2,30 @@ import { Link } from "react-router-dom";
 import { useConvexAuth } from "convex/react";
 import { ArrowRight } from "lucide-react";
 import { EncryptedIcon, ZeroKnowledgeIcon, PrivateIcon } from "../components/TrustIcons";
+import { useCmsValue, useCmsStyle, cmsStyleToCss } from "../hooks/useCms";
 
 export default function LandingPage() {
   const { isAuthenticated } = useConvexAuth();
+
+  const heroTitle = useCmsValue(
+    "landing_hero_title",
+    "When You Can't Be There,\nWill They Know What To Do?"
+  );
+  const heroTitleStyle = useCmsStyle("landing_hero_title");
+  const heroSubtitle = useCmsValue(
+    "landing_hero_subtitle",
+    "A Life Manual puts every account, system, and instruction in one place, so the people you love can act without guessing."
+  );
+  const heroSubtitleStyle = useCmsStyle("landing_hero_subtitle");
+  const tagline = useCmsValue("app_tagline", "This is the missing map.");
+  const taglineStyle = useCmsStyle("app_tagline");
+  const ctaText = useCmsValue("landing_cta_text", "Sign In to Your Portal");
+  const ctaStyle = useCmsStyle("landing_cta_text");
+  const footerText = useCmsValue(
+    "footer_text",
+    "All Life Manuals include: Secure Client Portal access, premium branded PDF, and 72-hour data self-destruct after delivery."
+  );
+  const footerStyle = useCmsStyle("footer_text");
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -76,25 +97,28 @@ export default function LandingPage() {
           <div className="space-y-5">
             <h1
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]"
-              style={{ fontFamily: "Cinzel, serif", fontWeight: 700, fontVariant: "small-caps" }}
+              style={{ fontFamily: "Cinzel, serif", fontWeight: 700, fontVariant: "small-caps", ...cmsStyleToCss(heroTitleStyle) }}
             >
-              When You Can't Be There,
-              <br />
-              Will They Know What To Do?
+              {heroTitle.split("\n").map((line, i) => (
+                <span key={i}>
+                  {line}
+                  {i < heroTitle.split("\n").length - 1 && <br />}
+                </span>
+              ))}
             </h1>
 
             <p
               className="text-base md:text-lg text-[#c1b085] max-w-2xl mx-auto leading-relaxed"
-              style={{ fontFamily: "'Libre Baskerville', serif" }}
+              style={{ fontFamily: "'Libre Baskerville', serif", ...cmsStyleToCss(heroSubtitleStyle) }}
             >
-              A <strong className="text-[#e8c46a]">Life Manual</strong> puts every account, system, and instruction in one place, so the people you love can act without guessing.
+              {heroSubtitle}
             </p>
 
             <p
               className="text-xs md:text-sm tracking-[0.3em] uppercase text-[#e8c46a]/50"
-              style={{ fontFamily: "Cinzel, serif" }}
+              style={{ fontFamily: "Cinzel, serif", ...cmsStyleToCss(taglineStyle) }}
             >
-              This is the missing map.
+              {tagline}
             </p>
           </div>
 
@@ -112,8 +136,9 @@ export default function LandingPage() {
               <Link
                 to="/login"
                 className="btn-gold px-8 py-3.5 text-sm tracking-widest uppercase inline-flex items-center gap-3"
+                style={cmsStyleToCss(ctaStyle)}
               >
-                Sign In to Your Portal
+                {ctaText}
                 <ArrowRight className="w-4 h-4" />
               </Link>
             )}
@@ -206,9 +231,9 @@ export default function LandingPage() {
       <section className="py-8 text-center">
         <p
           className="text-xs md:text-sm text-[#c1b085]/60 max-w-3xl mx-auto leading-relaxed px-4"
-          style={{ fontFamily: "'Libre Baskerville', serif" }}
+          style={{ fontFamily: "'Libre Baskerville', serif", ...cmsStyleToCss(footerStyle) }}
         >
-          All Life Manuals include: Secure Client Portal access, premium branded PDF, and 72-hour data self-destruct after delivery.
+          {footerText}
         </p>
       </section>
 

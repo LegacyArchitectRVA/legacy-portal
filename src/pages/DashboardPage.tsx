@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
+import { useCmsValue, useCmsStyle, cmsStyleToCss } from "../hooks/useCms";
 
 const tierImages: Record<string, string> = {
   vault: "/tier-vault.png",
@@ -17,6 +18,13 @@ export default function DashboardPage() {
   const progress = useQuery(api.sections.getProgress);
   const isAdmin = useQuery(api.admin.isAdmin);
   const tier = profile?.tier || "vault";
+  const welcomeText = useCmsValue("dashboard_welcome", "Welcome");
+  const welcomeStyle = useCmsStyle("dashboard_welcome");
+  const descriptionText = useCmsValue(
+    "dashboard_description",
+    "Your Life Manual, organized across seven chapters of continuity"
+  );
+  const descriptionStyle = useCmsStyle("dashboard_description");
   const tierInfo = getTierByName(tier);
   const isActivated = profile?.isActivated !== false;
 
@@ -83,11 +91,14 @@ export default function DashboardPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl md:text-3xl font-bold tracking-tight font-heading">
-          Welcome{profile?.name ? `, ${profile.name.split(" ")[0]}` : ""}
+        <h1
+          className="text-xl md:text-3xl font-bold tracking-tight font-heading"
+          style={cmsStyleToCss(welcomeStyle)}
+        >
+          {welcomeText}{profile?.name ? `, ${profile.name.split(" ")[0]}` : ""}
         </h1>
-        <p className="text-muted-foreground mt-1">
-          Your Life Manual, organized across seven chapters of continuity
+        <p className="text-muted-foreground mt-1" style={cmsStyleToCss(descriptionStyle)}>
+          {descriptionText}
         </p>
       </div>
 

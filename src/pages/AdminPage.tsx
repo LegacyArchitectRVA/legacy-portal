@@ -9,10 +9,12 @@ import {
   Paintbrush,
   Settings,
   UserCog,
+  Users,
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { IconMedallion } from "../components/TrustIcons";
 import { api } from "../../convex/_generated/api";
 import { tiers } from "../data/tiers";
 
@@ -87,18 +89,23 @@ export default function AdminPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 text-center">
+        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 text-center space-y-2">
+          <IconMedallion icon={Users} size={16} className="mx-auto" />
           <p className="text-2xl font-heading text-gold-bright">{clients?.length || 0}</p>
           <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mt-1">Total Clients</p>
         </div>
-        {tiers.map((t) => (
-          <div key={t.id} className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 text-center">
-            <p className="text-2xl font-heading text-gold-primary">
-              {clients?.filter((c: any) => c.tier === t.id).length || 0}
-            </p>
-            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mt-1">{t.name}</p>
-          </div>
-        ))}
+        {tiers.map((t) => {
+          const tierIcon = t.id === "legacy" ? Crown : t.id === "archive" ? BookOpen : UserCog;
+          return (
+            <div key={t.id} className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 text-center space-y-2">
+              <IconMedallion icon={tierIcon} size={16} className="mx-auto" />
+              <p className="text-2xl font-heading text-gold-primary">
+                {clients?.filter((c: any) => c.tier === t.id).length || 0}
+              </p>
+              <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mt-1">{t.name}</p>
+            </div>
+          );
+        })}
       </div>
 
       {/* Client List */}

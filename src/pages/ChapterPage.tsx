@@ -15,6 +15,7 @@ import { api } from "../../convex/_generated/api";
 import { chapters, PRIVACY_NOTE, type SubSection } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LucideIcon } from "../components/LucideIcon";
+import { useCmsValue, useCmsStyle, cmsStyleToCss } from "../hooks/useCms";
 
 export default function ChapterPage() {
   const { chapterId } = useParams<{ chapterId: string }>();
@@ -23,6 +24,8 @@ export default function ChapterPage() {
   const tier = profile?.tier || "vault";
 
   const isAdmin = useQuery(api.admin.isAdmin);
+  const chapterIntro = useCmsValue("chapter_intro", "");
+  const chapterIntroStyle = useCmsStyle("chapter_intro");
   const chapter = chapters.find((ch) => ch.id === chapterId);
 
   if (!chapter) {
@@ -77,6 +80,14 @@ export default function ChapterPage() {
           <p className="text-sm text-[#e8e6e1]/75 mt-2 leading-relaxed">
             {chapter.description}
           </p>
+          {chapterIntro && (
+            <p
+              className="text-xs text-gold-muted mt-2 leading-relaxed"
+              style={cmsStyleToCss(chapterIntroStyle)}
+            >
+              {chapterIntro}
+            </p>
+          )}
         </div>
       </div>
 
