@@ -81,6 +81,7 @@ export function MobileMenuPage() {
   const { signOut } = useAuthActions();
   const profile = useQuery(api.profile.getMyProfile);
   const isAdmin = useQuery(api.admin.isAdmin);
+  const unreadCount = useQuery(api.messages.getUnreadCount);
   const tier = profile?.tier || "vault";
 
   const go = (path: string) => navigate(path);
@@ -117,7 +118,18 @@ export function MobileMenuPage() {
         <SectionLabel>Overview</SectionLabel>
         <Row icon={<LayoutDashboard className="w-4 h-4 text-gold-muted" />} label="Dashboard" onClick={() => go("/dashboard")} />
         <Row icon={<User className="w-4 h-4 text-gold-muted" />} label="Profile" onClick={() => go("/profile")} />
-        <Row icon={<MessageSquare className="w-4 h-4 text-gold-muted" />} label="Messages" onClick={() => go("/messages")} />
+        <Row
+          icon={<MessageSquare className="w-4 h-4 text-gold-muted" />}
+          label="Messages"
+          onClick={() => go("/messages")}
+          trailing={
+            unreadCount && unreadCount > 0 ? (
+              <span className="bg-gold-primary text-[#0a0a0a] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {unreadCount}
+              </span>
+            ) : undefined
+          }
+        />
 
         <SectionLabel>Life Manual</SectionLabel>
         <Row icon={<BookOpen className="w-4 h-4 text-gold-muted" />} label="Introduction" onClick={() => go("/introduction")} />
