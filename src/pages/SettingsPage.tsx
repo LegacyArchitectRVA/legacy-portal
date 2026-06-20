@@ -1,4 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
+import { startRegistration, browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { useAction, useMutation, useQuery } from "convex/react";
 import {
   AlertTriangle,
@@ -7,6 +8,7 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
+  Fingerprint,
   FileText,
   KeyRound,
   Loader2,
@@ -17,7 +19,7 @@ import {
   Smartphone,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { Switch } from "../components/ui/switch";
@@ -56,6 +58,49 @@ export default function SettingsPage() {
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
+
+  const [passkeySupported, setPasskeySupported] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const [passkeyError, setPasskeyError] = useState("");
+  const [passkeySuccess, setPasskeySuccess] = useState("");
+  const passkeys = useQuery(api.webauthn.listMyCredentials);
+  const deletePasskey = useMutation(api.webauthn.deleteCredential);
+  const getRegistrationOptions = useAction(api.webauthnNode.getRegistrationOptions);
+  const verifyRegistration = useAction(api.webauthnNode.verifyRegistration);
+
+  useEffect(() => {
+    setPasskeySupported(browserSupportsWebAuthn());
+  }, []);
+
+  const handleAddPasskey = async () => {
+    setPasskeyLoading(true);
+    setPasskeyError("");
+    setPasskeySuccess("");
+    try {
+      const { options, token } = await getRegistrationOptions({});
+      const response = await startRegistration(options as any);
+      await verifyRegistration({ token, response });
+      setPasskeySuccess("Passkey added. You can now sign in with Face ID or your fingerprint.");
+    } catch (err: any) {
+      if (err?.name === "InvalidStateError") {
+        setPasskeyError("This device already has a passkey for this account.");
+      } else if (err?.name === "NotAllowedError") {
+        setPasskeyError("Cancelled.");
+      } else {
+        setPasskeyError("Could not add a passkey. Try again.");
+      }
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
+
+  const handleDeletePasskey = async (id: string) => {
+    try {
+      await deletePasskey({ id: id as any });
+    } catch {
+      setPasskeyError("Could not remove that passkey.");
+    }
+  };
 
   const isTestAccount = profile?.email?.endsWith("@test.local");
   const otherSessionsCount = (sessions?.length || 0) - 1;
@@ -355,16 +400,67 @@ export default function SettingsPage() {
 
         <div className="h-px bg-gold-border/15" />
 
-        {/* Biometric login */}
-        <div className="flex items-center justify-between opacity-50">
-          <div className="flex-1 pr-4">
-            <p className="text-sm text-[#e8e6e1]">Face ID / Fingerprint Sign-In</p>
-            <p className="text-xs text-[#e8e6e1]/75 mt-0.5">
-              Not built yet. This needs a dedicated passkey (WebAuthn) feature, a
-              real build, not a toggle. Ask Craig if you'd like this prioritized next.
-            </p>
+        {/* Biometric login (passkeys) */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm text-[#e8e6e1]">
+            <Fingerprint className="w-3.5 h-3.5 text-gold-muted" />
+            Face ID / Fingerprint Sign-In
           </div>
-          <Switch checked={false} disabled />
+
+          {!passkeySupported ? (
+            <p className="text-xs text-[#e8e6e1]/75">
+              This device or browser doesn't support passkeys.
+            </p>
+          ) : (
+            <>
+              <p className="text-xs text-[#e8e6e1]/75">
+                Add a passkey to sign in with Face ID, fingerprint, or your device PIN,
+                no email or password needed.
+              </p>
+
+              {passkeys === undefined ? (
+                <Loader2 className="w-4 h-4 animate-spin text-gold-muted" />
+              ) : passkeys.length > 0 ? (
+                <div className="space-y-1.5">
+                  {passkeys.map((p) => (
+                    <div
+                      key={p._id}
+                      className="flex items-center justify-between text-xs bg-black/40 rounded-lg px-3 py-2"
+                    >
+                      <span className="text-[#e8e6e1]/85">{p.name}</span>
+                      <button
+                        onClick={() => handleDeletePasskey(p._id)}
+                        className="text-red-400/80 hover:text-red-400"
+                        title="Remove this passkey"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              {passkeyError && (
+                <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">
+                  {passkeyError}
+                </p>
+              )}
+              {passkeySuccess && <p className="text-xs text-emerald-400">{passkeySuccess}</p>}
+
+              <button
+                onClick={handleAddPasskey}
+                disabled={passkeyLoading}
+                className="flex items-center gap-2 text-xs bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {passkeyLoading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Fingerprint className="w-3.5 h-3.5" />
+                )}
+                Add a Passkey
+              </button>
+            </>
+          )}
         </div>
       </div>
 

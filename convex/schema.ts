@@ -89,6 +89,41 @@ const schema = defineSchema({
     value: v.string(),
   }).index("by_key", ["key"]),
 
+  // WebAuthn / passkey credentials registered per user
+  webauthnCredentials: defineTable({
+    userId: v.id("users"),
+    credentialId: v.string(), // base64url
+    publicKey: v.string(), // base64url
+    counter: v.number(),
+    deviceType: v.optional(v.string()),
+    backedUp: v.optional(v.boolean()),
+    name: v.optional(v.string()),
+    createdAt: v.number(),
+    lastUsedAt: v.optional(v.number()),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_credentialId", ["credentialId"]),
+
+  // Short-lived WebAuthn challenges, keyed by a random client-side token
+  webauthnChallenges: defineTable({
+    token: v.string(),
+    challenge: v.string(),
+    purpose: v.union(v.literal("registration"), v.literal("authentication")),
+    userId: v.optional(v.id("users")),
+    createdAt: v.number(),
+  }).index("by_token", ["token"]),
+
+  // Single-use tickets bridging a verified passkey assertion to the
+  // ConvexCredentials sign-in flow, since the heavy WebAuthn crypto
+  // verification needs the Node runtime but the credentials provider's
+  // authorize callback does not.
+  passkeyTickets: defineTable({
+    ticket: v.string(),
+    userId: v.id("users"),
+    used: v.boolean(),
+    expiresAt: v.number(),
+  }).index("by_ticket", ["ticket"]),
+
   // Legal documents currently in force (Will, Trust, Power of Attorney, Healthcare Directive)
   legalDocuments: defineTable({
     userId: v.id("users"),

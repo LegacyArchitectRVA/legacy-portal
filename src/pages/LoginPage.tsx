@@ -1,8 +1,11 @@
 import { useAuthActions } from "@convex-dev/auth/react";
+import { startAuthentication, browserSupportsWebAuthn } from "@simplewebauthn/browser";
+import { useAction } from "convex/react";
 import { ConvexError } from "convex/values";
-import { Eye, EyeOff, Loader2, Shield } from "lucide-react";
-import { useState } from "react";
+import { Eye, EyeOff, Fingerprint, Loader2, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { api } from "../../convex/_generated/api";
 
 function getProvider(email: string): string {
   return email.endsWith("@test.local") ? "test" : "password";
@@ -13,6 +16,8 @@ type Mode = "signin" | "forgot-request" | "forgot-verify";
 export default function LoginPage() {
   const navigate = useNavigate();
   const { signIn } = useAuthActions();
+  const getAuthenticationOptions = useAction(api.webauthnNode.getAuthenticationOptions);
+  const verifyAuthentication = useAction(api.webauthnNode.verifyAuthentication);
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,6 +27,32 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
+  const [passkeySupported, setPasskeySupported] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+
+  useEffect(() => {
+    setPasskeySupported(browserSupportsWebAuthn());
+  }, []);
+
+  const handlePasskeySignIn = async () => {
+    setPasskeyLoading(true);
+    setError("");
+    try {
+      const { options, token } = await getAuthenticationOptions({});
+      const response = await startAuthentication(options as any);
+      const { ticket } = await verifyAuthentication({ token, response });
+      await signIn("passkey", { ticket });
+      navigate("/dashboard");
+    } catch (err: any) {
+      if (err?.name === "NotAllowedError") {
+        // user cancelled, no error needed
+      } else {
+        setError("Could not sign in with a passkey. Try your email and password instead.");
+      }
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,6 +168,27 @@ export default function LoginPage() {
 
         {mode === "signin" && (
           <>
+            {passkeySupported && (
+              <>
+                <button
+                  onClick={handlePasskeySignIn}
+                  disabled={passkeyLoading}
+                  className="w-full flex items-center justify-center gap-2 border border-gold-border/40 text-gold-primary hover:border-gold-primary/50 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {passkeyLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Fingerprint className="w-4 h-4" />
+                  )}
+                  Sign In with Face ID / Fingerprint
+                </button>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-px bg-gold-border/30" />
+                  <span className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-widest">or</span>
+                  <div className="flex-1 h-px bg-gold-border/30" />
+                </div>
+              </>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
