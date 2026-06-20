@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useConvexAuth } from "convex/react";
-import { Lock, ShieldCheck, Eye, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { EncryptedIcon, ZeroKnowledgeIcon, PrivateIcon } from "../components/TrustIcons";
 
 export default function LandingPage() {
   const { isAuthenticated } = useConvexAuth();
@@ -138,8 +139,8 @@ export default function LandingPage() {
             <div className="group relative rounded-lg bg-[#111111] border border-[#e8c46a]/10 p-6 transition-all duration-300 hover:border-[#e8c46a]/25 hover:shadow-[0_0_30px_rgba(232,196,106,0.05)]">
               <div className="absolute inset-0 bg-gradient-to-br from-[#e8c46a]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
               <div className="relative space-y-4 text-center">
-                <div className="w-14 h-14 rounded-lg bg-[#e8c46a]/10 flex items-center justify-center mx-auto">
-                  <Lock className="w-5 h-5 text-[#e8c46a]" />
+                <div className="flex justify-center">
+                  <EncryptedIcon size={30} />
                 </div>
                 <h3
                   className="text-sm tracking-[0.15em] uppercase text-[#e8e6e1]"
@@ -159,8 +160,8 @@ export default function LandingPage() {
             <div className="group relative rounded-lg bg-[#111111] border border-[#e8c46a]/10 p-6 transition-all duration-300 hover:border-[#e8c46a]/25 hover:shadow-[0_0_30px_rgba(232,196,106,0.05)]">
               <div className="absolute inset-0 bg-gradient-to-br from-[#e8c46a]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
               <div className="relative space-y-4 text-center">
-                <div className="w-14 h-14 rounded-lg bg-[#e8c46a]/10 flex items-center justify-center mx-auto">
-                  <ShieldCheck className="w-5 h-5 text-[#e8c46a]" />
+                <div className="flex justify-center">
+                  <ZeroKnowledgeIcon size={30} />
                 </div>
                 <h3
                   className="text-sm tracking-[0.15em] uppercase text-[#e8e6e1]"
@@ -180,8 +181,8 @@ export default function LandingPage() {
             <div className="group relative rounded-lg bg-[#111111] border border-[#e8c46a]/10 p-6 transition-all duration-300 hover:border-[#e8c46a]/25 hover:shadow-[0_0_30px_rgba(232,196,106,0.05)]">
               <div className="absolute inset-0 bg-gradient-to-br from-[#e8c46a]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
               <div className="relative space-y-4 text-center">
-                <div className="w-14 h-14 rounded-lg bg-[#e8c46a]/10 flex items-center justify-center mx-auto">
-                  <Eye className="w-5 h-5 text-[#e8c46a]" />
+                <div className="flex justify-center">
+                  <PrivateIcon size={30} />
                 </div>
                 <h3
                   className="text-sm tracking-[0.15em] uppercase text-[#e8e6e1]"

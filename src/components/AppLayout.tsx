@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import FloatingChatButton from "./FloatingChatButton";
+import { LegalDocsBar } from "./LegalDocsBar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "./ui/sidebar";
 
 export function AppLayout() {
@@ -21,6 +22,7 @@ export function AppLayout() {
             </span>
           </div>
         </header>
+        <LegalDocsBar />
         <main className="flex-1 p-4 lg:p-6">
           <Outlet />
         </main>

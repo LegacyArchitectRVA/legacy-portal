@@ -14,7 +14,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters, PRIVACY_NOTE, type SubSection } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
-import { LegalDocsBanner } from "../components/LegalDocsBanner";
 import { LucideIcon } from "../components/LucideIcon";
 
 export default function ChapterPage() {
@@ -61,7 +60,6 @@ export default function ChapterPage() {
       </button>
 
       {/* Legal Documents Notice */}
-      <LegalDocsBanner />
 
       {/* Chapter Header */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-6 relative overflow-hidden">

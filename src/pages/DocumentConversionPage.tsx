@@ -172,7 +172,7 @@ export default function DocumentConversionPage() {
               setActiveTab(tab.id);
               clearAll();
             }}
-            className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium whitespace-nowrap shrink-0 transition-all ${
               activeTab === tab.id
                 ? "bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a]"
                 : "text-[#e8e6e1]/60 hover:text-[#e8e6e1] hover:bg-[#0e0e0e]"

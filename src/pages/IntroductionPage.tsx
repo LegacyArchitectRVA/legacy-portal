@@ -1,6 +1,5 @@
 import { BookOpen, Download, Eye, Map, ClipboardCheck, ShieldCheck, ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { LegalDocsBanner } from "../components/LegalDocsBanner";
 
 interface Guide {
   id: string;
@@ -314,7 +313,6 @@ export default function IntroductionPage() {
       </div>
 
       {/* Legal Documents Notice */}
-      <LegalDocsBanner />
 
       {/* Welcome card */}
       <div className="bg-[#0a0a0a] rounded-xl p-6 border border-[#e8c46a]/20 bg-gradient-to-r from-[#e8c46a]/[0.04] to-transparent">

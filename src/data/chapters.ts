@@ -642,8 +642,8 @@ const ch05: Chapter = {
 const ch06: Chapter = {
   id: "context",
   chapterNumber: 6,
-  title: "Context & Legacy Wishes",
-  shortTitle: "Context",
+  title: "Legacy & Wishes",
+  shortTitle: "Legacy & Wishes",
   description:
     "Additional areas included based on circumstances, priorities, or professional responsibilities held.",
   color: "#A855F7",

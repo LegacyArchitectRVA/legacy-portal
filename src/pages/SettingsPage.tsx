@@ -38,9 +38,9 @@ export default function SettingsPage() {
             <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Name</p>
             <p className="text-sm text-[#e8e6e1]">{profile?.name || "Not set"}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Email</p>
-            <p className="text-sm text-[#e8e6e1]">{profile?.email || "Not set"}</p>
+            <p className="text-sm text-[#e8e6e1] break-all">{profile?.email || "Not set"}</p>
           </div>
           <div>
             <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Tier</p>

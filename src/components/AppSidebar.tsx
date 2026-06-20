@@ -57,7 +57,7 @@ const chapterShortNames: Record<string, string> = {
   financial: "Financial",
   household: "Household",
   vital: "Vital Records",
-  context: "Context",
+  context: "Legacy & Wishes",
   business: "Business",
 };
 
@@ -243,12 +243,12 @@ export function AppSidebar() {
 
         <SidebarSeparator className="my-1" />
 
-        {/* ADMIN Section */}
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="font-heading text-[10px] tracking-widest text-gold-muted uppercase">
-              Admin
-            </SidebarGroupLabel>
+        {/* ADMIN Section — always mounted, visibility toggled by class so isAdmin
+            resolving never inserts/removes DOM nodes mid-animation */}
+        <SidebarGroup className={!isAdmin ? "hidden" : ""}>
+          <SidebarGroupLabel className="font-heading text-[10px] tracking-widest text-gold-muted uppercase">
+            Admin
+          </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
@@ -280,8 +280,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>

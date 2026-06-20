@@ -9,11 +9,14 @@ const schema = defineSchema({
     name: v.optional(v.string()),
     email: v.optional(v.string()),
     phone: v.optional(v.string()),
+    contactPhone: v.optional(v.string()),
     image: v.optional(v.string()),
     emailVerificationTime: v.optional(v.number()),
     phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
     isAdmin: v.optional(v.boolean()),
+    crestId: v.optional(v.id("_storage")),
+    profilePicId: v.optional(v.id("_storage")),
   }).index("email", ["email"]).index("phone", ["phone"]),
 
   // Client profile / tier / activation
@@ -84,6 +87,15 @@ const schema = defineSchema({
     key: v.string(),
     value: v.string(),
   }).index("by_key", ["key"]),
+
+  // Legal documents currently in force (Will, Trust, Power of Attorney, Healthcare Directive)
+  legalDocuments: defineTable({
+    userId: v.id("users"),
+    documentType: v.string(),
+    inForce: v.boolean(),
+    notes: v.optional(v.string()),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
 });
 
 export default schema;
