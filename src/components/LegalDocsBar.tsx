@@ -26,7 +26,7 @@ export function LegalDocsBar() {
   };
 
   return (
-    <div className="sticky top-0 z-20 border-b border-red-900/40 bg-[#1a0606]">
+    <div className="sticky top-14 md:top-0 z-20 border-b border-red-900/40 bg-[#1a0606]">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}

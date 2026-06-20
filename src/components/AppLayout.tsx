@@ -9,7 +9,7 @@ export function AppLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-gold-dark/20 bg-black/95 backdrop-blur px-4 md:hidden">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-gold-dark/20 bg-black px-4 md:hidden">
           <SidebarTrigger className="text-gold-primary" />
           <div className="flex items-center gap-2">
             <img
