@@ -8,14 +8,20 @@ function getProvider(email: string): string {
   return email.endsWith("@test.local") ? "test" : "password";
 }
 
+type Mode = "signin" | "forgot-request" | "forgot-verify";
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const { signIn } = useAuthActions();
+  const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +70,49 @@ export default function LoginPage() {
     }
   };
 
+  const handleRequestReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setInfo("");
+    try {
+      await signIn("password", { email, flow: "reset" });
+      setInfo(`We sent a code to ${email}. Check your inbox.`);
+      setMode("forgot-verify");
+    } catch {
+      setError("Could not send a reset code. Check the email and try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompleteReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      await signIn("password", {
+        email,
+        code,
+        newPassword,
+        flow: "reset-verification",
+      });
+      navigate("/dashboard");
+    } catch {
+      setError("That code didn't work. Check it and try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const backToSignIn = () => {
+    setMode("signin");
+    setError("");
+    setInfo("");
+    setCode("");
+    setNewPassword("");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(217,204,160,0.04)_0%,_transparent_60%)]" />
@@ -75,89 +124,201 @@ export default function LoginPage() {
             <Shield className="w-8 h-8 text-[#0a0a0a]" />
           </div>
           <h1 className="font-heading text-2xl text-[#e8e6e1] tracking-wide uppercase">
-            Welcome Back
+            {mode === "signin" ? "Welcome Back" : "Reset Password"}
           </h1>
           <p className="text-sm text-[#e8e6e1]/80">
-            Sign in to your Life Manual portal
+            {mode === "signin"
+              ? "Sign in to your Life Manual portal"
+              : mode === "forgot-request"
+              ? "Enter your email to receive a reset code"
+              : "Enter the code we sent, and a new password"}
           </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
-              placeholder="your@email.com"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
-              Password
-            </label>
-            <div className="relative">
+        {mode === "signin" && (
+          <>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+                  placeholder="your@email.com"
+                />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("forgot-request");
+                      setError("");
+                      setInfo("");
+                    }}
+                    className="text-[11px] text-gold-primary hover:text-gold-bright transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Sign In"}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gold-border/30" />
+              <span className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-widest">or</span>
+              <div className="flex-1 h-px bg-gold-border/30" />
+            </div>
+
+            {/* Test User */}
+            <button
+              onClick={handleTestUser}
+              disabled={loading}
+              className="w-full border border-gold-border/40 text-[#e8e6e1]/80 hover:text-gold-primary hover:border-gold-primary/30 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
+            >
+              Continue as Test User
+            </button>
+
+            {/* Footer */}
+            <p className="text-center text-xs text-[#e8e6e1]/75">
+              New client?{" "}
+              <Link to="/signup" className="text-gold-primary hover:text-gold-bright transition-colors">
+                Create an account
+              </Link>
+            </p>
+          </>
+        )}
+
+        {mode === "forgot-request" && (
+          <form onSubmit={handleRequestReset} className="space-y-4">
+            <div>
+              <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+                placeholder="your@email.com"
+              />
+            </div>
+
+            {error && (
+              <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Send Reset Code"}
+            </button>
+
+            <button
+              type="button"
+              onClick={backToSignIn}
+              className="w-full text-center text-xs text-[#e8e6e1]/75 hover:text-[#e8e6e1] transition-colors"
+            >
+              &larr; Back to sign in
+            </button>
+          </form>
+        )}
+
+        {mode === "forgot-verify" && (
+          <form onSubmit={handleCompleteReset} className="space-y-4">
+            {info && (
+              <p className="text-xs text-gold-primary bg-gold-primary/10 rounded-lg px-3 py-2">{info}</p>
+            )}
+            <div>
+              <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+                Reset Code
+              </label>
+              <input
+                type="text"
+                required
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none tracking-widest"
+                placeholder="6-digit code"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+                New Password
+              </label>
               <input
                 type={showPassword ? "text" : "password"}
-                name="password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
-                placeholder="Enter your password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+                placeholder="At least 8 characters"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
             </div>
-          </div>
 
-          {error && (
-            <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
-          )}
+            {error && (
+              <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
+            )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Sign In"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Reset Password & Sign In"}
+            </button>
 
-        {/* Divider */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-gold-border/30" />
-          <span className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-widest">or</span>
-          <div className="flex-1 h-px bg-gold-border/30" />
-        </div>
-
-        {/* Test User */}
-        <button
-          onClick={handleTestUser}
-          disabled={loading}
-          className="w-full border border-gold-border/40 text-[#e8e6e1]/80 hover:text-gold-primary hover:border-gold-primary/30 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
-        >
-          Continue as Test User
-        </button>
-
-        {/* Footer */}
-        <p className="text-center text-xs text-[#e8e6e1]/75">
-          New client?{" "}
-          <Link to="/signup" className="text-gold-primary hover:text-gold-bright transition-colors">
-            Create an account
-          </Link>
-        </p>
+            <button
+              type="button"
+              onClick={backToSignIn}
+              className="w-full text-center text-xs text-[#e8e6e1]/75 hover:text-[#e8e6e1] transition-colors"
+            >
+              &larr; Back to sign in
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

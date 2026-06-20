@@ -3,9 +3,9 @@ import { convexAuth, getAuthUserId } from "@convex-dev/auth/server";
 import { query } from "./_generated/server";
 import { TestCredentials } from "./testAuth";
 import {
-  ViktorSpacesEmail,
-  ViktorSpacesPasswordReset,
-} from "./ViktorSpacesEmail";
+  ResendVerificationEmail,
+  ResendPasswordReset,
+} from "./ResendEmail";
 
 declare const process: { env: Record<string, string | undefined> };
 
@@ -39,8 +39,8 @@ if (jwtPrivateKey) {
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [
     Password({
-      verify: ViktorSpacesEmail,
-      reset: ViktorSpacesPasswordReset,
+      verify: ResendVerificationEmail,
+      reset: ResendPasswordReset,
     }),
     TestCredentials,
   ],
