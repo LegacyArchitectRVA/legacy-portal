@@ -1,16 +1,25 @@
-import { Outlet } from "react-router-dom";
+import { Menu } from "lucide-react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import FloatingChatButton from "./FloatingChatButton";
 import { LegalDocsBar } from "./LegalDocsBar";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "./ui/sidebar";
+import { SidebarInset, SidebarProvider } from "./ui/sidebar";
 
 export function AppLayout() {
+  const navigate = useNavigate();
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-gold-dark/20 bg-black px-4 md:hidden">
-          <SidebarTrigger className="text-gold-primary" />
+          <button
+            type="button"
+            onClick={() => navigate("/menu")}
+            className="text-gold-primary p-1 -ml-1"
+            aria-label="Open menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
           <div className="flex items-center gap-2">
             <img
               src="/logo.png"

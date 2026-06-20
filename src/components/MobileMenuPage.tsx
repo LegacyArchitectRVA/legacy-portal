@@ -1,0 +1,203 @@
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useQuery } from "convex/react";
+import {
+  ChevronRight,
+  File,
+  LayoutDashboard,
+  LogOut,
+  MessageSquare,
+  Settings,
+  ShieldCheck,
+  BookOpen,
+  TrendingUp,
+  User,
+  X,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../../convex/_generated/api";
+import { chapters } from "../data/chapters";
+import { canAccessChapter } from "../data/tiers";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+
+const chapterDotColors: Record<string, string> = {
+  digital: "#3B82F6",
+  emergency: "#F43F5E",
+  financial: "#D4AF37",
+  household: "#10B981",
+  vital: "#FFFFFF",
+  context: "#A855F7",
+  business: "#94A3B8",
+};
+
+const chapterShortNames: Record<string, string> = {
+  digital: "Digital Access",
+  emergency: "Emergency",
+  financial: "Financial",
+  household: "Household",
+  vital: "Vital Records",
+  context: "Legacy & Wishes",
+  business: "Business",
+};
+
+function Row({
+  icon,
+  label,
+  onClick,
+  trailing,
+  disabled,
+}: {
+  icon: React.ReactNode;
+  label: React.ReactNode;
+  onClick?: () => void;
+  trailing?: React.ReactNode;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`w-full flex items-center gap-3 px-4 py-3.5 text-left border-b border-gold-dark/10 ${
+        disabled ? "opacity-40" : "active:bg-gold-dark/10"
+      }`}
+    >
+      <span className="shrink-0">{icon}</span>
+      <span className="flex-1 text-sm text-[#e8e6e1]">{label}</span>
+      {trailing}
+    </button>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-4 pt-5 pb-2 font-heading text-[10px] tracking-widest text-gold-muted uppercase">
+      {children}
+    </div>
+  );
+}
+
+export function MobileMenuPage() {
+  const navigate = useNavigate();
+  const { signOut } = useAuthActions();
+  const profile = useQuery(api.profile.getMyProfile);
+  const isAdmin = useQuery(api.admin.isAdmin);
+  const tier = profile?.tier || "vault";
+
+  const go = (path: string) => navigate(path);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const initials = profile?.name
+    ? profile.name
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : profile?.email?.slice(0, 2).toUpperCase() || "?";
+
+  return (
+    <div className="min-h-screen bg-black flex flex-col">
+      <div className="flex items-center justify-between px-4 h-14 border-b border-gold-dark/20 shrink-0">
+        <div className="flex items-center gap-2">
+          <img src="/logo.png" alt="Legacy Architect RVA" className="w-8 h-8 rounded object-contain" />
+          <span className="text-sm font-heading font-semibold text-gold-primary tracking-wide uppercase">
+            Menu
+          </span>
+        </div>
+        <button type="button" onClick={() => navigate(-1)} className="text-[#e8e6e1]/75 p-2">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-visible">
+        <SectionLabel>Overview</SectionLabel>
+        <Row icon={<LayoutDashboard className="w-4 h-4 text-gold-muted" />} label="Dashboard" onClick={() => go("/dashboard")} />
+        <Row icon={<User className="w-4 h-4 text-gold-muted" />} label="Profile" onClick={() => go("/profile")} />
+        <Row icon={<MessageSquare className="w-4 h-4 text-gold-muted" />} label="Messages" onClick={() => go("/messages")} />
+
+        <SectionLabel>Life Manual</SectionLabel>
+        <Row icon={<BookOpen className="w-4 h-4 text-gold-muted" />} label="Introduction" onClick={() => go("/introduction")} />
+        {chapters.map((ch) => {
+          const accessible = isAdmin || canAccessChapter(tier, ch.chapterNumber);
+          const dotColor = chapterDotColors[ch.id] || "#94A3B8";
+          const shortName = chapterShortNames[ch.id] || ch.shortTitle;
+          return (
+            <Row
+              key={ch.id}
+              icon={
+                <span
+                  className="w-2.5 h-2.5 rounded-full inline-block"
+                  style={{
+                    backgroundColor: dotColor,
+                    boxShadow: accessible ? `0 0 6px ${dotColor}80` : "none",
+                  }}
+                />
+              }
+              label={`Ch. ${ch.chapterNumber} · ${shortName}`}
+              disabled={!accessible}
+              onClick={() => accessible && go(`/chapter/${ch.id}`)}
+              trailing={
+                !accessible ? (
+                  <span className="text-[9px] bg-gold-dark/20 text-gold-muted px-1.5 py-0.5 rounded-full">
+                    {ch.tier}
+                  </span>
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-[#e8e6e1]/40" />
+                )
+              }
+            />
+          );
+        })}
+
+        {!isAdmin && (
+          <>
+            <div className="px-4 pt-3">
+              <div className="h-px bg-gold-dark/20" />
+            </div>
+            <Row
+              icon={<TrendingUp className="w-4 h-4 text-gold-bright" />}
+              label="Upgrade Plan"
+              onClick={() => go("/upgrade")}
+            />
+          </>
+        )}
+
+        {isAdmin && (
+          <>
+            <SectionLabel>Admin</SectionLabel>
+            <Row icon={<ShieldCheck className="w-4 h-4 text-gold-muted" />} label="Dashboard" onClick={() => go("/admin")} />
+            <Row icon={<BookOpen className="w-4 h-4 text-gold-muted" />} label="Generate Manual" onClick={() => go("/generate")} />
+            <Row icon={<File className="w-4 h-4 text-gold-muted" />} label="Document Conversion" onClick={() => go("/convert")} />
+          </>
+        )}
+
+        <SectionLabel>Account</SectionLabel>
+        <Row
+          icon={
+            <Avatar className="w-7 h-7">
+              <AvatarFallback className="bg-gold-dark/20 text-gold-primary text-xs font-heading">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+          }
+          label={
+            <div className="flex flex-col">
+              <span className="truncate">{profile?.email || "Loading..."}</span>
+              {isAdmin ? (
+                <span className="text-[10px] text-gold-bright">Administrator · Full Access</span>
+              ) : profile?.tier ? (
+                <span className="text-[10px] text-gold-muted capitalize">{profile.tier} Edition</span>
+              ) : null}
+            </div>
+          }
+        />
+        <Row icon={<Settings className="w-4 h-4 text-gold-muted" />} label="Settings" onClick={() => go("/settings")} />
+        <Row icon={<LogOut className="w-4 h-4 text-gold-muted" />} label="Sign Out" onClick={handleSignOut} />
+      </div>
+    </div>
+  );
+}

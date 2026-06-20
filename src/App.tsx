@@ -22,6 +22,7 @@ import GeneratePage from "./pages/GeneratePage";
 import IntroductionPage from "./pages/IntroductionPage";
 import ManualViewPage from "./pages/ManualViewPage";
 import DocumentConversionPage from "./pages/DocumentConversionPage";
+import { MobileMenuPage } from "./components/MobileMenuPage";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
 
           {/* Protected app routes */}
           <Route element={<ProtectedRoute />}>
+            <Route path="/menu" element={<MobileMenuPage />} />
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/introduction" element={<IntroductionPage />} />
