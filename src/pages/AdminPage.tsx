@@ -11,6 +11,7 @@ import {
   UserCog,
   Users,
   UploadCloud,
+  DownloadCloud,
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
@@ -26,9 +27,30 @@ export default function AdminPage() {
   const updateTier = useMutation(api.admin.updateClientTier);
   const activateClient = useMutation(api.admin.activateClient);
   const pushToHubSpot = useAction(api.hubspot.pushClientToHubSpot);
+  const pullFromHubSpot = useAction(api.hubspot.pullContactFromHubSpot);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [hubspotSyncingId, setHubspotSyncingId] = useState<string | null>(null);
   const [hubspotResult, setHubspotResult] = useState<{ id: string; ok: boolean; message: string } | null>(null);
+  const [pullingId, setPullingId] = useState<string | null>(null);
+  const [pulledData, setPulledData] = useState<{ id: string; properties: Record<string, any> } | null>(null);
+
+  const handlePullFromHubSpot = async (client: any) => {
+    setPullingId(client._id);
+    setPulledData(null);
+    setHubspotResult(null);
+    try {
+      const result = await pullFromHubSpot({ email: client.userEmail });
+      if (result.found) {
+        setPulledData({ id: client._id, properties: result.properties || {} });
+      } else {
+        setHubspotResult({ id: client._id, ok: false, message: result.message || "Not found in HubSpot." });
+      }
+    } catch (err: any) {
+      setHubspotResult({ id: client._id, ok: false, message: err?.message || "Pull failed." });
+    } finally {
+      setPullingId(null);
+    }
+  };
 
   const handlePushToHubSpot = async (client: any) => {
     setHubspotSyncingId(client._id);
@@ -142,9 +164,9 @@ export default function AdminPage() {
               return (
                 <div
                   key={client._id}
-                  className="px-4 py-3 hover:bg-[#e8c46a]/5 transition-colors"
+                  className="px-4 py-3 hover:bg-[#e8c46a]/5 transition-colors space-y-2"
                 >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   {/* Status */}
                   <div className="shrink-0">
                     {client.isActivated ? (
@@ -161,13 +183,15 @@ export default function AdminPage() {
                     </p>
                     <p className="text-[10px] text-[#e8e6e1]/75 truncate">{client.userEmail}</p>
                   </div>
+                </div>
 
+                <div className="flex flex-wrap items-center gap-2 pl-7">
                   {/* Tier Selector */}
                   <select
                     value={client.tier || "vault"}
                     onChange={(e) => handleTierChange(client._id, e.target.value)}
                     disabled={isUpdating}
-                    className="bg-black border border-gold-border/30 rounded px-2 py-1 text-xs text-[#e8e6e1] focus:outline-none cursor-pointer"
+                    className="bg-black border border-gold-border/30 rounded px-2 py-1 text-xs text-[#e8e6e1] focus:outline-none cursor-pointer shrink-0"
                   >
                     {tiers.map((t) => (
                       <option key={t.id} value={t.id}>{t.name}</option>
@@ -178,7 +202,7 @@ export default function AdminPage() {
                   <button
                     onClick={() => handleActivate(client._id, !client.isActivated)}
                     disabled={isUpdating}
-                    className={`text-[10px] px-2 py-1 rounded ${
+                    className={`text-[10px] px-2 py-1 rounded shrink-0 ${
                       client.isActivated
                         ? "bg-red-500/10 text-red-400 hover:bg-red-500/20"
                         : "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
@@ -196,32 +220,46 @@ export default function AdminPage() {
                   {/* View Manual */}
                   <button
                     onClick={() => navigate(`/manual/${client._id}`)}
-                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1"
+                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 shrink-0 p-1"
                     title="View Manual"
                   >
-                    <Eye className="w-3 h-3" />
+                    <Eye className="w-3.5 h-3.5" />
                   </button>
 
                   {/* Generate */}
                   <button
                     onClick={() => navigate(`/generate?client=${client._id}`)}
-                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1"
+                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 shrink-0 p-1"
                     title="Generate Manual"
                   >
-                    <FileText className="w-3 h-3" />
+                    <FileText className="w-3.5 h-3.5" />
                   </button>
 
                   {/* Push to HubSpot */}
                   <button
                     onClick={() => handlePushToHubSpot(client)}
                     disabled={isSyncing}
-                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 disabled:opacity-50"
+                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 disabled:opacity-50 shrink-0 p-1"
                     title="Push to HubSpot"
                   >
                     {isSyncing ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      <UploadCloud className="w-3 h-3" />
+                      <UploadCloud className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+
+                  {/* Pull from HubSpot */}
+                  <button
+                    onClick={() => handlePullFromHubSpot(client)}
+                    disabled={pullingId === client._id}
+                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 disabled:opacity-50 shrink-0 p-1"
+                    title="Pull from HubSpot"
+                  >
+                    {pullingId === client._id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <DownloadCloud className="w-3.5 h-3.5" />
                     )}
                   </button>
                 </div>
@@ -229,6 +267,18 @@ export default function AdminPage() {
                   <p className={`text-[10px] mt-1.5 pl-8 ${syncResult.ok ? "text-emerald-400" : "text-red-400"}`}>
                     {syncResult.message}
                   </p>
+                )}
+                {pulledData?.id === client._id && (
+                  <div className="text-[10px] mt-1.5 pl-8 text-[#e8e6e1]/80 space-y-0.5">
+                    <p className="text-gold-muted">From HubSpot:</p>
+                    {Object.entries(pulledData.properties)
+                      .filter(([, v]) => v)
+                      .map(([k, v]) => (
+                        <p key={k}>
+                          <span className="text-[#e8e6e1]/50">{k}:</span> {String(v)}
+                        </p>
+                      ))}
+                  </div>
                 )}
                 </div>
               );
