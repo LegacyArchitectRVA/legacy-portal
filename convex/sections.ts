@@ -1,22 +1,28 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
+import { v } from "convex/values";
 
-async function requireAdmin(ctx: any) {
+async function requireAdmin(ctx: any, onBehalfOf?: any) {
   const userId = await getAuthUserId(ctx);
   if (!userId) throw new Error("Not authenticated");
   const user = await ctx.db.get(userId);
   if (!user?.isAdmin) throw new Error("Chapter sections are view-only for clients");
-  return userId;
+  return onBehalfOf || userId;
 }
-import { v } from "convex/values";
 
 // ── Row CRUD (for structured tables) ──
 
 export const getRows = query({
-  args: { chapterId: v.string(), sectionId: v.string() },
-  handler: async (ctx, { chapterId, sectionId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return [];
+  args: { chapterId: v.string(), sectionId: v.string(), onBehalfOf: v.optional(v.id("users")) },
+  handler: async (ctx, { chapterId, sectionId, onBehalfOf }) => {
+    const authUserId = await getAuthUserId(ctx);
+    if (!authUserId) return [];
+    let userId = authUserId;
+    if (onBehalfOf) {
+      const user = await ctx.db.get(authUserId);
+      if (!user?.isAdmin) throw new Error("Not authorized");
+      userId = onBehalfOf;
+    }
     const rows = await ctx.db
       .query("sectionRows")
       .withIndex("by_user_section", (q) =>
@@ -32,9 +38,10 @@ export const addRow = mutation({
     chapterId: v.string(),
     sectionId: v.string(),
     data: v.string(),
+    onBehalfOf: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
-    const userId = await requireAdmin(ctx);
+    const userId = await requireAdmin(ctx, args.onBehalfOf);
     // Generate a rowId
     const rowId = `row_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     // Get max sort order
@@ -63,9 +70,10 @@ export const updateRow = mutation({
     sectionId: v.string(),
     rowId: v.string(),
     data: v.string(),
+    onBehalfOf: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
-    const userId = await requireAdmin(ctx);
+    const userId = await requireAdmin(ctx, args.onBehalfOf);
     const row = await ctx.db
       .query("sectionRows")
       .withIndex("by_user_section", (q) =>
@@ -83,9 +91,10 @@ export const deleteRow = mutation({
     chapterId: v.string(),
     sectionId: v.string(),
     rowId: v.string(),
+    onBehalfOf: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
-    const userId = await requireAdmin(ctx);
+    const userId = await requireAdmin(ctx, args.onBehalfOf);
     const row = await ctx.db
       .query("sectionRows")
       .withIndex("by_user_section", (q) =>
@@ -101,10 +110,16 @@ export const deleteRow = mutation({
 // ── Field CRUD (for textarea/checkbox fields) ──
 
 export const getFields = query({
-  args: { chapterId: v.string(), sectionId: v.string() },
-  handler: async (ctx, { chapterId, sectionId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return {};
+  args: { chapterId: v.string(), sectionId: v.string(), onBehalfOf: v.optional(v.id("users")) },
+  handler: async (ctx, { chapterId, sectionId, onBehalfOf }) => {
+    const authUserId = await getAuthUserId(ctx);
+    if (!authUserId) return {};
+    let userId = authUserId;
+    if (onBehalfOf) {
+      const user = await ctx.db.get(authUserId);
+      if (!user?.isAdmin) throw new Error("Not authorized");
+      userId = onBehalfOf;
+    }
     const fields = await ctx.db
       .query("sectionFields")
       .withIndex("by_user_section", (q) =>
@@ -126,9 +141,10 @@ export const saveField = mutation({
     sectionId: v.string(),
     fieldId: v.string(),
     value: v.string(),
+    onBehalfOf: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
-    const userId = await requireAdmin(ctx);
+    const userId = await requireAdmin(ctx, args.onBehalfOf);
     // Upsert
     const existing = await ctx.db
       .query("sectionFields")

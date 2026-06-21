@@ -141,6 +141,12 @@ export default function ClientDetailPage() {
         {detail.isClient && (
           <>
             <button
+              onClick={() => navigate(`/dashboard?for=${id}`)}
+              className="flex items-center gap-1.5 bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 text-xs font-heading px-3 py-2 rounded-lg transition-colors"
+            >
+              <FileText className="w-3.5 h-3.5" /> Edit Life Manual
+            </button>
+            <button
               onClick={() => navigate(`/manual/${id}`)}
               className="flex items-center gap-1.5 bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 text-xs font-heading px-3 py-2 rounded-lg transition-colors"
             >

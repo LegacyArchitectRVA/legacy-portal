@@ -10,20 +10,27 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters, PRIVACY_NOTE, type SubSection } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LucideIcon } from "../components/LucideIcon";
 import { useCmsValue, useCmsStyle, cmsStyleToCss } from "../hooks/useCms";
+import type { Id } from "../../convex/_generated/dataModel";
 
 export default function ChapterPage() {
   const { chapterId } = useParams<{ chapterId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const onBehalfOf = searchParams.get("for") as Id<"users"> | null;
   const profile = useQuery(api.profile.getMyProfile);
   const tier = profile?.tier || "vault";
 
   const isAdmin = useQuery(api.admin.isAdmin);
+  const editingClient = useQuery(
+    api.crm.getClientDetail,
+    onBehalfOf && isAdmin ? { clientUserId: onBehalfOf } : "skip"
+  );
   const chapterIntro = useCmsValue("chapter_intro", "");
   const chapterIntroStyle = useCmsStyle("chapter_intro");
   const chapter = chapters.find((ch) => ch.id === chapterId);
@@ -55,12 +62,19 @@ export default function ChapterPage() {
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       {/* Back */}
       <button
-        onClick={() => navigate("/dashboard")}
+        onClick={() => navigate(onBehalfOf ? `/admin/client/${onBehalfOf}` : "/dashboard")}
         className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to Dashboard
+        {onBehalfOf ? "Back to Client Profile" : "Back to Dashboard"}
       </button>
+
+      {onBehalfOf && editingClient && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-2.5 text-xs text-amber-300 flex items-center gap-2">
+          <Save className="w-3.5 h-3.5 shrink-0" />
+          Editing {editingClient.name || editingClient.email}'s Life Manual on their behalf.
+        </div>
+      )}
 
       {/* Legal Documents Notice */}
 
@@ -100,6 +114,7 @@ export default function ChapterPage() {
             chapterId={chapter.id}
             chapterColor={chapter.color}
             canEdit={isAdmin === true}
+            onBehalfOf={onBehalfOf || undefined}
           />
         ))}
       </div>
@@ -119,15 +134,17 @@ function SectionAccordion({
   chapterId,
   chapterColor,
   canEdit,
+  onBehalfOf,
 }: {
   section: SubSection;
   chapterId: string;
   chapterColor: string;
   canEdit: boolean;
+  onBehalfOf?: Id<"users">;
 }) {
   const [open, setOpen] = useState(false);
-  const rows = useQuery(api.sections.getRows, { chapterId, sectionId: section.id });
-  const fields = useQuery(api.sections.getFields, { chapterId, sectionId: section.id });
+  const rows = useQuery(api.sections.getRows, { chapterId, sectionId: section.id, onBehalfOf });
+  const fields = useQuery(api.sections.getFields, { chapterId, sectionId: section.id, onBehalfOf });
   const addRow = useMutation(api.sections.addRow);
   const updateRow = useMutation(api.sections.updateRow);
   const deleteRow = useMutation(api.sections.deleteRow);
@@ -139,6 +156,7 @@ function SectionAccordion({
   const [newRowData, setNewRowData] = useState<Record<string, string>>({});
   const [fieldDrafts, setFieldDrafts] = useState<Record<string, string>>({});
   const [savingField, setSavingField] = useState<string | null>(null);
+  const [savedConfirmation, setSavedConfirmation] = useState(false);
 
   const colCount = section.tableColumns?.length || 0;
   const fieldDefCount = section.fields?.length || 0;
@@ -167,13 +185,24 @@ function SectionAccordion({
       if (!canEdit) return;
       setSavingField(fieldId);
       try {
-        await saveField({ chapterId, sectionId: section.id, fieldId, value });
+        await saveField({ chapterId, sectionId: section.id, fieldId, value, onBehalfOf });
       } finally {
         setSavingField(null);
       }
     },
-    [saveField, chapterId, section.id, canEdit]
+    [saveField, chapterId, section.id, canEdit, onBehalfOf]
   );
+
+  const handleSaveProgress = useCallback(async () => {
+    if (!canEdit) return;
+    const serverFields = (fields as Record<string, string>) || {};
+    const pending = Object.entries(fieldDrafts).filter(([id, val]) => val !== (serverFields[id] || ""));
+    for (const [fieldId, value] of pending) {
+      await saveField({ chapterId, sectionId: section.id, fieldId, value, onBehalfOf });
+    }
+    setSavedConfirmation(true);
+    setTimeout(() => setSavedConfirmation(false), 2500);
+  }, [canEdit, fieldDrafts, fields, saveField, chapterId, section.id, onBehalfOf]);
 
   const handleAddRow = async () => {
     if (!canEdit) return;
@@ -181,6 +210,7 @@ function SectionAccordion({
       chapterId,
       sectionId: section.id,
       data: JSON.stringify(newRowData),
+      onBehalfOf,
     });
     setNewRowData({});
     setAddingRow(false);
@@ -193,6 +223,7 @@ function SectionAccordion({
       sectionId: section.id,
       rowId,
       data: JSON.stringify(editData),
+      onBehalfOf,
     });
     setEditingRow(null);
     setEditData({});
@@ -200,7 +231,7 @@ function SectionAccordion({
 
   const handleDeleteRow = async (rowId: string) => {
     if (!canEdit) return;
-    await deleteRow({ chapterId, sectionId: section.id, rowId });
+    await deleteRow({ chapterId, sectionId: section.id, rowId, onBehalfOf });
   };
 
   return (
@@ -323,6 +354,22 @@ function SectionAccordion({
                   )}
                 </div>
               ))}
+              {canEdit && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSaveProgress}
+                    className="flex items-center gap-1.5 text-xs bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    Save Progress
+                  </button>
+                  {savedConfirmation && (
+                    <span className="text-xs text-emerald-400 flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" /> Saved
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

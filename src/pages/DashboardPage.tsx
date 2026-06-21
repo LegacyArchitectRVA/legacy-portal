@@ -1,10 +1,11 @@
 import { useQuery } from "convex/react";
 import { ArrowRight, Clock, Lock, ShieldCheck } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { useCmsValue, useCmsStyle, cmsStyleToCss } from "../hooks/useCms";
+import type { Id } from "../../convex/_generated/dataModel";
 
 const tierImages: Record<string, string> = {
   vault: "/tier-vault.png",
@@ -14,10 +15,29 @@ const tierImages: Record<string, string> = {
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const profile = useQuery(api.profile.getMyProfile);
-  const progress = useQuery(api.sections.getProgress);
+  const [searchParams] = useSearchParams();
+  const onBehalfOf = searchParams.get("for") as Id<"users"> | null;
   const isAdmin = useQuery(api.admin.isAdmin);
-  const tier = profile?.tier || "vault";
+  const editingClient = useQuery(
+    api.crm.getClientDetail,
+    onBehalfOf && isAdmin ? { clientUserId: onBehalfOf } : "skip"
+  );
+  const editingClientProgress = useQuery(
+    api.crm.getClientProgressSummary,
+    onBehalfOf && isAdmin ? { clientUserId: onBehalfOf } : "skip"
+  );
+  const myProfile = useQuery(api.profile.getMyProfile);
+  const myProgress = useQuery(api.sections.getProgress);
+
+  const profile = onBehalfOf && editingClient
+    ? { name: editingClient.name, tier: editingClient.tier, isActivated: true }
+    : myProfile;
+  const progress = onBehalfOf && editingClientProgress
+    ? Object.fromEntries(
+        editingClientProgress.map((p) => [p.chapterId, { rows: 0, fields: p.rowsAndFieldsCompleted }])
+      )
+    : myProgress;
+
   const welcomeText = useCmsValue("dashboard_welcome", "Welcome");
   const welcomeStyle = useCmsStyle("dashboard_welcome");
   const descriptionText = useCmsValue(
@@ -25,6 +45,7 @@ export default function DashboardPage() {
     "Your Life Manual, organized across seven chapters of continuity"
   );
   const descriptionStyle = useCmsStyle("dashboard_description");
+  const tier = profile?.tier || "vault";
   const tierInfo = getTierByName(tier);
   const isActivated = profile?.isActivated !== false;
 
@@ -89,6 +110,19 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
+      {onBehalfOf && editingClient && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+          <p className="text-xs text-amber-300">
+            Editing {editingClient.name || editingClient.email}'s Life Manual on their behalf.
+          </p>
+          <button
+            onClick={() => navigate(`/admin/client/${onBehalfOf}`)}
+            className="text-xs text-amber-200 hover:text-amber-100 underline shrink-0"
+          >
+            Done
+          </button>
+        </div>
+      )}
       {/* Header */}
       <div>
         <h1
@@ -103,7 +137,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Tier Badge with Image */}
-      {isAdmin ? (
+      {isAdmin && !onBehalfOf ? (
         <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c46a]/20 bg-gradient-to-r from-[#e8c46a]/[0.06] to-transparent p-3 md:p-4">
           <ShieldCheck className="w-14 h-14 text-[#e8c46a] shrink-0" />
           <div className="flex-1">
@@ -186,7 +220,7 @@ export default function DashboardPage() {
               <button
                 key={ch.id}
                 type="button"
-                onClick={() => accessible && navigate(`/chapter/${ch.id}`)}
+                onClick={() => accessible && navigate(`/chapter/${ch.id}${onBehalfOf ? `?for=${onBehalfOf}` : ""}`)}
                 className={`group flex flex-col items-center gap-2 rounded-lg p-2 md:p-3 transition-all duration-300 ${
                   accessible
                     ? "hover:bg-white/[0.02] cursor-pointer"
@@ -338,7 +372,7 @@ export default function DashboardPage() {
 
                   <button
                     type="button"
-                    onClick={() => navigate(`/chapter/${ch.id}`)}
+                    onClick={() => navigate(`/chapter/${ch.id}${onBehalfOf ? `?for=${onBehalfOf}` : ""}`)}
                     className="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-[#e8c46a]/15 hover:bg-[#e8c46a]/5 hover:border-[#e8c46a]/25 text-[#e8e6e1]/80 hover:text-[#e8e6e1] transition-all duration-300 text-[11px] font-heading tracking-[1px] uppercase group/btn"
                   >
                     <span>{ch.completed > 0 ? "Continue" : "Get Started"}</span>
