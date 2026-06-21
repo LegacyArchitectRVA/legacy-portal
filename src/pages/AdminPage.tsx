@@ -146,6 +146,13 @@ export default function AdminPage() {
             <BookOpen className="w-4 h-4" />
             Generate Manual
           </button>
+          <button
+            onClick={() => navigate("/admin/prospects")}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+          >
+            <Users className="w-4 h-4" />
+            Prospects
+          </button>
         </div>
       </div>
 

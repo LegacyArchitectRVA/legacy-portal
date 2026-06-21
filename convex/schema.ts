@@ -91,6 +91,26 @@ const schema = defineSchema({
     value: v.string(),
   }).index("by_key", ["key"]),
 
+  // Referral leads / prospects — not registered portal users, just
+  // people and contacts being tracked before (or instead of) becoming
+  // an actual client
+  prospects: defineTable({
+    name: v.string(),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    source: v.optional(v.string()),
+    status: v.union(
+      v.literal("new"),
+      v.literal("contacted"),
+      v.literal("follow_up"),
+      v.literal("converted"),
+      v.literal("inactive"),
+    ),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_status", ["status"]),
+
   // Admin notes about a specific client (CRM feature)
   clientNotes: defineTable({
     clientUserId: v.id("users"),

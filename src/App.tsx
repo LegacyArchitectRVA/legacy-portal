@@ -24,6 +24,7 @@ import ManualViewPage from "./pages/ManualViewPage";
 import DocumentConversionPage from "./pages/DocumentConversionPage";
 import LegalPage from "./pages/LegalPage";
 import ClientDetailPage from "./pages/ClientDetailPage";
+import ProspectsPage from "./pages/ProspectsPage";
 import { MobileMenuPage } from "./components/MobileMenuPage";
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
               <Route path="/payment" element={<PaymentPage />} />
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/admin/client/:clientUserId" element={<ClientDetailPage />} />
+              <Route path="/admin/prospects" element={<ProspectsPage />} />
               <Route path="/admin/visual-editor" element={<AdminVisualEditorPage />} />
               <Route path="/admin/hubspot" element={<HubSpotSettingsPage />} />
               <Route path="/generate" element={<GeneratePage />} />
