@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useConvexAuth, useMutation } from "convex/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@phosphor-icons/react";
 import { EncryptedIcon, ZeroKnowledgeIcon, PrivateIcon } from "../components/TrustIcons";
 import { useCmsValue } from "../hooks/useCms";
 import { EditableText } from "../components/EditableText";
@@ -111,7 +111,7 @@ export default function LandingPage() {
                 className="btn-gold px-8 py-3.5 text-sm tracking-widest uppercase inline-flex items-center gap-3"
               >
                 Go to Dashboard
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4" weight="bold" />
               </Link>
             ) : (
               <Link
@@ -119,7 +119,7 @@ export default function LandingPage() {
                 className="btn-gold px-8 py-3.5 text-sm tracking-widest uppercase inline-flex items-center gap-3"
               >
                 <EditableText cmsKey="landing_cta_text" />
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4" weight="bold" />
               </Link>
             )}
           </div>
@@ -136,6 +136,23 @@ export default function LandingPage() {
           Your life is planned. Your absence isn't.
         </p>
       </div>
+
+      {/* Intro video */}
+      <section className="py-4 md:py-8 px-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="relative rounded-xl overflow-hidden border border-[#e8c46a]/15 shadow-[0_0_40px_rgba(212,175,55,0.06)]">
+            <video
+              controls
+              playsInline
+              preload="metadata"
+              poster="/videos/intro-poster.jpg"
+              className="w-full aspect-video bg-black"
+            >
+              <source src="/videos/intro.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </section>
 
       {/* Feature Cards */}
       <section className="py-16 md:py-24 relative">
