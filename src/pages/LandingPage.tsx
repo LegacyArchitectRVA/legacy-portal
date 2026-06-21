@@ -1,31 +1,14 @@
 import { Link } from "react-router-dom";
-import { useConvexAuth } from "convex/react";
+import { useConvexAuth, useMutation } from "convex/react";
 import { ArrowRight } from "lucide-react";
 import { EncryptedIcon, ZeroKnowledgeIcon, PrivateIcon } from "../components/TrustIcons";
-import { useCmsValue, useCmsStyle, cmsStyleToCss } from "../hooks/useCms";
+import { useCmsValue } from "../hooks/useCms";
+import { EditableText } from "../components/EditableText";
+import { useEditMode } from "../contexts/EditModeContext";
+import { api } from "../../convex/_generated/api";
 
 export default function LandingPage() {
   const { isAuthenticated } = useConvexAuth();
-
-  const heroTitle = useCmsValue(
-    "landing_hero_title",
-    "When You Can't Be There,\nWill They Know What To Do?"
-  );
-  const heroTitleStyle = useCmsStyle("landing_hero_title");
-  const heroSubtitle = useCmsValue(
-    "landing_hero_subtitle",
-    "A Life Manual puts every account, system, and instruction in one place, so the people you love can act without guessing."
-  );
-  const heroSubtitleStyle = useCmsStyle("landing_hero_subtitle");
-  const tagline = useCmsValue("app_tagline", "This is the missing map.");
-  const taglineStyle = useCmsStyle("app_tagline");
-  const ctaText = useCmsValue("landing_cta_text", "Sign In to Your Portal");
-  const ctaStyle = useCmsStyle("landing_cta_text");
-  const footerText = useCmsValue(
-    "footer_text",
-    "All Life Manuals include: Secure Client Portal access, premium branded PDF, and 72-hour data self-destruct after delivery."
-  );
-  const footerStyle = useCmsStyle("footer_text");
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -97,29 +80,27 @@ export default function LandingPage() {
           <div className="space-y-5">
             <h1
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]"
-              style={{ fontFamily: "Cinzel, serif", fontWeight: 700, fontVariant: "small-caps", ...cmsStyleToCss(heroTitleStyle) }}
+              style={{ fontFamily: "Cinzel, serif", fontWeight: 700, fontVariant: "small-caps" }}
             >
-              {heroTitle.split("\n").map((line, i) => (
-                <span key={i}>
-                  {line}
-                  {i < heroTitle.split("\n").length - 1 && <br />}
-                </span>
-              ))}
+              <EditableText
+                cmsKey="landing_hero_title"
+                preserveLineBreaks
+              />
             </h1>
 
-            <p
+            <EditableText
+              cmsKey="landing_hero_subtitle"
+              as="p"
               className="text-base md:text-lg text-[#c1b085] max-w-2xl mx-auto leading-relaxed"
-              style={{ fontFamily: "'Libre Baskerville', serif", ...cmsStyleToCss(heroSubtitleStyle) }}
-            >
-              {heroSubtitle}
-            </p>
+              style={{ fontFamily: "'Libre Baskerville', serif" }}
+            />
 
-            <p
+            <EditableText
+              cmsKey="app_tagline"
+              as="p"
               className="text-xs md:text-sm tracking-[0.3em] uppercase text-[#e8c46a]/50"
-              style={{ fontFamily: "Cinzel, serif", ...cmsStyleToCss(taglineStyle) }}
-            >
-              {tagline}
-            </p>
+              style={{ fontFamily: "Cinzel, serif" }}
+            />
           </div>
 
           {/* CTA Button */}
@@ -136,9 +117,8 @@ export default function LandingPage() {
               <Link
                 to="/login"
                 className="btn-gold px-8 py-3.5 text-sm tracking-widest uppercase inline-flex items-center gap-3"
-                style={cmsStyleToCss(ctaStyle)}
               >
-                {ctaText}
+                <EditableText cmsKey="landing_cta_text" />
                 <ArrowRight className="w-4 h-4" />
               </Link>
             )}
@@ -160,81 +140,18 @@ export default function LandingPage() {
       {/* Feature Cards */}
       <section className="py-16 md:py-24 relative">
         <div className="container">
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="group relative rounded-lg bg-[#111111] border border-[#e8c46a]/10 p-6 transition-all duration-300 hover:border-[#e8c46a]/25 hover:shadow-[0_0_30px_rgba(232,196,106,0.05)]">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#e8c46a]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
-              <div className="relative space-y-4 text-center">
-                <div className="flex justify-center">
-                  <EncryptedIcon size={30} />
-                </div>
-                <h3
-                  className="text-sm tracking-[0.15em] uppercase text-[#e8e6e1]"
-                  style={{ fontFamily: "Cinzel, serif" }}
-                >
-                  Encrypted & Secure
-                </h3>
-                <p
-                  className="text-sm text-[#c1b085] leading-relaxed"
-                  style={{ fontFamily: "'Libre Baskerville', serif" }}
-                >
-                  Your data is protected with enterprise-grade encryption at rest and in transit.
-                </p>
-              </div>
-            </div>
-
-            <div className="group relative rounded-lg bg-[#111111] border border-[#e8c46a]/10 p-6 transition-all duration-300 hover:border-[#e8c46a]/25 hover:shadow-[0_0_30px_rgba(232,196,106,0.05)]">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#e8c46a]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
-              <div className="relative space-y-4 text-center">
-                <div className="flex justify-center">
-                  <ZeroKnowledgeIcon size={30} />
-                </div>
-                <h3
-                  className="text-sm tracking-[0.15em] uppercase text-[#e8e6e1]"
-                  style={{ fontFamily: "Cinzel, serif" }}
-                >
-                  Zero-Knowledge Protocol
-                </h3>
-                <p
-                  className="text-sm text-[#c1b085] leading-relaxed"
-                  style={{ fontFamily: "'Libre Baskerville', serif" }}
-                >
-                  After delivery, all files and access are purged. Your information stays with you.
-                </p>
-              </div>
-            </div>
-
-            <div className="group relative rounded-lg bg-[#111111] border border-[#e8c46a]/10 p-6 transition-all duration-300 hover:border-[#e8c46a]/25 hover:shadow-[0_0_30px_rgba(232,196,106,0.05)]">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#e8c46a]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
-              <div className="relative space-y-4 text-center">
-                <div className="flex justify-center">
-                  <PrivateIcon size={30} />
-                </div>
-                <h3
-                  className="text-sm tracking-[0.15em] uppercase text-[#e8e6e1]"
-                  style={{ fontFamily: "Cinzel, serif" }}
-                >
-                  Private & Confidential
-                </h3>
-                <p
-                  className="text-sm text-[#c1b085] leading-relaxed"
-                  style={{ fontFamily: "'Libre Baskerville', serif" }}
-                >
-                  Limited to 5 clients per month. Your manual receives our full attention and discretion.
-                </p>
-              </div>
-            </div>
-          </div>
+          <TrustCardsGrid />
         </div>
       </section>
 
       {/* All Life Manuals include */}
       <section className="py-8 text-center">
-        <p
+        <EditableText
+          cmsKey="footer_text"
+          as="p"
           className="text-xs md:text-sm text-[#c1b085]/60 max-w-3xl mx-auto leading-relaxed px-4"
-          style={{ fontFamily: "'Libre Baskerville', serif", ...cmsStyleToCss(footerStyle) }}
-        >
-          {footerText}
-        </p>
+          style={{ fontFamily: "'Libre Baskerville', serif" }}
+        />
       </section>
 
       {/* Footer */}
@@ -245,6 +162,96 @@ export default function LandingPage() {
           </p>
         </div>
       </footer>
+    </div>
+  );
+}
+
+const TRUST_CARD_DEFS: Record<string, { icon: typeof EncryptedIcon }> = {
+  encrypted: { icon: EncryptedIcon },
+  zeroknowledge: { icon: ZeroKnowledgeIcon },
+  private: { icon: PrivateIcon },
+};
+const DEFAULT_ORDER = ["encrypted", "zeroknowledge", "private"];
+
+function TrustCardsGrid() {
+  const { active } = useEditMode();
+  const orderRaw = useCmsValue("trust_cards_order", JSON.stringify(DEFAULT_ORDER));
+  const updateCMS = useMutation(api.admin.updateCMS);
+
+  let order: string[];
+  try {
+    order = JSON.parse(orderRaw);
+    if (!Array.isArray(order) || order.length !== DEFAULT_ORDER.length) order = DEFAULT_ORDER;
+  } catch {
+    order = DEFAULT_ORDER;
+  }
+
+  const moveCard = (index: number, direction: -1 | 1) => {
+    const next = [...order];
+    const target = index + direction;
+    if (target < 0 || target >= next.length) return;
+    [next[index], next[target]] = [next[target], next[index]];
+    updateCMS({ key: "trust_cards_order", value: JSON.stringify(next) });
+  };
+
+  return (
+    <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      {order.map((cardId, index) => {
+        const def = TRUST_CARD_DEFS[cardId];
+        if (!def) return null;
+        const Icon = def.icon;
+        return (
+          <div
+            key={cardId}
+            className="group relative rounded-lg bg-[#111111] border border-[#e8c46a]/10 p-6 transition-all duration-300 hover:border-[#e8c46a]/25 hover:shadow-[0_0_30px_rgba(232,196,106,0.05)]"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[#e8c46a]/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
+            {active && (
+              <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveCard(index, -1);
+                  }}
+                  disabled={index === 0}
+                  className="w-6 h-6 flex items-center justify-center rounded bg-black/60 text-gold-primary disabled:opacity-30 hover:bg-black/80"
+                  title="Move left/up"
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveCard(index, 1);
+                  }}
+                  disabled={index === order.length - 1}
+                  className="w-6 h-6 flex items-center justify-center rounded bg-black/60 text-gold-primary disabled:opacity-30 hover:bg-black/80"
+                  title="Move right/down"
+                >
+                  ↓
+                </button>
+              </div>
+            )}
+            <div className="relative space-y-4 text-center">
+              <div className="flex justify-center">
+                <Icon size={30} />
+              </div>
+              <EditableText
+                cmsKey={`trust_card_${cardId}_title`}
+                as="h3"
+                className="text-sm tracking-[0.15em] uppercase text-[#e8e6e1]"
+                style={{ fontFamily: "Cinzel, serif" }}
+              />
+              <EditableText
+                cmsKey={`trust_card_${cardId}_desc`}
+                as="p"
+                className="text-sm text-[#c1b085] leading-relaxed"
+                style={{ fontFamily: "'Libre Baskerville', serif" }}
+              />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
