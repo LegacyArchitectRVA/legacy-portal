@@ -390,11 +390,11 @@ export default function AdminPage() {
 
       {showAddClient && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 animate-modal-backdrop"
           onClick={() => setShowAddClient(false)}
         >
           <div
-            className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[70vh] flex flex-col"
+            className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[70vh] flex flex-col animate-modal-sheet"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b border-gold-border/20">

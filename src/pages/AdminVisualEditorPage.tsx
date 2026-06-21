@@ -189,11 +189,11 @@ export default function AdminVisualEditorPage() {
       {/* Floating edit panel */}
       {selectedKey && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center bg-black/70"
+          className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center bg-black/70 animate-modal-backdrop"
           onClick={() => setSelectedKey(null)}
         >
           <div
-            className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] overflow-y-auto p-5 space-y-4"
+            className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] overflow-y-auto p-5 space-y-4 animate-modal-sheet"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">

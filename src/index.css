@@ -224,6 +224,10 @@
   background: #e8c46a;
   box-shadow: 0 0 24px rgba(232, 196, 106, 0.35), 0 0 60px rgba(232, 196, 106, 0.1);
 }
+.btn-gold:active {
+  transform: scale(0.97);
+  box-shadow: 0 0 16px rgba(232, 196, 106, 0.25);
+}
 /* ── Gold outline button (secondary) ── */
 .btn-gold-outline {
   background: rgba(240, 230, 184, 0.06);
@@ -239,6 +243,10 @@
   background: rgba(240, 230, 184, 0.12);
   border-color: rgba(240, 230, 184, 0.4);
   box-shadow: 0 0 20px rgba(232, 196, 106, 0.12);
+}
+.btn-gold-outline:active {
+  transform: scale(0.97);
+  background: rgba(240, 230, 184, 0.16);
 }
 
 /* ── Glow effects ── */
@@ -296,6 +304,30 @@
 }
 .animate-fade-in {
   animation: fade-in 0.5s ease-out forwards;
+}
+
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-modal-backdrop {
+  animation: modal-backdrop-in 0.2s ease-out forwards;
+}
+
+@keyframes modal-sheet-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-modal-sheet {
+  animation: modal-sheet-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modal-dialog-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-modal-dialog {
+  animation: modal-dialog-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* ── Privacy disclaimer ── */
@@ -409,3 +441,14 @@
 .chapter-glow-white { border-left: 2px solid #FFFFFF; box-shadow: -4px 0 12px rgba(255, 255, 255, 0.1); }
 .chapter-glow-purple { border-left: 2px solid #A855F7; box-shadow: -4px 0 12px rgba(168, 85, 247, 0.15); }
 .chapter-glow-silver { border-left: 2px solid #94A3B8; box-shadow: -4px 0 12px rgba(148, 163, 184, 0.1); }
+
+/* ── Universal tap feedback: every button gets a subtle press-down
+   effect, since this is a mobile-first app and :hover never fires on
+   touch. Scoped to a real press (not :disabled, which can't receive
+   pointer events anyway) and scale-only so it never affects layout.
+   Placed at the end of the file so it wins over Tailwind utilities
+   of equal specificity declared earlier. */
+button:not(:disabled):active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}

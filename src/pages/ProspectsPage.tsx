@@ -191,7 +191,7 @@ export default function ProspectsPage() {
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-gold-border/20 p-4 space-y-3">
+                  <div className="border-t border-gold-border/20 p-4 space-y-3 animate-fade-in" style={{ animationDuration: "0.3s" }}>
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="flex items-center gap-2 text-[#e8e6e1]/85">
                         <Mail className="w-3.5 h-3.5 text-gold-muted shrink-0" />
@@ -253,11 +253,11 @@ export default function ProspectsPage() {
 
       {showAdd && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 animate-modal-backdrop"
           onClick={() => setShowAdd(false)}
         >
           <div
-            className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5 space-y-3"
+            className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5 space-y-3 animate-modal-sheet"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
