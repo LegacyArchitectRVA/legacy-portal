@@ -287,7 +287,7 @@ export default function HubSpotSettingsPage() {
           </ol>
           
           <div className="mt-6 p-4 bg-black rounded-lg border border-gold-border/20">
-            <p className="text-[10px] text-[#e8e6e1]/50">
+            <p className="text-[10px] text-[#e8e6e1]/50 break-words">
               <strong className="text-gold-muted">Note:</strong> Keep this token secure. 
               Anyone with access to this key can make API requests on behalf of your HubSpot account.
               <br/>

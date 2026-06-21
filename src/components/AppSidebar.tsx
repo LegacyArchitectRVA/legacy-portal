@@ -1,6 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
-import { CaretUp as ChevronUp, SquaresFour as LayoutDashboard, SignOut as LogOut, ChatCircle as MessageSquare, Gear as Settings, ShieldCheck, BookOpen, TrendUp as TrendingUp, User, File } from "@phosphor-icons/react";
+import { CaretUp as ChevronUp, SquaresFour as LayoutDashboard, SignOut as LogOut, ChatCircle as MessageSquare, Gear as Settings, ShieldCheck, BookOpen, TrendUp as TrendingUp, User, Users, File, PaintBrush, PlugsConnected } from "@phosphor-icons/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
@@ -251,11 +251,38 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
+                    isActive={location.pathname === "/admin/visual-editor"}
+                    onClick={() => navTo("/admin/visual-editor")}
+                  >
+                    <PaintBrush className="w-4 h-4" />
+                    <span>Visual Editor</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={location.pathname === "/admin/hubspot"}
+                    onClick={() => navTo("/admin/hubspot")}
+                  >
+                    <PlugsConnected className="w-4 h-4" />
+                    <span>HubSpot Settings</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
                     isActive={location.pathname.startsWith("/generate")}
                     onClick={() => navTo("/generate")}
                   >
                     <BookOpen className="w-4 h-4" />
                     <span>Generate Manual</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={location.pathname === "/admin/prospects"}
+                    onClick={() => navTo("/admin/prospects")}
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>Prospects</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>

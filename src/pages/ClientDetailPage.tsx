@@ -84,8 +84,10 @@ export default function ClientDetailPage() {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h1 className="font-heading text-xl text-[#e8e6e1] truncate">{detail.name || detail.email}</h1>
-          <p className="text-xs text-[#e8e6e1]/75 truncate">{detail.email}</p>
+          <h1 className="font-heading text-xl text-[#e8e6e1] break-words leading-tight">
+            {detail.name || "Unnamed Client"}
+          </h1>
+          <p className="text-xs text-[#e8e6e1]/75 break-all">{detail.email}</p>
           <div className="flex items-center gap-2 mt-1.5">
             {detail.isClient ? (
               <>
@@ -160,7 +162,7 @@ export default function ClientDetailPage() {
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="flex items-center gap-2 text-[#e8e6e1]/85">
             <Mail className="w-3.5 h-3.5 text-gold-muted shrink-0" />
-            <span className="truncate">{detail.email}</span>
+            <span className="break-all">{detail.email}</span>
           </div>
           <div className="flex items-center gap-2 text-[#e8e6e1]/85">
             <Phone className="w-3.5 h-3.5 text-gold-muted shrink-0" />
@@ -180,11 +182,11 @@ export default function ClientDetailPage() {
           ) : (
             <div className="space-y-2">
               {progress.map((p) => (
-                <div key={p.chapterId} className="flex items-center justify-between text-xs">
+                <div key={p.chapterId} className="text-xs">
                   <span className="text-[#e8e6e1]/85">
                     Ch. {p.chapterNumber} · {p.title}
                   </span>
-                  <span className="text-[#e8e6e1]/75">
+                  <span className="text-[#e8e6e1]/60 block">
                     {p.sectionsStarted}/{p.totalSections} sections started
                   </span>
                 </div>

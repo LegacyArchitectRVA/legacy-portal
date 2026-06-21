@@ -167,14 +167,14 @@ export default function ManualViewPage() {
         .filter((ch) => canAccessChapter(tier, ch.chapterNumber))
         .map((ch) => (
           <div key={ch.id} className="space-y-4">
-            <div className="flex items-center gap-3 pt-6 pb-2 border-b border-[rgba(217,204,160,0.08)]">
+            <div className="pt-6 pb-2 border-b border-[rgba(217,204,160,0.08)]">
               <span
-                className="font-heading text-lg font-bold"
+                className="font-heading text-xs uppercase tracking-widest whitespace-nowrap"
                 style={{ color: ch.color === "#FFFFFF" ? "#e8e6e1" : ch.color }}
               >
                 Chapter {ch.chapterNumber}
               </span>
-              <span className="font-heading text-lg font-semibold text-[#e8e6e1]">
+              <span className="font-heading text-lg font-semibold text-[#e8e6e1] block mt-0.5">
                 {ch.title}
               </span>
             </div>

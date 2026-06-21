@@ -61,6 +61,7 @@ export const listClients = query({
       result.push({
         ...client,
         userName: user.name || user.email || "Unknown",
+        hasRealName: !!user.name,
         userEmail: user.email,
         totalRows: rows.length,
         totalFields: fields.filter((f) => f.value && f.value.trim() !== "").length,

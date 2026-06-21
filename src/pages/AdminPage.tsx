@@ -179,7 +179,7 @@ export default function AdminPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm text-[#e8e6e1] truncate">{r.name || r.email}</p>
-                    <p className="text-[10px] text-[#e8e6e1]/75 truncate">{r.email}</p>
+                    {r.name && <p className="text-[10px] text-[#e8e6e1]/75 truncate">{r.email}</p>}
                   </div>
                   {r.isClient ? (
                     <span className="text-[9px] bg-gold-dark/20 text-gold-muted px-1.5 py-0.5 rounded-full capitalize shrink-0">
@@ -257,7 +257,9 @@ export default function AdminPage() {
                     <p className="text-sm text-[#e8e6e1] truncate font-medium">
                       {client.userName || client.userEmail || "Unknown"}
                     </p>
-                    <p className="text-[10px] text-[#e8e6e1]/75 truncate">{client.userEmail}</p>
+                    {client.hasRealName && (
+                      <p className="text-[10px] text-[#e8e6e1]/75 truncate">{client.userEmail}</p>
+                    )}
                   </div>
                 </div>
 
