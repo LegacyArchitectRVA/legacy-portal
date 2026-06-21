@@ -172,7 +172,7 @@ export default function SettingsPage() {
       {/* Account Info */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
         <h2 className="font-heading text-sm text-gold-primary">Account</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Name</p>
             <p className="text-sm text-[#e8e6e1]">{profile?.name || "Not set"}</p>
