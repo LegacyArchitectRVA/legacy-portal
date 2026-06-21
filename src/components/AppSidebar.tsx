@@ -251,6 +251,33 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
+                    isActive={location.pathname === "/admin/prospects"}
+                    onClick={() => navTo("/admin/prospects")}
+                  >
+                    <Users className="w-4 h-4" />
+                    <span>Prospects</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={location.pathname.startsWith("/generate")}
+                    onClick={() => navTo("/generate")}
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    <span>Generate Manual</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={location.pathname === "/convert"}
+                    onClick={() => navTo("/convert")}
+                  >
+                    <File className="w-4 h-4" />
+                    <span>Document Conversion</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
                     isActive={location.pathname === "/admin/visual-editor"}
                     onClick={() => navTo("/admin/visual-editor")}
                   >
@@ -265,33 +292,6 @@ export function AppSidebar() {
                   >
                     <PlugsConnected className="w-4 h-4" />
                     <span>HubSpot Settings</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname.startsWith("/generate")}
-                    onClick={() => navTo("/generate")}
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    <span>Generate Manual</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname === "/admin/prospects"}
-                    onClick={() => navTo("/admin/prospects")}
-                  >
-                    <Users className="w-4 h-4" />
-                    <span>Prospects</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname === "/convert"}
-                    onClick={() => navTo("/convert")}
-                  >
-                    <File className="w-4 h-4" />
-                    <span>Document Conversion</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

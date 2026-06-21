@@ -109,6 +109,20 @@ export default function AdminPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
+            onClick={() => navigate("/admin/prospects")}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+          >
+            <Users className="w-4 h-4" />
+            Prospects
+          </button>
+          <button
+            onClick={() => navigate("/generate")}
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+          >
+            <BookOpen className="w-4 h-4" />
+            Generate Manual
+          </button>
+          <button
             onClick={() => navigate("/admin/visual-editor")}
             className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
           >
@@ -121,20 +135,6 @@ export default function AdminPage() {
           >
             <Settings className="w-4 h-4" />
             HubSpot
-          </button>
-          <button
-            onClick={() => navigate("/generate")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-          >
-            <BookOpen className="w-4 h-4" />
-            Generate Manual
-          </button>
-          <button
-            onClick={() => navigate("/admin/prospects")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
-          >
-            <Users className="w-4 h-4" />
-            Prospects
           </button>
         </div>
       </div>

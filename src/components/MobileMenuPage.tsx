@@ -170,11 +170,11 @@ export function MobileMenuPage() {
           <>
             <SectionLabel>Admin</SectionLabel>
             <Row icon={<ShieldCheck className="w-4 h-4 text-gold-muted" />} label="Dashboard" onClick={() => go("/admin")} />
+            <Row icon={<Users className="w-4 h-4 text-gold-muted" />} label="Prospects" onClick={() => go("/admin/prospects")} />
+            <Row icon={<BookOpen className="w-4 h-4 text-gold-muted" />} label="Generate Manual" onClick={() => go("/generate")} />
+            <Row icon={<File className="w-4 h-4 text-gold-muted" />} label="Document Conversion" onClick={() => go("/convert")} />
             <Row icon={<PaintBrush className="w-4 h-4 text-gold-muted" />} label="Visual Editor" onClick={() => go("/admin/visual-editor")} />
             <Row icon={<PlugsConnected className="w-4 h-4 text-gold-muted" />} label="HubSpot Settings" onClick={() => go("/admin/hubspot")} />
-            <Row icon={<BookOpen className="w-4 h-4 text-gold-muted" />} label="Generate Manual" onClick={() => go("/generate")} />
-            <Row icon={<Users className="w-4 h-4 text-gold-muted" />} label="Prospects" onClick={() => go("/admin/prospects")} />
-            <Row icon={<File className="w-4 h-4 text-gold-muted" />} label="Document Conversion" onClick={() => go("/convert")} />
           </>
         )}
 
