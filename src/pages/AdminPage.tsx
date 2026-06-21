@@ -9,6 +9,7 @@ import {
   Paintbrush,
   Settings,
   UserCog,
+  UserPlus,
   Users,
   UploadCloud,
   DownloadCloud,
@@ -33,6 +34,24 @@ export default function AdminPage() {
   const [hubspotResult, setHubspotResult] = useState<{ id: string; ok: boolean; message: string } | null>(null);
   const [pullingId, setPullingId] = useState<string | null>(null);
   const [pulledData, setPulledData] = useState<{ id: string; properties: Record<string, any> } | null>(null);
+  const [showAddClient, setShowAddClient] = useState(false);
+  const [addingTierFor, setAddingTierFor] = useState<string | null>(null);
+  const [addClientError, setAddClientError] = useState("");
+  const addableUsers = useQuery(api.admin.listAddableUsers, showAddClient ? {} : "skip");
+  const addClientMutation = useMutation(api.admin.addClient);
+
+  const handleAddClient = async (userId: string, tier: string) => {
+    setAddingTierFor(userId);
+    setAddClientError("");
+    try {
+      await addClientMutation({ userId: userId as any, tier: tier as any });
+      setShowAddClient(false);
+    } catch (err: any) {
+      setAddClientError(err?.message || "Could not add this client.");
+    } finally {
+      setAddingTierFor(null);
+    }
+  };
 
   const handlePullFromHubSpot = async (client: any) => {
     setPullingId(client._id);
@@ -149,10 +168,17 @@ export default function AdminPage() {
 
       {/* Client List */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border overflow-hidden">
-        <div className="p-4 border-b border-gold-border/30">
+        <div className="p-4 border-b border-gold-border/30 flex items-center justify-between">
           <h2 className="font-heading text-sm text-gold-primary flex items-center gap-2">
             <UserCog className="w-4 h-4" /> Client Management
           </h2>
+          <button
+            onClick={() => setShowAddClient(true)}
+            className="flex items-center gap-1.5 bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 text-[10px] font-heading px-3 py-1.5 rounded-lg transition-colors"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            Add Client
+          </button>
         </div>
 
         {clients && clients.length > 0 ? (
@@ -290,6 +316,70 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {showAddClient && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70"
+          onClick={() => setShowAddClient(false)}
+        >
+          <div
+            className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[70vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-gold-border/20">
+              <h2 className="font-heading text-sm text-gold-primary">Add Client</h2>
+              <button onClick={() => setShowAddClient(false)} className="text-[#e8e6e1]/75">
+                <XCircle className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1">
+              {addClientError && (
+                <p className="text-xs text-red-400 bg-red-400/10 m-3 rounded-lg px-3 py-2">{addClientError}</p>
+              )}
+              {addableUsers === undefined ? (
+                <p className="text-sm text-[#e8e6e1]/75 p-4">Loading...</p>
+              ) : addableUsers.length === 0 ? (
+                <p className="text-sm text-[#e8e6e1]/75 p-4">
+                  No registered users available to add. They need to create a portal
+                  account first, then they'll show up here.
+                </p>
+              ) : (
+                addableUsers.map((u) => (
+                  <div
+                    key={u.userId}
+                    className="flex items-center gap-3 px-4 py-3 border-b border-gold-border/10"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gold-dark/20 flex items-center justify-center shrink-0">
+                      <span className="text-gold-primary text-xs font-heading">
+                        {(u.name || u.email).slice(0, 2).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-[#e8e6e1] truncate">{u.name || u.email}</p>
+                      {u.name && <p className="text-xs text-[#e8e6e1]/75 truncate">{u.email}</p>}
+                    </div>
+                    <select
+                      defaultValue=""
+                      disabled={addingTierFor === u.userId}
+                      onChange={(e) => handleAddClient(u.userId, e.target.value)}
+                      className="bg-black border border-gold-border/30 rounded px-2 py-1 text-xs text-[#e8e6e1] focus:outline-none cursor-pointer shrink-0"
+                    >
+                      <option value="" disabled>
+                        {addingTierFor === u.userId ? "Adding..." : "Add as..."}
+                      </option>
+                      {tiers.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

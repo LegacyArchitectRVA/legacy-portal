@@ -211,6 +211,44 @@ export const makeAdmin = mutation({
 });
 
 // Aliases for frontend compatibility
+/** Admin only: registered users who don't have a clients record yet, for the Add Client picker. */
+export const listAddableUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const allUsers = await ctx.db.query("users").collect();
+    const allClients = await ctx.db.query("clients").collect();
+    const existingClientUserIds = new Set(allClients.map((c) => c.userId.toString()));
+    return allUsers
+      .filter((u) => !u.isAdmin && !existingClientUserIds.has(u._id.toString()))
+      .map((u) => ({ userId: u._id, name: u.name || "", email: u.email || "Unknown" }));
+  },
+});
+
+/** Admin only: creates a clients record for an existing registered user. */
+export const addClient = mutation({
+  args: {
+    userId: v.id("users"),
+    tier: v.union(v.literal("vault"), v.literal("archive"), v.literal("legacy")),
+  },
+  handler: async (ctx, { userId, tier }) => {
+    await requireAdmin(ctx);
+    const user = await ctx.db.get(userId);
+    if (!user) throw new Error("User not found");
+    const existing = await ctx.db
+      .query("clients")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+    if (existing) throw new Error("This person is already a client.");
+    const clientId = await ctx.db.insert("clients", {
+      userId,
+      tier,
+      isActivated: true,
+    });
+    return { clientId };
+  },
+});
+
 export const updateClientTier = mutation({
   args: { clientId: v.id("clients"), tier: v.string() },
   handler: async (ctx, { clientId, tier }) => {
