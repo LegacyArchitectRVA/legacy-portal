@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { Send, CheckCheck, Trash2, ArrowLeft, MessageSquare, Plus, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 
@@ -168,7 +169,9 @@ export default function MessagesPage() {
   const markThreadRead = useMutation(api.messages.markThreadRead);
 
   const isAdmin = profile?.isAdmin;
-  const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const deepLinkClientId = searchParams.get("with");
+  const [selectedClient, setSelectedClient] = useState<string | null>(deepLinkClientId);
   const [showNewMessage, setShowNewMessage] = useState(false);
 
   const conversations = useQuery(api.messages.getConversations, isAdmin ? {} : "skip");

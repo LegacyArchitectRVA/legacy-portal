@@ -91,6 +91,14 @@ const schema = defineSchema({
     value: v.string(),
   }).index("by_key", ["key"]),
 
+  // Admin notes about a specific client (CRM feature)
+  clientNotes: defineTable({
+    clientUserId: v.id("users"),
+    authorId: v.id("users"),
+    content: v.string(),
+    createdAt: v.number(),
+  }).index("by_clientUserId", ["clientUserId"]),
+
   // WebAuthn / passkey credentials registered per user
   webauthnCredentials: defineTable({
     userId: v.id("users"),

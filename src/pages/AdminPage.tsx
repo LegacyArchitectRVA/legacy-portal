@@ -3,10 +3,12 @@ import {
   BookOpen,
   CheckCircle2,
   Crown,
+  ExternalLink,
   Eye,
   FileText,
   Loader2,
   Paintbrush,
+  Search,
   Settings,
   UserCog,
   UserPlus,
@@ -39,6 +41,8 @@ export default function AdminPage() {
   const [addClientError, setAddClientError] = useState("");
   const addableUsers = useQuery(api.admin.listAddableUsers, showAddClient ? {} : "skip");
   const addClientMutation = useMutation(api.admin.addClient);
+  const [searchTerm, setSearchTerm] = useState("");
+  const searchResults = useQuery(api.crm.searchClients, searchTerm.trim() ? { search: searchTerm.trim() } : "skip");
 
   const handleAddClient = async (userId: string, tier: string) => {
     setAddingTierFor(userId);
@@ -145,6 +149,62 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* Search */}
+      <div className="relative">
+        <div className="flex items-center gap-2 bg-[#0a0a0a] border border-gold-border rounded-xl px-3 py-2.5">
+          <Search className="w-4 h-4 text-gold-muted shrink-0" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by name or email..."
+            className="flex-1 bg-transparent text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/50 focus:outline-none"
+          />
+          {searchTerm && (
+            <button onClick={() => setSearchTerm("")} className="text-[#e8e6e1]/50 hover:text-[#e8e6e1]">
+              <XCircle className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+        {searchTerm.trim() && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-[#0a0a0a] border border-gold-border rounded-xl z-10 max-h-72 overflow-y-auto">
+            {searchResults === undefined ? (
+              <p className="text-sm text-[#e8e6e1]/75 p-4">Searching...</p>
+            ) : searchResults.length === 0 ? (
+              <p className="text-sm text-[#e8e6e1]/75 p-4">No matches.</p>
+            ) : (
+              searchResults.map((r) => (
+                <button
+                  key={r.userId}
+                  onClick={() => {
+                    setSearchTerm("");
+                    navigate(`/admin/client/${r.userId}`);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-white/5 transition-colors border-b border-gold-border/10 last:border-0"
+                >
+                  <div className="w-7 h-7 rounded-full bg-gold-dark/20 flex items-center justify-center shrink-0">
+                    <span className="text-gold-primary text-[10px] font-heading">
+                      {(r.name || r.email).slice(0, 2).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-[#e8e6e1] truncate">{r.name || r.email}</p>
+                    <p className="text-[10px] text-[#e8e6e1]/75 truncate">{r.email}</p>
+                  </div>
+                  {r.isClient ? (
+                    <span className="text-[9px] bg-gold-dark/20 text-gold-muted px-1.5 py-0.5 rounded-full capitalize shrink-0">
+                      {r.tier}
+                    </span>
+                  ) : (
+                    <span className="text-[9px] text-[#e8e6e1]/50 shrink-0">Not a client</span>
+                  )}
+                </button>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 text-center space-y-2">
@@ -243,6 +303,15 @@ export default function AdminPage() {
                     )}
                   </button>
 
+                  {/* View Profile (CRM detail) */}
+                  <button
+                    onClick={() => navigate(`/admin/client/${client.userId}`)}
+                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 shrink-0 p-1"
+                    title="View Profile"
+                  >
+                    <UserCog className="w-3.5 h-3.5" />
+                  </button>
+
                   {/* View Manual */}
                   <button
                     onClick={() => navigate(`/manual/${client.userId}`)}
@@ -290,9 +359,19 @@ export default function AdminPage() {
                   </button>
                 </div>
                 {syncResult && (
-                  <p className={`text-[10px] mt-1.5 pl-8 ${syncResult.ok ? "text-emerald-400" : "text-red-400"}`}>
-                    {syncResult.message}
-                  </p>
+                  <div className="flex items-center gap-2 mt-1.5 pl-8">
+                    <p className={`text-[10px] ${syncResult.ok ? "text-emerald-400" : "text-red-400"}`}>
+                      {syncResult.message}
+                    </p>
+                    {syncResult.ok && (
+                      <button
+                        onClick={() => navigate(`/admin/client/${client.userId}`)}
+                        className="text-[10px] text-gold-primary hover:underline flex items-center gap-0.5"
+                      >
+                        <ExternalLink className="w-2.5 h-2.5" /> Go to Portal Profile
+                      </button>
+                    )}
+                  </div>
                 )}
                 {pulledData?.id === client._id && (
                   <div className="text-[10px] mt-1.5 pl-8 text-[#e8e6e1]/80 space-y-0.5">
