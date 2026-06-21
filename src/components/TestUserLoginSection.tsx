@@ -1,5 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { FlaskConical, Loader2 } from "lucide-react";
+import { Flask as FlaskConical, CircleNotch as Loader2 } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";

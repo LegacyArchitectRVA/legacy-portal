@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { ArrowRight, Check, Lock, Shield } from "lucide-react";
+import { ArrowRight, Check, Lock, Shield } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";

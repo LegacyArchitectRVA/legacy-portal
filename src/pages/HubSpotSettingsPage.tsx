@@ -2,17 +2,7 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Copy,
-  Eye,
-  Key,
-  Loader2,
-  Save,
-  Settings,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle as CheckCircle2, Copy, Eye, Key, CircleNotch as Loader2, FloppyDisk as Save, Gear as Settings, XCircle } from "@phosphor-icons/react";
 
 export default function HubSpotSettingsPage() {
   const navigate = useNavigate();

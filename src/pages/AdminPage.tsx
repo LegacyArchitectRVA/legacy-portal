@@ -1,22 +1,5 @@
 import { useAction, useMutation, useQuery } from "convex/react";
-import {
-  BookOpen,
-  CheckCircle2,
-  Crown,
-  ExternalLink,
-  Eye,
-  FileText,
-  Loader2,
-  Paintbrush,
-  Search,
-  Settings,
-  UserCog,
-  UserPlus,
-  Users,
-  UploadCloud,
-  DownloadCloud,
-  XCircle,
-} from "lucide-react";
+import { BookOpen, CheckCircle as CheckCircle2, Crown, ArrowSquareOut as ExternalLink, Eye, FileText, CircleNotch as Loader2, PaintBrush as Paintbrush, MagnifyingGlass as Search, Gear as Settings, UserGear as UserCog, UserPlus, Users, CloudArrowUp as UploadCloud, CloudArrowDown as DownloadCloud, XCircle } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconMedallion } from "../components/TrustIcons";

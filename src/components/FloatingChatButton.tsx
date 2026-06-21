@@ -1,4 +1,4 @@
-import { MessageSquare } from "lucide-react";
+import { ChatCircle as MessageSquare } from "@phosphor-icons/react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function FloatingChatButton() {

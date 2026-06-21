@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "convex/react";
-import { Send, CheckCheck, Trash2, ArrowLeft, MessageSquare, Plus, X } from "lucide-react";
+import { PaperPlaneTilt as Send, Checks as CheckCheck, Trash as Trash2, ArrowLeft, ChatCircle as MessageSquare, Plus, X } from "@phosphor-icons/react";
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

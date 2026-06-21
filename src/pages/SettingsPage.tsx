@@ -1,24 +1,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { startRegistration, browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { useAction, useMutation, useQuery } from "convex/react";
-import {
-  AlertTriangle,
-  Bell,
-  Check,
-  ChevronRight,
-  Eye,
-  EyeOff,
-  Fingerprint,
-  FileText,
-  KeyRound,
-  Loader2,
-  LogOut,
-  MonitorSmartphone,
-  Shield,
-  ShieldCheck,
-  Smartphone,
-  Trash2,
-} from "lucide-react";
+import { Warning as AlertTriangle, Bell, Check, CaretRight as ChevronRight, Eye, EyeSlash as EyeOff, Fingerprint, FileText, Key as KeyRound, CircleNotch as Loader2, SignOut as LogOut, DeviceMobile as MonitorSmartphone, Shield, ShieldCheck, DeviceMobile as Smartphone, Trash as Trash2 } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

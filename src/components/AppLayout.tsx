@@ -1,4 +1,4 @@
-import { Menu } from "lucide-react";
+import { List as Menu } from "@phosphor-icons/react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import FloatingChatButton from "./FloatingChatButton";

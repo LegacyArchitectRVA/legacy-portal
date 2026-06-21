@@ -1,20 +1,5 @@
 import { useMutation, useQuery } from "convex/react";
-import {
-  ArrowLeft,
-  Calendar,
-  CheckCircle2,
-  ExternalLink,
-  FileText,
-  Loader2,
-  Mail,
-  MessageSquare,
-  Phone,
-  Scale,
-  Send,
-  Trash2,
-  User,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, Calendar, CheckCircle as CheckCircle2, ArrowSquareOut as ExternalLink, FileText, CircleNotch as Loader2, EnvelopeSimple as Mail, ChatCircle as MessageSquare, Phone, Scales as Scale, PaperPlaneTilt as Send, Trash as Trash2, User, XCircle } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

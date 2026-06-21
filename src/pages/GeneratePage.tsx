@@ -1,12 +1,5 @@
 import { useQuery } from "convex/react";
-import {
-  AlertTriangle,
-  ArrowLeft,
-  BookOpen,
-  Download,
-  FileText,
-  Loader2,
-} from "lucide-react";
+import { Warning as AlertTriangle, ArrowLeft, BookOpen, Download, FileText, CircleNotch as Loader2 } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

@@ -1,15 +1,5 @@
 import { useAction, useMutation, useQuery } from "convex/react";
-import {
-  ArrowLeft,
-  Loader2,
-  Mail,
-  Phone,
-  Plus,
-  RefreshCw,
-  Trash2,
-  User,
-  X,
-} from "lucide-react";
+import { ArrowLeft, CircleNotch as Loader2, EnvelopeSimple as Mail, Phone, Plus, ArrowsClockwise as RefreshCw, Trash as Trash2, User, X } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

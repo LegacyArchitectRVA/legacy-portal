@@ -1,4 +1,4 @@
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { Warning as AlertTriangle, ArrowCounterClockwise as RotateCcw } from "@phosphor-icons/react";
 import { Component, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 

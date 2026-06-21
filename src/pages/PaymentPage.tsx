@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { ArrowLeft, CreditCard, Shield, SplitSquareVertical } from "lucide-react";
+import { ArrowLeft, CreditCard, Shield, SquareSplitVertical } from "@phosphor-icons/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { stripeLinks, getTierByName } from "../data/tiers";

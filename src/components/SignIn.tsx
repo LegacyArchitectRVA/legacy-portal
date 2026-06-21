@@ -1,5 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { ArrowLeft, Loader2, Mail } from "lucide-react";
+import { ArrowLeft, CircleNotch as Loader2, EnvelopeSimple as Mail } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";

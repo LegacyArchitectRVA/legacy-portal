@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "convex/react";
-import { ChevronDown, Scale } from "lucide-react";
+import { CaretDown as ChevronDown, Scales as Scale } from "@phosphor-icons/react";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { IconMedallion } from "./TrustIcons";

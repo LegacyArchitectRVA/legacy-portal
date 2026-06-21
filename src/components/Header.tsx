@@ -1,5 +1,5 @@
 import { useConvexAuth } from "convex/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight } from "@phosphor-icons/react";
 import { Link, useLocation } from "react-router-dom";
 import { APP_NAME } from "@/lib/constants";
 import { Button } from "./ui/button";

@@ -1,4 +1,4 @@
-import { BookOpen, Download, Eye, Map, ClipboardCheck, ShieldCheck, ArrowLeft } from "lucide-react";
+import { BookOpen, Download, Eye, MapTrifold as Map, ClipboardText as ClipboardCheck, ShieldCheck, ArrowLeft } from "@phosphor-icons/react";
 import { useState } from "react";
 
 interface Guide {

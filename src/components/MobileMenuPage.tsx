@@ -1,18 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
-import {
-  ChevronRight,
-  File,
-  LayoutDashboard,
-  LogOut,
-  MessageSquare,
-  Settings,
-  ShieldCheck,
-  BookOpen,
-  TrendingUp,
-  User,
-  X,
-} from "lucide-react";
+import { CaretRight as ChevronRight, File, SquaresFour as LayoutDashboard, SignOut as LogOut, ChatCircle as MessageSquare, Gear as Settings, ShieldCheck, BookOpen, TrendUp as TrendingUp, User, X } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";

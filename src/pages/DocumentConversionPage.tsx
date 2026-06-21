@@ -1,16 +1,5 @@
 import { useRef, useState } from "react";
-import {
-  AlertCircle,
-  CheckCircle2,
-  Download,
-  File,
-  FileText,
-  Image as ImageIcon,
-  Loader2,
-  Type,
-  Upload,
-  X,
-} from "lucide-react";
+import { WarningCircle as AlertCircle, CheckCircle as CheckCircle2, Download, File, FileText, Image as ImageIcon, CircleNotch as Loader2, TextAa as Type, Upload, X } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import {
   downloadBlob,

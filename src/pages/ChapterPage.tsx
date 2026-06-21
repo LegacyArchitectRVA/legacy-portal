@@ -1,14 +1,5 @@
 import { useMutation, useQuery } from "convex/react";
-import {
-  ArrowLeft,
-  Check,
-  ChevronDown,
-  Loader2,
-  Plus,
-  Save,
-  Trash2,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Check, CaretDown as ChevronDown, CircleNotch as Loader2, Plus, FloppyDisk as Save, Trash as Trash2, X } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

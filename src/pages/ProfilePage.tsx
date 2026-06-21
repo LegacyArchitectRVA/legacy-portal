@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "convex/react";
-import { User, Save, Check, Camera, Crown } from "lucide-react";
+import { User, FloppyDisk as Save, Check, Camera, Crown } from "@phosphor-icons/react";
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../convex/_generated/api";
 
