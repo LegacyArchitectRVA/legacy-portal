@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { ArrowRight, Clock, Lock, ShieldCheck } from "@phosphor-icons/react";
+import { ArrowRight, Clock, Lock, ShieldCheck, CircleNotch } from "@phosphor-icons/react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
@@ -107,6 +107,14 @@ export default function DashboardPage() {
     const pct = fieldCount > 0 ? Math.round((completed / fieldCount) * 100) : 0;
     return { ...ch, fieldCount, completed, pct };
   });
+
+  if (myProfile === undefined || isAdmin === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <CircleNotch className="w-6 h-6 text-gold-muted animate-spin" weight="bold" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

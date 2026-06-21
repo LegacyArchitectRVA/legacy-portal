@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { ArrowRight, Check, Lock, Shield } from "@phosphor-icons/react";
+import { ArrowRight, Check, Lock, Shield, CircleNotch } from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
@@ -53,15 +53,25 @@ export default function UpgradePage() {
   const navigate = useNavigate();
   const profile = useQuery(api.profile.getMyProfile);
   const isAdmin = useQuery(api.admin.isAdmin);
-  const currentTier = normalizeTier(profile?.tier ?? undefined);
-  const currentRank = tierRank[currentTier];
-  const isLegacy = currentTier === "legacy";
 
   const titleText = useCmsValue("upgrade_title", "Upgrade Your Life Manual");
   const titleStyle = useCmsStyle("upgrade_title");
   const vaultDescOverride = useCmsValue("upgrade_vault_desc", "");
   const archiveDescOverride = useCmsValue("upgrade_archive_desc", "");
   const legacyDescOverride = useCmsValue("upgrade_legacy_desc", "");
+
+  if (profile === undefined || isAdmin === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <CircleNotch className="w-6 h-6 text-gold-muted animate-spin" weight="bold" />
+      </div>
+    );
+  }
+
+  const currentTier = normalizeTier(profile?.tier ?? undefined);
+  const currentRank = tierRank[currentTier];
+  const isLegacy = currentTier === "legacy";
+
   const descOverrides: Record<string, string> = {
     vault: vaultDescOverride,
     archive: archiveDescOverride,

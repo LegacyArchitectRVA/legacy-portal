@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import { ArrowLeft, CreditCard, Shield, SquareSplitVertical } from "@phosphor-icons/react";
+import { ArrowLeft, CreditCard, Shield, SquareSplitVertical, CircleNotch } from "@phosphor-icons/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { stripeLinks, getTierByName } from "../data/tiers";
@@ -9,6 +9,15 @@ export default function PaymentPage() {
   const [searchParams] = useSearchParams();
   const targetTierId = searchParams.get("tier") || "archive";
   const profile = useQuery(api.profile.getMyProfile);
+
+  if (profile === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <CircleNotch className="w-6 h-6 text-gold-muted animate-spin" weight="bold" />
+      </div>
+    );
+  }
+
   const currentTier = profile?.tier || "vault";
   const targetTier = getTierByName(targetTierId);
   const currentTierInfo = getTierByName(currentTier);
@@ -96,7 +105,7 @@ export default function PaymentPage() {
             className="w-full text-left p-5 rounded-xl border border-gold-border bg-[#0a0a0a] hover:border-gold-primary/40 hover:shadow-[0_0_20px_rgba(217,204,160,0.06)] transition-all duration-300 flex items-start gap-4 group block"
           >
             <div className="w-10 h-10 rounded-xl bg-gold-dark/15 flex items-center justify-center shrink-0 group-hover:bg-gold-dark/25 transition-colors">
-              <SplitSquareVertical className="w-5 h-5 text-gold-primary" />
+              <SquareSplitVertical className="w-5 h-5 text-gold-primary" />
             </div>
             <div className="flex-1">
               <h3 className="font-heading text-lg text-[#e8e6e1] group-hover:text-gold-primary transition-colors">

@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "convex/react";
-import { User, FloppyDisk as Save, Check, Camera, Crown } from "@phosphor-icons/react";
+import { User, FloppyDisk as Save, Check, Camera, Crown, CircleNotch } from "@phosphor-icons/react";
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../convex/_generated/api";
 
@@ -59,6 +59,14 @@ export default function ProfilePage() {
     ? profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1)
     : "Vault";
   const accessLabel = profile?.isAdmin ? "Administrator" : `${tierLabel} Edition`;
+
+  if (profile === undefined) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <CircleNotch className="w-6 h-6 text-gold-muted animate-spin" weight="bold" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6 animate-fade-in">
