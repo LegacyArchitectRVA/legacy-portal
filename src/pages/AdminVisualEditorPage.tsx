@@ -173,9 +173,9 @@ export default function AdminVisualEditorPage() {
           <CaretLeft className="w-4 h-4" weight="bold" />
           Admin
         </button>
-        <div className="flex items-center gap-2 text-xs text-gold-muted font-heading">
-          <CursorClick className="w-4 h-4" weight="duotone" />
-          Click anything below to edit it
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gold-muted font-heading text-right">
+          <CursorClick className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" weight="duotone" />
+          Tap to edit
         </div>
       </div>
 

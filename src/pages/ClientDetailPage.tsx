@@ -159,7 +159,7 @@ export default function ClientDetailPage() {
         <h2 className="font-heading text-sm text-gold-primary flex items-center gap-2">
           <User className="w-4 h-4" /> Contact Info
         </h2>
-        <div className="grid grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div className="flex items-center gap-2 text-[#e8e6e1]/85">
             <Mail className="w-3.5 h-3.5 text-gold-muted shrink-0" />
             <span className="break-all">{detail.email}</span>

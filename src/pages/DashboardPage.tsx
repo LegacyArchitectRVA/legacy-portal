@@ -276,7 +276,7 @@ export default function DashboardPage() {
                     boxShadow: accessible ? `0 0 6px ${ch.color}60` : "none",
                   }}
                 />
-                <span className="text-[9px] md:text-[10px] text-muted-foreground font-heading text-center leading-tight">
+                <span className="text-[9px] md:text-[10px] text-muted-foreground font-heading text-center leading-tight whitespace-nowrap">
                   Ch. {ch.chapterNumber}
                 </span>
               </button>
