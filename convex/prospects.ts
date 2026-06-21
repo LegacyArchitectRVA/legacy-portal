@@ -1,6 +1,66 @@
-import { mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAdmin } from "./admin";
+
+export const getAllClientEmailsInternal = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    return users.map((u) => (u.email || "").toLowerCase());
+  },
+});
+
+export const getAllProspectsInternal = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("prospects").collect();
+  },
+});
+
+export const upsertProspectFromHubSpot = internalMutation({
+  args: {
+    hubspotId: v.string(),
+    name: v.string(),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+  },
+  handler: async (ctx, { hubspotId, name, email, phone }) => {
+    const now = Date.now();
+    const existingByHubspotId = await ctx.db
+      .query("prospects")
+      .withIndex("by_hubspotId", (q) => q.eq("hubspotId", hubspotId))
+      .unique();
+
+    if (existingByHubspotId) {
+      // Keep status/notes (portal-specific enrichment); refresh contact info only.
+      await ctx.db.patch(existingByHubspotId._id, { name, email, phone, updatedAt: now });
+      return { action: "updated" as const };
+    }
+
+    // Not yet tracked locally — check if it matches an existing prospect by
+    // email first (e.g. one added manually before a HubSpot sync existed).
+    if (email) {
+      const all = await ctx.db.query("prospects").collect();
+      const matchByEmail = all.find((p) => p.email?.toLowerCase() === email.toLowerCase());
+      if (matchByEmail) {
+        await ctx.db.patch(matchByEmail._id, { hubspotId, name, phone, updatedAt: now });
+        return { action: "linked" as const };
+      }
+    }
+
+    await ctx.db.insert("prospects", {
+      name,
+      email,
+      phone,
+      source: "HubSpot",
+      hubspotId,
+      status: "new",
+      createdAt: now,
+      updatedAt: now,
+    });
+    return { action: "created" as const };
+  },
+});
 
 export const listProspects = query({
   args: {},

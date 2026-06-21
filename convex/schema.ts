@@ -99,6 +99,7 @@ const schema = defineSchema({
     email: v.optional(v.string()),
     phone: v.optional(v.string()),
     source: v.optional(v.string()),
+    hubspotId: v.optional(v.string()),
     status: v.union(
       v.literal("new"),
       v.literal("contacted"),
@@ -109,7 +110,9 @@ const schema = defineSchema({
     notes: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_status", ["status"]),
+  })
+    .index("by_status", ["status"])
+    .index("by_hubspotId", ["hubspotId"]),
 
   // Admin notes about a specific client (CRM feature)
   clientNotes: defineTable({

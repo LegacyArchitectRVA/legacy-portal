@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { action, internalMutation, internalQuery } from "./_generated/server";
+import { action, internalAction, internalMutation, internalQuery } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { requireAdminInAction } from "./admin";
 
@@ -58,6 +58,90 @@ export const recordSyncInternal = internalMutation({
 });
 
 /** Verifies the stored key actually works against HubSpot's API. */
+/** Fetches every contact from HubSpot, paginated, capped for safety. */
+async function fetchAllHubSpotContacts(apiKey: string): Promise<any[]> {
+  const all: any[] = [];
+  let after: string | undefined;
+  let pages = 0;
+
+  do {
+    const url = new URL(`${HUBSPOT_BASE}/crm/v3/objects/contacts`);
+    url.searchParams.set("limit", "100");
+    url.searchParams.set("properties", "email,firstname,lastname,phone");
+    if (after) url.searchParams.set("after", after);
+
+    const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${apiKey}` } });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`HubSpot contacts list failed (${res.status}): ${body.slice(0, 300)}`);
+    }
+    const data = await res.json();
+    all.push(...(data.results || []));
+    after = data.paging?.next?.after;
+    pages++;
+  } while (after && pages < 20); // safety cap: 2000 contacts
+
+  return all;
+}
+
+/** Core sync logic, shared by the manual button and the scheduled cron. */
+async function runProspectSync(ctx: any): Promise<{ created: number; updated: number; linked: number; skipped: number }> {
+  const apiKey: string | null = await ctx.runQuery(internal.hubspot.getApiKeyInternal, {});
+  if (!apiKey) throw new Error("HubSpot Private App Token not configured.");
+
+  const contacts = await fetchAllHubSpotContacts(apiKey);
+  const clientEmails: string[] = await ctx.runQuery(internal.prospects.getAllClientEmailsInternal, {});
+  const clientEmailSet = new Set(clientEmails.filter(Boolean));
+
+  let created = 0, updated = 0, linked = 0, skipped = 0;
+
+  for (const contact of contacts) {
+    const email = (contact.properties?.email || "").toLowerCase();
+    if (email && clientEmailSet.has(email)) {
+      skipped++; // already an actual client, not a prospect
+      continue;
+    }
+    const firstname = contact.properties?.firstname || "";
+    const lastname = contact.properties?.lastname || "";
+    const name = `${firstname} ${lastname}`.trim() || email || "Unnamed Contact";
+
+    const result = await ctx.runMutation(internal.prospects.upsertProspectFromHubSpot, {
+      hubspotId: contact.id,
+      name,
+      email: contact.properties?.email || undefined,
+      phone: contact.properties?.phone || undefined,
+    });
+    if (result.action === "created") created++;
+    else if (result.action === "linked") linked++;
+    else updated++;
+  }
+
+  return { created, updated, linked, skipped };
+}
+
+/** Manual "Sync Now" button — admin only. */
+export const syncProspectsFromHubSpot = action({
+  args: {},
+  handler: async (ctx): Promise<{ created: number; updated: number; linked: number; skipped: number }> => {
+    await requireAdminInAction(ctx);
+    return await runProspectSync(ctx);
+  },
+});
+
+/** Scheduled automatic sync — no user context, runs as the system. */
+export const scheduledProspectSync = internalAction({
+  args: {},
+  handler: async (ctx) => {
+    try {
+      await runProspectSync(ctx);
+    } catch (err) {
+      // Swallow errors from the scheduled run (e.g. no API key configured
+      // yet) so a missing integration doesn't show up as a failed cron.
+      console.error("Scheduled HubSpot prospect sync skipped:", err);
+    }
+  },
+});
+
 export const testConnection = action({
   args: {},
   handler: async (ctx): Promise<{ connected: boolean; message: string; portalId?: number }> => {

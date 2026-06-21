@@ -1,10 +1,11 @@
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import {
   ArrowLeft,
   Loader2,
   Mail,
   Phone,
   Plus,
+  RefreshCw,
   Trash2,
   User,
   X,
@@ -32,6 +33,26 @@ export default function ProspectsPage() {
   const addProspect = useMutation(api.prospects.addProspect);
   const updateProspect = useMutation(api.prospects.updateProspect);
   const deleteProspect = useMutation(api.prospects.deleteProspect);
+  const syncFromHubSpot = useAction(api.hubspot.syncProspectsFromHubSpot);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<string | null>(null);
+
+  const handleSync = async () => {
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const result = await syncFromHubSpot({});
+      const parts = [];
+      if (result.created) parts.push(`${result.created} new`);
+      if (result.updated) parts.push(`${result.updated} updated`);
+      if (result.linked) parts.push(`${result.linked} linked`);
+      setSyncResult(parts.length ? `Synced: ${parts.join(", ")}.` : "Synced. No changes.");
+    } catch (err: any) {
+      setSyncResult(err?.message || "Sync failed. Check your HubSpot connection in Settings.");
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const [showAdd, setShowAdd] = useState(false);
   const [name, setName] = useState("");
@@ -97,16 +118,32 @@ export default function ProspectsPage() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">Prospects</h1>
-          <p className="text-[#e8e6e1]/75 mt-1 text-sm">Referral leads and contacts, before they're clients</p>
+          <p className="text-[#e8e6e1]/75 mt-1 text-sm">
+            Referral leads and contacts, before they're clients
+          </p>
+          <p className="text-[#e8e6e1]/50 text-[10px] mt-0.5">
+            Synced automatically from HubSpot every 6 hours, or tap Sync for now.
+          </p>
         </div>
-        <button
-          onClick={() => setShowAdd(true)}
-          className="flex items-center gap-1.5 bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 text-xs font-heading px-3 py-2 rounded-lg transition-colors shrink-0"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          Add
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            className="flex items-center gap-1.5 bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 text-xs font-heading px-3 py-2 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+            Sync
+          </button>
+          <button
+            onClick={() => setShowAdd(true)}
+            className="flex items-center gap-1.5 bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 text-xs font-heading px-3 py-2 rounded-lg transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add
+          </button>
+        </div>
       </div>
+      {syncResult && <p className="text-xs text-emerald-400">{syncResult}</p>}
 
       {/* Status filter */}
       <div className="flex flex-wrap gap-2">
