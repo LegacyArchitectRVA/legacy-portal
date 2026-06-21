@@ -92,7 +92,8 @@ export default function HubSpotSettingsPage() {
             HubSpot Settings
           </h1>
           <p className="text-[#e8e6e1]/75 mt-1">
-            Configure HubSpot Service Key integration for client sync
+            Connect your HubSpot account to push client records, pull contact data,
+            and link straight to each client's CRM profile
           </p>
         </div>
         <button
@@ -103,7 +104,44 @@ export default function HubSpotSettingsPage() {
           Back to Admin
         </button>
       </div>
-      
+
+      {/* What This Enables */}
+      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border overflow-hidden">
+        <div className="p-4 border-b border-gold-border/30">
+          <h2 className="font-heading text-sm text-gold-primary">What This Enables</h2>
+        </div>
+        <div className="p-6 space-y-3 text-sm text-[#e8e6e1]/80">
+          <div className="flex gap-3">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <span>
+              <strong className="text-[#e8e6e1]">Push to HubSpot</strong> — from any client's row in
+              Client Management, send their name, email, and phone to HubSpot as a contact.
+            </span>
+          </div>
+          <div className="flex gap-3">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <span>
+              <strong className="text-[#e8e6e1]">Pull from HubSpot</strong> — look up a client's
+              current HubSpot contact record right next to their portal data.
+            </span>
+          </div>
+          <div className="flex gap-3">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <span>
+              <strong className="text-[#e8e6e1]">Go to Portal Profile</strong> — after a successful
+              sync, jump straight from HubSpot context to that client's full CRM profile in the portal.
+            </span>
+          </div>
+          <div className="flex gap-3">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <span>
+              <strong className="text-[#e8e6e1]">View in HubSpot</strong> — once synced, a client's
+              profile page links directly back to their HubSpot contact record.
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Settings Card */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border overflow-hidden">
         <div className="p-4 border-b border-gold-border/30">
@@ -117,10 +155,10 @@ export default function HubSpotSettingsPage() {
           {/* API Key Input */}
           <div>
             <label className="block text-sm font-medium text-[#e8e6e1] mb-2">
-              HubSpot Service Key
+              HubSpot Private App Token
             </label>
             <p className="text-[10px] text-[#e8e6e1]/50 mb-3">
-              Enter your HubSpot Service Key to enable client data synchronization.
+              Enter your HubSpot Private App Token to enable client data synchronization.
               This key will be used to authenticate requests to the HubSpot API.
               <br/>
               <span className="text-gold-muted/70">Recommended scopes: crm.objects.contacts.* and crm.schemas.contacts.*</span>
@@ -133,7 +171,7 @@ export default function HubSpotSettingsPage() {
                   setApiKey(e.target.value);
                   setSaved(false);
                 }}
-                placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                placeholder="pat-na1-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
                 className="w-full bg-black border border-gold-border/30 rounded-lg px-4 py-3 text-[#e8e6e1] placeholder:text-[#e8e6e1]/30 focus:outline-none focus:border-gold-primary font-mono text-sm"
               />
               <button
@@ -242,25 +280,25 @@ export default function HubSpotSettingsPage() {
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
                 4
               </span>
-              <span>Navigate to "Integrations" &gt; "Service Keys"</span>
+              <span>Navigate to "Integrations" &gt; "Private Apps"</span>
             </li>
             <li className="flex gap-3">
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
                 5
               </span>
-              <span>Click "Create a service key" and select required scopes</span>
+              <span>Click "Create a private app" and select the scopes below</span>
             </li>
             <li className="flex gap-3">
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
                 6
               </span>
-              <span>Copy the Service Key (starts with "sk-")</span>
+              <span>Copy the access token (starts with "pat-")</span>
             </li>
           </ol>
           
           <div className="mt-6 p-4 bg-black rounded-lg border border-gold-border/20">
             <p className="text-[10px] text-[#e8e6e1]/50">
-              <strong className="text-gold-muted">Note:</strong> Keep your Service Key secure. 
+              <strong className="text-gold-muted">Note:</strong> Keep this token secure. 
               Anyone with access to this key can make API requests on behalf of your HubSpot account.
               <br/>
               <strong className="text-gold-muted">Recommended scopes:</strong> 
