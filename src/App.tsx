@@ -26,12 +26,14 @@ import LegalPage from "./pages/LegalPage";
 import ClientDetailPage from "./pages/ClientDetailPage";
 import ProspectsPage from "./pages/ProspectsPage";
 import { MobileMenuPage } from "./components/MobileMenuPage";
+import { ScrollToTop } from "./components/ScrollToTop";
 
 function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
         <Toaster />
+        <ScrollToTop />
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
