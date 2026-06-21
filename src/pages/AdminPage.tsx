@@ -245,7 +245,7 @@ export default function AdminPage() {
 
                   {/* View Manual */}
                   <button
-                    onClick={() => navigate(`/manual/${client._id}`)}
+                    onClick={() => navigate(`/manual/${client.userId}`)}
                     className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 shrink-0 p-1"
                     title="View Manual"
                   >
