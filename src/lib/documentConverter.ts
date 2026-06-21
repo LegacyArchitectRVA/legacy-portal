@@ -151,7 +151,140 @@ export async function parseAffine(file: File): Promise<ParsedDocument> {
   return { title: affineData.title || guessTitle(blocks, file.name.replace(/\.[^.]+$/, "")), blocks };
 }
 
-export type InputType = "markdown" | "html" | "word" | "affine";
+/**
+ * PDFs have no real document structure, just positioned glyphs, so this
+ * infers headings vs. paragraphs vs. lists from font size and bullet
+ * patterns. It's a heuristic, not a guarantee: well-formatted documents
+ * (consistent heading sizes, real bullet characters) convert cleanly;
+ * unusual layouts may come through as plain paragraphs.
+ */
+export async function parsePdf(file: File): Promise<ParsedDocument> {
+  const pdfjsLib = await import("pdfjs-dist");
+  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+    "pdfjs-dist/build/pdf.worker.mjs",
+    import.meta.url
+  ).href;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+  type Line = { text: string; fontSize: number };
+  const lines: Line[] = [];
+
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    const page = await pdf.getPage(pageNum);
+    const textContent = await page.getTextContent();
+
+    // Group text items into lines by their Y position (with tolerance for
+    // sub-pixel jitter within the same visual line).
+    const rows: { y: number; items: { str: string; fontSize: number; x: number }[] }[] = [];
+    for (const raw of textContent.items as any[]) {
+      if (!("str" in raw)) continue;
+      const str = raw.str as string;
+      const fontSize = Math.hypot(raw.transform[0], raw.transform[1]) || 1;
+      const y = raw.transform[5];
+      const x = raw.transform[4];
+      let row = rows.find((r) => Math.abs(r.y - y) < fontSize * 0.4);
+      if (!row) {
+        row = { y, items: [] };
+        rows.push(row);
+      }
+      if (str) row.items.push({ str, fontSize, x });
+    }
+    rows.sort((a, b) => b.y - a.y); // PDF y-axis is bottom-up
+    for (const row of rows) {
+      row.items.sort((a, b) => a.x - b.x);
+      const text = row.items.map((i) => i.str).join("").replace(/\s+/g, " ").trim();
+      if (!text) continue;
+      const avgFontSize =
+        row.items.reduce((s, i) => s + i.fontSize, 0) / row.items.length;
+      lines.push({ text, fontSize: avgFontSize });
+    }
+    lines.push({ text: "", fontSize: 0 }); // page break -> paragraph break
+  }
+
+  if (lines.every((l) => !l.text)) {
+    throw new Error(
+      "No extractable text found in this PDF. It may be a scanned image without OCR text."
+    );
+  }
+
+  // Body text size = the most common font size across all lines.
+  const sizeCounts = new Map<number, number>();
+  for (const l of lines) {
+    if (!l.text) continue;
+    const rounded = Math.round(l.fontSize);
+    sizeCounts.set(rounded, (sizeCounts.get(rounded) || 0) + 1);
+  }
+  let bodySize = 12;
+  let bestCount = 0;
+  for (const [size, count] of sizeCounts) {
+    if (count > bestCount) {
+      bestCount = count;
+      bodySize = size;
+    }
+  }
+
+  const blocks: Block[] = [];
+  let paragraphBuffer: string[] = [];
+  let listBuffer: string[] = [];
+  let listOrdered = false;
+
+  const flushParagraph = () => {
+    if (paragraphBuffer.length) {
+      blocks.push({ type: "paragraph", text: paragraphBuffer.join(" ") });
+      paragraphBuffer = [];
+    }
+  };
+  const flushList = () => {
+    if (listBuffer.length) {
+      blocks.push({ type: "list", ordered: listOrdered, items: listBuffer });
+      listBuffer = [];
+    }
+  };
+
+  const bulletRe = /^[•◦▪\-\*]\s+/;
+  const numberedRe = /^\d+[.)]\s+/;
+
+  for (const line of lines) {
+    const text = line.text.trim();
+    if (!text) {
+      flushParagraph();
+      flushList();
+      continue;
+    }
+    const ratio = line.fontSize / bodySize;
+    const isBullet = bulletRe.test(text);
+    const isNumbered = numberedRe.test(text);
+
+    if (ratio > 1.7) {
+      flushParagraph();
+      flushList();
+      blocks.push({ type: "heading", level: 1, text: text.replace(bulletRe, "").replace(numberedRe, "") });
+    } else if (ratio > 1.35) {
+      flushParagraph();
+      flushList();
+      blocks.push({ type: "heading", level: 2, text });
+    } else if (ratio > 1.12) {
+      flushParagraph();
+      flushList();
+      blocks.push({ type: "heading", level: 3, text });
+    } else if (isBullet || isNumbered) {
+      flushParagraph();
+      listOrdered = isNumbered;
+      listBuffer.push(text.replace(bulletRe, "").replace(numberedRe, ""));
+    } else {
+      flushList();
+      paragraphBuffer.push(text);
+    }
+  }
+  flushParagraph();
+  flushList();
+
+  return { title: guessTitle(blocks, file.name.replace(/\.[^.]+$/, "")), blocks };
+}
+
+export type InputType = "markdown" | "html" | "word" | "affine" | "pdf";
 
 export async function parseInput(file: File, inputType: InputType): Promise<ParsedDocument> {
   switch (inputType) {
@@ -163,6 +296,8 @@ export async function parseInput(file: File, inputType: InputType): Promise<Pars
       return parseWord(file);
     case "affine":
       return parseAffine(file);
+    case "pdf":
+      return parsePdf(file);
   }
 }
 
@@ -390,6 +525,7 @@ export const INPUT_TYPES: { id: InputType; label: string; accept: string }[] = [
   { id: "markdown", label: "Markdown", accept: ".md,.markdown,.txt" },
   { id: "html", label: "HTML", accept: ".html,.htm" },
   { id: "word", label: "Word Document", accept: ".docx" },
+  { id: "pdf", label: "PDF", accept: ".pdf" },
   { id: "affine", label: "AFFiNE", accept: ".json,.affine" },
 ];
 

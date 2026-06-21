@@ -30,6 +30,7 @@ const INPUT_ICONS: Record<InputType, any> = {
   markdown: Type,
   html: File,
   word: FileText,
+  pdf: FileText,
   affine: File,
 };
 
@@ -134,7 +135,7 @@ export default function DocumentConversionPage() {
         <h2 className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">
           1. What are you converting from?
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {INPUT_TYPES.map((t) => {
             const Icon = INPUT_ICONS[t.id];
             const active = inputType === t.id;
