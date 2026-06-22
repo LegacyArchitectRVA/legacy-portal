@@ -6,11 +6,12 @@ import { api } from "../../convex/_generated/api";
 import { chapters, PRIVACY_NOTE, type SubSection } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LucideIcon } from "../components/LucideIcon";
-import { useCmsValue, useCmsStyle, cmsStyleToCss } from "../hooks/useCms";
+import { EditableText } from "../components/EditableText";
 import type { Id } from "../../convex/_generated/dataModel";
 
-export default function ChapterPage() {
-  const { chapterId } = useParams<{ chapterId: string }>();
+export default function ChapterPage({ chapterIdOverride }: { chapterIdOverride?: string } = {}) {
+  const params = useParams<{ chapterId: string }>();
+  const chapterId = chapterIdOverride ?? params.chapterId;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const onBehalfOf = searchParams.get("for") as Id<"users"> | null;
@@ -22,8 +23,6 @@ export default function ChapterPage() {
     api.crm.getClientDetail,
     onBehalfOf && isAdmin ? { clientUserId: onBehalfOf } : "skip"
   );
-  const chapterIntro = useCmsValue("chapter_intro", "");
-  const chapterIntroStyle = useCmsStyle("chapter_intro");
   const chapter = chapters.find((ch) => ch.id === chapterId);
 
   if (!chapter) {
@@ -85,14 +84,9 @@ export default function ChapterPage() {
           <p className="text-sm text-[#e8e6e1]/75 mt-2 leading-relaxed">
             {chapter.description}
           </p>
-          {chapterIntro && (
-            <p
-              className="text-xs text-gold-muted mt-2 leading-relaxed"
-              style={cmsStyleToCss(chapterIntroStyle)}
-            >
-              {chapterIntro}
-            </p>
-          )}
+          <p className="text-xs text-gold-muted mt-2 leading-relaxed">
+            <EditableText cmsKey="chapter_intro" as="span" />
+          </p>
         </div>
       </div>
 

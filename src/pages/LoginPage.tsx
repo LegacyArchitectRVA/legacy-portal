@@ -6,6 +6,7 @@ import { RiEyeLine as Eye, RiEyeOffLine as EyeSlash, RiFingerprintLine as Finger
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
+import { EditableText } from "../components/EditableText";
 
 function getProvider(email: string): string {
   return email.endsWith("@test.local") ? "test" : "password";
@@ -157,14 +158,20 @@ export default function LoginPage() {
             className="mx-auto w-24 h-24 object-contain"
           />
           <h1 className="font-heading text-2xl text-[#e8e6e1] tracking-wide uppercase">
-            {mode === "signin" ? "Welcome Back" : "Reset Password"}
+            {mode === "signin" ? (
+              <EditableText cmsKey="login_title" as="span" />
+            ) : (
+              "Reset Password"
+            )}
           </h1>
           <p className="text-sm text-[#e8e6e1]/80">
-            {mode === "signin"
-              ? "Sign in to your Life Manual portal"
-              : mode === "forgot-request"
-              ? "Enter your email to receive a reset code"
-              : "Enter the code we sent, and a new password"}
+            {mode === "signin" ? (
+              <EditableText cmsKey="login_subtitle" as="span" />
+            ) : mode === "forgot-request" ? (
+              "Enter your email to receive a reset code"
+            ) : (
+              "Enter the code we sent, and a new password"
+            )}
           </p>
         </div>
 

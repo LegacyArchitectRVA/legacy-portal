@@ -5,6 +5,9 @@ import { api } from "../../convex/_generated/api";
 import LandingPage from "./LandingPage";
 import DashboardPage from "./DashboardPage";
 import UpgradePage from "./UpgradePage";
+import LoginPage from "./LoginPage";
+import SignupPage from "./SignupPage";
+import ChapterPage from "./ChapterPage";
 import { EditModeProvider } from "../contexts/EditModeContext";
 import { getEditableDefault } from "../lib/editableContentRegistry";
 import { RiPaintBrushLine as PaintBrush, RiAlignLeft as TextAlignLeft, RiAlignCenter as TextAlignCenter, RiAlignRight as TextAlignRight, RiBold as TextB, RiItalic as TextItalic, RiUnderline as TextUnderline, RiSaveLine as FloppyDisk, RiDeleteBinLine as Trash, RiArrowLeftSLine as CaretLeft, RiLoader4Line as CircleNotch, RiCloseLine as X, RiCheckLine as Check, RiCursorLine as CursorClick, RiErrorWarningLine as Warning } from "@remixicon/react";
@@ -48,7 +51,7 @@ export default function AdminVisualEditorPage() {
   const deleteCMS = useMutation(api.admin.deleteCMS);
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [activePage, setActivePage] = useState<"landing" | "dashboard" | "upgrade">("landing");
+  const [activePage, setActivePage] = useState<"landing" | "dashboard" | "upgrade" | "login" | "signup" | "chapter">("landing");
   const cmsItem = useQuery(api.admin.getCMS, selectedKey ? { key: selectedKey } : "skip");
 
   const [content, setContent] = useState("");
@@ -80,8 +83,8 @@ export default function AdminVisualEditorPage() {
   useEffect(() => {
     if (!selectedKey) return;
     setMissingFallback(false);
-    if (cmsItem) {
-      setContent(cmsItem.value || "");
+    if (cmsItem && cmsItem.value?.trim()) {
+      setContent(cmsItem.value);
       try {
         const m = cmsItem.metadata ? JSON.parse(cmsItem.metadata) : {};
         setFontFamily(m.fontFamily || "");
@@ -94,7 +97,10 @@ export default function AdminVisualEditorPage() {
       } catch {
         resetStyles();
       }
-    } else if (cmsItem === null) {
+    } else {
+      // No saved record, or a saved record with an effectively-empty value
+      // (matching useCmsValue's own "blank counts as uncustomized" rule on
+      // the live page) — fall back to the registry default either way.
       const fallback = getEditableDefault(selectedKey);
       setContent(fallback);
       if (!fallback) setMissingFallback(true);
@@ -178,6 +184,9 @@ export default function AdminVisualEditorPage() {
           { id: "landing" as const, label: "Landing Page" },
           { id: "dashboard" as const, label: "Dashboard" },
           { id: "upgrade" as const, label: "Upgrade" },
+          { id: "login" as const, label: "Sign In" },
+          { id: "signup" as const, label: "Sign Up" },
+          { id: "chapter" as const, label: "Chapter Pages" },
         ].map((p) => (
           <button
             key={p.id}
@@ -202,6 +211,9 @@ export default function AdminVisualEditorPage() {
           {activePage === "landing" && <LandingPage />}
           {activePage === "dashboard" && <DashboardPage />}
           {activePage === "upgrade" && <UpgradePage />}
+          {activePage === "login" && <LoginPage />}
+          {activePage === "signup" && <SignupPage />}
+          {activePage === "chapter" && <ChapterPage chapterIdOverride="digital" />}
         </EditModeProvider>
       </div>
 

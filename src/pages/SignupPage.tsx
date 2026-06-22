@@ -3,6 +3,7 @@ import { ConvexError } from "convex/values";
 import { RiEyeLine as Eye, RiEyeOffLine as EyeOff, RiLoader4Line as Loader2 } from "@remixicon/react";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { EditableText } from "../components/EditableText";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -50,10 +51,10 @@ export default function SignupPage() {
             className="mx-auto w-24 h-24 object-contain"
           />
           <h1 className="font-heading text-2xl text-[#e8e6e1] tracking-wide uppercase">
-            Create Your Account
+            <EditableText cmsKey="signup_title" as="span" />
           </h1>
           <p className="text-sm text-[#e8e6e1]/80">
-            Begin your Life Manual today
+            <EditableText cmsKey="signup_subtitle" as="span" />
           </p>
         </div>
 

@@ -30,6 +30,11 @@ export const EDITABLE_DEFAULTS: Record<string, string> = {
     "Comprehensive clarity for complex lives. Every detail is organized and accessible.",
   upgrade_legacy_desc:
     "Full operational continuity for business owners and multi-estate individuals.",
+  login_title: "Welcome Back",
+  login_subtitle: "Sign in to your Life Manual portal",
+  signup_title: "Create Your Account",
+  signup_subtitle: "Begin your Life Manual today",
+  chapter_intro: "Need help with this chapter? Contact Legacy Architect RVA for guidance.",
 };
 
 export function getEditableDefault(key: string): string {
