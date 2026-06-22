@@ -22,6 +22,14 @@ export const EDITABLE_DEFAULTS: Record<string, string> = {
   trust_card_private_title: "Private & Confidential",
   trust_card_private_desc:
     "Limited to 5 clients per month. Your manual receives our full attention and discretion.",
+  dashboard_welcome: "Welcome",
+  dashboard_description: "Your Life Manual, organized across seven chapters of continuity",
+  upgrade_title: "Upgrade Your Life Manual",
+  upgrade_vault_desc: "A secure foundation for your essential documents and access details.",
+  upgrade_archive_desc:
+    "Comprehensive clarity for complex lives. Every detail is organized and accessible.",
+  upgrade_legacy_desc:
+    "Full operational continuity for business owners and multi-estate individuals.",
 };
 
 export function getEditableDefault(key: string): string {

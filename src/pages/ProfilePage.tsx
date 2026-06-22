@@ -3,6 +3,13 @@ import { RiUserLine as User, RiSaveLine as Save, RiCheckLine as Check, RiCameraL
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../convex/_generated/api";
 
+function formatPhoneNumber(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 10);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 export default function ProfilePage() {
   const profile = useQuery(api.profile.getMyProfile);
   const updateProfile = useMutation(api.profile.updateProfile);
@@ -19,7 +26,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (profile) {
       setName(profile.name || "");
-      setPhone(profile.phoneNumber || "");
+      setPhone(formatPhoneNumber(profile.phoneNumber || ""));
       if (profile.profilePicUrl) setProfilePicPreview(profile.profilePicUrl);
       if (profile.crestUrl) setCrestPreview(profile.crestUrl);
     }
@@ -185,7 +192,7 @@ export default function ProfilePage() {
             <input
               type="tel"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
               placeholder="(555) 123-4567"
               className="w-full bg-black border border-[rgba(217,204,160,0.15)] rounded-lg px-4 py-3 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/35 focus:outline-none focus:border-[#d9cca0]/40 transition-colors"
             />

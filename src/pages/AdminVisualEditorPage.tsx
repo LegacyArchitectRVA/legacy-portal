@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import LandingPage from "./LandingPage";
+import DashboardPage from "./DashboardPage";
+import UpgradePage from "./UpgradePage";
 import { EditModeProvider } from "../contexts/EditModeContext";
 import { getEditableDefault } from "../lib/editableContentRegistry";
-import { RiPaintBrushLine as PaintBrush, RiAlignLeft as TextAlignLeft, RiAlignCenter as TextAlignCenter, RiAlignRight as TextAlignRight, RiBold as TextB, RiItalic as TextItalic, RiUnderline as TextUnderline, RiSaveLine as FloppyDisk, RiDeleteBinLine as Trash, RiArrowLeftSLine as CaretLeft, RiLoader4Line as CircleNotch, RiCloseLine as X, RiCheckLine as Check, RiCursorLine as CursorClick } from "@remixicon/react";
+import { RiPaintBrushLine as PaintBrush, RiAlignLeft as TextAlignLeft, RiAlignCenter as TextAlignCenter, RiAlignRight as TextAlignRight, RiBold as TextB, RiItalic as TextItalic, RiUnderline as TextUnderline, RiSaveLine as FloppyDisk, RiDeleteBinLine as Trash, RiArrowLeftSLine as CaretLeft, RiLoader4Line as CircleNotch, RiCloseLine as X, RiCheckLine as Check, RiCursorLine as CursorClick, RiErrorWarningLine as Warning } from "@remixicon/react";
 
 const FONT_FAMILIES = [
   "Cinzel",
@@ -46,6 +48,7 @@ export default function AdminVisualEditorPage() {
   const deleteCMS = useMutation(api.admin.deleteCMS);
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [activePage, setActivePage] = useState<"landing" | "dashboard" | "upgrade">("landing");
   const cmsItem = useQuery(api.admin.getCMS, selectedKey ? { key: selectedKey } : "skip");
 
   const [content, setContent] = useState("");
@@ -58,6 +61,7 @@ export default function AdminVisualEditorPage() {
   const [isUnderline, setIsUnderline] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [missingFallback, setMissingFallback] = useState(false);
 
   // Load the extra font set for the picker (Cinzel/Libre Baskerville already loaded globally)
   useEffect(() => {
@@ -75,6 +79,7 @@ export default function AdminVisualEditorPage() {
 
   useEffect(() => {
     if (!selectedKey) return;
+    setMissingFallback(false);
     if (cmsItem) {
       setContent(cmsItem.value || "");
       try {
@@ -90,7 +95,9 @@ export default function AdminVisualEditorPage() {
         resetStyles();
       }
     } else if (cmsItem === null) {
-      setContent(getEditableDefault(selectedKey));
+      const fallback = getEditableDefault(selectedKey);
+      setContent(fallback);
+      if (!fallback) setMissingFallback(true);
       resetStyles();
     }
   }, [selectedKey, cmsItem]);
@@ -107,6 +114,7 @@ export default function AdminVisualEditorPage() {
 
   const handleSave = async () => {
     if (!selectedKey) return;
+    if (missingFallback && !content.trim()) return;
     setSaving(true);
     setSaved(false);
     try {
@@ -164,10 +172,36 @@ export default function AdminVisualEditorPage() {
         </div>
       </div>
 
-      {/* The real Landing Page, rendered live, made clickable */}
+      {/* Page switcher */}
+      <div className="flex items-center gap-1.5 px-4 py-2.5 bg-black/60 border-b border-gold-border/20 overflow-x-auto">
+        {[
+          { id: "landing" as const, label: "Landing Page" },
+          { id: "dashboard" as const, label: "Dashboard" },
+          { id: "upgrade" as const, label: "Upgrade" },
+        ].map((p) => (
+          <button
+            key={p.id}
+            onClick={() => {
+              setActivePage(p.id);
+              setSelectedKey(null);
+            }}
+            className={`text-[11px] px-3 py-1.5 rounded-full font-heading shrink-0 transition-colors ${
+              activePage === p.id
+                ? "bg-gold-dark/25 text-gold-primary"
+                : "bg-black/40 text-[#e8e6e1]/75 hover:text-[#e8e6e1]"
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {/* The real page, rendered live, made clickable */}
       <div className="relative">
         <EditModeProvider value={{ active: true, selectedKey, select: setSelectedKey }}>
-          <LandingPage />
+          {activePage === "landing" && <LandingPage />}
+          {activePage === "dashboard" && <DashboardPage />}
+          {activePage === "upgrade" && <UpgradePage />}
         </EditModeProvider>
       </div>
 
@@ -187,6 +221,16 @@ export default function AdminVisualEditorPage() {
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            {missingFallback && (
+              <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2 text-xs text-amber-300">
+                <Warning className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>
+                  Couldn't load this element's original text automatically. Type the
+                  current wording in below before saving, or Cancel to leave it untouched.
+                </span>
+              </div>
+            )}
 
             <textarea
               value={content}
@@ -310,7 +354,7 @@ export default function AdminVisualEditorPage() {
             <div className="flex items-center gap-2 pt-1">
               <button
                 onClick={handleSave}
-                disabled={saving}
+                disabled={saving || (missingFallback && !content.trim())}
                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50"
               >
                 {saving ? (

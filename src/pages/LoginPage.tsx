@@ -2,7 +2,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { startAuthentication, browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { useAction } from "convex/react";
 import { ConvexError } from "convex/values";
-import { RiEyeLine as Eye, RiEyeOffLine as EyeSlash, RiFingerprintLine as Fingerprint, RiLoader4Line as CircleNotch, RiShieldLine as Shield } from "@remixicon/react";
+import { RiEyeLine as Eye, RiEyeOffLine as EyeSlash, RiFingerprintLine as Fingerprint, RiLoader4Line as CircleNotch } from "@remixicon/react";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
@@ -151,9 +151,11 @@ export default function LoginPage() {
       <div className="relative w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-xl bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center">
-            <Shield className="w-8 h-8 text-[#0a0a0a]" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="Legacy Architect RVA"
+            className="mx-auto w-24 h-24 object-contain"
+          />
           <h1 className="font-heading text-2xl text-[#e8e6e1] tracking-wide uppercase">
             {mode === "signin" ? "Welcome Back" : "Reset Password"}
           </h1>

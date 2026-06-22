@@ -139,6 +139,17 @@ function Thread({
         ))}
       </div>
 
+      <div className="flex items-center gap-2 pt-2">
+        <button
+          type="button"
+          onClick={() => onSend(`Here's a link to book a time that works for you: https://cal.com/legacyarchitectrva/60min`)}
+          className="flex items-center gap-1.5 text-xs text-gold-muted hover:text-gold-primary bg-black/40 px-3 py-1.5 rounded-full transition-colors"
+        >
+          <Calendar className="w-3.5 h-3.5" />
+          Send Meeting Link
+        </button>
+      </div>
+
       <div className="flex items-center gap-2 pt-3 border-t border-[rgba(217,204,160,0.08)]">
         <input
           type="text"

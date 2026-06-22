@@ -4,7 +4,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
-import { useCmsValue, useCmsStyle, cmsStyleToCss } from "../hooks/useCms";
+import { EditableText } from "../components/EditableText";
 import type { Id } from "../../convex/_generated/dataModel";
 
 const tierImages: Record<string, string> = {
@@ -38,13 +38,6 @@ export default function DashboardPage() {
       )
     : myProgress;
 
-  const welcomeText = useCmsValue("dashboard_welcome", "Welcome");
-  const welcomeStyle = useCmsStyle("dashboard_welcome");
-  const descriptionText = useCmsValue(
-    "dashboard_description",
-    "Your Life Manual, organized across seven chapters of continuity"
-  );
-  const descriptionStyle = useCmsStyle("dashboard_description");
   const tier = profile?.tier || "vault";
   const tierInfo = getTierByName(tier);
   const isActivated = profile?.isActivated !== false;
@@ -133,14 +126,12 @@ export default function DashboardPage() {
       )}
       {/* Header */}
       <div>
-        <h1
-          className="text-xl md:text-3xl font-bold tracking-tight font-heading"
-          style={cmsStyleToCss(welcomeStyle)}
-        >
-          {welcomeText}{profile?.name ? `, ${profile.name.split(" ")[0]}` : ""}
+        <h1 className="text-xl md:text-3xl font-bold tracking-tight font-heading">
+          <EditableText cmsKey="dashboard_welcome" as="span" />
+          {profile?.name ? `, ${profile.name.split(" ")[0]}` : ""}
         </h1>
-        <p className="text-muted-foreground mt-1" style={cmsStyleToCss(descriptionStyle)}>
-          {descriptionText}
+        <p className="text-muted-foreground mt-1">
+          <EditableText cmsKey="dashboard_description" as="span" />
         </p>
       </div>
 
