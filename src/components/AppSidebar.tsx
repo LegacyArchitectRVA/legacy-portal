@@ -6,6 +6,7 @@ import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter } from "../data/tiers";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import { ThemeToggleButton } from "./ThemeToggleButton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -82,28 +83,31 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
-        <button
-          type="button"
-          onClick={() => navTo("/dashboard")}
-          className="flex items-center gap-3 group"
-        >
-          <img
-            src="/logo.png"
-            alt="Legacy Architect RVA"
-            className="w-14 h-14 rounded-lg object-contain flex-shrink-0"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
-          <div className="flex flex-col">
-            <span className="text-sm font-heading font-semibold text-gold-primary tracking-wide uppercase leading-tight">
-              Legacy Architect RVA
-            </span>
-            <span className="text-[10px] text-muted-foreground tracking-[0.15em] uppercase">
-              Client Portal
-            </span>
-          </div>
-        </button>
+        <div className="flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={() => navTo("/dashboard")}
+            className="flex items-center gap-3 group min-w-0"
+          >
+            <img
+              src="/logo.png"
+              alt="Legacy Architect RVA"
+              className="w-11 h-11 rounded-lg object-contain flex-shrink-0"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-heading font-semibold text-gold-primary tracking-wide uppercase leading-tight">
+                Legacy Architect RVA
+              </span>
+              <span className="text-[10px] text-muted-foreground tracking-[0.15em] uppercase">
+                Client Portal
+              </span>
+            </div>
+          </button>
+          <ThemeToggleButton size="sm" />
+        </div>
       </SidebarHeader>
 
       <SidebarSeparator />
