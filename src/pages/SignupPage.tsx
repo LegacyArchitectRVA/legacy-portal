@@ -4,6 +4,7 @@ import { RiEyeLine as Eye, RiEyeOffLine as EyeOff, RiLoader4Line as Loader2 } fr
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { EditableText } from "../components/EditableText";
+import { EditableInput } from "../components/EditableInput";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -64,28 +65,28 @@ export default function SignupPage() {
             <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
               <EditableText cmsKey="signup_name_label" as="span" />
             </label>
-            <input
+            <EditableInput
               type="text"
               name="name"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
-              placeholder="Your full name"
+              placeholderCmsKey="signup_name_placeholder"
             />
           </div>
           <div>
             <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
               <EditableText cmsKey="signup_email_label" as="span" />
             </label>
-            <input
+            <EditableInput
               type="email"
               name="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
-              placeholder="your@email.com"
+              placeholderCmsKey="signup_email_placeholder"
             />
           </div>
           <div>
@@ -93,14 +94,14 @@ export default function SignupPage() {
               <EditableText cmsKey="signup_password_label" as="span" />
             </label>
             <div className="relative">
-              <input
+              <EditableInput
                 type={showPassword ? "text" : "password"}
                 name="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
-                placeholder="Choose a strong password"
+                placeholderCmsKey="signup_password_placeholder"
               />
               <button
                 type="button"

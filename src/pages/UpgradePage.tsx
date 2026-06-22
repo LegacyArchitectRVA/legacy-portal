@@ -191,7 +191,7 @@ export default function UpgradePage() {
                 </p>
 
                 <ul className="space-y-2 flex-1">
-                  {tier.features.map((feature) => (
+                  {tier.features.map((feature, i) => (
                     <li
                       key={feature}
                       className="flex items-start gap-2 text-xs text-[#e8e6e1]/70"
@@ -200,7 +200,11 @@ export default function UpgradePage() {
                         className="w-3.5 h-3.5 mt-0.5 shrink-0"
                         style={{ color: colors.accent }}
                       />
-                      <span>{feature}</span>
+                      <EditableText
+                        cmsKey={`upgrade_${tier.id}_feature_${i}`}
+                        fallback={feature}
+                        as="span"
+                      />
                     </li>
                   ))}
                 </ul>

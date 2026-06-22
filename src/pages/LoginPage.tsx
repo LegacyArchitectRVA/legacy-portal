@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { EditableText } from "../components/EditableText";
+import { EditableInput } from "../components/EditableInput";
 
 function getProvider(email: string): string {
   return email.endsWith("@test.local") ? "test" : "password";
@@ -203,14 +204,14 @@ export default function LoginPage() {
                 <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
                   <EditableText cmsKey="login_email_label" as="span" />
                 </label>
-                <input
+                <EditableInput
                   type="email"
                   name="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
-                  placeholder="your@email.com"
+                  placeholderCmsKey="login_email_placeholder"
                 />
               </div>
               <div>
@@ -231,14 +232,14 @@ export default function LoginPage() {
                   </button>
                 </div>
                 <div className="relative">
-                  <input
+                  <EditableInput
                     type={showPassword ? "text" : "password"}
                     name="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
-                    placeholder="Enter your password"
+                    placeholderCmsKey="login_password_placeholder"
                   />
                   <button
                     type="button"
