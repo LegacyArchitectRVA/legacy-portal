@@ -1,12 +1,13 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { startRegistration, browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { RiErrorWarningLine as AlertTriangle, RiNotification3Line as Bell, RiCheckLine as Check, RiArrowRightSLine as ChevronRight, RiEyeLine as Eye, RiEyeOffLine as EyeOff, RiFingerprintLine as Fingerprint, RiFileTextLine as FileText, RiKeyLine as KeyRound, RiLoader4Line as Loader2, RiLogoutBoxRLine as LogOut, RiSmartphoneLine as MonitorSmartphone, RiShieldLine as Shield, RiShieldCheckLine as ShieldCheck, RiSmartphoneLine as Smartphone, RiDeleteBinLine as Trash2 } from "@remixicon/react";
+import { RiErrorWarningLine as AlertTriangle, RiNotification3Line as Bell, RiCheckLine as Check, RiArrowRightSLine as ChevronRight, RiEyeLine as Eye, RiEyeOffLine as EyeOff, RiFingerprintLine as Fingerprint, RiFileTextLine as FileText, RiKeyLine as KeyRound, RiLoader4Line as Loader2, RiLogoutBoxRLine as LogOut, RiSmartphoneLine as MonitorSmartphone, RiShieldLine as Shield, RiShieldCheckLine as ShieldCheck, RiSmartphoneLine as Smartphone, RiDeleteBinLine as Trash2, RiSunLine as Sun } from "@remixicon/react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { Switch } from "../components/ui/switch";
 import { EditableText } from "../components/EditableText";
+import { useTheme } from "../contexts/ThemeContext";
 
 function timeAgo(ms: number): string {
   const diff = Date.now() - ms;
@@ -20,6 +21,7 @@ function timeAgo(ms: number): string {
 }
 
 export default function SettingsPage() {
+  const { theme, toggleTheme } = useTheme();
   const profile = useQuery(api.profile.getMyProfile);
   const sessions = useQuery(api.security.getMySessions);
   const purgeAllData = useMutation(api.sections.purgeAllMyData);
@@ -196,6 +198,30 @@ export default function SettingsPage() {
             <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Status</p>
             <p className="text-sm text-[#e8e6e1]">{profile?.isActivated ? "Active" : "Pending"}</p>
           </div>
+        </div>
+      </div>
+
+      {/* Appearance */}
+      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Sun className="w-4 h-4 text-gold-primary" />
+          <h2 className="font-heading text-sm text-gold-primary">Appearance</h2>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex-1 pr-4">
+            <p className="text-sm text-[#e8e6e1]">
+              {theme === "dark" ? "Dark mode" : "Light mode"}
+            </p>
+            <p className="text-xs text-[#e8e6e1]/75 mt-0.5">
+              {theme === "dark"
+                ? "The classic gold-on-black look."
+                : "Sand & Forest Green, a lighter alternative."}
+            </p>
+          </div>
+          <Switch
+            checked={theme === "light"}
+            onCheckedChange={() => toggleTheme?.()}
+          />
         </div>
       </div>
 

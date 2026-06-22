@@ -32,7 +32,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
+      <ThemeProvider defaultTheme="dark" switchable>
         <Toaster />
         <ScrollToTop />
         <Routes>
