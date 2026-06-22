@@ -6,13 +6,15 @@ interface EditModeState {
   active: boolean;
   selectedKey: string | null;
   selectedKind: EditableKind;
-  select: (key: string, kind?: EditableKind) => void;
+  selectedShapeSwappable: boolean;
+  select: (key: string, kind?: EditableKind, shapeSwappable?: boolean) => void;
 }
 
 const EditModeContext = createContext<EditModeState>({
   active: false,
   selectedKey: null,
   selectedKind: "text",
+  selectedShapeSwappable: false,
   select: () => {},
 });
 

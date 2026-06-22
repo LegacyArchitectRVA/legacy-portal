@@ -9,6 +9,7 @@ import LoginPage from "./LoginPage";
 import SignupPage from "./SignupPage";
 import ChapterPage from "./ChapterPage";
 import { EditModeProvider, type EditableKind } from "../contexts/EditModeContext";
+import { SWAPPABLE_MARKER_ICONS } from "../lib/swappableIcons";
 import { getEditableDefault } from "../lib/editableContentRegistry";
 import { RiPaintBrushLine as PaintBrush, RiAlignLeft as TextAlignLeft, RiAlignCenter as TextAlignCenter, RiAlignRight as TextAlignRight, RiBold as TextB, RiItalic as TextItalic, RiUnderline as TextUnderline, RiSaveLine as FloppyDisk, RiDeleteBinLine as Trash, RiArrowLeftSLine as CaretLeft, RiLoader4Line as CircleNotch, RiCloseLine as X, RiCheckLine as Check, RiCursorLine as CursorClick, RiErrorWarningLine as Warning } from "@remixicon/react";
 
@@ -52,6 +53,8 @@ export default function AdminVisualEditorPage() {
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [selectedKind, setSelectedKind] = useState<EditableKind>("text");
+  const [selectedShapeSwappable, setSelectedShapeSwappable] = useState(false);
+  const [iconShapeName, setIconShapeName] = useState("");
   const [activePage, setActivePage] = useState<"landing" | "dashboard" | "upgrade" | "login" | "signup" | "chapter">("landing");
   const cmsItem = useQuery(api.admin.getCMS, selectedKey ? { key: selectedKey } : "skip");
 
@@ -90,6 +93,12 @@ export default function AdminVisualEditorPage() {
 
     if (selectedKind === "icon") {
       setIconColor(cmsItem?.value?.trim() || "#e8c46a");
+      try {
+        const m = cmsItem?.metadata ? JSON.parse(cmsItem.metadata) : {};
+        setIconShapeName(m.iconName || "");
+      } catch {
+        setIconShapeName("");
+      }
       return;
     }
     if (selectedKind === "box") {
@@ -146,7 +155,11 @@ export default function AdminVisualEditorPage() {
     setSaved(false);
     try {
       if (selectedKind === "icon") {
-        await updateCMS({ key: selectedKey, value: iconColor });
+        await updateCMS({
+          key: selectedKey,
+          value: iconColor,
+          metadata: iconShapeName ? JSON.stringify({ iconName: iconShapeName }) : undefined,
+        });
       } else if (selectedKind === "box") {
         await updateCMS({
           key: selectedKey,
@@ -244,9 +257,11 @@ export default function AdminVisualEditorPage() {
             active: true,
             selectedKey,
             selectedKind,
-            select: (key, kind = "text") => {
+            selectedShapeSwappable,
+            select: (key, kind = "text", shapeSwappable = false) => {
               setSelectedKey(key);
               setSelectedKind(kind);
+              setSelectedShapeSwappable(shapeSwappable);
             },
           }}
         >
@@ -442,25 +457,52 @@ export default function AdminVisualEditorPage() {
             )}
 
             {selectedKind === "icon" && (
-              <div>
-                <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
-                  Icon Color
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={/^#[0-9a-fA-F]{6}$/.test(iconColor) ? iconColor : "#000000"}
-                    onChange={(e) => setIconColor(e.target.value)}
-                    className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={iconColor}
-                    onChange={(e) => setIconColor(e.target.value)}
-                    placeholder="#e8c46a"
-                    className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
-                  />
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                    Icon Color
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={/^#[0-9a-fA-F]{6}$/.test(iconColor) ? iconColor : "#000000"}
+                      onChange={(e) => setIconColor(e.target.value)}
+                      className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={iconColor}
+                      onChange={(e) => setIconColor(e.target.value)}
+                      placeholder="#e8c46a"
+                      className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
+                    />
+                  </div>
                 </div>
+
+                {selectedShapeSwappable && (
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                      Icon Shape
+                    </label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {SWAPPABLE_MARKER_ICONS.map((opt) => (
+                        <button
+                          key={opt.name}
+                          type="button"
+                          onClick={() => setIconShapeName(opt.name)}
+                          title={opt.label}
+                          className={`flex items-center justify-center p-2.5 rounded-lg border transition-colors ${
+                            iconShapeName === opt.name
+                              ? "border-gold-primary bg-gold-dark/20"
+                              : "border-gold-border/30 hover:border-gold-primary/40"
+                          }`}
+                        >
+                          <opt.icon className="w-4 h-4" style={{ color: iconColor }} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

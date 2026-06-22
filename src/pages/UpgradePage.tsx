@@ -200,9 +200,10 @@ export default function UpgradePage() {
                       className="flex items-start gap-2 text-xs text-[#e8e6e1]/70"
                     >
                       <EditableIcon
-                        cmsKey={`upgrade_${tier.id}_checkmark_color`}
+                        cmsKey={`upgrade_${tier.id}_checkmark_style`}
                         icon={Check}
                         defaultColor={colors.accent}
+                        shapeSwappable
                         size={14}
                         className="w-3.5 h-3.5 mt-0.5 shrink-0"
                       />
@@ -266,9 +267,10 @@ export default function UpgradePage() {
                         >
                           {included ? (
                             <EditableIcon
-                              cmsKey={`upgrade_${tier.id}_checkmark_color`}
+                              cmsKey={`upgrade_${tier.id}_checkmark_style`}
                               icon={Check}
                               defaultColor={colors.accent}
+                              shapeSwappable
                               size={14}
                               className="w-3.5 h-3.5 shrink-0 check-glow"
                             />
