@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { Switch } from "../components/ui/switch";
+import { EditableText } from "../components/EditableText";
 
 function timeAgo(ms: number): string {
   const diff = Date.now() - ms;
@@ -167,7 +168,9 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="font-heading text-3xl text-gold-gradient">Settings</h1>
+      <h1 className="font-heading text-3xl text-gold-gradient">
+        <EditableText cmsKey="settings_title" as="span" />
+      </h1>
 
       {/* Account Info */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">

@@ -1,8 +1,9 @@
 import { useQuery, useMutation } from "convex/react";
-import { RiSendPlaneLine as Send, RiCheckDoubleLine as CheckCheck, RiDeleteBinLine as Trash2, RiArrowLeftLine as ArrowLeft, RiChat3Line as MessageSquare, RiAddLine as Plus, RiCloseLine as X } from "@remixicon/react";
+import { RiSendPlaneLine as Send, RiCheckDoubleLine as CheckCheck, RiDeleteBinLine as Trash2, RiArrowLeftLine as ArrowLeft, RiChat3Line as MessageSquare, RiAddLine as Plus, RiCloseLine as X, RiCalendarLine as Calendar } from "@remixicon/react";
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
+import { EditableText } from "../components/EditableText";
 import type { Id } from "../../convex/_generated/dataModel";
 
 function formatTime(ts: number) {
@@ -213,8 +214,12 @@ export default function MessagesPage() {
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">Messages</h1>
-            <p className="text-xs text-[#e8e6e1]/80 mt-1">Conversations with your clients</p>
+            <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">
+              <EditableText cmsKey="messages_title" as="span" />
+            </h1>
+            <p className="text-xs text-[#e8e6e1]/80 mt-1">
+              <EditableText cmsKey="messages_admin_subtitle" as="span" />
+            </p>
           </div>
           <button
             onClick={() => setShowNewMessage(true)}
@@ -358,9 +363,11 @@ export default function MessagesPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] max-w-3xl mx-auto p-6 animate-fade-in">
       <div className="mb-4">
-        <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">Messages</h1>
+        <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">
+          <EditableText cmsKey="messages_title" as="span" />
+        </h1>
         <p className="text-xs text-[#e8e6e1]/80 mt-1">
-          Secure communication with Legacy Architect RVA
+          <EditableText cmsKey="messages_client_subtitle" as="span" />
         </p>
       </div>
       <Thread

@@ -6,6 +6,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { chapters, PRIVACY_NOTE } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LucideIcon } from "../components/LucideIcon";
+import { EditableText } from "../components/EditableText";
 
 function SectionView({
   clientUserId,
@@ -239,7 +240,7 @@ ${body || '<p style="text-align:center;color:#888;font-style:italic;">No informa
       <div className="text-center py-8 border-b border-[rgba(217,204,160,0.1)]">
         <BookOpen className="w-10 h-10 text-[#d9cca0] mx-auto mb-4" />
         <h1 className="font-heading text-3xl font-bold text-gold-gradient mb-2">
-          Life Manual
+          <EditableText cmsKey="manual_view_title" as="span" />
         </h1>
         <p className="text-sm text-[#e8e6e1]/80">
           Prepared for {client?.userName || "Client"} •{" "}

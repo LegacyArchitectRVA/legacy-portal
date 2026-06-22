@@ -62,7 +62,7 @@ export default function SignupPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
-              Full Name
+              <EditableText cmsKey="signup_name_label" as="span" />
             </label>
             <input
               type="text"
@@ -76,7 +76,7 @@ export default function SignupPage() {
           </div>
           <div>
             <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
-              Email
+              <EditableText cmsKey="signup_email_label" as="span" />
             </label>
             <input
               type="email"
@@ -90,7 +90,7 @@ export default function SignupPage() {
           </div>
           <div>
             <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
-              Password
+              <EditableText cmsKey="signup_password_label" as="span" />
             </label>
             <div className="relative">
               <input
@@ -110,7 +110,9 @@ export default function SignupPage() {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <p className="text-[10px] text-[#e8e6e1]/80 mt-1">Minimum 8 characters</p>
+            <p className="text-[10px] text-[#e8e6e1]/80 mt-1">
+              <EditableText cmsKey="signup_password_hint" as="span" />
+            </p>
           </div>
 
           {error && (
@@ -122,15 +124,19 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Create Account"}
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+            ) : (
+              <EditableText cmsKey="signup_submit_button" as="span" />
+            )}
           </button>
         </form>
 
         {/* Footer */}
         <p className="text-center text-xs text-[#e8e6e1]/75">
-          Already have an account?{" "}
+          <EditableText cmsKey="signup_footer_prompt" as="span" />{" "}
           <Link to="/login" className="text-gold-primary hover:text-gold-bright transition-colors">
-            Sign in
+            <EditableText cmsKey="signup_footer_link" as="span" />
           </Link>
         </p>
       </div>

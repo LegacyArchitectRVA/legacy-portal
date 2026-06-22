@@ -2,6 +2,7 @@ import { useQuery, useMutation } from "convex/react";
 import { RiUserLine as User, RiSaveLine as Save, RiCheckLine as Check, RiCameraLine as Camera, RiVipCrownLine as Crown, RiLoader4Line as CircleNotch } from "@remixicon/react";
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../convex/_generated/api";
+import { EditableText } from "../components/EditableText";
 
 function formatPhoneNumber(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 10);
@@ -78,7 +79,9 @@ export default function ProfilePage() {
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">Profile</h1>
+        <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">
+          <EditableText cmsKey="profile_title" as="span" />
+        </h1>
         <p className="text-sm text-[#e8e6e1]/80 mt-1">
           Manage your account information
         </p>

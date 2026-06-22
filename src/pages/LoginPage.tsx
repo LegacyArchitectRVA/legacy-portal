@@ -189,7 +189,7 @@ export default function LoginPage() {
                   ) : (
                     <Fingerprint className="w-4 h-4" />
                   )}
-                  Sign In with Face ID / Fingerprint
+                  <EditableText cmsKey="login_passkey_button" as="span" />
                 </button>
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-gold-border/30" />
@@ -201,7 +201,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
-                  Email
+                  <EditableText cmsKey="login_email_label" as="span" />
                 </label>
                 <input
                   type="email"
@@ -216,7 +216,7 @@ export default function LoginPage() {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading">
-                    Password
+                    <EditableText cmsKey="login_password_label" as="span" />
                   </label>
                   <button
                     type="button"
@@ -227,7 +227,7 @@ export default function LoginPage() {
                     }}
                     className="text-[11px] text-gold-primary hover:text-gold-bright transition-colors"
                   >
-                    Forgot password?
+                    <EditableText cmsKey="login_forgot_password" as="span" />
                   </button>
                 </div>
                 <div className="relative">
@@ -259,7 +259,11 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" /> : "Sign In"}
+                {loading ? (
+                  <CircleNotch className="w-4 h-4 animate-spin mx-auto" />
+                ) : (
+                  <EditableText cmsKey="login_submit_button" as="span" />
+                )}
               </button>
             </form>
 
@@ -285,9 +289,9 @@ export default function LoginPage() {
 
             {/* Footer */}
             <p className="text-center text-xs text-[#e8e6e1]/75">
-              New client?{" "}
+              <EditableText cmsKey="login_footer_prompt" as="span" />{" "}
               <Link to="/signup" className="text-gold-primary hover:text-gold-bright transition-colors">
-                Create an account
+                <EditableText cmsKey="login_footer_link" as="span" />
               </Link>
             </p>
           </>

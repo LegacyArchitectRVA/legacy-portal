@@ -1,17 +1,19 @@
 import { useQuery } from "convex/react";
-import { RiArrowRightLine as ArrowRight, RiCheckLine as Check, RiLockLine as Lock, RiShieldLine as Shield, RiLoader4Line as CircleNotch, RiSafeLine as Safe, RiArchiveStackLine as ArchiveStack, RiVipCrownLine as Crown } from "@remixicon/react";
+import { RiArrowRightLine as ArrowRight, RiCheckLine as Check, RiLockLine as Lock, RiShieldLine as Shield, RiLoader4Line as CircleNotch } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, tiers } from "../data/tiers";
 import { EditableText } from "../components/EditableText";
 import { useEditMode } from "../contexts/EditModeContext";
-import { IconMedallion } from "../components/TrustIcons";
 
-const tierIcons: Record<string, any> = {
-  vault: Safe,
-  archive: ArchiveStack,
-  legacy: Crown,
+const tierImages: Record<string, string> = {
+  vault:
+    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/vault%20emblem.png",
+  archive:
+    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/archive%20emblem.png",
+  legacy:
+    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/legacy%20emblem.png",
 };
 
 const tierRank: Record<string, number> = {
@@ -114,6 +116,7 @@ export default function UpgradePage() {
         {visibleTiers.map((tier) => {
           const isCurrent = tier.id === currentTier;
           const isUpgrade = tierRank[tier.id] > currentRank;
+          const tierImage = tierImages[tier.id];
           const colors = tierColors[tier.id];
 
           return (
@@ -142,11 +145,10 @@ export default function UpgradePage() {
 
               <div className="relative flex flex-col flex-1 space-y-4">
                 <div className="flex justify-center min-h-[120px] items-center py-2">
-                  <IconMedallion
-                    icon={tierIcons[tier.id] || Safe}
-                    size={40}
-                    boxSize={88}
-                    color={colors.accent}
+                  <img
+                    src={tierImage}
+                    alt={tier.name}
+                    className="h-28 w-auto object-contain drop-shadow-lg"
                   />
                 </div>
 
@@ -160,7 +162,7 @@ export default function UpgradePage() {
                         borderColor: `rgba(${colors.accentRgb}, 0.25)`,
                       }}
                     >
-                      Current Edition
+                      <EditableText cmsKey="upgrade_current_badge" as="span" />
                     </span>
                   </div>
                 )}
@@ -213,7 +215,7 @@ export default function UpgradePage() {
                       boxShadow: `0 0 20px rgba(${colors.accentRgb}, 0.2)`,
                     }}
                   >
-                    Upgrade to {tier.name}
+                    <EditableText cmsKey="upgrade_cta_prefix" as="span" /> {tier.name}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 )}
@@ -227,7 +229,7 @@ export default function UpgradePage() {
                       borderColor: `rgba(${colors.accentRgb}, 0.2)`,
                     }}
                   >
-                    <Shield className="w-4 h-4" /> Active
+                    <Shield className="w-4 h-4" /> <EditableText cmsKey="upgrade_active_badge" as="span" />
                   </div>
                 )}
 
@@ -236,7 +238,7 @@ export default function UpgradePage() {
                     className="font-heading text-[10px] tracking-widest uppercase"
                     style={{ color: `rgba(${colors.accentRgb}, 0.6)` }}
                   >
-                    Chapters Included
+                    <EditableText cmsKey="upgrade_chapters_included_label" as="span" />
                   </h4>
                   <ul className="space-y-1.5">
                     {chapters.map((ch) => {
@@ -276,14 +278,12 @@ export default function UpgradePage() {
 
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 text-center">
         <p className="text-sm text-[#e8e6e1]/80 leading-relaxed">
-          Upgrade options only show editions above the client&apos;s current
-          edition. Blueprint Session is intentionally excluded from the portal.
+          <EditableText cmsKey="upgrade_notice_text" as="span" />
         </p>
       </div>
 
       <div className="text-center text-xs text-[#e8e6e1]/75 py-4">
-        All Life Manuals include secure client portal access, a premium branded
-        PDF, and a 72-hour data purge after delivery.
+        <EditableText cmsKey="upgrade_footer_text" as="span" />
       </div>
     </div>
   );

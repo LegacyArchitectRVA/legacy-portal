@@ -1,5 +1,6 @@
 import { RiBookOpenLine as BookOpen, RiDownloadLine as Download, RiEyeLine as Eye, RiMapLine as Map, RiClipboardLine as ClipboardCheck, RiShieldCheckLine as ShieldCheck, RiArrowLeftLine as ArrowLeft } from "@remixicon/react";
 import { useState } from "react";
+import { EditableText } from "../components/EditableText";
 
 interface Guide {
   id: string;
@@ -584,9 +585,11 @@ export default function IntroductionPage() {
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">Introduction</h1>
+        <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">
+          <EditableText cmsKey="introduction_title" as="span" />
+        </h1>
         <p className="text-sm text-[#e8e6e1]/80 mt-1">
-          Start here. Review these guides before building your Life Manual.
+          <EditableText cmsKey="introduction_subtitle" as="span" />
         </p>
       </div>
 
