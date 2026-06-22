@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { chapters, PRIVACY_NOTE } from "../data/chapters";
-import { canAccessChapter } from "../data/tiers";
+import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LucideIcon } from "../components/LucideIcon";
 
 function SectionView({
@@ -112,6 +112,10 @@ export default function ManualViewPage() {
   const navigate = useNavigate();
   const isAdmin = useQuery(api.admin.isAdmin);
   const clients = useQuery(api.admin.listClients);
+  const manualData = useQuery(
+    api.crm.getClientManualData,
+    clientUserId ? { clientUserId: clientUserId as Id<"users"> } : "skip"
+  );
 
   if (!isAdmin) {
     return (
@@ -126,6 +130,90 @@ export default function ManualViewPage() {
   );
   const tier = client?.tier || "vault";
 
+  function escapeHtml(s: string): string {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  const handlePrint = () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const accessibleChapters = chapters.filter((ch) => canAccessChapter(tier, ch.chapterNumber));
+    let body = "";
+    for (const ch of accessibleChapters) {
+      let chapterHtml = "";
+      for (const sec of ch.subSections) {
+        const sectionKey = `${ch.id}:${sec.id}`;
+        const realRows = manualData?.rowsBySection[sectionKey] || [];
+        const realFields = manualData?.fieldsBySection[sectionKey] || {};
+        const hasTableData = realRows.length > 0;
+        const hasFieldData = Object.keys(realFields).length > 0;
+        if (!hasTableData && !hasFieldData) continue;
+
+        let sectionHtml = `<h3>${escapeHtml(sec.title)}</h3>`;
+        if (hasTableData && sec.tableColumns.length > 0) {
+          sectionHtml += `<table><thead><tr>`;
+          for (const col of sec.tableColumns) sectionHtml += `<th>${escapeHtml(col.label)}</th>`;
+          sectionHtml += `</tr></thead><tbody>`;
+          for (const row of realRows) {
+            sectionHtml += `<tr>`;
+            for (const col of sec.tableColumns) sectionHtml += `<td>${escapeHtml(row[col.key] || "")}</td>`;
+            sectionHtml += `</tr>`;
+          }
+          sectionHtml += `</tbody></table>`;
+        }
+        if (hasFieldData && sec.fields) {
+          for (const fieldDef of sec.fields) {
+            const value = realFields[fieldDef.id];
+            if (!value) continue;
+            sectionHtml += `<div class="field"><strong>${escapeHtml(fieldDef.label)}:</strong> <span>${escapeHtml(value)}</span></div>`;
+          }
+        }
+        chapterHtml += `<div class="section">${sectionHtml}</div>`;
+      }
+      if (chapterHtml) {
+        body += `<div class="chapter"><h2>Chapter ${ch.chapterNumber}: ${escapeHtml(ch.title)}</h2>${chapterHtml}</div>`;
+      }
+    }
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<title>Life Manual - ${escapeHtml(client?.userName || "Client")}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Libre Baskerville', serif; font-size: 11.5pt; line-height: 1.4; color: #1a1a1a; background: #fdfcfa; padding: 1in 0.9in; }
+.logo { display: block; height: 0.55in; margin: 0 auto 0.15in; }
+.title { font-family: 'Cinzel', serif; font-size: 18pt; text-align: center; letter-spacing: 0.05em; color: #8a6d1f; text-transform: uppercase; margin-bottom: 0.05in; }
+.subtitle { text-align: center; font-size: 10pt; color: #555; margin-bottom: 0.4in; }
+.chapter { margin-bottom: 0.3in; page-break-inside: avoid; }
+.chapter h2 { font-family: 'Cinzel', serif; font-size: 14pt; text-transform: uppercase; letter-spacing: 0.03em; color: #8a6d1f; border-bottom: 1px solid #d9cca0; padding-bottom: 0.08in; margin-bottom: 0.15in; }
+.section { margin-bottom: 0.18in; }
+.section h3 { font-family: 'Cinzel', serif; font-size: 12pt; color: #4a3a10; margin-bottom: 0.06in; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 0.1in; font-size: 10pt; }
+th, td { border: 1px solid #e0d8c5; padding: 5px 8px; text-align: left; }
+th { background: #f5f0e3; font-family: 'Cinzel', serif; font-size: 8.5pt; text-transform: uppercase; color: #8a6d1f; }
+.field { font-size: 10.5pt; margin-bottom: 0.06in; }
+.field strong { color: #4a3a10; font-family: 'Cinzel', serif; font-size: 9pt; text-transform: uppercase; }
+.footer { margin-top: 0.4in; padding-top: 0.15in; border-top: 1px solid #d9cca0; text-align: center; font-family: 'Cinzel', serif; font-size: 9pt; letter-spacing: 0.1em; color: #8a6d1f; text-transform: uppercase; }
+@media print { body { padding: 0.55in 0.65in; } }
+</style></head>
+<body>
+<img class="logo" src="${window.location.origin}/logo.png" alt="" />
+<div class="title">Life Manual</div>
+<div class="subtitle">Prepared for ${escapeHtml(client?.userName || "Client")} &middot; ${getTierByName(tier)?.name ?? tier} Edition</div>
+${body || '<p style="text-align:center;color:#888;font-style:italic;">No information has been entered yet.</p>'}
+<div class="footer">Order in Your Absence</div>
+</body></html>`;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.onload = () => {
+      printWindow.focus();
+      printWindow.print();
+    };
+  };
+
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -139,7 +227,7 @@ export default function ManualViewPage() {
         </button>
         <button
           type="button"
-          onClick={() => window.print()}
+          onClick={handlePrint}
           className="btn-gold text-xs px-4 py-2 flex items-center gap-1.5"
         >
           <FileText className="w-3.5 h-3.5" />
