@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query, internalQuery } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 
 // Helper to verify admin status (for queries/mutations, where ctx.db exists directly)
 export async function requireAdmin(ctx: any) {
@@ -321,6 +322,53 @@ export const deleteCMS = mutation({
     if (existing) {
       await ctx.db.delete(existing._id);
     }
+  },
+});
+
+/** Admin-only: generates a short-lived URL the browser can POST a file to directly. */
+export const generateImageUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+/** Saves the uploaded file's storage ID against a CMS key, replacing any previous image for that key. */
+export const updateCMSImage = mutation({
+  args: { key: v.string(), storageId: v.id("_storage") },
+  handler: async (ctx, { key, storageId }) => {
+    await requireAdmin(ctx);
+    const existing = await ctx.db
+      .query("cmsContent")
+      .withIndex("by_key", (q) => q.eq("key", key))
+      .unique();
+    // Clean up the previous file, if any, so replacing an image doesn't
+    // leave orphaned storage blobs behind.
+    if (existing) {
+      try {
+        await ctx.storage.delete(existing.value as Id<"_storage">);
+      } catch {
+        // Previous value might not be a valid storage ID (e.g. never
+        // customized before) — fine to ignore.
+      }
+      await ctx.db.patch(existing._id, { value: storageId, metadata: "image" });
+    } else {
+      await ctx.db.insert("cmsContent", { key, value: storageId, metadata: "image" });
+    }
+  },
+});
+
+/** Resolves a CMS image key to its actual serving URL, or null if never customized. */
+export const getCMSImageUrl = query({
+  args: { key: v.string() },
+  handler: async (ctx, { key }) => {
+    const cms = await ctx.db
+      .query("cmsContent")
+      .withIndex("by_key", (q) => q.eq("key", key))
+      .unique();
+    if (!cms || cms.metadata !== "image") return null;
+    return await ctx.storage.getUrl(cms.value as Id<"_storage">);
   },
 });
 

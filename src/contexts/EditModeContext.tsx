@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 
-export type EditableKind = "text" | "icon" | "box";
+export type EditableKind = "text" | "icon" | "box" | "image";
 
 interface EditModeState {
   active: boolean;

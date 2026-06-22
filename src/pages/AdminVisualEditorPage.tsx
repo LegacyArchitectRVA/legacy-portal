@@ -16,7 +16,7 @@ import IntroductionPage from "./IntroductionPage";
 import { EditModeProvider, type EditableKind } from "../contexts/EditModeContext";
 import { SWAPPABLE_MARKER_ICONS } from "../lib/swappableIcons";
 import { getEditableDefault } from "../lib/editableContentRegistry";
-import { RiPaintBrushLine as PaintBrush, RiAlignLeft as TextAlignLeft, RiAlignCenter as TextAlignCenter, RiAlignRight as TextAlignRight, RiBold as TextB, RiItalic as TextItalic, RiUnderline as TextUnderline, RiSaveLine as FloppyDisk, RiDeleteBinLine as Trash, RiArrowLeftSLine as CaretLeft, RiLoader4Line as CircleNotch, RiCloseLine as X, RiCheckLine as Check, RiCursorLine as CursorClick, RiErrorWarningLine as Warning } from "@remixicon/react";
+import { RiPaintBrushLine as PaintBrush, RiAlignLeft as TextAlignLeft, RiAlignCenter as TextAlignCenter, RiAlignRight as TextAlignRight, RiBold as TextB, RiItalic as TextItalic, RiUnderline as TextUnderline, RiSaveLine as FloppyDisk, RiDeleteBinLine as Trash, RiArrowLeftSLine as CaretLeft, RiLoader4Line as CircleNotch, RiCloseLine as X, RiCheckLine as Check, RiCursorLine as CursorClick, RiErrorWarningLine as Warning, RiUploadLine as Upload } from "@remixicon/react";
 
 const FONT_FAMILIES = [
   "Cinzel",
@@ -55,6 +55,8 @@ export default function AdminVisualEditorPage() {
   const isAdmin = useQuery(api.admin.isAdmin);
   const updateCMS = useMutation(api.admin.updateCMS);
   const deleteCMS = useMutation(api.admin.deleteCMS);
+  const generateImageUploadUrl = useMutation(api.admin.generateImageUploadUrl);
+  const updateCMSImage = useMutation(api.admin.updateCMSImage);
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [selectedKind, setSelectedKind] = useState<EditableKind>("text");
@@ -64,6 +66,10 @@ export default function AdminVisualEditorPage() {
     "landing" | "dashboard" | "upgrade" | "login" | "signup" | "chapter" | "settings" | "profile" | "messages" | "manualview" | "introduction"
   >("landing");
   const cmsItem = useQuery(api.admin.getCMS, selectedKey ? { key: selectedKey } : "skip");
+  const currentImageUrl = useQuery(
+    api.admin.getCMSImageUrl,
+    selectedKey && selectedKind === "image" ? { key: selectedKey } : "skip"
+  );
 
   const [content, setContent] = useState("");
   const [fontFamily, setFontFamily] = useState("");
@@ -76,6 +82,8 @@ export default function AdminVisualEditorPage() {
   const [iconColor, setIconColor] = useState("#e8c46a");
   const [boxBorderColor, setBoxBorderColor] = useState("");
   const [boxBgColor, setBoxBgColor] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [missingFallback, setMissingFallback] = useState(false);
@@ -153,6 +161,35 @@ export default function AdminVisualEditorPage() {
     setIsBold(false);
     setIsItalic(false);
     setIsUnderline(false);
+  };
+
+  const handleImageUpload = async (file: File) => {
+    if (!selectedKey) return;
+    setImageUploadError("");
+    if (!file.type.startsWith("image/")) {
+      setImageUploadError("That file isn't an image.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setImageUploadError("Images must be under 8MB.");
+      return;
+    }
+    setImageUploading(true);
+    try {
+      const uploadUrl = await generateImageUploadUrl();
+      const result = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!result.ok) throw new Error("Upload failed");
+      const { storageId } = await result.json();
+      await updateCMSImage({ key: selectedKey, storageId });
+    } catch {
+      setImageUploadError("Something went wrong uploading that image. Try again.");
+    } finally {
+      setImageUploading(false);
+    }
   };
 
   const handleSave = async () => {
@@ -570,27 +607,77 @@ export default function AdminVisualEditorPage() {
               </div>
             )}
 
+            {selectedKind === "image" && (
+              <div className="space-y-3">
+                <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block">
+                  Current Image
+                </label>
+                {currentImageUrl ? (
+                  <img
+                    src={currentImageUrl}
+                    alt=""
+                    className="w-full max-h-40 object-contain rounded-lg border border-gold-border/30 bg-black/40"
+                  />
+                ) : (
+                  <p className="text-xs text-[#e8e6e1]/60 italic">
+                    Using the default image, nothing's been uploaded for this yet.
+                  </p>
+                )}
+
+                <label className="flex items-center justify-center gap-2 bg-black border border-gold-border/30 rounded-lg px-3 py-3 text-sm text-[#e8e6e1] cursor-pointer hover:border-gold-primary/40 transition-colors">
+                  {imageUploading ? (
+                    <CircleNotch className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
+                  {imageUploading ? "Uploading..." : "Upload New Image"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={imageUploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImageUpload(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                {imageUploadError && (
+                  <p className="text-xs text-red-400">{imageUploadError}</p>
+                )}
+                <p className="text-[10px] text-[#e8e6e1]/50">
+                  JPG, PNG, or WebP, up to 8MB. Replaces only this image, everywhere it appears.
+                </p>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex items-center gap-2 pt-1">
-              <button
-                onClick={handleSave}
-                disabled={saving || (selectedKind === "text" && missingFallback && !content.trim())}
-                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50"
-              >
-                {saving ? (
-                  <CircleNotch className="w-4 h-4 animate-spin" />
-                ) : saved ? (
-                  <Check className="w-4 h-4" />
-                ) : (
-                  <FloppyDisk className="w-4 h-4" />
-                )}
-                {saved ? "Saved" : "Save"}
-              </button>
+              {selectedKind !== "image" && (
+                <button
+                  onClick={handleSave}
+                  disabled={saving || (selectedKind === "text" && missingFallback && !content.trim())}
+                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50"
+                >
+                  {saving ? (
+                    <CircleNotch className="w-4 h-4 animate-spin" />
+                  ) : saved ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <FloppyDisk className="w-4 h-4" />
+                  )}
+                  {saved ? "Saved" : "Save"}
+                </button>
+              )}
               <button
                 onClick={handleReset}
-                className="flex items-center gap-2 text-red-400/80 hover:text-red-400 text-sm px-3 py-2.5 rounded-xl border border-red-500/20"
+                className={`flex items-center gap-2 text-red-400/80 hover:text-red-400 text-sm px-3 py-2.5 rounded-xl border border-red-500/20 ${
+                  selectedKind === "image" ? "flex-1 justify-center" : ""
+                }`}
               >
                 <Trash className="w-4 h-4" />
+                {selectedKind === "image" && "Reset to Default"}
               </button>
             </div>
           </div>

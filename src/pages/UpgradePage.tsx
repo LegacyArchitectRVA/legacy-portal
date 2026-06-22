@@ -7,6 +7,7 @@ import { canAccessChapter, tiers } from "../data/tiers";
 import { EditableText } from "../components/EditableText";
 import { EditableIcon } from "../components/EditableIcon";
 import { EditableBox } from "../components/EditableBox";
+import { EditableImage } from "../components/EditableImage";
 import { useEditMode } from "../contexts/EditModeContext";
 
 const tierImages: Record<string, string> = {
@@ -148,8 +149,9 @@ export default function UpgradePage() {
 
               <div className="relative flex flex-col flex-1 space-y-4">
                 <div className="flex justify-center min-h-[120px] items-center py-2">
-                  <img
-                    src={tierImage}
+                  <EditableImage
+                    cmsKey={`upgrade_${tier.id}_emblem`}
+                    defaultSrc={tierImage}
                     alt={tier.name}
                     className="h-28 w-auto object-contain drop-shadow-lg"
                   />

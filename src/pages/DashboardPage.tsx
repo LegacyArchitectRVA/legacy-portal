@@ -5,6 +5,7 @@ import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { EditableText } from "../components/EditableText";
+import { EditableImage } from "../components/EditableImage";
 import type { Id } from "../../convex/_generated/dataModel";
 
 const tierImages: Record<string, string> = {
@@ -150,8 +151,9 @@ export default function DashboardPage() {
         </div>
       ) : tierInfo && (
         <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c46a]/20 bg-gradient-to-r from-[#e8c46a]/[0.06] to-transparent p-3 md:p-4">
-          <img
-            src={tierImages[tier] || tierImages.vault}
+          <EditableImage
+            cmsKey={`upgrade_${tier}_emblem`}
+            defaultSrc={tierImages[tier] || tierImages.vault}
             alt={tierInfo.name}
             className="w-14 h-14 object-contain shrink-0"
           />
