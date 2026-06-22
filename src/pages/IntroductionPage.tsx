@@ -40,7 +40,7 @@ This roadmap provides your designated successor with a clear, sequential path to
 - Complete all items in the Vital Records chapter
 
 ## Phase 4: Legacy Preservation
-- Review Chapter 6: Context & Legacy Wishes
+- Review Chapter 6: Legacy & Wishes
 - Execute any legacy instructions
 - Archive the Life Manual per the zero-knowledge protocol
 
@@ -93,7 +93,7 @@ Use this checklist to ensure your Life Manual is complete and your successor is 
 - [ ] Legal documents referenced
 - [ ] Medical records and directives noted
 
-## Chapter 6: Context & Legacy Wishes
+## Chapter 6: Legacy & Wishes
 - [ ] Personal wishes documented
 - [ ] Legacy instructions recorded
 
@@ -153,12 +153,12 @@ We never store passwords, recovery codes, or sensitive credentials. All data is 
     `.trim(),
   },
   {
-    id: "engagement-vault-guide",
-    title: "Engagement & Vault Guide",
+    id: "engagement-security-guide",
+    title: "Engagement & Data Security Guide",
     description: "Understand the security model, data handling, and zero-knowledge architecture behind your portal.",
     icon: <ShieldCheck className="w-6 h-6" />,
     content: `
-# Engagement & Vault Guide
+# Engagement & Data Security Guide
 
 ## Security Architecture
 
@@ -212,7 +212,170 @@ export default function IntroductionPage() {
   const [viewingGuide, setViewingGuide] = useState<string | null>(null);
   const activeGuide = guides.find((g) => g.id === viewingGuide);
 
+  const handleDownloadFillableChecklist = async (guide: Guide) => {
+    const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
+    // Parse the markdown content into {chapterTitle, items[]} groups, reusing
+    // the same source content as the print path so there's one source of truth.
+    const lines = guide.content.split("\n");
+    const groups: { title: string; items: string[] }[] = [];
+    let current: { title: string; items: string[] } | null = null;
+    for (const line of lines) {
+      if (line.startsWith("## ")) {
+        current = { title: line.slice(3), items: [] };
+        groups.push(current);
+      } else if (line.startsWith("- [ ] ") && current) {
+        current.items.push(line.slice(6));
+      }
+    }
+
+    const pdfDoc = await PDFDocument.create();
+    const form = pdfDoc.getForm();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const italicFont = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+
+    let logoImage = null;
+    try {
+      const logoBytes = await fetch(`${window.location.origin}/logo.png`).then((r) => r.arrayBuffer());
+      logoImage = await pdfDoc.embedPng(logoBytes);
+    } catch {
+      // Logo is a nice-to-have on this PDF; proceed without it if it fails to load.
+    }
+
+    const PAGE_W = 612;
+    const PAGE_H = 792;
+    const MARGIN = 54;
+    const CONTENT_W = PAGE_W - MARGIN * 2;
+    const GOLD = rgb(0.541, 0.427, 0.122); // #8a6d1f
+    const DARK = rgb(0.102, 0.102, 0.102);
+    const GRAY = rgb(0.33, 0.33, 0.33);
+
+    let page = pdfDoc.addPage([PAGE_W, PAGE_H]);
+    let y = PAGE_H - MARGIN;
+    let checkboxCounter = 0;
+
+    const ensureSpace = (needed: number) => {
+      if (y - needed < MARGIN) {
+        page = pdfDoc.addPage([PAGE_W, PAGE_H]);
+        y = PAGE_H - MARGIN;
+      }
+    };
+
+    const wrapText = (text: string, useFont: typeof font, size: number, maxWidth: number): string[] => {
+      const words = text.split(" ");
+      const out: string[] = [];
+      let line = "";
+      for (const word of words) {
+        const trial = line ? `${line} ${word}` : word;
+        if (useFont.widthOfTextAtSize(trial, size) > maxWidth && line) {
+          out.push(line);
+          line = word;
+        } else {
+          line = trial;
+        }
+      }
+      if (line) out.push(line);
+      return out;
+    };
+
+    // Logo + title (first page only)
+    if (logoImage) {
+      const logoH = 36;
+      const logoW = (logoImage.width / logoImage.height) * logoH;
+      ensureSpace(logoH + 10);
+      page.drawImage(logoImage, { x: (PAGE_W - logoW) / 2, y: y - logoH, width: logoW, height: logoH });
+      y -= logoH + 14;
+    }
+    page.drawText(guide.title.toUpperCase(), {
+      x: MARGIN,
+      y,
+      size: 16,
+      font: boldFont,
+      color: GOLD,
+    });
+    y -= 26;
+
+    const introLine = lines.find((l) => l.trim() && !l.startsWith("#"));
+    if (introLine) {
+      for (const wrapped of wrapText(introLine, italicFont, 10, CONTENT_W)) {
+        ensureSpace(16);
+        page.drawText(wrapped, { x: MARGIN, y, size: 10, font: italicFont, color: GRAY });
+        y -= 14;
+      }
+      y -= 8;
+    }
+
+    for (const group of groups) {
+      ensureSpace(30);
+      y -= 6;
+      page.drawText(group.title.toUpperCase(), { x: MARGIN, y, size: 12, font: boldFont, color: GOLD });
+      y -= 8;
+      page.drawLine({
+        start: { x: MARGIN, y },
+        end: { x: PAGE_W - MARGIN, y },
+        thickness: 0.5,
+        color: rgb(0.85, 0.8, 0.7),
+      });
+      y -= 16;
+
+      for (const item of group.items) {
+        const textX = MARGIN + 20;
+        const wrapped = wrapText(item, font, 10.5, CONTENT_W - 20);
+        ensureSpace(wrapped.length * 14 + 6);
+
+        checkboxCounter++;
+        const checkBox = form.createCheckBox(`item_${checkboxCounter}`);
+        checkBox.addToPage(page, {
+          x: MARGIN,
+          y: y - 9,
+          width: 12,
+          height: 12,
+          borderColor: GOLD,
+          borderWidth: 1,
+        });
+
+        wrapped.forEach((wline, i) => {
+          page.drawText(wline, { x: textX, y: y - i * 14, size: 10.5, font, color: DARK });
+        });
+        y -= wrapped.length * 14 + 6;
+      }
+      y -= 6;
+    }
+
+    ensureSpace(40);
+    y -= 10;
+    page.drawLine({
+      start: { x: MARGIN, y },
+      end: { x: PAGE_W - MARGIN, y },
+      thickness: 0.5,
+      color: rgb(0.85, 0.8, 0.7),
+    });
+    y -= 20;
+    const footerText = "ORDER IN YOUR ABSENCE";
+    const footerWidth = boldFont.widthOfTextAtSize(footerText, 9);
+    page.drawText(footerText, {
+      x: (PAGE_W - footerWidth) / 2,
+      y,
+      size: 9,
+      font: boldFont,
+      color: GOLD,
+    });
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "preparation-checklist.pdf";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleDownload = (guide: Guide) => {
+    if (guide.id === "preparation-checklist") {
+      handleDownloadFillableChecklist(guide);
+      return;
+    }
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
@@ -265,44 +428,49 @@ export default function IntroductionPage() {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Libre Baskerville', serif;
-      font-size: 13pt;
-      line-height: 1.5;
+      font-size: 11.5pt;
+      line-height: 1.35;
       color: #1a1a1a;
       background: #fdfcfa;
       padding: 1in 0.9in;
     }
+    .logo {
+      display: block;
+      height: 0.55in;
+      margin: 0 auto 0.15in;
+    }
     .title {
       font-family: 'Cinzel', serif;
-      font-size: 20pt;
+      font-size: 18pt;
       text-align: center;
       letter-spacing: 0.05em;
       color: #8a6d1f;
       text-transform: uppercase;
-      margin-bottom: 0.3in;
+      margin-bottom: 0.2in;
     }
     h2 {
       font-family: 'Cinzel', serif;
-      font-size: 16pt;
+      font-size: 13.5pt;
       text-transform: uppercase;
       letter-spacing: 0.03em;
       color: #8a6d1f;
-      margin: 0.3in 0 0.12in;
+      margin: 0.18in 0 0.08in;
     }
     h3 {
       font-family: 'Cinzel', serif;
-      font-size: 13pt;
+      font-size: 12.5pt;
       color: #4a3a10;
-      margin: 0.22in 0 0.08in;
+      margin: 0.16in 0 0.06in;
     }
-    p { margin-bottom: 0.1in; }
-    p.note { font-style: italic; font-size: 11pt; color: #555; }
-    ul { margin: 0 0 0.15in 0.25in; }
-    li { margin-bottom: 0.06in; }
+    p { margin-bottom: 0.07in; }
+    p.note { font-style: italic; font-size: 10.5pt; color: #555; }
+    ul { margin: 0 0 0.1in 0.22in; }
+    li { margin-bottom: 0.04in; }
     strong { color: #4a3a10; }
-    hr { border: none; border-top: 1px solid #d9cca0; margin: 0.25in 0; }
+    hr { border: none; border-top: 1px solid #d9cca0; margin: 0.2in 0; }
     .footer {
-      margin-top: 0.5in;
-      padding-top: 0.2in;
+      margin-top: 0.25in;
+      padding-top: 0.15in;
       border-top: 1px solid #d9cca0;
       text-align: center;
       font-family: 'Cinzel', serif;
@@ -312,11 +480,12 @@ export default function IntroductionPage() {
       text-transform: uppercase;
     }
     @media print {
-      body { padding: 0.6in 0.7in; }
+      body { padding: 0.55in 0.65in; }
     }
   </style>
 </head>
 <body>
+  <img class="logo" src="${window.location.origin}/logo.png" alt="Legacy Architect RVA" />
   <div class="title">${guide.title}</div>
   ${body.join("\n  ")}
   <div class="footer">Order in Your Absence</div>
