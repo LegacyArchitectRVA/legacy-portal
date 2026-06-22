@@ -1,16 +1,16 @@
 import { useAction, useMutation, useQuery } from "convex/react";
-import { RiArrowLeftLine as ArrowLeft, RiLoader4Line as Loader2, RiMailLine as Mail, RiPhoneLine as Phone, RiAddLine as Plus, RiRefreshLine as RefreshCw, RiDeleteBinLine as Trash2, RiUserLine as User, RiCloseLine as X } from "@remixicon/react";
+import { RiArrowLeftLine as ArrowLeft, RiLoader4Line as Loader2, RiMailLine as Mail, RiPhoneLine as Phone, RiAddLine as Plus, RiRefreshLine as RefreshCw, RiDeleteBinLine as Trash2, RiUserLine as User, RiCloseLine as X, RiAddCircleLine as NewIcon, RiTimeLine as FollowUpIcon, RiCheckboxCircleLine as ConvertedIcon, RiPauseCircleLine as InactiveIcon } from "@remixicon/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 
 const STATUSES = [
-  { id: "new", label: "New", color: "text-sky-400" },
-  { id: "contacted", label: "Contacted", color: "text-amber-400" },
-  { id: "follow_up", label: "Follow Up", color: "text-purple-400" },
-  { id: "converted", label: "Converted", color: "text-emerald-400" },
-  { id: "inactive", label: "Inactive", color: "text-[#e8e6e1]/50" },
+  { id: "new", label: "New", color: "text-sky-400", icon: NewIcon },
+  { id: "contacted", label: "Contacted", color: "text-amber-400", icon: Phone },
+  { id: "follow_up", label: "Follow Up", color: "text-purple-400", icon: FollowUpIcon },
+  { id: "converted", label: "Converted", color: "text-emerald-400", icon: ConvertedIcon },
+  { id: "inactive", label: "Inactive", color: "text-[#e8e6e1]/50", icon: InactiveIcon },
 ] as const;
 
 function statusMeta(id: string) {
@@ -149,10 +149,11 @@ export default function ProspectsPage() {
           <button
             key={s.id}
             onClick={() => setStatusFilter(s.id)}
-            className={`text-[10px] px-3 py-1.5 rounded-full font-heading transition-colors ${
+            className={`flex items-center gap-1 text-[10px] px-3 py-1.5 rounded-full font-heading transition-colors ${
               statusFilter === s.id ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"
             }`}
           >
+            <s.icon className="w-3 h-3" />
             {s.label}
           </button>
         ))}
@@ -187,7 +188,10 @@ export default function ProspectsPage() {
                       {p.source || p.email || p.phone || "No details yet"}
                     </p>
                   </div>
-                  <span className={`text-[10px] font-heading shrink-0 ${meta.color}`}>{meta.label}</span>
+                  <span className={`flex items-center gap-1 text-[10px] font-heading shrink-0 ${meta.color}`}>
+                    <meta.icon className="w-3 h-3" />
+                    {meta.label}
+                  </span>
                 </button>
 
                 {isOpen && (
@@ -212,12 +216,13 @@ export default function ProspectsPage() {
                           <button
                             key={s.id}
                             onClick={() => handleStatusChange(p._id, s.id)}
-                            className={`text-[10px] px-2.5 py-1 rounded-full transition-colors ${
+                            className={`flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-full transition-colors ${
                               p.status === s.id
                                 ? "bg-gold-dark/25 text-gold-primary"
                                 : "bg-black/40 text-[#e8e6e1]/75 hover:text-[#e8e6e1]"
                             }`}
                           >
+                            <s.icon className="w-3 h-3" />
                             {s.label}
                           </button>
                         ))}

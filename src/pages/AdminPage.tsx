@@ -1,5 +1,5 @@
 import { useAction, useMutation, useQuery } from "convex/react";
-import { RiBookOpenLine as BookOpen, RiCheckboxCircleLine as CheckCircle2, RiVipCrownLine as Crown, RiExternalLinkLine as ExternalLink, RiEyeLine as Eye, RiFileTextLine as FileText, RiLoader4Line as Loader2, RiPaintBrushLine as Paintbrush, RiSearchLine as Search, RiSettings3Line as Settings, RiUserSettingsLine as UserCog, RiUserAddLine as UserPlus, RiTeamLine as Users, RiUploadCloud2Line as UploadCloud, RiCloudLine as DownloadCloud, RiCloseCircleLine as XCircle } from "@remixicon/react";
+import { RiBookOpenLine as BookOpen, RiCheckboxCircleLine as CheckCircle2, RiVipCrownLine as Crown, RiExternalLinkLine as ExternalLink, RiEyeLine as Eye, RiFileTextLine as FileText, RiLoader4Line as Loader2, RiPaintBrushLine as Paintbrush, RiSearchLine as Search, RiSettings3Line as Settings, RiUserSettingsLine as UserCog, RiUserAddLine as UserPlus, RiTeamLine as Users, RiUploadCloud2Line as UploadCloud, RiCloudLine as DownloadCloud, RiCloseCircleLine as XCircle, RiSafeLine as Safe, RiArchiveStackLine as ArchiveStack } from "@remixicon/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconMedallion } from "../components/TrustIcons";
@@ -203,7 +203,7 @@ export default function AdminPage() {
           <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mt-1">Total Clients</p>
         </div>
         {tiers.map((t) => {
-          const tierIcon = t.id === "legacy" ? Crown : t.id === "archive" ? BookOpen : UserCog;
+          const tierIcon = t.id === "legacy" ? Crown : t.id === "archive" ? ArchiveStack : Safe;
           return (
             <div key={t.id} className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 text-center space-y-2">
               <IconMedallion icon={tierIcon} size={16} className="mx-auto" />

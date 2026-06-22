@@ -1,4 +1,4 @@
-import { RiLockPasswordLine as LockKey, RiEyeOffLine as EyeSlash, RiShieldCheckLine as ShieldCheckIcon } from "@remixicon/react";
+import { RiLockPasswordLine as LockKey, RiGhostLine as ZeroKnowledgeGlyph, RiShieldCheckLine as ShieldCheckIcon } from "@remixicon/react";
 import type { LucideIcon } from "lucide-react";
 import type { ComponentType } from "react";
 
@@ -48,7 +48,7 @@ export function EncryptedIcon({ size = 20 }: { size?: number }) {
 
 /** Landing page trust badge: "Zero-Knowledge Protocol" */
 export function ZeroKnowledgeIcon({ size = 20 }: { size?: number }) {
-  return <IconMedallion icon={EyeSlash} size={size} boxSize={size * 2.25} />;
+  return <IconMedallion icon={ZeroKnowledgeGlyph} size={size} boxSize={size * 2.25} />;
 }
 
 /** Landing page trust badge: "Private & Confidential" */
