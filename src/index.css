@@ -112,7 +112,8 @@
   --sidebar-ring: #d9cca0;
 }
 
-/* Dark mode is the ONLY mode */
+/* Dark mode is the default; .light overrides below provide the
+   Sand & Forest Green alternative when the admin switches themes. */
 .dark {
   --primary: #d9cca0;
   --primary-foreground: #0a0a0a;
@@ -141,6 +142,36 @@
   --sidebar-accent-foreground: #e8e6e1;
   --sidebar-border: rgba(217, 204, 160, 0.08);
   --sidebar-ring: #d9cca0;
+}
+
+.light {
+  --primary: #2d5a3d;
+  --primary-foreground: #f5f0e3;
+  --sidebar-primary: #2d5a3d;
+  --sidebar-primary-foreground: #f5f0e3;
+  --background: #f5f0e3;
+  --foreground: #1f2e22;
+  --card: #ece4d1;
+  --card-foreground: #1f2e22;
+  --popover: #ece4d1;
+  --popover-foreground: #1f2e22;
+  --secondary: #e3d8bf;
+  --secondary-foreground: #1f2e22;
+  --muted: #e3d8bf;
+  --muted-foreground: rgba(31, 46, 34, 0.75);
+  --accent: #e3d8bf;
+  --accent-foreground: #1f2e22;
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+  --border: rgba(45, 90, 61, 0.25);
+  --input: rgba(45, 90, 61, 0.18);
+  --ring: #2d5a3d;
+  --sidebar: #f5f0e3;
+  --sidebar-foreground: #1f2e22;
+  --sidebar-accent: #ece4d1;
+  --sidebar-accent-foreground: #1f2e22;
+  --sidebar-border: rgba(45, 90, 61, 0.15);
+  --sidebar-ring: #2d5a3d;
 }
 
 @layer base {
@@ -455,4 +486,162 @@
 button:not(:disabled):active {
   transform: scale(0.97);
   transition: transform 0.1s ease;
+}
+/* ============================================================
+   LIGHT THEME OVERRIDES — Sand & Forest Green
+   Auto-generated. Tailwind bakes each hardcoded hex (and each
+   opacity variant) into its own literal compiled rule rather
+   than a CSS variable, so there is no single variable to swap.
+   This file overrides every such utility class individually
+   when the .light class is active on <html>.
+   ============================================================ */
+
+.light .bg-\[\#0a0a0a\] { background-color: #f5f0e3 !important; }
+.light .bg-\[\#0e0e0e\] { background-color: #ece4d1 !important; }
+.light .bg-\[\#111111\] { background-color: #ece4d1 !important; }
+.light .bg-\[\#111\] { background-color: #ece4d1 !important; }
+.light .bg-\[\#1a0606\] { background-color: #f7e9e2 !important; }
+.light .bg-\[\#1a1a1a\] { background-color: #e3d8bf !important; }
+.light .bg-\[\#d9cca0\] { background-color: #2d5a3d !important; }
+.light .bg-\[\#e8c46a\] { background-color: #3a7350 !important; }
+.light .bg-\[\#e8c46a\]\/10 { background-color: #3a73501a !important; }
+.light .border-\[\#b87333\]\/35 { border-color: #8a6a3a59 !important; }
+.light .border-\[\#c8c8c8\]\/35 { border-color: #8a9a8c59 !important; }
+.light .border-\[\#d6a84f\]\/35 { border-color: #3a6b4559 !important; }
+.light .border-\[\#d6a84f\]\/40 { border-color: #3a6b4566 !important; }
+.light .border-\[\#d9cca0\]\/30 { border-color: #2d5a3d4c !important; }
+.light .border-\[\#d9cca0\]\/40 { border-color: #2d5a3d66 !important; }
+.light .border-\[\#e8c46a\] { border-color: #3a7350 !important; }
+.light .border-\[\#e8c46a\]\/10 { border-color: #3a73501a !important; }
+.light .border-\[\#e8c46a\]\/15 { border-color: #3a735026 !important; }
+.light .border-\[\#e8c46a\]\/20 { border-color: #3a735033 !important; }
+.light .from-\[\#1a1610\] { --tw-gradient-from: #ece4d1 !important; }
+.light .from-\[\#d9cca0\] { --tw-gradient-from: #2d5a3d !important; }
+.light .from-\[\#e8c46a\] { --tw-gradient-from: #3a7350 !important; }
+.light .hover\:bg-\[\#161514\]:hover { background-color: #e3d8bf !important; }
+.light .hover\:bg-\[\#e8c46a\]\/5:hover { background-color: #3a73500d !important; }
+.light .hover\:border-\[\#e8c46a\]\/25:hover { border-color: #3a735040 !important; }
+.light .hover\:text-\[\#d9cca0\]:hover { color: #2d5a3d !important; }
+.light .hover\:text-\[\#e8e6e1\]:hover { color: #1f2e22 !important; }
+.light .hover\:text-\[\#e8e6e1\]\/80:hover { color: #1f2e22cc !important; }
+.light .placeholder\:text-\[\#e8e6e1\]\/30::placeholder { color: #1f2e224c !important; }
+.light .placeholder\:text-\[\#e8e6e1\]\/35::placeholder { color: #1f2e2259 !important; }
+.light .placeholder\:text-\[\#e8e6e1\]\/50::placeholder { color: #1f2e2280 !important; }
+.light .placeholder\:text-\[\#e8e6e1\]\/80::placeholder { color: #1f2e22cc !important; }
+.light .text-\[\#0a0a0a\] { color: #f5f0e3 !important; }
+.light .text-\[\#0a0a0a\]\/70 { color: #f5f0e3b2 !important; }
+.light .text-\[\#c1b085\] { color: #5c7a63 !important; }
+.light .text-\[\#c1b085\]\/60 { color: #5c7a6399 !important; }
+.light .text-\[\#d6a84f\] { color: #3a6b45 !important; }
+.light .text-\[\#d9cca0\] { color: #2d5a3d !important; }
+.light .text-\[\#d9cca0\]\/60 { color: #2d5a3d99 !important; }
+.light .text-\[\#d9cca0\]\/70 { color: #2d5a3db2 !important; }
+.light .text-\[\#d9cca0\]\/75 { color: #2d5a3dbf !important; }
+.light .text-\[\#e8c46a\] { color: #3a7350 !important; }
+.light .text-\[\#e8c46a\]\/50 { color: #3a735080 !important; }
+.light .text-\[\#e8c46a\]\/75 { color: #3a7350bf !important; }
+.light .text-\[\#e8e6e1\] { color: #1f2e22 !important; }
+.light .text-\[\#e8e6e1\]\/30 { color: #1f2e224c !important; }
+.light .text-\[\#e8e6e1\]\/35 { color: #1f2e2259 !important; }
+.light .text-\[\#e8e6e1\]\/40 { color: #1f2e2266 !important; }
+.light .text-\[\#e8e6e1\]\/50 { color: #1f2e2280 !important; }
+.light .text-\[\#e8e6e1\]\/60 { color: #1f2e2299 !important; }
+.light .text-\[\#e8e6e1\]\/65 { color: #1f2e22a6 !important; }
+.light .text-\[\#e8e6e1\]\/70 { color: #1f2e22b2 !important; }
+.light .text-\[\#e8e6e1\]\/75 { color: #1f2e22bf !important; }
+.light .text-\[\#e8e6e1\]\/80 { color: #1f2e22cc !important; }
+.light .text-\[\#e8e6e1\]\/85 { color: #1f2e22d9 !important; }
+.light .text-\[\#e8e6e1\]\/90 { color: #1f2e22e6 !important; }
+.light .to-\[\#0a0806\] { --tw-gradient-to: #ece4d1 !important; }
+.light .to-\[\#b89f6b\] { --tw-gradient-to: #1f3d2a !important; }
+.light .via-\[\#e8c46a\]\/15 { --tw-gradient-via: #3a735026 !important; --tw-gradient-stops: var(--tw-gradient-via-stops) !important; }
+.light .via-\[\#e8c46a\]\/20 { --tw-gradient-via: #3a735033 !important; --tw-gradient-stops: var(--tw-gradient-via-stops) !important; }
+.light .via-\[\#e8c46a\]\/8 { --tw-gradient-via: #3a735014 !important; --tw-gradient-stops: var(--tw-gradient-via-stops) !important; }
+.light .bg-gold-border\/15 { background-color: #2d5a3d06 !important; }
+.light .bg-gold-border\/30 { background-color: #2d5a3d0b !important; }
+.light .bg-gold-bright { background-color: #3a7350 !important; }
+.light .bg-gold-dark\/10 { background-color: #1f3d2a1a !important; }
+.light .bg-gold-dark\/15 { background-color: #1f3d2a26 !important; }
+.light .bg-gold-dark\/20 { background-color: #1f3d2a33 !important; }
+.light .bg-gold-dark\/25 { background-color: #1f3d2a40 !important; }
+.light .bg-gold-primary { background-color: #2d5a3d !important; }
+.light .bg-gold-primary\/10 { background-color: #2d5a3d1a !important; }
+.light .bg-gold-primary\/20 { background-color: #2d5a3d33 !important; }
+.light .border-gold-border { border-color: #2d5a3d26 !important; }
+.light .border-gold-border\/10 { border-color: #2d5a3d04 !important; }
+.light .border-gold-border\/20 { border-color: #2d5a3d08 !important; }
+.light .border-gold-border\/30 { border-color: #2d5a3d0b !important; }
+.light .border-gold-border\/40 { border-color: #2d5a3d0f !important; }
+.light .border-gold-border\/50 { border-color: #2d5a3d13 !important; }
+.light .border-gold-dark\/10 { border-color: #1f3d2a1a !important; }
+.light .border-gold-dark\/20 { border-color: #1f3d2a33 !important; }
+.light .border-gold-primary { border-color: #2d5a3d !important; }
+.light .border-gold-primary\/30 { border-color: #2d5a3d4c !important; }
+.light .border-gold-primary\/40 { border-color: #2d5a3d66 !important; }
+.light .border-gold-primary\/50 { border-color: #2d5a3d80 !important; }
+.light .from-gold-border { --tw-gradient-from: #2d5a3d26 !important; }
+.light .from-gold-bright { --tw-gradient-from: #3a7350 !important; }
+.light .hover\:bg-gold-dark\/10:hover { background-color: #1f3d2a1a !important; }
+.light .hover\:bg-gold-dark\/25:hover { background-color: #1f3d2a40 !important; }
+.light .hover\:border-gold-border\/40:hover { border-color: #2d5a3d0f !important; }
+.light .hover\:border-gold-primary\/30:hover { border-color: #2d5a3d4c !important; }
+.light .hover\:border-gold-primary\/40:hover { border-color: #2d5a3d66 !important; }
+.light .hover\:border-gold-primary\/50:hover { border-color: #2d5a3d80 !important; }
+.light .hover\:text-gold-bright:hover { color: #3a7350 !important; }
+.light .hover\:text-gold-primary:hover { color: #2d5a3d !important; }
+.light .text-gold-bright { color: #3a7350 !important; }
+.light .text-gold-muted { color: #5c7a63 !important; }
+.light .text-gold-muted\/70 { color: #5c7a63b2 !important; }
+.light .text-gold-primary { color: #2d5a3d !important; }
+.light .to-gold-dark { --tw-gradient-to: #1f3d2a !important; }
+
+/* bg-black / text-white overrides for the light theme */
+.light .bg-black { background-color: #f5f0e3 !important; }
+.light .text-white { color: #1f2e22 !important; }
+
+/* Tailwind's built-in red-* palette (used by the Legal Documents bar)
+   is tuned for a dark background and is nearly illegible against the
+   light theme's pale backgrounds. These are real CSS variables with
+   color-mix()-based opacity, so overriding the variable itself
+   correctly fixes every opacity variant (text-red-200/70, etc) too. */
+.light {
+  --color-red-200: #7f1d1d;
+  --color-red-300: #8a1f1f;
+  --color-red-400: #991b1b;
+  --color-red-900: #fecaca;
+}
+
+.light .text-gold-gradient {
+  background: linear-gradient(135deg, #2d5a3d, #1f3d2a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.light .btn-gold {
+  background: #2d5a3d;
+  color: #f5f0e3;
+}
+.light .btn-gold:hover {
+  background: #1f3d2a;
+  box-shadow: 0 0 24px rgba(45, 90, 61, 0.25), 0 0 60px rgba(45, 90, 61, 0.08);
+}
+.light .btn-gold:active {
+  box-shadow: 0 0 16px rgba(45, 90, 61, 0.2);
+}
+.light .btn-gold-outline {
+  background: rgba(45, 90, 61, 0.06);
+  color: #1f3d2a;
+  border-color: rgba(45, 90, 61, 0.35);
+}
+.light .btn-gold-outline:hover {
+  background: rgba(45, 90, 61, 0.12);
+  border-color: rgba(45, 90, 61, 0.5);
+  box-shadow: 0 0 20px rgba(45, 90, 61, 0.12);
+}
+.light .btn-gold-outline:active {
+  background: rgba(45, 90, 61, 0.16);
+}
+
+.light .privacy-disclaimer {
+  color: rgba(31, 46, 34, 0.55);
 }

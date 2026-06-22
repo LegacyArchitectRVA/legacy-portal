@@ -7,6 +7,7 @@ import { chapters, PRIVACY_NOTE } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LucideIcon } from "../components/LucideIcon";
 import { EditableText } from "../components/EditableText";
+import { useTheme } from "../contexts/ThemeContext";
 
 function SectionView({
   clientUserId,
@@ -20,6 +21,7 @@ function SectionView({
   chapter: (typeof chapters)[0];
 }) {
   const section = chapter.subSections.find((s) => s.id === sectionId);
+  const { theme } = useTheme();
   const rows = useQuery(api.admin.getClientSectionRows, {
     clientUserId,
     chapterId,
@@ -44,7 +46,7 @@ function SectionView({
         <LucideIcon
           name={section.icon}
           className="w-4 h-4"
-          style={{ color: chapter.color === "#FFFFFF" ? "#e8e6e1" : chapter.color }}
+          style={{ color: chapter.color === "#FFFFFF" ? (theme === "light" ? "#1f2e22" : "#e8e6e1") : chapter.color }}
         />
         <h3 className="font-heading text-base font-semibold text-[#e8e6e1]">
           {section.title}
@@ -111,6 +113,7 @@ function SectionView({
 export default function ManualViewPage() {
   const { clientUserId } = useParams<{ clientUserId: string }>();
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const isAdmin = useQuery(api.admin.isAdmin);
   const clients = useQuery(api.admin.listClients);
   const manualData = useQuery(
@@ -259,7 +262,7 @@ ${body || '<p style="text-align:center;color:#888;font-style:italic;">No informa
             <div className="pt-6 pb-2 border-b border-[rgba(217,204,160,0.08)]">
               <span
                 className="font-heading text-xs uppercase tracking-widest whitespace-nowrap"
-                style={{ color: ch.color === "#FFFFFF" ? "#e8e6e1" : ch.color }}
+                style={{ color: ch.color === "#FFFFFF" ? (theme === "light" ? "#1f2e22" : "#e8e6e1") : ch.color }}
               >
                 Chapter {ch.chapterNumber}
               </span>
