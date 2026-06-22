@@ -1,19 +1,17 @@
 import { useQuery } from "convex/react";
-import { RiArrowRightLine as ArrowRight, RiCheckLine as Check, RiLockLine as Lock, RiShieldLine as Shield, RiLoader4Line as CircleNotch } from "@remixicon/react";
+import { RiArrowRightLine as ArrowRight, RiCheckLine as Check, RiLockLine as Lock, RiShieldLine as Shield, RiLoader4Line as CircleNotch, RiSafeLine as Safe, RiArchiveStackLine as ArchiveStack, RiVipCrownLine as Crown } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, tiers } from "../data/tiers";
 import { EditableText } from "../components/EditableText";
 import { useEditMode } from "../contexts/EditModeContext";
+import { IconMedallion } from "../components/TrustIcons";
 
-const tierImages: Record<string, string> = {
-  vault:
-    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/vault%20emblem.png",
-  archive:
-    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/archive%20emblem.png",
-  legacy:
-    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/legacy%20emblem.png",
+const tierIcons: Record<string, any> = {
+  vault: Safe,
+  archive: ArchiveStack,
+  legacy: Crown,
 };
 
 const tierRank: Record<string, number> = {
@@ -116,7 +114,6 @@ export default function UpgradePage() {
         {visibleTiers.map((tier) => {
           const isCurrent = tier.id === currentTier;
           const isUpgrade = tierRank[tier.id] > currentRank;
-          const tierImage = tierImages[tier.id];
           const colors = tierColors[tier.id];
 
           return (
@@ -145,10 +142,11 @@ export default function UpgradePage() {
 
               <div className="relative flex flex-col flex-1 space-y-4">
                 <div className="flex justify-center min-h-[120px] items-center py-2">
-                  <img
-                    src={tierImage}
-                    alt={tier.name}
-                    className="h-28 w-auto object-contain drop-shadow-lg"
+                  <IconMedallion
+                    icon={tierIcons[tier.id] || Safe}
+                    size={40}
+                    boxSize={88}
+                    color={colors.accent}
                   />
                 </div>
 
