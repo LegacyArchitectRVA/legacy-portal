@@ -24,24 +24,24 @@ This roadmap provides your designated successor with a clear, sequential path to
 
 ## Phase 1: Immediate Actions (First 24 Hours)
 - Access the Life Manual portal using the provided credentials
-- Review Chapter 2: Emergency & Successor Orientation
+- Review Chapter 2: Emergency & Successor Orientation, and check Legal Documents in Force at the top of the portal for what's active and where it's held
 - Contact the individuals listed in the Critical Contact Directory
 - Secure all physical documents referenced in Chapter 1
 
 ## Phase 2: Short-Term Actions (Days 2-7)
 - Notify financial institutions listed in Chapter 3
 - Review all digital accounts in Chapter 1: Digital & Access Systems
-- Contact the estate attorney and insurance providers
+- Locate the Will, Trust, Power of Attorney, and any healthcare directives marked active, and contact the estate attorney where one is listed
 - Begin household continuity actions from Chapter 4
 
 ## Phase 3: Ongoing Administration (Weeks 2-8)
-- Transfer or close accounts as directed
+- Transfer or close accounts as directed, confirming beneficiary designations first
 - File necessary documents with appropriate agencies
 - Follow the asset distribution plan
-- Complete all items in the Vital Records chapter
+- Complete all items in the Vital Records chapter, and begin Chapter 7: Business Continuity if the Life Manual includes it
 
 ## Phase 4: Legacy Preservation
-- Review Chapter 6: Legacy & Wishes
+- Review Chapter 6: Legacy & Wishes, including any Letter of Intent on file
 - Execute any legacy instructions
 - Archive the Life Manual per the zero-knowledge protocol
 
