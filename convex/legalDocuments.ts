@@ -3,11 +3,40 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 export const STANDARD_DOCUMENT_TYPES = [
+  // Personal estate documents
   "Will",
   "Trust",
-  "Power of Attorney",
-  "Healthcare Directive",
+  "Financial Power of Attorney",
+  "Healthcare Power of Attorney",
+  "Living Will (Advance Directive)",
+  "HIPAA Authorization",
+  "Guardianship Designation",
+  "Beneficiary Designations",
+  "Letter of Intent",
+  // Business continuity documents
+  "Business Succession Plan",
 ] as const;
+
+export const DOCUMENT_GROUPS: { label: string; types: readonly string[] }[] = [
+  {
+    label: "Personal Documents",
+    types: [
+      "Will",
+      "Trust",
+      "Financial Power of Attorney",
+      "Healthcare Power of Attorney",
+      "Living Will (Advance Directive)",
+      "HIPAA Authorization",
+      "Guardianship Designation",
+      "Beneficiary Designations",
+      "Letter of Intent",
+    ],
+  },
+  {
+    label: "Business Documents",
+    types: ["Business Succession Plan"],
+  },
+];
 
 /**
  * Returns the current user's legal document records, one per standard
