@@ -110,8 +110,9 @@ function SectionView({
   );
 }
 
-export default function ManualViewPage() {
-  const { clientUserId } = useParams<{ clientUserId: string }>();
+export default function ManualViewPage({ clientUserIdOverride }: { clientUserIdOverride?: string } = {}) {
+  const params = useParams<{ clientUserId: string }>();
+  const clientUserId = clientUserIdOverride ?? params.clientUserId;
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isAdmin = useQuery(api.admin.isAdmin);

@@ -8,6 +8,11 @@ import UpgradePage from "./UpgradePage";
 import LoginPage from "./LoginPage";
 import SignupPage from "./SignupPage";
 import ChapterPage from "./ChapterPage";
+import SettingsPage from "./SettingsPage";
+import ProfilePage from "./ProfilePage";
+import MessagesPage from "./MessagesPage";
+import ManualViewPage from "./ManualViewPage";
+import IntroductionPage from "./IntroductionPage";
 import { EditModeProvider, type EditableKind } from "../contexts/EditModeContext";
 import { SWAPPABLE_MARKER_ICONS } from "../lib/swappableIcons";
 import { getEditableDefault } from "../lib/editableContentRegistry";
@@ -55,7 +60,9 @@ export default function AdminVisualEditorPage() {
   const [selectedKind, setSelectedKind] = useState<EditableKind>("text");
   const [selectedShapeSwappable, setSelectedShapeSwappable] = useState(false);
   const [iconShapeName, setIconShapeName] = useState("");
-  const [activePage, setActivePage] = useState<"landing" | "dashboard" | "upgrade" | "login" | "signup" | "chapter">("landing");
+  const [activePage, setActivePage] = useState<
+    "landing" | "dashboard" | "upgrade" | "login" | "signup" | "chapter" | "settings" | "profile" | "messages" | "manualview" | "introduction"
+  >("landing");
   const cmsItem = useQuery(api.admin.getCMS, selectedKey ? { key: selectedKey } : "skip");
 
   const [content, setContent] = useState("");
@@ -232,6 +239,11 @@ export default function AdminVisualEditorPage() {
           { id: "login" as const, label: "Sign In" },
           { id: "signup" as const, label: "Sign Up" },
           { id: "chapter" as const, label: "Chapter Pages" },
+          { id: "introduction" as const, label: "Introduction" },
+          { id: "settings" as const, label: "Settings" },
+          { id: "profile" as const, label: "Profile" },
+          { id: "messages" as const, label: "Messages" },
+          { id: "manualview" as const, label: "Manual View" },
         ].map((p) => (
           <button
             key={p.id}
@@ -271,6 +283,13 @@ export default function AdminVisualEditorPage() {
           {activePage === "login" && <LoginPage />}
           {activePage === "signup" && <SignupPage />}
           {activePage === "chapter" && <ChapterPage chapterIdOverride="digital" />}
+          {activePage === "introduction" && <IntroductionPage />}
+          {activePage === "settings" && <SettingsPage />}
+          {activePage === "profile" && <ProfilePage />}
+          {activePage === "messages" && <MessagesPage />}
+          {activePage === "manualview" && (
+            <ManualViewPage clientUserIdOverride="kn70phfyxm7k4zcrz74898dxvs881k8z" />
+          )}
         </EditModeProvider>
       </div>
 
