@@ -1,14 +1,18 @@
 import { createContext, useContext } from "react";
 
+export type EditableKind = "text" | "icon" | "box";
+
 interface EditModeState {
   active: boolean;
   selectedKey: string | null;
-  select: (key: string) => void;
+  selectedKind: EditableKind;
+  select: (key: string, kind?: EditableKind) => void;
 }
 
 const EditModeContext = createContext<EditModeState>({
   active: false,
   selectedKey: null,
+  selectedKind: "text",
   select: () => {},
 });
 

@@ -5,6 +5,8 @@ import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, tiers } from "../data/tiers";
 import { EditableText } from "../components/EditableText";
+import { EditableIcon } from "../components/EditableIcon";
+import { EditableBox } from "../components/EditableBox";
 import { useEditMode } from "../contexts/EditModeContext";
 
 const tierImages: Record<string, string> = {
@@ -120,8 +122,9 @@ export default function UpgradePage() {
           const colors = tierColors[tier.id];
 
           return (
-            <div
+            <EditableBox
               key={tier.id}
+              cmsKey={`upgrade_${tier.id}_card_style`}
               className={`bg-[#0a0a0a] rounded-xl border p-5 relative overflow-hidden transition-all duration-300 flex flex-col min-h-full ${
                 isCurrent
                   ? colors.border
@@ -196,9 +199,12 @@ export default function UpgradePage() {
                       key={feature}
                       className="flex items-start gap-2 text-xs text-[#e8e6e1]/70"
                     >
-                      <Check
+                      <EditableIcon
+                        cmsKey={`upgrade_${tier.id}_checkmark_color`}
+                        icon={Check}
+                        defaultColor={colors.accent}
+                        size={14}
                         className="w-3.5 h-3.5 mt-0.5 shrink-0"
-                        style={{ color: colors.accent }}
                       />
                       <EditableText
                         cmsKey={`upgrade_${tier.id}_feature_${i}`}
@@ -259,9 +265,12 @@ export default function UpgradePage() {
                           }`}
                         >
                           {included ? (
-                            <Check
+                            <EditableIcon
+                              cmsKey={`upgrade_${tier.id}_checkmark_color`}
+                              icon={Check}
+                              defaultColor={colors.accent}
+                              size={14}
                               className="w-3.5 h-3.5 shrink-0 check-glow"
-                              style={{ color: colors.accent }}
                             />
                           ) : (
                             <Lock className="w-3 h-3 text-[#e8e6e1]/30 shrink-0" />
@@ -275,7 +284,7 @@ export default function UpgradePage() {
                   </ul>
                 </div>
               </div>
-            </div>
+            </EditableBox>
           );
         })}
       </div>

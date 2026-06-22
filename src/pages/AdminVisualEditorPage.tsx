@@ -8,7 +8,7 @@ import UpgradePage from "./UpgradePage";
 import LoginPage from "./LoginPage";
 import SignupPage from "./SignupPage";
 import ChapterPage from "./ChapterPage";
-import { EditModeProvider } from "../contexts/EditModeContext";
+import { EditModeProvider, type EditableKind } from "../contexts/EditModeContext";
 import { getEditableDefault } from "../lib/editableContentRegistry";
 import { RiPaintBrushLine as PaintBrush, RiAlignLeft as TextAlignLeft, RiAlignCenter as TextAlignCenter, RiAlignRight as TextAlignRight, RiBold as TextB, RiItalic as TextItalic, RiUnderline as TextUnderline, RiSaveLine as FloppyDisk, RiDeleteBinLine as Trash, RiArrowLeftSLine as CaretLeft, RiLoader4Line as CircleNotch, RiCloseLine as X, RiCheckLine as Check, RiCursorLine as CursorClick, RiErrorWarningLine as Warning } from "@remixicon/react";
 
@@ -51,6 +51,7 @@ export default function AdminVisualEditorPage() {
   const deleteCMS = useMutation(api.admin.deleteCMS);
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [selectedKind, setSelectedKind] = useState<EditableKind>("text");
   const [activePage, setActivePage] = useState<"landing" | "dashboard" | "upgrade" | "login" | "signup" | "chapter">("landing");
   const cmsItem = useQuery(api.admin.getCMS, selectedKey ? { key: selectedKey } : "skip");
 
@@ -62,6 +63,9 @@ export default function AdminVisualEditorPage() {
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
+  const [iconColor, setIconColor] = useState("#e8c46a");
+  const [boxBorderColor, setBoxBorderColor] = useState("");
+  const [boxBgColor, setBoxBgColor] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [missingFallback, setMissingFallback] = useState(false);
@@ -83,6 +87,23 @@ export default function AdminVisualEditorPage() {
   useEffect(() => {
     if (!selectedKey) return;
     setMissingFallback(false);
+
+    if (selectedKind === "icon") {
+      setIconColor(cmsItem?.value?.trim() || "#e8c46a");
+      return;
+    }
+    if (selectedKind === "box") {
+      try {
+        const m = cmsItem?.metadata ? JSON.parse(cmsItem.metadata) : {};
+        setBoxBorderColor(m.borderColor || "");
+        setBoxBgColor(m.bgColor || "");
+      } catch {
+        setBoxBorderColor("");
+        setBoxBgColor("");
+      }
+      return;
+    }
+
     if (cmsItem && cmsItem.value?.trim()) {
       setContent(cmsItem.value);
       try {
@@ -106,7 +127,7 @@ export default function AdminVisualEditorPage() {
       if (!fallback) setMissingFallback(true);
       resetStyles();
     }
-  }, [selectedKey, cmsItem]);
+  }, [selectedKey, selectedKind, cmsItem]);
 
   const resetStyles = () => {
     setFontFamily("");
@@ -120,12 +141,22 @@ export default function AdminVisualEditorPage() {
 
   const handleSave = async () => {
     if (!selectedKey) return;
-    if (missingFallback && !content.trim()) return;
+    if (selectedKind === "text" && missingFallback && !content.trim()) return;
     setSaving(true);
     setSaved(false);
     try {
-      const metadata = { fontFamily, fontSize, textColor, textAlign, isBold, isItalic, isUnderline };
-      await updateCMS({ key: selectedKey, value: content, metadata: JSON.stringify(metadata) });
+      if (selectedKind === "icon") {
+        await updateCMS({ key: selectedKey, value: iconColor });
+      } else if (selectedKind === "box") {
+        await updateCMS({
+          key: selectedKey,
+          value: "box",
+          metadata: JSON.stringify({ borderColor: boxBorderColor, bgColor: boxBgColor }),
+        });
+      } else {
+        const metadata = { fontFamily, fontSize, textColor, textAlign, isBold, isItalic, isUnderline };
+        await updateCMS({ key: selectedKey, value: content, metadata: JSON.stringify(metadata) });
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } finally {
@@ -160,6 +191,7 @@ export default function AdminVisualEditorPage() {
     ?.replace(/^trust_card_/, "")
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
+  const isColorKey = !!selectedKey?.endsWith("_color");
 
   return (
     <div className="min-h-screen">
@@ -207,7 +239,17 @@ export default function AdminVisualEditorPage() {
 
       {/* The real page, rendered live, made clickable */}
       <div className="relative">
-        <EditModeProvider value={{ active: true, selectedKey, select: setSelectedKey }}>
+        <EditModeProvider
+          value={{
+            active: true,
+            selectedKey,
+            selectedKind,
+            select: (key, kind = "text") => {
+              setSelectedKey(key);
+              setSelectedKind(kind);
+            },
+          }}
+        >
           {activePage === "landing" && <LandingPage />}
           {activePage === "dashboard" && <DashboardPage />}
           {activePage === "upgrade" && <UpgradePage />}
@@ -234,24 +276,53 @@ export default function AdminVisualEditorPage() {
               </button>
             </div>
 
-            {missingFallback && (
+            {selectedKind === "text" && missingFallback && (
               <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2 text-xs text-amber-300">
                 <Warning className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                 <span>
-                  Couldn't load this element's original text automatically. Type the
-                  current wording in below before saving, or Cancel to leave it untouched.
+                  {isColorKey
+                    ? "Couldn't load this element's original color automatically. Pick the current color below before saving, or Cancel to leave it untouched."
+                    : "Couldn't load this element's original text automatically. Type the current wording in below before saving, or Cancel to leave it untouched."}
                 </span>
               </div>
             )}
 
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={3}
-              className="w-full bg-black border border-gold-border/30 rounded-lg p-3 text-sm text-[#e8e6e1] focus:outline-none focus:border-gold-primary/40 resize-y"
-            />
+            {selectedKind === "text" && (
+            <>
+            {!isColorKey && (
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={3}
+                className="w-full bg-black border border-gold-border/30 rounded-lg p-3 text-sm text-[#e8e6e1] focus:outline-none focus:border-gold-primary/40 resize-y"
+              />
+            )}
+
+            {isColorKey && (
+              <div>
+                <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                  Color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={/^#[0-9a-fA-F]{6}$/.test(content) ? content : "#000000"}
+                    onChange={(e) => setContent(e.target.value)}
+                    className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="#2d5a3d"
+                    className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Font */}
+            {!isColorKey && (
             <div>
               <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
                 Font
@@ -273,8 +344,10 @@ export default function AdminVisualEditorPage() {
                 ))}
               </div>
             </div>
+            )}
 
             {/* Size */}
+            {!isColorKey && (
             <div>
               <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
                 Size
@@ -293,8 +366,10 @@ export default function AdminVisualEditorPage() {
                 ))}
               </div>
             </div>
+            )}
 
             {/* Real color picker */}
+            {!isColorKey && (
             <div>
               <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
                 Color
@@ -314,8 +389,9 @@ export default function AdminVisualEditorPage() {
                 />
               </div>
             </div>
+            )}
 
-            {/* Align + weight */}
+            {!isColorKey && (
             <div className="flex items-center gap-4">
               <div>
                 <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
@@ -361,12 +437,83 @@ export default function AdminVisualEditorPage() {
                 </div>
               </div>
             </div>
+            )}
+            </>
+            )}
+
+            {selectedKind === "icon" && (
+              <div>
+                <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                  Icon Color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={/^#[0-9a-fA-F]{6}$/.test(iconColor) ? iconColor : "#000000"}
+                    onChange={(e) => setIconColor(e.target.value)}
+                    className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={iconColor}
+                    onChange={(e) => setIconColor(e.target.value)}
+                    placeholder="#e8c46a"
+                    className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
+
+            {selectedKind === "box" && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                    Border Color
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={/^#[0-9a-fA-F]{6}$/.test(boxBorderColor) ? boxBorderColor : "#000000"}
+                      onChange={(e) => setBoxBorderColor(e.target.value)}
+                      className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={boxBorderColor}
+                      onChange={(e) => setBoxBorderColor(e.target.value)}
+                      placeholder="Leave blank for default"
+                      className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                    Background Color
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="color"
+                      value={/^#[0-9a-fA-F]{6}$/.test(boxBgColor) ? boxBgColor : "#000000"}
+                      onChange={(e) => setBoxBgColor(e.target.value)}
+                      className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={boxBgColor}
+                      onChange={(e) => setBoxBgColor(e.target.value)}
+                      placeholder="Leave blank for default"
+                      className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex items-center gap-2 pt-1">
               <button
                 onClick={handleSave}
-                disabled={saving || (missingFallback && !content.trim())}
+                disabled={saving || (selectedKind === "text" && missingFallback && !content.trim())}
                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50"
               >
                 {saving ? (
