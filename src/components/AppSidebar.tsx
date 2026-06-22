@@ -1,6 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
-import { CaretUp as ChevronUp, SquaresFour as LayoutDashboard, SignOut as LogOut, ChatCircle as MessageSquare, Gear as Settings, ShieldCheck, BookOpen, TrendUp as TrendingUp, User, Users, File, PaintBrush, PlugsConnected } from "@phosphor-icons/react";
+import { RiArrowUpSLine as ChevronUp, RiLayoutGridLine as LayoutDashboard, RiLogoutBoxRLine as LogOut, RiChat3Line as MessageSquare, RiSettings3Line as Settings, RiShieldCheckLine as ShieldCheck, RiBookOpenLine as BookOpen, RiLineChartLine as TrendingUp, RiUserLine as User, RiTeamLine as Users, RiFileLine as File, RiPaintBrushLine as PaintBrush, RiPlugLine as PlugsConnected } from "@remixicon/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";

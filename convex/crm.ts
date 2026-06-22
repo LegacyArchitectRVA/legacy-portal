@@ -126,6 +126,45 @@ export const getClientProgressSummary = query({
 });
 
 /** Admin only: notes about a client, most recent first. */
+/** Admin only: every row and field a client has actually entered, for generating their real manual. */
+export const getClientManualData = query({
+  args: { clientUserId: v.id("users") },
+  handler: async (ctx, { clientUserId }) => {
+    await requireAdmin(ctx);
+    const rows = await ctx.db
+      .query("sectionRows")
+      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .collect();
+    const fields = await ctx.db
+      .query("sectionFields")
+      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .collect();
+
+    // Group rows by "chapterId:sectionId" -> array of parsed data objects
+    const rowsBySection: Record<string, Record<string, string>[]> = {};
+    for (const row of rows) {
+      const key = `${row.chapterId}:${row.sectionId}`;
+      rowsBySection[key] ||= [];
+      try {
+        rowsBySection[key].push(JSON.parse(row.data));
+      } catch {
+        // skip malformed row data rather than fail the whole manual
+      }
+    }
+
+    // Group fields by "chapterId:sectionId" -> { fieldId: value }
+    const fieldsBySection: Record<string, Record<string, string>> = {};
+    for (const field of fields) {
+      if (!field.value || field.value.trim() === "") continue;
+      const key = `${field.chapterId}:${field.sectionId}`;
+      fieldsBySection[key] ||= {};
+      fieldsBySection[key][field.fieldId] = field.value;
+    }
+
+    return { rowsBySection, fieldsBySection };
+  },
+});
+
 export const getClientNotes = query({
   args: { clientUserId: v.id("users") },
   handler: async (ctx, { clientUserId }) => {

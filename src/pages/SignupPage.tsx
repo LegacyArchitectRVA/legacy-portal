@@ -1,6 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { ConvexError } from "convex/values";
-import { Eye, EyeSlash as EyeOff, CircleNotch as Loader2, Shield } from "@phosphor-icons/react";
+import { RiEyeLine as Eye, RiEyeOffLine as EyeOff, RiLoader4Line as Loader2, RiShieldLine as Shield } from "@remixicon/react";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useConvexAuth, useMutation } from "convex/react";
-import { ArrowRight } from "@phosphor-icons/react";
+import { RiArrowRightLine as ArrowRight } from "@remixicon/react";
 import { EncryptedIcon, ZeroKnowledgeIcon, PrivateIcon } from "../components/TrustIcons";
 import { useCmsValue } from "../hooks/useCms";
 import { EditableText } from "../components/EditableText";
@@ -111,7 +111,7 @@ export default function LandingPage() {
                 className="btn-gold px-8 py-3.5 text-sm tracking-widest uppercase inline-flex items-center gap-3"
               >
                 Go to Dashboard
-                <ArrowRight className="w-4 h-4" weight="bold" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             ) : (
               <Link
@@ -119,7 +119,7 @@ export default function LandingPage() {
                 className="btn-gold px-8 py-3.5 text-sm tracking-widest uppercase inline-flex items-center gap-3"
               >
                 <EditableText cmsKey="landing_cta_text" />
-                <ArrowRight className="w-4 h-4" weight="bold" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             )}
           </div>

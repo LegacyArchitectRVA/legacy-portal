@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "convex/react";
-import { User, FloppyDisk as Save, Check, Camera, Crown, CircleNotch } from "@phosphor-icons/react";
+import { RiUserLine as User, RiSaveLine as Save, RiCheckLine as Check, RiCameraLine as Camera, RiVipCrownLine as Crown, RiLoader4Line as CircleNotch } from "@remixicon/react";
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../convex/_generated/api";
 
@@ -63,7 +63,7 @@ export default function ProfilePage() {
   if (profile === undefined) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <CircleNotch className="w-6 h-6 text-gold-muted animate-spin" weight="bold" />
+        <CircleNotch className="w-6 h-6 text-gold-muted animate-spin" />
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "convex/react";
-import { PaperPlaneTilt as Send, Checks as CheckCheck, Trash as Trash2, ArrowLeft, ChatCircle as MessageSquare, Plus, X } from "@phosphor-icons/react";
+import { RiSendPlaneLine as Send, RiCheckDoubleLine as CheckCheck, RiDeleteBinLine as Trash2, RiArrowLeftLine as ArrowLeft, RiChat3Line as MessageSquare, RiAddLine as Plus, RiCloseLine as X } from "@remixicon/react";
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

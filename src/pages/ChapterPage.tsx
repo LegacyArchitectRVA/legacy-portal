@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "convex/react";
-import { ArrowLeft, Check, CaretDown as ChevronDown, CircleNotch as Loader2, Plus, FloppyDisk as Save, Trash as Trash2, X } from "@phosphor-icons/react";
+import { RiArrowLeftLine as ArrowLeft, RiCheckLine as Check, RiArrowDownSLine as ChevronDown, RiLoader4Line as Loader2, RiAddLine as Plus, RiSaveLine as Save, RiDeleteBinLine as Trash2, RiCloseLine as X } from "@remixicon/react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

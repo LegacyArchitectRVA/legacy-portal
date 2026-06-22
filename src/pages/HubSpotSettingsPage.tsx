@@ -2,7 +2,7 @@ import { useAction, useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { ArrowLeft, CheckCircle as CheckCircle2, Copy, Eye, Key, CircleNotch as Loader2, FloppyDisk as Save, Gear as Settings, XCircle } from "@phosphor-icons/react";
+import { RiArrowLeftLine as ArrowLeft, RiCheckboxCircleLine as CheckCircle2, RiFileCopyLine as Copy, RiEyeLine as Eye, RiKeyLine as Key, RiLoader4Line as Loader2, RiSaveLine as Save, RiSettings3Line as Settings, RiCloseCircleLine as XCircle } from "@remixicon/react";
 
 export default function HubSpotSettingsPage() {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { startAuthentication, browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { useAction } from "convex/react";
 import { ConvexError } from "convex/values";
-import { Eye, EyeSlash, Fingerprint, CircleNotch, Shield } from "@phosphor-icons/react";
+import { RiEyeLine as Eye, RiEyeOffLine as EyeSlash, RiFingerprintLine as Fingerprint, RiLoader4Line as CircleNotch, RiShieldLine as Shield } from "@remixicon/react";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
@@ -152,7 +152,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center space-y-4">
           <div className="mx-auto w-16 h-16 rounded-xl bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center">
-            <Shield className="w-8 h-8 text-[#0a0a0a]" weight="duotone" />
+            <Shield className="w-8 h-8 text-[#0a0a0a]" />
           </div>
           <h1 className="font-heading text-2xl text-[#e8e6e1] tracking-wide uppercase">
             {mode === "signin" ? "Welcome Back" : "Reset Password"}
@@ -176,9 +176,9 @@ export default function LoginPage() {
                   className="w-full flex items-center justify-center gap-2 border border-gold-border/40 text-gold-primary hover:border-gold-primary/50 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {passkeyLoading ? (
-                    <CircleNotch className="w-4 h-4 animate-spin" weight="bold" />
+                    <CircleNotch className="w-4 h-4 animate-spin" />
                   ) : (
-                    <Fingerprint className="w-4 h-4" weight="duotone" />
+                    <Fingerprint className="w-4 h-4" />
                   )}
                   Sign In with Face ID / Fingerprint
                 </button>
@@ -236,7 +236,7 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80"
                   >
-                    {showPassword ? <EyeSlash className="w-4 h-4" weight="bold" /> : <Eye className="w-4 h-4" weight="bold" />}
+                    {showPassword ? <EyeSlash className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -250,7 +250,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" weight="bold" /> : "Sign In"}
+                {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" /> : "Sign In"}
               </button>
             </form>
 
@@ -309,7 +309,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" weight="bold" /> : "Send Reset Code"}
+              {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" /> : "Send Reset Code"}
             </button>
 
             <button
@@ -363,7 +363,7 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" weight="bold" /> : "Reset Password & Sign In"}
+              {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" /> : "Reset Password & Sign In"}
             </button>
 
             <button

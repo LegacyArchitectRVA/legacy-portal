@@ -1,4 +1,4 @@
-import { BookOpen, Download, Eye, MapTrifold as Map, ClipboardText as ClipboardCheck, ShieldCheck, ArrowLeft } from "@phosphor-icons/react";
+import { RiBookOpenLine as BookOpen, RiDownloadLine as Download, RiEyeLine as Eye, RiMapLine as Map, RiClipboardLine as ClipboardCheck, RiShieldCheckLine as ShieldCheck, RiArrowLeftLine as ArrowLeft } from "@remixicon/react";
 import { useState } from "react";
 
 interface Guide {

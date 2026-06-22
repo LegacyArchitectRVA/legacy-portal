@@ -1,10 +1,17 @@
 import { useQuery } from "convex/react";
-import { Warning as AlertTriangle, ArrowLeft, BookOpen, Download, FileText, CircleNotch as Loader2 } from "@phosphor-icons/react";
+import { RiErrorWarningLine as AlertTriangle, RiArrowLeftLine as ArrowLeft, RiBookOpenLine as BookOpen, RiDownloadLine as Download, RiFileTextLine as FileText, RiLoader4Line as Loader2 } from "@remixicon/react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters, PRIVACY_NOTE } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
 export default function GeneratePage() {
   const navigate = useNavigate();
@@ -15,6 +22,11 @@ export default function GeneratePage() {
   const [selectedClient, setSelectedClient] = useState(clientId || "");
   const [generating, setGenerating] = useState(false);
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
+  const client = clients?.find((c: any) => c._id === selectedClient);
+  const manualData = useQuery(
+    api.crm.getClientManualData,
+    client?.userId ? { clientUserId: client.userId } : "skip"
+  );
 
   if (!isAdmin) {
     return (
@@ -23,8 +35,6 @@ export default function GeneratePage() {
       </div>
     );
   }
-
-  const client = clients?.find((c: any) => c._id === selectedClient);
 
   const handleGenerate = async () => {
     if (!selectedClient) return;
@@ -147,6 +157,27 @@ export default function GeneratePage() {
       font-style: italic;
       text-align: center;
     }
+    .empty-note {
+      color: rgba(232, 230, 225, 0.4);
+      font-style: italic;
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+    .field {
+      font-size: 0.85rem;
+      color: rgba(232, 230, 225, 0.85);
+      margin-bottom: 0.4rem;
+      line-height: 1.5;
+    }
+    .field strong {
+      color: rgba(217, 204, 160, 0.85);
+      font-family: 'Cinzel', serif;
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-right: 0.4rem;
+    }
     .footer {
       text-align: center;
       font-size: 0.7rem;
@@ -193,16 +224,46 @@ export default function GeneratePage() {
     <p class="desc">${ch.description}</p>
 `;
         for (const sec of ch.subSections) {
+          const sectionKey = `${ch.id}:${sec.id}`;
+          const realRows = manualData?.rowsBySection[sectionKey] || [];
+          const realFields = manualData?.fieldsBySection[sectionKey] || {};
+          const hasTableData = realRows.length > 0;
+          const hasFieldData = Object.keys(realFields).length > 0;
+
           html += `    <div class="section"><h3>${sec.title}</h3>`;
+
           if (sec.tableColumns && sec.tableColumns.length > 0) {
-            html += `<table><thead><tr>`;
-            for (const col of sec.tableColumns) {
-              html += `<th>${col.label}</th>`;
+            if (hasTableData) {
+              html += `<table><thead><tr>`;
+              for (const col of sec.tableColumns) {
+                html += `<th>${col.label}</th>`;
+              }
+              html += `</tr></thead><tbody>`;
+              for (const row of realRows) {
+                html += `<tr>`;
+                for (const col of sec.tableColumns) {
+                  html += `<td>${escapeHtml(row[col.key] || "")}</td>`;
+                }
+                html += `</tr>`;
+              }
+              html += `</tbody></table>`;
+            } else {
+              html += `<p class="empty-note">Not yet provided.</p>`;
             }
-            html += `</tr></thead><tbody>`;
-            html += `<tr><td colspan="${sec.tableColumns.length}" class="empty">Data loaded from client portal</td></tr>`;
-            html += `</tbody></table>`;
           }
+
+          if (sec.fields && sec.fields.length > 0) {
+            if (hasFieldData) {
+              for (const field of sec.fields) {
+                const value = realFields[field.id];
+                if (!value) continue;
+                html += `<div class="field"><strong>${field.label}:</strong> <span>${escapeHtml(value)}</span></div>`;
+              }
+            } else if (!hasTableData) {
+              html += `<p class="empty-note">Not yet provided.</p>`;
+            }
+          }
+
           html += `</div>`;
         }
         html += `  </div>`;
@@ -269,7 +330,7 @@ export default function GeneratePage() {
             <option value="">Choose a client...</option>
             {clients?.map((c: any) => (
               <option key={c._id} value={c._id}>
-                {c.name} ({c.email}) - {getTierByName(c.tier)?.name ?? c.tier}
+                {c.userName || c.userEmail} - {getTierByName(c.tier)?.name ?? c.tier}
               </option>
             ))}
           </select>
@@ -278,15 +339,15 @@ export default function GeneratePage() {
         {selectedClient && (
           <button
             onClick={handleGenerate}
-            disabled={generating}
+            disabled={generating || manualData === undefined}
             className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {generating ? (
+            {generating || manualData === undefined ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <BookOpen className="w-4 h-4" />
             )}
-            {generating ? "Generating..." : "Generate Manual"}
+            {generating ? "Generating..." : manualData === undefined ? "Loading client data..." : "Generate Manual"}
           </button>
         )}
       </div>

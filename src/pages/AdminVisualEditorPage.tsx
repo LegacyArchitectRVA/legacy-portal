@@ -5,22 +5,7 @@ import { api } from "../../convex/_generated/api";
 import LandingPage from "./LandingPage";
 import { EditModeProvider } from "../contexts/EditModeContext";
 import { getEditableDefault } from "../lib/editableContentRegistry";
-import {
-  PaintBrush,
-  TextAlignLeft,
-  TextAlignCenter,
-  TextAlignRight,
-  TextB,
-  TextItalic,
-  TextUnderline,
-  FloppyDisk,
-  Trash,
-  CaretLeft,
-  CircleNotch,
-  X,
-  Check,
-  CursorClick,
-} from "@phosphor-icons/react";
+import { RiPaintBrushLine as PaintBrush, RiAlignLeft as TextAlignLeft, RiAlignCenter as TextAlignCenter, RiAlignRight as TextAlignRight, RiBold as TextB, RiItalic as TextItalic, RiUnderline as TextUnderline, RiSaveLine as FloppyDisk, RiDeleteBinLine as Trash, RiArrowLeftSLine as CaretLeft, RiLoader4Line as CircleNotch, RiCloseLine as X, RiCheckLine as Check, RiCursorLine as CursorClick } from "@remixicon/react";
 
 const FONT_FAMILIES = [
   "Cinzel",
@@ -144,14 +129,14 @@ export default function AdminVisualEditorPage() {
   if (isAdmin === undefined) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <CircleNotch className="w-6 h-6 text-gold-muted animate-spin" weight="bold" />
+        <CircleNotch className="w-6 h-6 text-gold-muted animate-spin" />
       </div>
     );
   }
   if (!isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-        <PaintBrush className="w-10 h-10 text-gold-muted" weight="duotone" />
+        <PaintBrush className="w-10 h-10 text-gold-muted" />
         <p className="text-[#e8e6e1]/75">Admin access required.</p>
       </div>
     );
@@ -170,11 +155,11 @@ export default function AdminVisualEditorPage() {
           onClick={() => navigate("/admin")}
           className="flex items-center gap-1.5 text-sm text-gold-muted hover:text-gold-primary transition-colors"
         >
-          <CaretLeft className="w-4 h-4" weight="bold" />
+          <CaretLeft className="w-4 h-4" />
           Admin
         </button>
         <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gold-muted font-heading text-right">
-          <CursorClick className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" weight="duotone" />
+          <CursorClick className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
           Tap to edit
         </div>
       </div>
@@ -199,7 +184,7 @@ export default function AdminVisualEditorPage() {
             <div className="flex items-center justify-between">
               <h2 className="font-heading text-sm text-gold-primary capitalize">{niceLabel}</h2>
               <button onClick={() => setSelectedKey(null)} className="text-[#e8e6e1]/75">
-                <X className="w-4 h-4" weight="bold" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -289,7 +274,7 @@ export default function AdminVisualEditorPage() {
                         textAlign === a.value ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"
                       }`}
                     >
-                      <a.icon className="w-4 h-4" weight="bold" />
+                      <a.icon className="w-4 h-4" />
                     </button>
                   ))}
                 </div>
@@ -303,19 +288,19 @@ export default function AdminVisualEditorPage() {
                     onClick={() => setIsBold(!isBold)}
                     className={`p-2 rounded-lg ${isBold ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"}`}
                   >
-                    <TextB className="w-4 h-4" weight="bold" />
+                    <TextB className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setIsItalic(!isItalic)}
                     className={`p-2 rounded-lg ${isItalic ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"}`}
                   >
-                    <TextItalic className="w-4 h-4" weight="bold" />
+                    <TextItalic className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setIsUnderline(!isUnderline)}
                     className={`p-2 rounded-lg ${isUnderline ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"}`}
                   >
-                    <TextUnderline className="w-4 h-4" weight="bold" />
+                    <TextUnderline className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -329,11 +314,11 @@ export default function AdminVisualEditorPage() {
                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50"
               >
                 {saving ? (
-                  <CircleNotch className="w-4 h-4 animate-spin" weight="bold" />
+                  <CircleNotch className="w-4 h-4 animate-spin" />
                 ) : saved ? (
-                  <Check className="w-4 h-4" weight="bold" />
+                  <Check className="w-4 h-4" />
                 ) : (
-                  <FloppyDisk className="w-4 h-4" weight="duotone" />
+                  <FloppyDisk className="w-4 h-4" />
                 )}
                 {saved ? "Saved" : "Save"}
               </button>
@@ -341,7 +326,7 @@ export default function AdminVisualEditorPage() {
                 onClick={handleReset}
                 className="flex items-center gap-2 text-red-400/80 hover:text-red-400 text-sm px-3 py-2.5 rounded-xl border border-red-500/20"
               >
-                <Trash className="w-4 h-4" weight="duotone" />
+                <Trash className="w-4 h-4" />
               </button>
             </div>
           </div>

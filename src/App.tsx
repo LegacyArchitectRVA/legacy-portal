@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import {  } from "@remixicon/react";
 import { AppLayout } from "./components/AppLayout";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ProtectedRoute } from "./components/ProtectedRoute";

@@ -1,5 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { ArrowLeft, CircleNotch as Loader2, EnvelopeSimple as Mail } from "@phosphor-icons/react";
+import { RiArrowLeftLine as ArrowLeft, RiLoader4Line as Loader2, RiMailLine as Mail } from "@remixicon/react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";

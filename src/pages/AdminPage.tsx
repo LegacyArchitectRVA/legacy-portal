@@ -1,5 +1,5 @@
 import { useAction, useMutation, useQuery } from "convex/react";
-import { BookOpen, CheckCircle as CheckCircle2, Crown, ArrowSquareOut as ExternalLink, Eye, FileText, CircleNotch as Loader2, PaintBrush as Paintbrush, MagnifyingGlass as Search, Gear as Settings, UserGear as UserCog, UserPlus, Users, CloudArrowUp as UploadCloud, CloudArrowDown as DownloadCloud, XCircle } from "@phosphor-icons/react";
+import { RiBookOpenLine as BookOpen, RiCheckboxCircleLine as CheckCircle2, RiVipCrownLine as Crown, RiExternalLinkLine as ExternalLink, RiEyeLine as Eye, RiFileTextLine as FileText, RiLoader4Line as Loader2, RiPaintBrushLine as Paintbrush, RiSearchLine as Search, RiSettings3Line as Settings, RiUserSettingsLine as UserCog, RiUserAddLine as UserPlus, RiTeamLine as Users, RiUploadCloud2Line as UploadCloud, RiCloudLine as DownloadCloud, RiCloseCircleLine as XCircle } from "@remixicon/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconMedallion } from "../components/TrustIcons";
@@ -298,56 +298,56 @@ export default function AdminPage() {
                   {/* View Profile (CRM detail) */}
                   <button
                     onClick={() => navigate(`/admin/client/${client.userId}`)}
-                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 shrink-0 p-1"
-                    title="View Profile"
+                    className="text-xs text-gold-muted hover:text-gold-primary hover:bg-gold-dark/10 transition-colors flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded-lg border border-gold-border/20"
                   >
-                    <UserCog className="w-3.5 h-3.5" />
+                    <UserCog className="w-4 h-4" />
+                    Profile
                   </button>
 
                   {/* View Manual */}
                   <button
                     onClick={() => navigate(`/manual/${client.userId}`)}
-                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 shrink-0 p-1"
-                    title="View Manual"
+                    className="text-xs text-gold-muted hover:text-gold-primary hover:bg-gold-dark/10 transition-colors flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded-lg border border-gold-border/20"
                   >
-                    <Eye className="w-3.5 h-3.5" />
+                    <Eye className="w-4 h-4" />
+                    Manual
                   </button>
 
                   {/* Generate */}
                   <button
                     onClick={() => navigate(`/generate?client=${client._id}`)}
-                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 shrink-0 p-1"
-                    title="Generate Manual"
+                    className="text-xs text-gold-muted hover:text-gold-primary hover:bg-gold-dark/10 transition-colors flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded-lg border border-gold-border/20"
                   >
-                    <FileText className="w-3.5 h-3.5" />
+                    <FileText className="w-4 h-4" />
+                    Generate
                   </button>
 
                   {/* Push to HubSpot */}
                   <button
                     onClick={() => handlePushToHubSpot(client)}
                     disabled={isSyncing}
-                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 disabled:opacity-50 shrink-0 p-1"
-                    title="Push to HubSpot"
+                    className="text-xs text-gold-muted hover:text-gold-primary hover:bg-gold-dark/10 transition-colors flex items-center gap-1.5 disabled:opacity-50 shrink-0 px-2.5 py-1.5 rounded-lg border border-gold-border/20"
                   >
                     {isSyncing ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <UploadCloud className="w-3.5 h-3.5" />
+                      <UploadCloud className="w-4 h-4" />
                     )}
+                    Push
                   </button>
 
                   {/* Pull from HubSpot */}
                   <button
                     onClick={() => handlePullFromHubSpot(client)}
                     disabled={pullingId === client._id}
-                    className="text-[10px] text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 disabled:opacity-50 shrink-0 p-1"
-                    title="Pull from HubSpot"
+                    className="text-xs text-gold-muted hover:text-gold-primary hover:bg-gold-dark/10 transition-colors flex items-center gap-1.5 disabled:opacity-50 shrink-0 px-2.5 py-1.5 rounded-lg border border-gold-border/20"
                   >
                     {pullingId === client._id ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <DownloadCloud className="w-3.5 h-3.5" />
+                      <DownloadCloud className="w-4 h-4" />
                     )}
+                    Pull
                   </button>
                 </div>
                 {syncResult && (

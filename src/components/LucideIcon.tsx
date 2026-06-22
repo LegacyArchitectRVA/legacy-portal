@@ -1,45 +1,4 @@
-import {
-  Pulse,
-  Building,
-  Calendar,
-  Car,
-  ClipboardText,
-  Clock,
-  Cloud,
-  CreditCard,
-  Crown,
-  Signature,
-  FileText,
-  Fingerprint,
-  Globe,
-  Handshake,
-  Heart,
-  Hospital,
-  Key,
-  Bank,
-  Laptop,
-  Lock,
-  EnvelopeSimple,
-  Megaphone,
-  ChatCircle,
-  Network,
-  Package,
-  PawPrint,
-  Phone,
-  Receipt,
-  ArrowsClockwise,
-  Scales,
-  HardDrive,
-  Shield,
-  ShieldWarning,
-  ShieldCheck,
-  Sparkle,
-  Stethoscope,
-  UserCheck,
-  Users,
-  Wrench,
-  Question,
-} from "@phosphor-icons/react";
+import { RiPulseLine as Pulse, RiBuildingLine as Building, RiCalendarLine as Calendar, RiCarLine as Car, RiClipboardLine as ClipboardText, RiTimeLine as Clock, RiCloudLine as Cloud, RiBankCardLine as CreditCard, RiVipCrownLine as Crown, RiQuillPenLine as Signature, RiFileTextLine as FileText, RiFingerprintLine as Fingerprint, RiGlobalLine as Globe, RiHandHeartLine as Handshake, RiHeartLine as Heart, RiHospitalLine as Hospital, RiKeyLine as Key, RiBankLine as Bank, RiComputerLine as Laptop, RiLockLine as Lock, RiMailLine as EnvelopeSimple, RiMegaphoneLine as Megaphone, RiChat3Line as ChatCircle, RiNodeTree as Network, RiArchiveLine as Package, RiFootprintLine as PawPrint, RiPhoneLine as Phone, RiReceiptLine as Receipt, RiRefreshLine as ArrowsClockwise, RiScalesLine as Scales, RiHardDrive2Line as HardDrive, RiShieldLine as Shield, RiShieldFlashLine as ShieldWarning, RiShieldCheckLine as ShieldCheck, RiSparklingLine as Sparkle, RiStethoscopeLine as Stethoscope, RiUserFollowLine as UserCheck, RiTeamLine as Users, RiToolsLine as Wrench, RiQuestionLine as Question } from "@remixicon/react";
 
 /**
  * The chapters.ts data file specifies each section's icon by name (a
@@ -97,10 +56,9 @@ interface DynamicIconProps {
   className?: string;
   style?: React.CSSProperties;
   size?: number;
-  weight?: "thin" | "light" | "regular" | "bold" | "fill" | "duotone";
 }
 
-export function LucideIcon({ name, weight = "duotone", ...props }: DynamicIconProps) {
+export function LucideIcon({ name, ...props }: DynamicIconProps) {
   const IconComponent = ICON_REGISTRY[name] || Question;
-  return <IconComponent {...props} weight={weight} />;
+  return <IconComponent {...props} />;
 }

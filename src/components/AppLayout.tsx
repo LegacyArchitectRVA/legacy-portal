@@ -1,4 +1,4 @@
-import { List as Menu } from "@phosphor-icons/react";
+import { RiMenuLine as Menu } from "@remixicon/react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import FloatingChatButton from "./FloatingChatButton";

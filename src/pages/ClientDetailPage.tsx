@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "convex/react";
-import { ArrowLeft, Calendar, CheckCircle as CheckCircle2, ArrowSquareOut as ExternalLink, FileText, CircleNotch as Loader2, EnvelopeSimple as Mail, ChatCircle as MessageSquare, Phone, Scales as Scale, PaperPlaneTilt as Send, Trash as Trash2, User, XCircle } from "@phosphor-icons/react";
+import { RiArrowLeftLine as ArrowLeft, RiCalendarLine as Calendar, RiCheckboxCircleLine as CheckCircle2, RiExternalLinkLine as ExternalLink, RiFileTextLine as FileText, RiLoader4Line as Loader2, RiMailLine as Mail, RiChat3Line as MessageSquare, RiPhoneLine as Phone, RiScalesLine as Scale, RiSendPlaneLine as Send, RiDeleteBinLine as Trash2, RiUserLine as User, RiCloseCircleLine as XCircle } from "@remixicon/react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

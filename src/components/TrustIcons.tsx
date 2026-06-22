@@ -1,4 +1,4 @@
-import { LockKey, EyeSlash, ShieldCheck as ShieldCheckPhosphor } from "@phosphor-icons/react";
+import { RiLockPasswordLine as LockKey, RiEyeOffLine as EyeSlash, RiShieldCheckLine as ShieldCheckIcon } from "@remixicon/react";
 import type { LucideIcon } from "lucide-react";
 import type { ComponentType } from "react";
 
@@ -7,9 +7,6 @@ import type { ComponentType } from "react";
  * a dark gradient disc, a thin gold ring, and a centered icon. Color and
  * size are configurable so the same component works for the landing page
  * trust badges, chapter dots, admin stat cards, and guide cards.
- *
- * Accepts either a Lucide icon (strokeWidth-based) or a Phosphor icon
- * (weight-based) — pass `weight` for Phosphor, omit it for Lucide.
  */
 export function IconMedallion({
   icon: Icon,
@@ -17,14 +14,12 @@ export function IconMedallion({
   boxSize = 36,
   color = "#e8c46a",
   className = "",
-  weight,
 }: {
   icon: LucideIcon | ComponentType<any>;
   size?: number;
   boxSize?: number;
   color?: string;
   className?: string;
-  weight?: "thin" | "light" | "regular" | "bold" | "fill" | "duotone";
 }) {
   return (
     <div
@@ -40,11 +35,7 @@ export function IconMedallion({
         style={{ border: `1px solid ${color}59` }}
       />
       <div className="absolute inset-0 flex items-center justify-center">
-        {weight ? (
-          <Icon size={size} color={color} weight={weight} />
-        ) : (
-          <Icon style={{ width: size, height: size, color }} strokeWidth={1.75} />
-        )}
+        <Icon size={size} color={color} />
       </div>
     </div>
   );
@@ -52,15 +43,15 @@ export function IconMedallion({
 
 /** Landing page trust badge: "Encrypted & Secure" */
 export function EncryptedIcon({ size = 20 }: { size?: number }) {
-  return <IconMedallion icon={LockKey} size={size} boxSize={size * 2.25} weight="duotone" />;
+  return <IconMedallion icon={LockKey} size={size} boxSize={size * 2.25} />;
 }
 
 /** Landing page trust badge: "Zero-Knowledge Protocol" */
 export function ZeroKnowledgeIcon({ size = 20 }: { size?: number }) {
-  return <IconMedallion icon={EyeSlash} size={size} boxSize={size * 2.25} weight="duotone" />;
+  return <IconMedallion icon={EyeSlash} size={size} boxSize={size * 2.25} />;
 }
 
 /** Landing page trust badge: "Private & Confidential" */
 export function PrivateIcon({ size = 20 }: { size?: number }) {
-  return <IconMedallion icon={ShieldCheckPhosphor} size={size} boxSize={size * 2.25} weight="duotone" />;
+  return <IconMedallion icon={ShieldCheckIcon} size={size} boxSize={size * 2.25} />;
 }

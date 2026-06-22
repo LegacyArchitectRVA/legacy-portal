@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { WarningCircle as AlertCircle, CheckCircle as CheckCircle2, Download, File, FileText, Image as ImageIcon, CircleNotch as Loader2, TextAa as Type, Upload, X } from "@phosphor-icons/react";
+import { RiAlertLine as AlertCircle, RiCheckboxCircleLine as CheckCircle2, RiDownloadLine as Download, RiFileLine as File, RiFileTextLine as FileText, RiImageLine as ImageIcon, RiLoader4Line as Loader2, RiFontSize2 as Type, RiUploadLine as Upload, RiCloseLine as X } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
 import {
   downloadBlob,

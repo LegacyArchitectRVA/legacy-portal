@@ -1,7 +1,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { startRegistration, browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { Warning as AlertTriangle, Bell, Check, CaretRight as ChevronRight, Eye, EyeSlash as EyeOff, Fingerprint, FileText, Key as KeyRound, CircleNotch as Loader2, SignOut as LogOut, DeviceMobile as MonitorSmartphone, Shield, ShieldCheck, DeviceMobile as Smartphone, Trash as Trash2 } from "@phosphor-icons/react";
+import { RiErrorWarningLine as AlertTriangle, RiNotification3Line as Bell, RiCheckLine as Check, RiArrowRightSLine as ChevronRight, RiEyeLine as Eye, RiEyeOffLine as EyeOff, RiFingerprintLine as Fingerprint, RiFileTextLine as FileText, RiKeyLine as KeyRound, RiLoader4Line as Loader2, RiLogoutBoxRLine as LogOut, RiSmartphoneLine as MonitorSmartphone, RiShieldLine as Shield, RiShieldCheckLine as ShieldCheck, RiSmartphoneLine as Smartphone, RiDeleteBinLine as Trash2 } from "@remixicon/react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

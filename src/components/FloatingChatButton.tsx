@@ -1,4 +1,4 @@
-import { ChatCircle as MessageSquare } from "@phosphor-icons/react";
+import { RiChat3Line as MessageSquare } from "@remixicon/react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function FloatingChatButton() {
