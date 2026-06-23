@@ -226,18 +226,19 @@ export default function GeneratePage() {
       .cover { height: auto; min-height: 100vh; }
       body { background: white; color: black; }
       .cover { background: white; color: #0a0a0a; }
-      .cover h1 { background: none; -webkit-text-fill-color: #8a6d1f; color: #8a6d1f; }
-      .cover .meta, .cover .subtitle { color: #9a8b66; }
+      .cover h1 { background: none; -webkit-text-fill-color: #2d5a3d; color: #2d5a3d; }
+      .cover .cover-rule { background: linear-gradient(90deg, transparent, #3a7350, transparent); }
+      .cover .meta, .cover .subtitle { color: #5c7a63; }
       .chapter h2 { color: #0a0a0a; }
       .chapter .desc { color: #4a4a4a; }
-      .section h3 { color: #5a4a22; }
-      th { background: linear-gradient(180deg, #8a6d1f, #6e5618); color: #fdfcfa; }
+      .section h3 { color: #1f3d2a; }
+      th { background: linear-gradient(180deg, #2d5a3d, #1f3d2a); color: #fdfcfa; }
       td { color: #0a0a0a; }
-      tr:nth-child(even) td { background: #f8f4e9; }
+      tr:nth-child(even) td { background: #f0f6f1; }
       .field { color: rgba(10,10,10,0.85); }
-      .field strong { color: #8a6d1f; }
+      .field strong { color: #2d5a3d; }
       .empty, .empty-note { color: #888; }
-      .footer { color: #8a6d1f; }
+      .footer { color: #2d5a3d; }
       .privacy-note { color: #666; border-left-color: #ccc; }
     }
   </style>

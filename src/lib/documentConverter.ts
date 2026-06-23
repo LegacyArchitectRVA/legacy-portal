@@ -964,24 +964,24 @@ export function renderToPdf(doc: ParsedDocument) {
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { font-family: ${BRAND_FONT_BODY}; font-size: 12.5pt; line-height: 1.55; color: #2a2218; background: #fdfcfa; padding: 0.9in 0.85in; }
     .logo { display: block; height: 0.6in; margin: 0 auto 0.2in; }
-    .cover-title { font-family: ${BRAND_FONT_HEAD}; font-size: 22pt; text-align: center; letter-spacing: 0.06em; color: #8a6d1f; text-transform: uppercase; margin-bottom: 0.06in; }
-    .cover-meta { text-align: center; font-size: 9.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #9a8b66; margin-bottom: 0.45in; }
-    .cover-rule { width: 1.4in; height: 1px; background: linear-gradient(90deg, transparent, #b8985a, transparent); margin: 0 auto 0.45in; }
-    h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; color: #8a6d1f; margin: 0.32in 0 0.14in; text-transform: uppercase; letter-spacing: 0.03em; }
-    h1 { font-size: 16pt; border-bottom: 1px solid #d9cca0; padding-bottom: 0.08in; }
+    .cover-title { font-family: ${BRAND_FONT_HEAD}; font-size: 22pt; text-align: center; letter-spacing: 0.06em; color: #2d5a3d; text-transform: uppercase; margin-bottom: 0.06in; }
+    .cover-meta { text-align: center; font-size: 9.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #5c7a63; margin-bottom: 0.45in; }
+    .cover-rule { width: 1.4in; height: 1px; background: linear-gradient(90deg, transparent, #3a7350, transparent); margin: 0 auto 0.45in; }
+    h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; color: #2d5a3d; margin: 0.32in 0 0.14in; text-transform: uppercase; letter-spacing: 0.03em; }
+    h1 { font-size: 16pt; border-bottom: 1px solid #cfe0d3; padding-bottom: 0.08in; }
     h2 { font-size: 13.5pt; }
-    h3 { font-size: 11.5pt; color: #5a4a22; letter-spacing: 0.02em; }
+    h3 { font-size: 11.5pt; color: #1f3d2a; letter-spacing: 0.02em; }
     p { margin-bottom: 0.12in; }
     ul, ol { margin: 0 0 0.16in 0.28in; }
     li { margin-bottom: 0.07in; }
-    hr { border: none; border-top: 1px solid #d9cca0; margin: 0.3in 0; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 0.2in; font-size: 10pt; box-shadow: 0 1px 3px rgba(138,109,31,0.08); }
-    th, td { border: 1px solid #e4dcc8; padding: 7px 10px; text-align: left; vertical-align: top; }
-    td { background: #fffefb; }
-    th { background: linear-gradient(180deg, #8a6d1f, #6e5618); font-family: ${BRAND_FONT_HEAD}; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.03em; color: #fdfcfa; border-color: #6e5618; }
-    tr:nth-child(even) td { background: #f8f4e9; }
-    a { color: #8a6d1f; text-decoration: none; border-bottom: 1px solid #c9b370; }
-    .footer { margin-top: 0.6in; padding-top: 0.22in; border-top: 1px solid #d9cca0; text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 9.5pt; letter-spacing: 0.14em; color: #8a6d1f; text-transform: uppercase; }
+    hr { border: none; border-top: 1px solid #cfe0d3; margin: 0.3in 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 0.2in; font-size: 10pt; box-shadow: 0 1px 3px rgba(45,90,61,0.08); }
+    th, td { border: 1px solid #d3e0d6; padding: 7px 10px; text-align: left; vertical-align: top; }
+    td { background: #fdfffd; }
+    th { background: linear-gradient(180deg, #2d5a3d, #1f3d2a); font-family: ${BRAND_FONT_HEAD}; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.03em; color: #fdfcfa; border-color: #1f3d2a; }
+    tr:nth-child(even) td { background: #f0f6f1; }
+    a { color: #2d5a3d; text-decoration: none; border-bottom: 1px solid #7aa388; }
+    .footer { margin-top: 0.6in; padding-top: 0.22in; border-top: 1px solid #cfe0d3; text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 9.5pt; letter-spacing: 0.14em; color: #2d5a3d; text-transform: uppercase; }
     @media print { body { padding: 0.6in 0.7in; } }
   </style>
 </head>
@@ -1007,8 +1007,12 @@ export function renderToPdf(doc: ParsedDocument) {
 export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
   const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle, Bookmark, InternalHyperlink, ExternalHyperlink } = await import("docx");
 
-  const GOLD = "8A6D1F";
-  const GOLD_LIGHT = "D9CCA0";
+  // Named GOLD for historical reasons, but holds the light-mode forest
+  // green values — DOCX is an inherently light/white-page document, so
+  // it follows the same "light version uses green, not gold" rule as
+  // the rest of the light-themed output.
+  const GOLD = "2D5A3D";
+  const GOLD_LIGHT = "A8C4AE";
   const HEADING_LEVELS: Record<number, any> = {
     1: HeadingLevel.HEADING_1,
     2: HeadingLevel.HEADING_2,
