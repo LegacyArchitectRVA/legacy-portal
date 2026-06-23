@@ -56,7 +56,7 @@ export default function GeneratePage() {
   <title>Life Manual - ${client?.userName || "Client"}</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body {
       font-family: 'Libre Baskerville', serif;
       background: #000000;
@@ -75,11 +75,18 @@ export default function GeneratePage() {
       color: #d9cca0;
       padding: 2rem;
     }
+    .cover .logo {
+      height: 70px;
+      margin-bottom: 1.25rem;
+    }
     .cover h1 {
       font-family: 'Cinzel', serif;
       font-size: 2.5rem;
       font-weight: 700;
       letter-spacing: 0.1em;
+      background: linear-gradient(135deg, #e8c46a, #b8985a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .cover .subtitle {
       font-size: 0.9rem;
@@ -87,10 +94,16 @@ export default function GeneratePage() {
       margin-top: 1rem;
       font-family: 'Libre Baskerville', serif;
     }
+    .cover .cover-rule {
+      width: 90px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #b8985a, transparent);
+      margin: 1.75rem 0;
+    }
     .cover .client-name {
       font-family: 'Cinzel', serif;
       font-size: 1.5rem;
-      margin-top: 3rem;
+      margin-top: 0.5rem;
     }
     .cover .tier {
       font-size: 0.8rem;
@@ -99,6 +112,13 @@ export default function GeneratePage() {
       text-transform: uppercase;
       letter-spacing: 0.2em;
       font-family: 'Libre Baskerville', serif;
+    }
+    .cover .meta {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(217,204,160,0.45);
+      margin-top: 2rem;
     }
     .chapter {
       page-break-before: always;
@@ -135,22 +155,27 @@ export default function GeneratePage() {
       border-collapse: collapse;
       margin-top: 0.5rem;
       font-size: 0.8rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
     }
     th, td {
-      border: 1px solid rgba(217, 204, 160, 0.08);
+      border: 1px solid rgba(217, 204, 160, 0.18);
       padding: 8px 12px;
       text-align: left;
     }
     th {
-      background: #0e0e0e;
+      background: linear-gradient(135deg, #e8c46a, #b8985a);
       font-family: 'Cinzel', serif;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: rgba(217, 204, 160, 0.7);
+      letter-spacing: 0.04em;
+      color: #0a0a0a;
+      font-weight: 600;
     }
     td {
       color: rgba(232, 230, 225, 0.7);
+    }
+    tr:nth-child(even) td {
+      background: rgba(217, 204, 160, 0.03);
     }
     .empty {
       color: rgba(232, 230, 225, 0.4);
@@ -181,11 +206,13 @@ export default function GeneratePage() {
     .footer {
       text-align: center;
       font-size: 0.7rem;
-      color: rgba(232, 230, 225, 0.5);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(217,204,160,0.55);
       margin-top: 2rem;
       padding-top: 1rem;
-      border-top: 1px solid rgba(217, 204, 160, 0.06);
-      font-family: 'Libre Baskerville', serif;
+      border-top: 1px solid rgba(217, 204, 160, 0.1);
+      font-family: 'Cinzel', serif;
     }
     .privacy-note {
       font-style: italic;
@@ -199,21 +226,31 @@ export default function GeneratePage() {
       .cover { height: auto; min-height: 100vh; }
       body { background: white; color: black; }
       .cover { background: white; color: #0a0a0a; }
-      .cover h1 { color: #0a0a0a; }
+      .cover h1 { background: none; -webkit-text-fill-color: #8a6d1f; color: #8a6d1f; }
+      .cover .meta, .cover .subtitle { color: #9a8b66; }
       .chapter h2 { color: #0a0a0a; }
-      th { background: #f5f5f5; color: #0a0a0a; }
+      .chapter .desc { color: #4a4a4a; }
+      .section h3 { color: #5a4a22; }
+      th { background: linear-gradient(180deg, #8a6d1f, #6e5618); color: #fdfcfa; }
       td { color: #0a0a0a; }
-      .footer { color: #666; }
+      tr:nth-child(even) td { background: #f8f4e9; }
+      .field { color: rgba(10,10,10,0.85); }
+      .field strong { color: #8a6d1f; }
+      .empty, .empty-note { color: #888; }
+      .footer { color: #8a6d1f; }
       .privacy-note { color: #666; border-left-color: #ccc; }
     }
   </style>
 </head>
 <body>
   <div class="cover">
+    <img class="logo" src="https://portal.legacyarchitectrva.com/logo.png" alt="" />
     <h1>LIFE MANUAL</h1>
     <p class="subtitle">Legacy Architect RVA</p>
+    <div class="cover-rule"></div>
     <p class="client-name">${client?.userName || "Client"}</p>
     <p class="tier">${tierInfo?.name || tier} Edition</p>
+    <p class="meta">Prepared ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
   </div>
 `;
 
@@ -271,8 +308,7 @@ export default function GeneratePage() {
 
       html += `
   <div class="footer">
-    <p>Generated by Legacy Architect RVA &middot; ${new Date().toLocaleDateString()}</p>
-    <p>This document contains sensitive information. Handle with care.</p>
+    <p>Order in Your Absence</p>
   </div>
   <div class="privacy-note">
     <p>${PRIVACY_NOTE}</p>
