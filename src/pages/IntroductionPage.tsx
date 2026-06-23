@@ -23,7 +23,7 @@ const guides: Guide[] = [
 This roadmap provides your designated successor with a clear, sequential path to follow. It removes ambiguity and ensures nothing is overlooked during a critical transition.
 
 ## Phase 1: Immediate Actions (First 24 Hours)
-- Access the Life Manual portal using the provided credentials
+- Locate the Life Manual
 - Review Chapter 2: Emergency & Successor Orientation, and check Legal Documents in Force at the top of the portal for what's active and where it's held
 - Contact the individuals listed in the Critical Contact Directory
 - Secure all physical documents referenced in Chapter 1
