@@ -6,7 +6,7 @@ import JSZip from "jszip";
 // ─────────────────────────────────────────────────────────────
 
 export type Block =
-  | { type: "heading"; level: 1 | 2 | 3 | 4 | 5 | 6; text: string }
+  | { type: "heading"; level: 1 | 2 | 3 | 4 | 5 | 6; text: string; id?: string }
   | { type: "paragraph"; text: string }
   | { type: "list"; ordered: boolean; items: string[] }
   | { type: "table"; headers: string[]; rows: string[][] }
@@ -24,6 +24,19 @@ const GOOGLE_FONTS_LINK =
 
 function stripTags(html: string): string {
   return html.replace(/<[^>]+>/g, "").trim();
+}
+
+/** Turns a heading/page title into a stable, URL-safe anchor id. */
+function slugify(text: string): string {
+  return (
+    text
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .slice(0, 60) || "section"
+  );
 }
 
 function guessTitle(blocks: Block[], fallback: string): string {
@@ -158,12 +171,43 @@ export async function parseAffine(file: File): Promise<ParsedDocument> {
     return m ? Number(m[1]) : typeof t === "number" ? t : null;
   };
 
+  // Cross-page references (the "→ Successor Access Guide" style links
+  // seen throughout this workspace) need a target to point to. Build a
+  // title → slug map from every page up front, by id where available
+  // and by title as a fallback, so links can be resolved however the
+  // source actually represents them.
+  const slugByPageId = new Map<string, string>();
+  const slugByTitle = new Map<string, string>();
+  const registerPage = (id: string | undefined, title: string | undefined) => {
+    if (!title) return;
+    const slug = slugify(title);
+    if (id) slugByPageId.set(id, slug);
+    slugByTitle.set(title.trim().toLowerCase(), slug);
+  };
+  for (const page of pages) {
+    registerPage(page.id ?? page.pageId ?? page.meta?.id, page.title ?? page.meta?.title);
+  }
+
   // Pull plain text out of AFFiNE's "Delta" rich-text format
-  // ([{ insert: "..." }, ...]) or a plain string, whichever appears.
+  // ([{ insert: "...", attributes: {...} }, ...]) or a plain string.
+  // Delta "reference" attributes (AFFiNE's actual inline-link
+  // mechanism for linking between pages) are converted to markdown
+  // link syntax here so the renderers can turn them into real <a>
+  // tags later, without needing a separate rich-text Block shape.
   const textOf = (val: any): string => {
     if (typeof val === "string") return val;
-    if (Array.isArray(val)) return val.map((d) => d?.insert ?? "").join("");
-    return "";
+    if (!Array.isArray(val)) return "";
+    return val
+      .map((d: any) => {
+        const ref = d?.attributes?.reference;
+        if (ref) {
+          const slug = (ref.pageId && slugByPageId.get(ref.pageId)) || (ref.title && slugify(ref.title));
+          const label = ref.title || d?.insert?.trim() || "linked section";
+          if (slug) return `[${label}](#${slug})`;
+        }
+        return d?.insert ?? "";
+      })
+      .join("");
   };
 
   // Extracts a table/database block's column headers and row cell
@@ -195,7 +239,9 @@ export async function parseAffine(file: File): Promise<ParsedDocument> {
     return { headers, rows };
   };
 
+  let firstHeadingSeenInPage = false;
   for (const page of pages) {
+    firstHeadingSeenInPage = false;
     const walkBlocks = (list: any[]) => {
       for (const block of list || []) {
         const kind = kindOf(block);
@@ -206,7 +252,18 @@ export async function parseAffine(file: File): Promise<ParsedDocument> {
           const table = extractTable(block);
           if (table) blocks.push({ type: "table", ...table });
         } else if (level) {
-          blocks.push({ type: "heading", level: Math.min(level, 6) as any, text: textOf(rawText) });
+          const headingText = textOf(rawText);
+          // The first heading on a page is that page's own title —
+          // give it a stable anchor so other pages' references to it
+          // actually land somewhere, and register it by its real
+          // rendered text too (the source page title and the heading
+          // text don't always match exactly).
+          const id = !firstHeadingSeenInPage ? slugify(headingText) : undefined;
+          if (id) {
+            firstHeadingSeenInPage = true;
+            slugByTitle.set(headingText.trim().toLowerCase(), id);
+          }
+          blocks.push({ type: "heading", level: Math.min(level, 6) as any, text: headingText, id });
         } else if (kind === "paragraph" || kind === "text" || block.type === "paragraph" || block.type === "text") {
           const t = textOf(rawText);
           if (t) blocks.push({ type: "paragraph", text: t });
@@ -232,7 +289,52 @@ export async function parseAffine(file: File): Promise<ParsedDocument> {
   }
 
   if (blocks.length === 0) throw new Error("No recognizable content found in this AFFiNE file.");
+
+  // Second pass: not every cross-reference necessarily arrives as a
+  // proper Delta reference attribute — this workspace's own screenshots
+  // show plain underlined text like "→ Successor Access Guide" that may
+  // just be manually styled text with no formal link attached. Now that
+  // every page's title is known, turn exact mentions of another page's
+  // title into a real link too, so references work either way they
+  // happen to be represented in the source.
+  linkKnownTitles(blocks, slugByTitle);
+
   return { title: affineData.title || guessTitle(blocks, file.name.replace(/\.[^.]+$/, "")), blocks };
+}
+
+/**
+ * Finds plain-text mentions of known page titles (optionally preceded
+ * by an arrow like → or ↗, the pattern this workspace uses for cross-
+ * references) inside paragraph and list-item text, and turns them into
+ * markdown links to that page's anchor — a fallback for references
+ * that aren't carried as a formal link attribute in the source.
+ */
+function linkKnownTitles(blocks: Block[], slugByTitle: Map<string, string>) {
+  if (slugByTitle.size === 0) return;
+  // Longer titles first, so "Successor Access Guide" doesn't get
+  // pre-empted by a shorter title that happens to be a substring.
+  const titles = [...slugByTitle.keys()].sort((a, b) => b.length - a.length);
+  if (titles.length === 0) return;
+  const pattern = new RegExp(
+    `(^|[^\\]\\w])(?:[→↗]\\s*)?(${titles.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?![\\w)])`,
+    "gi"
+  );
+  const relink = (input: string): string =>
+    input.replace(pattern, (match, pre, title) => {
+      const slug = slugByTitle.get(title.toLowerCase());
+      if (!slug) return match;
+      const arrow = match.slice(pre.length, match.length - title.length);
+      return `${pre}${arrow}[${title}](#${slug})`;
+    });
+
+  for (const b of blocks) {
+    if (b.type === "paragraph") {
+      // Don't relink text that's already a markdown link target.
+      if (!/\]\(#/.test(b.text)) b.text = relink(b.text);
+    } else if (b.type === "list") {
+      b.items = b.items.map((i) => (/\]\(#/.test(i) ? i : relink(i)));
+    }
+  }
 }
 
 /**
@@ -389,24 +491,40 @@ export async function parseInput(file: File, inputType: InputType): Promise<Pars
 // Output renderers
 // ─────────────────────────────────────────────────────────────
 
+/** Matches markdown-style [text](url) links produced during parsing for cross-references. */
+const LINK_PATTERN = /\[([^\]]+)\]\((#[\w-]+|https?:\/\/[^\s)]+)\)/g;
+
+/** Escapes text for safe HTML output while turning [text](url) into a real link. */
+function textToHtml(s: string): string {
+  let result = "";
+  let lastIndex = 0;
+  for (const match of s.matchAll(LINK_PATTERN)) {
+    result += escapeHtml(s.slice(lastIndex, match.index));
+    result += `<a href="${escapeHtml(match[2])}">${escapeHtml(match[1])}</a>`;
+    lastIndex = (match.index ?? 0) + match[0].length;
+  }
+  result += escapeHtml(s.slice(lastIndex));
+  return result;
+}
+
 function blocksToInnerHtml(blocks: Block[]): string {
   return blocks
     .map((b) => {
-      if (b.type === "heading") return `<h${b.level}>${escapeHtml(b.text)}</h${b.level}>`;
-      if (b.type === "paragraph") return `<p>${escapeHtml(b.text)}</p>`;
+      if (b.type === "heading") return `<h${b.level}${b.id ? ` id="${escapeHtml(b.id)}"` : ""}>${textToHtml(b.text)}</h${b.level}>`;
+      if (b.type === "paragraph") return `<p>${textToHtml(b.text)}</p>`;
       if (b.type === "hr") return `<hr />`;
       if (b.type === "table") {
         const headerRow = b.headers.some((h) => h)
-          ? `<thead><tr>${b.headers.map((h) => `<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>`
+          ? `<thead><tr>${b.headers.map((h) => `<th>${textToHtml(h)}</th>`).join("")}</tr></thead>`
           : "";
         const bodyRows = b.rows
-          .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`)
+          .map((row) => `<tr>${row.map((cell) => `<td>${textToHtml(cell)}</td>`).join("")}</tr>`)
           .join("");
         return `<table>${headerRow}<tbody>${bodyRows}</tbody></table>`;
       }
       if (b.type === "list") {
         const tag = b.ordered ? "ol" : "ul";
-        return `<${tag}>${b.items.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</${tag}>`;
+        return `<${tag}>${b.items.map((i) => `<li>${textToHtml(i)}</li>`).join("")}</${tag}>`;
       }
       return "";
     })
@@ -448,6 +566,8 @@ export function renderToHtml(doc: ParsedDocument): string {
     th, td { border: 1px solid rgba(217,204,160,0.18); padding: 0.6rem 0.85rem; text-align: left; vertical-align: top; }
     th { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; color: #0a0a0a; background: linear-gradient(135deg, #e8c46a, #b8985a); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.04em; }
     tr:nth-child(even) td { background: rgba(217,204,160,0.03); }
+    a { color: #e8c46a; text-decoration: none; border-bottom: 1px solid rgba(232,196,106,0.4); }
+    a:hover { border-bottom-color: #e8c46a; }
     footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(217,204,160,0.15); text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(217,204,160,0.55); }
   </style>
 </head>
@@ -493,6 +613,7 @@ export function renderToPdf(doc: ParsedDocument) {
     td { background: #fffefb; }
     th { background: linear-gradient(180deg, #8a6d1f, #6e5618); font-family: ${BRAND_FONT_HEAD}; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.03em; color: #fdfcfa; border-color: #6e5618; }
     tr:nth-child(even) td { background: #f8f4e9; }
+    a { color: #8a6d1f; text-decoration: none; border-bottom: 1px solid #c9b370; }
     .footer { margin-top: 0.6in; padding-top: 0.22in; border-top: 1px solid #d9cca0; text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 9.5pt; letter-spacing: 0.14em; color: #8a6d1f; text-transform: uppercase; }
     @media print { body { padding: 0.6in 0.7in; } }
   </style>
@@ -517,7 +638,7 @@ export function renderToPdf(doc: ParsedDocument) {
 
 /** Builds a real .docx file and returns it as a Blob. */
 export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
-  const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle } = await import("docx");
+  const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle, Bookmark, InternalHyperlink, ExternalHyperlink } = await import("docx");
 
   const GOLD = "8A6D1F";
   const GOLD_LIGHT = "D9CCA0";
@@ -532,6 +653,29 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
   const cellBorder = { style: BorderStyle.SINGLE, size: 2, color: "E4DCC8" };
   const allBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
 
+  // Splits text on [label](url) markdown-link syntax (produced during
+  // AFFiNE parsing for cross-references) into plain TextRuns and real
+  // internal/external hyperlinks, for use as a Paragraph's children.
+  const runsWithLinks = (text: string, baseProps: Record<string, any> = {}): any[] => {
+    const runs: any[] = [];
+    let lastIndex = 0;
+    for (const match of text.matchAll(LINK_PATTERN)) {
+      if ((match.index ?? 0) > lastIndex) {
+        runs.push(new TextRun({ ...baseProps, text: text.slice(lastIndex, match.index) }));
+      }
+      const [, label, url] = match;
+      const linkRun = new TextRun({ ...baseProps, text: label, color: GOLD, underline: {} });
+      runs.push(
+        url.startsWith("#")
+          ? new InternalHyperlink({ anchor: url.slice(1), children: [linkRun] })
+          : new ExternalHyperlink({ link: url, children: [linkRun] })
+      );
+      lastIndex = (match.index ?? 0) + match[0].length;
+    }
+    if (lastIndex < text.length) runs.push(new TextRun({ ...baseProps, text: text.slice(lastIndex) }));
+    return runs.length > 0 ? runs : [new TextRun({ ...baseProps, text: "" })];
+  };
+
   const makeCell = (text: string, isHeader: boolean) =>
     new TableCell({
       width: { size: 100, type: WidthType.PERCENTAGE },
@@ -539,7 +683,7 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
       shading: isHeader ? { type: ShadingType.SOLID, color: GOLD, fill: GOLD } : undefined,
       children: [
         new Paragraph({
-          children: [new TextRun({ text, bold: isHeader, color: isHeader ? "FFFFFF" : undefined, allCaps: isHeader, size: isHeader ? 18 : undefined })],
+          children: runsWithLinks(text, { bold: isHeader, color: isHeader ? "FFFFFF" : undefined, allCaps: isHeader, size: isHeader ? 18 : undefined }),
         }),
       ],
     });
@@ -565,15 +709,16 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
 
   for (const b of dedupeTitleBlock(doc)) {
     if (b.type === "heading") {
+      const headingRuns = runsWithLinks(b.text, { color: GOLD, bold: true, allCaps: b.level <= 2 });
       children.push(
         new Paragraph({
           heading: HEADING_LEVELS[b.level] || HeadingLevel.HEADING_3,
-          children: [new TextRun({ text: b.text, color: GOLD, bold: true, allCaps: b.level <= 2 })],
+          children: b.id ? [new Bookmark({ id: b.id, children: headingRuns })] : headingRuns,
           border: b.level === 1 ? { bottom: { style: BorderStyle.SINGLE, size: 4, color: GOLD_LIGHT, space: 4 } } : undefined,
         })
       );
     } else if (b.type === "paragraph") {
-      children.push(new Paragraph({ children: [new TextRun(b.text)] }));
+      children.push(new Paragraph({ children: runsWithLinks(b.text) }));
     } else if (b.type === "table") {
       const rows: any[] = [];
       if (b.headers.some((h) => h)) {
@@ -590,7 +735,7 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
       for (const item of b.items) {
         children.push(
           new Paragraph({
-            text: item,
+            children: runsWithLinks(item),
             bullet: b.ordered ? undefined : { level: 0 },
             numbering: b.ordered ? { reference: "numbered-list", level: 0 } : undefined,
           })
