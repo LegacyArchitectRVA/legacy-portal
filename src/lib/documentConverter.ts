@@ -430,26 +430,34 @@ export function renderToHtml(doc: ParsedDocument): string {
   <title>${escapeHtml(doc.title)} - Legacy Architect RVA</title>
   <link href="${GOOGLE_FONTS_LINK}" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: ${BRAND_FONT_BODY}; background: #000; color: #e8e6e1; line-height: 1.6; padding: 2rem; max-width: 760px; margin: 0 auto; }
-    h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; letter-spacing: 0.02em; color: #d9cca0; margin: 1.5rem 0 0.75rem; }
-    h1 { font-size: 2rem; border-bottom: 1px solid rgba(217,204,160,0.2); padding-bottom: 0.5rem; }
-    h2 { font-size: 1.5rem; }
-    h3 { font-size: 1.25rem; }
-    p { margin-bottom: 1rem; }
-    ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
-    li { margin-bottom: 0.5rem; }
-    hr { border: none; border-top: 1px solid rgba(217,204,160,0.15); margin: 2rem 0; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.9rem; }
-    th, td { border: 1px solid rgba(217,204,160,0.2); padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
-    th { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; color: #d9cca0; background: rgba(217,204,160,0.06); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.03em; }
-    footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid rgba(217,204,160,0.1); text-align: center; font-size: 0.75rem; color: rgba(232,230,225,0.5); }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-family: ${BRAND_FONT_BODY}; background: #0a0a0a; color: #e8e6e1; line-height: 1.65; padding: 3rem 2rem; max-width: 760px; margin: 0 auto; }
+    .logo { display: block; height: 64px; margin: 0 auto 1rem; }
+    .cover-title { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; font-size: 1.9rem; text-align: center; letter-spacing: 0.04em; text-transform: uppercase; background: linear-gradient(135deg, #e8c46a, #b8985a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.4rem; }
+    .cover-meta { text-align: center; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(232,230,225,0.45); margin-bottom: 2.5rem; }
+    .cover-rule { width: 90px; height: 1px; background: linear-gradient(90deg, transparent, #b8985a, transparent); margin: 0 auto 2.5rem; }
+    h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; letter-spacing: 0.02em; color: #d9cca0; margin: 2rem 0 0.85rem; }
+    h1 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid rgba(217,204,160,0.25); padding-bottom: 0.6rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1.05rem; color: #c4b896; }
+    p { margin-bottom: 1.1rem; color: rgba(232,230,225,0.92); }
+    ul, ol { margin-bottom: 1.1rem; padding-left: 1.5rem; }
+    li { margin-bottom: 0.55rem; }
+    hr { border: none; border-top: 1px solid rgba(217,204,160,0.18); margin: 2.25rem 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.75rem; font-size: 0.88rem; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+    th, td { border: 1px solid rgba(217,204,160,0.18); padding: 0.6rem 0.85rem; text-align: left; vertical-align: top; }
+    th { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; color: #0a0a0a; background: linear-gradient(135deg, #e8c46a, #b8985a); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.04em; }
+    tr:nth-child(even) td { background: rgba(217,204,160,0.03); }
+    footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(217,204,160,0.15); text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(217,204,160,0.55); }
   </style>
 </head>
 <body>
-  <h1 style="margin-top:0">${escapeHtml(doc.title)}</h1>
+  <img class="logo" src="https://portal.legacyarchitectrva.com/logo.png" alt="" />
+  <div class="cover-title">${escapeHtml(doc.title)}</div>
+  <div class="cover-meta">Prepared by Legacy Architect RVA &middot; ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</div>
+  <div class="cover-rule"></div>
   ${blocksToInnerHtml(dedupeTitleBlock(doc))}
-  <footer>Converted by Legacy Architect RVA &middot; ${new Date().toLocaleDateString()}</footer>
+  <footer>Order in Your Absence</footer>
 </body>
 </html>`;
 }
@@ -466,25 +474,35 @@ export function renderToPdf(doc: ParsedDocument) {
   <title>${escapeHtml(doc.title)} - Legacy Architect RVA</title>
   <link href="${GOOGLE_FONTS_LINK}" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: ${BRAND_FONT_BODY}; font-size: 13pt; line-height: 1.5; color: #1a1a1a; background: #fdfcfa; padding: 1in 0.9in; }
-    h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; color: #8a6d1f; margin: 0.3in 0 0.12in; text-transform: uppercase; letter-spacing: 0.02em; }
-    h1 { font-size: 20pt; text-align: center; }
-    h2 { font-size: 16pt; }
-    h3 { font-size: 13pt; color: #4a3a10; }
-    p { margin-bottom: 0.1in; }
-    ul, ol { margin: 0 0 0.15in 0.25in; }
-    li { margin-bottom: 0.06in; }
-    hr { border: none; border-top: 1px solid #d9cca0; margin: 0.25in 0; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 0.15in; font-size: 10.5pt; }
-    th, td { border: 1px solid #e0d8c5; padding: 5px 8px; text-align: left; vertical-align: top; }
-    th { background: #f5f0e3; font-family: ${BRAND_FONT_HEAD}; font-size: 9pt; text-transform: uppercase; color: #8a6d1f; }
-    .footer { margin-top: 0.5in; padding-top: 0.2in; border-top: 1px solid #d9cca0; text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 10pt; letter-spacing: 0.1em; color: #8a6d1f; text-transform: uppercase; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-family: ${BRAND_FONT_BODY}; font-size: 12.5pt; line-height: 1.55; color: #2a2218; background: #fdfcfa; padding: 0.9in 0.85in; }
+    .logo { display: block; height: 0.6in; margin: 0 auto 0.2in; }
+    .cover-title { font-family: ${BRAND_FONT_HEAD}; font-size: 22pt; text-align: center; letter-spacing: 0.06em; color: #8a6d1f; text-transform: uppercase; margin-bottom: 0.06in; }
+    .cover-meta { text-align: center; font-size: 9.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #9a8b66; margin-bottom: 0.45in; }
+    .cover-rule { width: 1.4in; height: 1px; background: linear-gradient(90deg, transparent, #b8985a, transparent); margin: 0 auto 0.45in; }
+    h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; color: #8a6d1f; margin: 0.32in 0 0.14in; text-transform: uppercase; letter-spacing: 0.03em; }
+    h1 { font-size: 16pt; border-bottom: 1px solid #d9cca0; padding-bottom: 0.08in; }
+    h2 { font-size: 13.5pt; }
+    h3 { font-size: 11.5pt; color: #5a4a22; letter-spacing: 0.02em; }
+    p { margin-bottom: 0.12in; }
+    ul, ol { margin: 0 0 0.16in 0.28in; }
+    li { margin-bottom: 0.07in; }
+    hr { border: none; border-top: 1px solid #d9cca0; margin: 0.3in 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 0.2in; font-size: 10pt; box-shadow: 0 1px 3px rgba(138,109,31,0.08); }
+    th, td { border: 1px solid #e4dcc8; padding: 7px 10px; text-align: left; vertical-align: top; }
+    td { background: #fffefb; }
+    th { background: linear-gradient(180deg, #8a6d1f, #6e5618); font-family: ${BRAND_FONT_HEAD}; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.03em; color: #fdfcfa; border-color: #6e5618; }
+    tr:nth-child(even) td { background: #f8f4e9; }
+    .footer { margin-top: 0.6in; padding-top: 0.22in; border-top: 1px solid #d9cca0; text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 9.5pt; letter-spacing: 0.14em; color: #8a6d1f; text-transform: uppercase; }
     @media print { body { padding: 0.6in 0.7in; } }
   </style>
 </head>
 <body>
-  ${blocksToInnerHtml(doc.blocks)}
+  <img class="logo" src="https://portal.legacyarchitectrva.com/logo.png" alt="" />
+  <div class="cover-title">${escapeHtml(doc.title)}</div>
+  <div class="cover-meta">Prepared by Legacy Architect RVA &middot; ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</div>
+  <div class="cover-rule"></div>
+  ${blocksToInnerHtml(dedupeTitleBlock(doc))}
   <div class="footer">Order in Your Absence</div>
 </body>
 </html>`;
@@ -499,8 +517,10 @@ export function renderToPdf(doc: ParsedDocument) {
 
 /** Builds a real .docx file and returns it as a Blob. */
 export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
-  const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType } = await import("docx");
+  const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle } = await import("docx");
 
+  const GOLD = "8A6D1F";
+  const GOLD_LIGHT = "D9CCA0";
   const HEADING_LEVELS: Record<number, any> = {
     1: HeadingLevel.HEADING_1,
     2: HeadingLevel.HEADING_2,
@@ -509,24 +529,49 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
     5: HeadingLevel.HEADING_5,
     6: HeadingLevel.HEADING_6,
   };
+  const cellBorder = { style: BorderStyle.SINGLE, size: 2, color: "E4DCC8" };
+  const allBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
 
   const makeCell = (text: string, isHeader: boolean) =>
     new TableCell({
       width: { size: 100, type: WidthType.PERCENTAGE },
-      children: [new Paragraph({ children: [new TextRun({ text, bold: isHeader })] })],
+      borders: allBorders,
+      shading: isHeader ? { type: ShadingType.SOLID, color: GOLD, fill: GOLD } : undefined,
+      children: [
+        new Paragraph({
+          children: [new TextRun({ text, bold: isHeader, color: isHeader ? "FFFFFF" : undefined, allCaps: isHeader, size: isHeader ? 18 : undefined })],
+        }),
+      ],
     });
 
   const children: any[] = [
     new Paragraph({
-      text: doc.title,
-      heading: HeadingLevel.TITLE,
+      children: [new TextRun({ text: doc.title, bold: true, color: GOLD, size: 44 })],
       alignment: AlignmentType.CENTER,
+      spacing: { after: 120 },
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: `Prepared by Legacy Architect RVA  ·  ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`,
+          color: "9A8B66",
+          size: 18,
+        }),
+      ],
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 360 },
     }),
   ];
 
   for (const b of dedupeTitleBlock(doc)) {
     if (b.type === "heading") {
-      children.push(new Paragraph({ text: b.text, heading: HEADING_LEVELS[b.level] || HeadingLevel.HEADING_3 }));
+      children.push(
+        new Paragraph({
+          heading: HEADING_LEVELS[b.level] || HeadingLevel.HEADING_3,
+          children: [new TextRun({ text: b.text, color: GOLD, bold: true, allCaps: b.level <= 2 })],
+          border: b.level === 1 ? { bottom: { style: BorderStyle.SINGLE, size: 4, color: GOLD_LIGHT, space: 4 } } : undefined,
+        })
+      );
     } else if (b.type === "paragraph") {
       children.push(new Paragraph({ children: [new TextRun(b.text)] }));
     } else if (b.type === "table") {

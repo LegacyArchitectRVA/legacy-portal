@@ -9,7 +9,6 @@
  */
 
 import type * as ResendEmail from "../ResendEmail.js";
-import type * as _debugTemp49 from "../_debugTemp49.js";
 import type * as admin from "../admin.js";
 import type * as auth from "../auth.js";
 import type * as constants from "../constants.js";
@@ -39,7 +38,6 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   ResendEmail: typeof ResendEmail;
-  _debugTemp49: typeof _debugTemp49;
   admin: typeof admin;
   auth: typeof auth;
   constants: typeof constants;
