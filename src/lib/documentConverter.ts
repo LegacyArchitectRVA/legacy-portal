@@ -9,6 +9,7 @@ export type Block =
   | { type: "heading"; level: 1 | 2 | 3 | 4 | 5 | 6; text: string }
   | { type: "paragraph"; text: string }
   | { type: "list"; ordered: boolean; items: string[] }
+  | { type: "table"; headers: string[]; rows: string[][] }
   | { type: "hr" };
 
 export interface ParsedDocument {
@@ -92,6 +93,18 @@ export function parseHtmlString(html: string, fallbackTitle: string): ParsedDocu
         if (items.length) blocks.push({ type: "list", ordered: tag === "ol", items });
       } else if (tag === "hr") {
         blocks.push({ type: "hr" });
+      } else if (tag === "table") {
+        const rowEls = Array.from(child.querySelectorAll("tr"));
+        if (rowEls.length > 0) {
+          const cellsOf = (row: Element) =>
+            Array.from(row.querySelectorAll("th,td")).map((c) => c.textContent?.trim() || "");
+          const firstRowIsHeader = rowEls[0].querySelector("th") !== null;
+          const headers = firstRowIsHeader ? cellsOf(rowEls[0]) : cellsOf(rowEls[0]).map(() => "");
+          const dataRows = (firstRowIsHeader ? rowEls.slice(1) : rowEls).map(cellsOf).filter((r) => r.some((c) => c));
+          if (dataRows.length > 0 || headers.some((h) => h)) {
+            blocks.push({ type: "table", headers, rows: dataRows });
+          }
+        }
       } else if (tag === "div" || tag === "section" || tag === "article" || tag === "body") {
         walk(child);
       } else {
@@ -128,19 +141,90 @@ export async function parseAffine(file: File): Promise<ParsedDocument> {
   const blocks: Block[] = [];
   const pages = affineData.pages || [affineData];
 
+  // AFFiNE's real export format identifies block kind via `flavour`
+  // (e.g. "affine:paragraph", "affine:table") rather than a plain
+  // `type` field. Older/simplified exports may use `type` directly.
+  // Check both so this doesn't silently match nothing.
+  const kindOf = (block: any): string => {
+    const raw = block.flavour || block.type || "";
+    return raw.replace(/^affine:/, "");
+  };
+
+  // AFFiNE represents headings as paragraph blocks with a "type" prop
+  // set to h1/h2/etc, not a separate heading flavour.
+  const headingLevel = (block: any): number | null => {
+    const t = block.props?.type || block.props?.level;
+    const m = typeof t === "string" && t.match(/^h([1-6])$/);
+    return m ? Number(m[1]) : typeof t === "number" ? t : null;
+  };
+
+  // Pull plain text out of AFFiNE's "Delta" rich-text format
+  // ([{ insert: "..." }, ...]) or a plain string, whichever appears.
+  const textOf = (val: any): string => {
+    if (typeof val === "string") return val;
+    if (Array.isArray(val)) return val.map((d) => d?.insert ?? "").join("");
+    return "";
+  };
+
+  // Extracts a table/database block's column headers and row cell
+  // values. AFFiNE's database block stores columns separately from
+  // rows (rows reference cells by column id), so this defensively
+  // checks a few plausible shapes rather than assuming one exact
+  // schema, since the format isn't publicly documented.
+  const extractTable = (block: any): { headers: string[]; rows: string[][] } | null => {
+    const columns = block.props?.columns || block.columns || [];
+    const headers = columns.map((c: any) => textOf(c.name ?? c.title ?? c.label) || "");
+    const rawRows = block.props?.rows || block.rows || block.children || [];
+    const rows: string[][] = [];
+    for (const row of rawRows) {
+      const cells = row.cells || row.props?.cells || row;
+      if (cells && typeof cells === "object") {
+        if (Array.isArray(cells)) {
+          rows.push(cells.map((c: any) => textOf(c?.value ?? c)));
+        } else {
+          // Cells keyed by column id — order by the columns list when
+          // possible, otherwise just take whatever values exist.
+          const byColumn = columns.length > 0
+            ? columns.map((c: any) => textOf(cells[c.id]?.value ?? cells[c.id]))
+            : Object.values(cells).map((v: any) => textOf(v?.value ?? v));
+          rows.push(byColumn);
+        }
+      }
+    }
+    if (headers.length === 0 && rows.length === 0) return null;
+    return { headers, rows };
+  };
+
   for (const page of pages) {
     const walkBlocks = (list: any[]) => {
       for (const block of list || []) {
-        if (block.type === "heading") {
-          blocks.push({ type: "heading", level: (block.level || 1) as any, text: block.text || "" });
-        } else if (block.type === "paragraph" || block.type === "text") {
-          if (block.text) blocks.push({ type: "paragraph", text: block.text });
-        } else if (block.type === "list") {
-          const items = (block.items || []).map((i: any) => i.text || "");
-          if (items.length) blocks.push({ type: "list", ordered: !!block.ordered, items });
-        } else if (block.type === "divider" || block.type === "hr") {
+        const kind = kindOf(block);
+        const rawText = block.text ?? block.props?.text;
+        const level = headingLevel(block);
+
+        if (kind === "table" || kind === "database") {
+          const table = extractTable(block);
+          if (table) blocks.push({ type: "table", ...table });
+        } else if (level) {
+          blocks.push({ type: "heading", level: Math.min(level, 6) as any, text: textOf(rawText) });
+        } else if (kind === "paragraph" || kind === "text" || block.type === "paragraph" || block.type === "text") {
+          const t = textOf(rawText);
+          if (t) blocks.push({ type: "paragraph", text: t });
+        } else if (kind === "list" || block.type === "list") {
+          const items = (block.items || block.children || [])
+            .map((i: any) => textOf(i.text ?? i.props?.text))
+            .filter(Boolean);
+          if (items.length) blocks.push({ type: "list", ordered: !!(block.ordered ?? block.props?.type === "numbered"), items });
+        } else if (kind === "divider" || kind === "hr" || block.type === "divider" || block.type === "hr") {
           blocks.push({ type: "hr" });
+        } else {
+          // Unknown block kind (callout, bookmark, embed, todo, etc.) —
+          // rather than silently dropping it, capture whatever readable
+          // text it carries so nothing vanishes without a trace.
+          const fallbackText = textOf(rawText) || textOf(block.title);
+          if (fallbackText) blocks.push({ type: "paragraph", text: fallbackText });
         }
+
         if (block.children) walkBlocks(block.children);
       }
     };
@@ -311,6 +395,15 @@ function blocksToInnerHtml(blocks: Block[]): string {
       if (b.type === "heading") return `<h${b.level}>${escapeHtml(b.text)}</h${b.level}>`;
       if (b.type === "paragraph") return `<p>${escapeHtml(b.text)}</p>`;
       if (b.type === "hr") return `<hr />`;
+      if (b.type === "table") {
+        const headerRow = b.headers.some((h) => h)
+          ? `<thead><tr>${b.headers.map((h) => `<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>`
+          : "";
+        const bodyRows = b.rows
+          .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`)
+          .join("");
+        return `<table>${headerRow}<tbody>${bodyRows}</tbody></table>`;
+      }
       if (b.type === "list") {
         const tag = b.ordered ? "ol" : "ul";
         return `<${tag}>${b.items.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</${tag}>`;
@@ -347,6 +440,9 @@ export function renderToHtml(doc: ParsedDocument): string {
     ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
     li { margin-bottom: 0.5rem; }
     hr { border: none; border-top: 1px solid rgba(217,204,160,0.15); margin: 2rem 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    th, td { border: 1px solid rgba(217,204,160,0.2); padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
+    th { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; color: #d9cca0; background: rgba(217,204,160,0.06); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.03em; }
     footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid rgba(217,204,160,0.1); text-align: center; font-size: 0.75rem; color: rgba(232,230,225,0.5); }
   </style>
 </head>
@@ -380,6 +476,9 @@ export function renderToPdf(doc: ParsedDocument) {
     ul, ol { margin: 0 0 0.15in 0.25in; }
     li { margin-bottom: 0.06in; }
     hr { border: none; border-top: 1px solid #d9cca0; margin: 0.25in 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 0.15in; font-size: 10.5pt; }
+    th, td { border: 1px solid #e0d8c5; padding: 5px 8px; text-align: left; vertical-align: top; }
+    th { background: #f5f0e3; font-family: ${BRAND_FONT_HEAD}; font-size: 9pt; text-transform: uppercase; color: #8a6d1f; }
     .footer { margin-top: 0.5in; padding-top: 0.2in; border-top: 1px solid #d9cca0; text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 10pt; letter-spacing: 0.1em; color: #8a6d1f; text-transform: uppercase; }
     @media print { body { padding: 0.6in 0.7in; } }
   </style>
@@ -400,7 +499,7 @@ export function renderToPdf(doc: ParsedDocument) {
 
 /** Builds a real .docx file and returns it as a Blob. */
 export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
-  const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun } = await import("docx");
+  const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType } = await import("docx");
 
   const HEADING_LEVELS: Record<number, any> = {
     1: HeadingLevel.HEADING_1,
@@ -410,6 +509,12 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
     5: HeadingLevel.HEADING_5,
     6: HeadingLevel.HEADING_6,
   };
+
+  const makeCell = (text: string, isHeader: boolean) =>
+    new TableCell({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      children: [new Paragraph({ children: [new TextRun({ text, bold: isHeader })] })],
+    });
 
   const children: any[] = [
     new Paragraph({
@@ -424,6 +529,18 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
       children.push(new Paragraph({ text: b.text, heading: HEADING_LEVELS[b.level] || HeadingLevel.HEADING_3 }));
     } else if (b.type === "paragraph") {
       children.push(new Paragraph({ children: [new TextRun(b.text)] }));
+    } else if (b.type === "table") {
+      const rows: any[] = [];
+      if (b.headers.some((h) => h)) {
+        rows.push(new TableRow({ children: b.headers.map((h) => makeCell(h, true)) }));
+      }
+      for (const row of b.rows) {
+        rows.push(new TableRow({ children: row.map((cell) => makeCell(cell, false)) }));
+      }
+      if (rows.length > 0) {
+        children.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows }));
+        children.push(new Paragraph({ text: "" }));
+      }
     } else if (b.type === "list") {
       for (const item of b.items) {
         children.push(
