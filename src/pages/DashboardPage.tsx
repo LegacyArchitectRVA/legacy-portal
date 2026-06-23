@@ -297,7 +297,7 @@ export default function DashboardPage() {
       {/* Chapter Cards */}
       <div className="space-y-4">
         <h2 className="font-heading text-lg text-[#e8e6e1]">Chapters</h2>
-        <div className="grid gap-4">
+        <div className="grid gap-4 md:grid-cols-2">
           {chapterProgress.map((ch) => {
             const accessible = isAdmin || canAccessChapter(tier, ch.chapterNumber);
 

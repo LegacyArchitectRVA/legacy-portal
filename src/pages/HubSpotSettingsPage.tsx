@@ -88,7 +88,7 @@ export default function HubSpotSettingsPage() {
         </div>
         <button
           onClick={() => navigate("/admin")}
-          className="text-sm text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1"
+          className="text-sm text-gold-muted hover:text-gold-primary transition-colors flex items-center gap-1 shrink-0 whitespace-nowrap"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Admin

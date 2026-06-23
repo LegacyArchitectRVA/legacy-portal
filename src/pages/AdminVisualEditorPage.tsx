@@ -268,7 +268,7 @@ export default function AdminVisualEditorPage() {
       </div>
 
       {/* Page switcher */}
-      <div className="flex items-center gap-1.5 px-4 py-2.5 bg-black/60 border-b border-gold-border/20 overflow-x-auto">
+      <div className="flex items-center gap-1.5 px-4 py-2.5 bg-black/60 border-b border-gold-border/20 flex-wrap">
         {[
           { id: "landing" as const, label: "Landing Page" },
           { id: "dashboard" as const, label: "Dashboard" },

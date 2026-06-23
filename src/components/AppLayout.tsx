@@ -34,7 +34,7 @@ export function AppLayout() {
           <ThemeToggleButton />
         </header>
         <LegalDocsBar />
-        <main className="flex-1 p-4 pb-24 lg:p-6 lg:pb-24">
+        <main className="flex-1 p-4 pb-24 md:p-6 md:pb-24 lg:p-8 lg:pb-24">
           <Outlet />
         </main>
         <FloatingChatButton />
