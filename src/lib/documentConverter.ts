@@ -143,21 +143,388 @@ export async function parseWord(file: File): Promise<ParsedDocument> {
   return parseHtmlString(result.value, file.name.replace(/\.[^.]+$/, ""));
 }
 
+/**
+ * A real AFFiNE export is a SQLite database (workspace + per-page Yjs
+ * CRDT snapshots), not JSON. An earlier version of this parser assumed
+ * JSON based on a guess at the format; testing against real exported
+ * .affine files showed that guess was wrong, hence this rewrite. The
+ * old JSON-shaped parsing is kept as parseAffineLegacyJson below, as a
+ * defensive fallback for any export path that genuinely does produce
+ * JSON, since it costs nothing to keep and a real file always matches
+ * the SQLite check first.
+ */
 export async function parseAffine(file: File): Promise<ParsedDocument> {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  const isSqlite =
+    bytes.length > 16 && new TextDecoder().decode(bytes.slice(0, 16)) === "SQLite format 3\0";
+  if (isSqlite) return parseAffineSqlite(bytes, file.name);
+  return parseAffineLegacyJson(file);
+}
+
+/**
+ * Parses a real AFFiNE workspace export: a SQLite database whose
+ * `snapshots` table holds one Yjs CRDT document per row, one of which
+ * is the workspace root (a `meta` shared type listing every page by
+ * id/title) and the rest are individual pages (a `blocks` shared type
+ * holding that page's content, BlockSuite's actual schema).
+ *
+ * BlockSuite stores blocks flat in one Y.Map keyed by block id, not as
+ * nested objects — the document tree is reconstructed by following
+ * each block's sys:children array of child block ids. Properties are
+ * namespaced: sys:* for structural fields (id, flavour, children),
+ * prop:* for content (text, type, columns, etc). None of this is
+ * publicly documented, so this was built by decoding real exported
+ * .affine files directly rather than guessing.
+ */
+async function parseAffineSqlite(bytes: Uint8Array, fileName: string): Promise<ParsedDocument> {
+  const initSqlJs = (await import("sql.js")).default;
+  const Y = await import("yjs");
+  const SQL = await initSqlJs({ locateFile: (f: string) => `/${f}` });
+  const db = new SQL.Database(bytes);
+
+  let snapshotRows: any[][] = [];
+  try {
+    const result = db.exec("SELECT doc_id, data FROM snapshots");
+    snapshotRows = result[0]?.values || [];
+  } finally {
+    db.close();
+  }
+  if (snapshotRows.length === 0) {
+    throw new Error("This AFFiNE file doesn't contain any readable documents.");
+  }
+
+  let workspaceName = "";
+  let pageRegistry: { id: string; title: string; trash?: boolean }[] = [];
+  const pageDocs = new Map<string, any>();
+
+  for (const [docId, data] of snapshotRows) {
+    const ydoc = new Y.Doc();
+    try {
+      Y.applyUpdate(ydoc, data instanceof Uint8Array ? data : new Uint8Array(data));
+    } catch {
+      continue; // Corrupt or unreadable snapshot — skip rather than fail the whole file.
+    }
+    if (ydoc.share.has("meta")) {
+      const meta = ydoc.getMap("meta");
+      const name = meta.get("name");
+      if (typeof name === "string") workspaceName = name;
+      const pagesArr = meta.get("pages");
+      if (pagesArr) {
+        pageRegistry = (pagesArr.toArray?.() || []).map((p: any) =>
+          p && typeof p.toJSON === "function" ? p.toJSON() : p
+        );
+      }
+    } else if (ydoc.share.has("blocks")) {
+      pageDocs.set(docId, ydoc);
+    }
+  }
+
+  // Build the cross-reference registry before walking any content, so
+  // links can resolve regardless of which page they appear on.
+  const slugByPageId = new Map<string, string>();
+  const slugByTitle = new Map<string, string>();
+  const titleByPageId = new Map<string, string>();
+  for (const p of pageRegistry) {
+    if (p.trash || !p.title) continue;
+    const slug = slugify(p.title);
+    slugByPageId.set(p.id, slug);
+    slugByTitle.set(p.title.trim().toLowerCase(), slug);
+    titleByPageId.set(p.id, p.title);
+  }
+
+  // Prefer the workspace's own page order; fall back to snapshot order
+  // for any page that's somehow missing from the registry.
+  const orderedIds =
+    pageRegistry.length > 0
+      ? [
+          ...pageRegistry.filter((p) => !p.trash && pageDocs.has(p.id)).map((p) => p.id),
+          ...[...pageDocs.keys()].filter((id) => !pageRegistry.some((p) => p.id === id)),
+        ]
+      : [...pageDocs.keys()];
+
+  const blocks: Block[] = [];
+  for (const pageId of orderedIds) {
+    const ydoc = pageDocs.get(pageId);
+    if (!ydoc) continue;
+    walkAffinePage(ydoc.getMap("blocks"), blocks, slugByPageId, slugByTitle, titleByPageId, Y);
+  }
+
+  if (blocks.length === 0) {
+    throw new Error("No recognizable content found in this AFFiNE file.");
+  }
+  linkKnownTitles(blocks, slugByTitle);
+
+  return { title: workspaceName || fileName.replace(/\.[^.]+$/, ""), blocks };
+}
+
+/** Resolves a BlockSuite YText into plain text, converting any inline page-reference into a markdown link. */
+function affineTextOf(ytext: any, slugByPageId: Map<string, string>): string {
+  if (!ytext) return "";
+  const delta = typeof ytext.toDelta === "function" ? ytext.toDelta() : null;
+  if (!delta) return typeof ytext === "string" ? ytext : ytext.toString?.() || "";
+  return delta
+    .map((d: any) => {
+      const ref = d?.attributes?.reference;
+      if (ref) {
+        const slug = (ref.pageId && slugByPageId.get(ref.pageId)) || (ref.title && slugify(ref.title));
+        const label = ref.title || "linked section";
+        if (slug) return `[${label}](#${slug})`;
+        return label; // Reference target not found — keep the label as plain text rather than dropping it.
+      }
+      return d?.insert ?? "";
+    })
+    .join("");
+}
+
+/** Walks one page's flat block map starting from its root affine:page block. */
+function walkAffinePage(
+  blockMap: any,
+  out: Block[],
+  slugByPageId: Map<string, string>,
+  slugByTitle: Map<string, string>,
+  titleByPageId: Map<string, string>,
+  Y: any
+) {
+  let pageBlock: any = null;
+  for (const block of blockMap.values()) {
+    if (block?.get?.("sys:flavour") === "affine:page") {
+      pageBlock = block;
+      break;
+    }
+  }
+  if (!pageBlock) return;
+
+  const pageTitle = affineTextOf(pageBlock.get("prop:title"), slugByPageId) || "Untitled";
+  const slug = slugify(pageTitle);
+  slugByTitle.set(pageTitle.trim().toLowerCase(), slug);
+  out.push({ type: "heading", level: 1, text: pageTitle, id: slug });
+
+  const childIds: string[] = (pageBlock.get("sys:children")?.toArray?.() || []) as string[];
+  for (const childId of childIds) {
+    const child = blockMap.get(childId);
+    const flavour = child?.get?.("sys:flavour");
+    // affine:note holds the actual document content; affine:surface is
+    // the whiteboard canvas, not relevant to a linear document export.
+    if (flavour === "affine:note") {
+      walkAffineChildren(
+        blockMap,
+        child.get("sys:children")?.toArray?.() || [],
+        out,
+        slugByPageId,
+        slugByTitle,
+        titleByPageId,
+        Y
+      );
+    }
+  }
+}
+
+/** Walks a list of sibling block ids in document order, grouping consecutive list items together. */
+function walkAffineChildren(
+  blockMap: any,
+  childIds: string[],
+  out: Block[],
+  slugByPageId: Map<string, string>,
+  slugByTitle: Map<string, string>,
+  titleByPageId: Map<string, string>,
+  Y: any
+) {
+  let pendingList: { ordered: boolean; items: string[] } | null = null;
+  const flushList = () => {
+    if (pendingList && pendingList.items.length > 0) out.push({ type: "list", ...pendingList });
+    pendingList = null;
+  };
+
+  for (const id of childIds) {
+    const block = blockMap.get(id);
+    if (!block?.get) continue;
+    const flavour = block.get("sys:flavour");
+    const grandchildren = block.get("sys:children")?.toArray?.() || [];
+
+    if (flavour === "affine:list") {
+      const text = affineTextOf(block.get("prop:text"), slugByPageId);
+      const ordered = block.get("prop:type") === "numbered";
+      if (!pendingList || pendingList.ordered !== ordered) {
+        flushList();
+        pendingList = { ordered, items: [] };
+      }
+      if (text) pendingList.items.push(text);
+      // Nested sub-items (indented children of a list item) are
+      // flattened into the same list rather than dropped, since a
+      // slightly-flattened list beats losing the content entirely.
+      if (grandchildren.length) {
+        walkAffineChildren(blockMap, grandchildren, out, slugByPageId, slugByTitle, titleByPageId, Y);
+      }
+      continue;
+    }
+    flushList();
+
+    if (flavour === "affine:paragraph" || flavour === "affine:edgeless-text") {
+      const text = affineTextOf(block.get("prop:text"), slugByPageId);
+      const headingType = block.get("prop:type");
+      const headingMatch = typeof headingType === "string" && headingType.match(/^h([1-6])$/);
+      if (headingMatch) {
+        if (text) out.push({ type: "heading", level: Math.min(Number(headingMatch[1]) + 1, 6) as any, text });
+      } else if (text) {
+        out.push({ type: "paragraph", text });
+      }
+    } else if (flavour === "affine:divider") {
+      out.push({ type: "hr" });
+    } else if (flavour === "affine:callout") {
+      const text = affineTextOf(block.get("prop:text"), slugByPageId);
+      if (text) out.push({ type: "paragraph", text });
+    } else if (flavour === "affine:table") {
+      const table = extractAffineTableBlock(block);
+      if (table) out.push({ type: "table", ...table });
+    } else if (flavour === "affine:database") {
+      const table = extractAffineDatabaseBlock(block, blockMap, slugByPageId, Y);
+      if (table) out.push({ type: "table", ...table });
+    } else if (flavour === "affine:embed-linked-doc" || flavour === "affine:embed-synced-doc") {
+      const pageId = block.get("prop:pageId");
+      const slug = pageId && slugByPageId.get(pageId);
+      const label = (pageId && titleByPageId.get(pageId)) || "Linked page";
+      if (slug) out.push({ type: "paragraph", text: `[${label}](#${slug})` });
+    } else if (flavour === "affine:bookmark" || flavour?.startsWith("affine:embed-")) {
+      const title = block.get("prop:title");
+      const url = block.get("prop:url");
+      if (url) out.push({ type: "paragraph", text: title ? `[${title}](${url})` : String(url) });
+    } else if (flavour === "affine:image") {
+      const caption = block.get("prop:caption");
+      if (caption) out.push({ type: "paragraph", text: `[Image: ${caption}]` });
+    } else if (flavour === "affine:latex") {
+      const tex = block.get("prop:latex");
+      if (tex) out.push({ type: "paragraph", text: String(tex) });
+    } else if (flavour === "affine:frame" || flavour === "affine:surface") {
+      // Whiteboard-only grouping constructs, not document content.
+    } else {
+      // Unknown flavour — try whatever text-like property exists
+      // rather than silently dropping the block.
+      const fallback =
+        affineTextOf(block.get("prop:text"), slugByPageId) ||
+        affineTextOf(block.get("prop:title"), slugByPageId);
+      if (fallback) out.push({ type: "paragraph", text: fallback });
+    }
+
+    if (grandchildren.length && flavour !== "affine:list") {
+      walkAffineChildren(blockMap, grandchildren, out, slugByPageId, slugByTitle, titleByPageId, Y);
+    }
+  }
+  flushList();
+}
+
+/**
+ * Extracts an affine:table block. Unlike affine:database, the header
+ * row isn't structurally distinct — it's stored as an ordinary row,
+ * identified only by being first in sort order, exactly like a plain
+ * spreadsheet. Row/column order is a fractional-index string (plain
+ * lexicographic comparison sorts correctly by design).
+ *
+ * Confirmed by decoding real exported .affine files directly: despite
+ * looking like nested objects, prop:rows/prop:columns/prop:cells are
+ * NOT real nested Y.Maps here — BlockSuite flattens them into dot-
+ * separated string keys directly on the block itself (e.g. the literal
+ * key "prop:cells.abc123:def456.text"). This is genuinely inconsistent
+ * with how affine:database stores its columns/cells as real nested
+ * structures, but it's what real exports actually contain.
+ */
+function extractAffineTableBlock(block: any): { headers: string[]; rows: string[][] } | null {
+  const rowOrder = new Map<string, string>();
+  const colOrder = new Map<string, string>();
+  const cellText = new Map<string, any>();
+
+  for (const key of block.keys()) {
+    let m = key.match(/^prop:rows\.([^.]+)\.order$/);
+    if (m) {
+      rowOrder.set(m[1], block.get(key));
+      continue;
+    }
+    m = key.match(/^prop:columns\.([^.]+)\.order$/);
+    if (m) {
+      colOrder.set(m[1], block.get(key));
+      continue;
+    }
+    m = key.match(/^prop:cells\.([^.:]+):([^.]+)\.text$/);
+    if (m) {
+      cellText.set(`${m[1]}:${m[2]}`, block.get(key));
+      continue;
+    }
+  }
+
+  const rowIds = [...rowOrder.entries()].sort((a, b) => (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0)).map((r) => r[0]);
+  const colIds = [...colOrder.entries()].sort((a, b) => (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0)).map((c) => c[0]);
+  if (rowIds.length === 0 || colIds.length === 0) return null;
+
+  const textAt = (rowId: string, colId: string): string => cellText.get(`${rowId}:${colId}`)?.toString?.() ?? "";
+  const [headerRowId, ...dataRowIds] = rowIds;
+  const headers = colIds.map((c) => textAt(headerRowId, c));
+  const rows = dataRowIds.map((r) => colIds.map((c) => textAt(r, c)));
+  return { headers, rows };
+}
+
+/**
+ * Extracts an affine:database block (BlockSuite's other table type,
+ * used for kanban/grid views). Each row is a real child block whose
+ * own text is the first column; prop:columns/prop:cells supply any
+ * additional structured columns, including resolving select-type
+ * values from an option id to its display label.
+ */
+function extractAffineDatabaseBlock(
+  block: any,
+  blockMap: any,
+  slugByPageId: Map<string, string>,
+  Y: any
+): { headers: string[]; rows: string[][] } | null {
+  const columns = block.get("prop:columns")?.toArray?.() || [];
+  const columnDefs = columns.map((c: any) => (c && typeof c.toJSON === "function" ? c.toJSON() : c));
+  const rowIds: string[] = block.get("sys:children")?.toArray?.() || [];
+  if (rowIds.length === 0) return null;
+
+  const cellsMap = block.get("prop:cells");
+  const resolveCell = (rowId: string, col: any): string => {
+    const raw = cellsMap?.get?.(rowId)?.[col.id] ?? cellsMap?.get?.(rowId)?.get?.(col.id);
+    const value = raw?.value ?? raw?.get?.("value");
+    if (value == null) return "";
+    if (col.type === "select" && typeof value === "string") {
+      return col.data?.options?.find((o: any) => o.id === value)?.value ?? "";
+    }
+    if (col.type === "multi-select" && Array.isArray(value)) {
+      return value.map((v) => col.data?.options?.find((o: any) => o.id === v)?.value ?? "").join(", ");
+    }
+    if (Array.isArray(value)) return ""; // e.g. member lists — not meaningful as flat text
+    if (typeof value === "object") return ""; // e.g. a single member reference — same reasoning
+    return String(value);
+  };
+
+  const headers = ["", ...columnDefs.map((c: any) => c.name || "")];
+  const rows = rowIds.map((rowId) => {
+    const titleBlock = blockMap.get(rowId);
+    const title = titleBlock?.get ? affineTextOf(titleBlock.get("prop:text"), slugByPageId) : "";
+    return [title, ...columnDefs.map((c: any) => resolveCell(rowId, c))];
+  });
+  return { headers, rows };
+}
+
+/**
+ * Older, JSON-shaped parsing kept as a fallback for any AFFiNE export
+ * path that isn't the SQLite format real exports use. Not verified
+ * against any actual export — there's no confirmed case that produces
+ * this shape — but it costs nothing to keep as a defensive second
+ * attempt rather than failing outright on an unrecognized JSON file.
+ */
+async function parseAffineLegacyJson(file: File): Promise<ParsedDocument> {
   const text = await file.text();
   let affineData: any;
   try {
     affineData = JSON.parse(text);
   } catch {
-    throw new Error("Invalid AFFiNE file: not valid JSON.");
+    throw new Error(
+      "This doesn't look like an AFFiNE export — it's neither a SQLite workspace file nor valid JSON."
+    );
   }
   const blocks: Block[] = [];
   const pages = affineData.pages || [affineData];
 
-  // AFFiNE's real export format identifies block kind via `flavour`
-  // (e.g. "affine:paragraph", "affine:table") rather than a plain
-  // `type` field. Older/simplified exports may use `type` directly.
-  // Check both so this doesn't silently match nothing.
   const kindOf = (block: any): string => {
     const raw = block.flavour || block.type || "";
     return raw.replace(/^affine:/, "");
