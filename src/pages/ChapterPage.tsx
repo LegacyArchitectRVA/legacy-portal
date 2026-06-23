@@ -237,7 +237,13 @@ function SectionAccordion({
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h3 className="font-heading text-sm text-[#e8e6e1]">{section.title}</h3>
+            <h3 className="font-heading text-sm text-[#e8e6e1]">
+              <EditableText
+                cmsKey={`chapter_${chapterId}_section_${section.id}_title`}
+                fallback={section.title}
+                as="span"
+              />
+            </h3>
             {/* Mini progress bar */}
             <div className="flex items-center gap-2 mt-1">
               <div className="h-1 flex-1 max-w-[120px] bg-[#1a1a1a] rounded-full overflow-hidden">
@@ -270,7 +276,13 @@ function SectionAccordion({
             </div>
           )}
           {section.description && (
-            <p className="text-xs text-[#e8e6e1]/80 leading-relaxed">{section.description}</p>
+            <p className="text-xs text-[#e8e6e1]/80 leading-relaxed">
+              <EditableText
+                cmsKey={`chapter_${chapterId}_section_${section.id}_desc`}
+                fallback={section.description}
+                as="span"
+              />
+            </p>
           )}
 
           {/* Standalone fields (textarea, text, checkbox) */}
@@ -379,7 +391,13 @@ function SectionAccordion({
                 <div className="bg-black rounded-lg border border-gold-primary/30 p-3 space-y-2">
                   {section.tableColumns.map((col) => (
                     <div key={col.key}>
-                      <label className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-wider">{col.label}</label>
+                      <label className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-wider">
+                        <EditableText
+                          cmsKey={`chapter_${chapterId}_section_${section.id}_col_${col.key}`}
+                          fallback={col.label}
+                          as="span"
+                        />
+                      </label>
                       <input
                         type="text"
                         className="w-full bg-[#0a0a0a] border border-gold-border/30 rounded px-2 py-1.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/35 focus:border-gold-primary/50 focus:outline-none mt-0.5"
@@ -418,7 +436,13 @@ function SectionAccordion({
                         <div key={row.rowId} className="bg-black rounded-lg border border-gold-primary/30 p-3 space-y-2">
                           {section.tableColumns.map((col) => (
                             <div key={col.key}>
-                              <label className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-wider">{col.label}</label>
+                              <label className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-wider">
+                                <EditableText
+                                  cmsKey={`chapter_${chapterId}_section_${section.id}_col_${col.key}`}
+                                  fallback={col.label}
+                                  as="span"
+                                />
+                              </label>
                               <input
                                 type="text"
                                 className="w-full bg-[#0a0a0a] border border-gold-border/30 rounded px-2 py-1.5 text-sm text-[#e8e6e1] focus:border-gold-primary/50 focus:outline-none mt-0.5"
@@ -453,7 +477,13 @@ function SectionAccordion({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {section.tableColumns.map((col) => (
                             <div key={col.key}>
-                              <span className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-wider">{col.label}</span>
+                              <span className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-wider">
+                                <EditableText
+                                  cmsKey={`chapter_${chapterId}_section_${section.id}_col_${col.key}`}
+                                  fallback={col.label}
+                                  as="span"
+                                />
+                              </span>
                               <p className="text-sm text-[#e8e6e1]/80 mt-0.5">
                                 {data[col.key] || <span className="text-[#e8e6e1]/35 italic">Empty</span>}
                               </p>

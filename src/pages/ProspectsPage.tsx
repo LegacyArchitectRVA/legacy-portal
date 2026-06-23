@@ -105,7 +105,7 @@ export default function ProspectsPage() {
         Back to Admin
       </button>
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">Prospects</h1>
           <p className="text-[#e8e6e1]/75 mt-1 text-sm">

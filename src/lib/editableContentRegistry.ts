@@ -5,6 +5,8 @@
  * been customized yet) read from here, so they can never drift out of
  * sync with each other.
  */
+import { chapters } from "../data/chapters";
+
 export const EDITABLE_DEFAULTS: Record<string, string> = {
   landing_hero_title: "When You Can't Be There,\nWill They Know What To Do?",
   landing_hero_subtitle:
@@ -83,6 +85,26 @@ export const EDITABLE_DEFAULTS: Record<string, string> = {
   manual_view_title: "Life Manual",
 };
 
+/**
+ * Chapter section titles, descriptions, and table column headers are
+ * the actual core content of the Life Manual itself — derived here
+ * directly from chapters.ts rather than transcribed by hand, so this
+ * can never drift out of sync with what the live pages actually show.
+ * Covers all 7 chapters' subsections in one pass.
+ */
+const CHAPTER_CONTENT_DEFAULTS: Record<string, string> = {};
+for (const chapter of chapters) {
+  CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_shorttitle`] = chapter.shortTitle;
+  CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_chapterdesc`] = chapter.description;
+  for (const section of chapter.subSections) {
+    CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_section_${section.id}_title`] = section.title;
+    CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_section_${section.id}_desc`] = section.description;
+    for (const col of section.tableColumns) {
+      CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_section_${section.id}_col_${col.key}`] = col.label;
+    }
+  }
+}
+
 export function getEditableDefault(key: string): string {
-  return EDITABLE_DEFAULTS[key] || "";
+  return EDITABLE_DEFAULTS[key] || CHAPTER_CONTENT_DEFAULTS[key] || "";
 }

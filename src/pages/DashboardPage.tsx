@@ -343,7 +343,12 @@ export default function DashboardPage() {
                       />
                       <div>
                         <p className="text-sm font-heading" style={{ fontWeight: 600 }}>
-                          Ch. {ch.chapterNumber} · {ch.shortTitle}
+                          Ch. {ch.chapterNumber} ·{" "}
+                          <EditableText
+                            cmsKey={`chapter_${ch.id}_shorttitle`}
+                            fallback={ch.shortTitle}
+                            as="span"
+                          />
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {ch.completed}/{ch.fieldCount} fields
@@ -368,7 +373,11 @@ export default function DashboardPage() {
                   </div>
 
                   <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 min-h-[2.5rem]">
-                    {ch.description}
+                    <EditableText
+                      cmsKey={`chapter_${ch.id}_chapterdesc`}
+                      fallback={ch.description}
+                      as="span"
+                    />
                   </p>
 
                   <button
