@@ -320,6 +320,18 @@ export const deleteCMS = mutation({
       .withIndex("by_key", (q) => q.eq("key", key))
       .unique();
     if (existing) {
+      // Image entries store a storage id as their value — deleting just
+      // the row without also deleting the blob leaves it orphaned in
+      // storage forever, taking up space with nothing ever pointing to
+      // it again. updateCMSImage already protects against this on
+      // replace; resetting to default needs the same protection.
+      if (existing.metadata === "image") {
+        try {
+          await ctx.storage.delete(existing.value as Id<"_storage">);
+        } catch {
+          // Already gone or never a valid storage id — fine to ignore.
+        }
+      }
       await ctx.db.delete(existing._id);
     }
   },
