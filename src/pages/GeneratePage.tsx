@@ -270,6 +270,8 @@ export default function GeneratePage() {
 
           html += `    <div class="section"><h3>${sec.title}</h3>`;
 
+          const tableAlreadyShowedEmpty = !!(sec.tableColumns && sec.tableColumns.length > 0 && !hasTableData);
+
           if (sec.tableColumns && sec.tableColumns.length > 0) {
             if (hasTableData) {
               html += `<table><thead><tr>`;
@@ -297,7 +299,7 @@ export default function GeneratePage() {
                 if (!value) continue;
                 html += `<div class="field"><strong>${field.label}:</strong> <span>${escapeHtml(value)}</span></div>`;
               }
-            } else if (!hasTableData) {
+            } else if (!tableAlreadyShowedEmpty) {
               html += `<p class="empty-note">Not yet provided.</p>`;
             }
           }
