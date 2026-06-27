@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters, PRIVACY_NOTE } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
+import { LOGO_DATA_URI } from "../lib/brandAssets";
 
 function escapeHtml(s: string): string {
   return s
@@ -76,7 +77,7 @@ export default function GeneratePage() {
       padding: 2rem;
     }
     .cover .logo {
-      height: 70px;
+      height: 210px;
       margin-bottom: 1.25rem;
     }
     .cover h1 {
@@ -245,7 +246,7 @@ export default function GeneratePage() {
 </head>
 <body>
   <div class="cover">
-    <img class="logo" src="https://portal.legacyarchitectrva.com/logo.png" alt="" />
+    <img class="logo" src="${LOGO_DATA_URI}" alt="" />
     <h1>LIFE MANUAL</h1>
     <p class="subtitle">Legacy Architect RVA</p>
     <div class="cover-rule"></div>
