@@ -918,7 +918,7 @@ export function renderToHtml(doc: ParsedDocument): string {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { font-family: ${BRAND_FONT_BODY}; background: #0a0a0a; color: #e8e6e1; line-height: 1.65; padding: 3rem 2rem; max-width: 760px; margin: 0 auto; }
-    .logo { display: block; height: 192px; margin: 0 auto 1rem; }
+    .logo { display: block; height: 128px; margin: 0 auto 1rem; }
     .cover-title { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; font-size: 1.9rem; text-align: center; letter-spacing: 0.04em; text-transform: uppercase; background: linear-gradient(135deg, #e8c46a, #b8985a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.4rem; }
     .cover-meta { text-align: center; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(232,230,225,0.45); margin-bottom: 2.5rem; }
     .cover-rule { width: 90px; height: 1px; background: linear-gradient(90deg, transparent, #b8985a, transparent); margin: 0 auto 2.5rem; }
@@ -964,7 +964,7 @@ export function renderToPdf(doc: ParsedDocument) {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { font-family: ${BRAND_FONT_BODY}; font-size: 12.5pt; line-height: 1.55; color: #2a2218; background: #fdfcfa; padding: 0.9in 0.85in; }
-    .logo { display: block; height: 1.8in; margin: 0 auto 0.2in; }
+    .logo { display: block; height: 1.2in; margin: 0 auto 0.2in; }
     .cover-title { font-family: ${BRAND_FONT_HEAD}; font-size: 22pt; text-align: center; letter-spacing: 0.06em; color: #2d5a3d; text-transform: uppercase; margin-bottom: 0.06in; }
     .cover-meta { text-align: center; font-size: 9.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #5c7a63; margin-bottom: 0.45in; }
     .cover-rule { width: 1.4in; height: 1px; background: linear-gradient(90deg, transparent, #3a7350, transparent); margin: 0 auto 0.45in; }

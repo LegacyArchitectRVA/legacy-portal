@@ -77,7 +77,7 @@ export default function GeneratePage() {
       padding: 2rem;
     }
     .cover .logo {
-      height: 210px;
+      height: 140px;
       margin-bottom: 1.25rem;
     }
     .cover h1 {
@@ -122,8 +122,7 @@ export default function GeneratePage() {
       margin-top: 2rem;
     }
     .chapter {
-      page-break-before: always;
-      padding: 2rem;
+      padding: 2rem 2rem 0.5rem;
       border-bottom: 1px solid rgba(217, 204, 160, 0.08);
     }
     .chapter h2 {
@@ -133,6 +132,8 @@ export default function GeneratePage() {
       margin-bottom: 0.5rem;
       color: #d9cca0;
       letter-spacing: 0.02em;
+      page-break-after: avoid;
+      break-after: avoid;
     }
     .chapter .desc {
       font-size: 0.85rem;
@@ -142,6 +143,12 @@ export default function GeneratePage() {
     }
     .section {
       margin-bottom: 1.5rem;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    table {
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .section h3 {
       font-family: 'Cinzel', serif;
