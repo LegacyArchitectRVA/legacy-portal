@@ -918,9 +918,9 @@ export function renderToHtml(doc: ParsedDocument): string {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { font-family: ${BRAND_FONT_BODY}; background: #0a0a0a; color: #e8e6e1; line-height: 1.65; padding: 3rem 2rem; max-width: 760px; margin: 0 auto; }
-    .logo { display: block; height: 128px; margin: 0 auto 1rem; }
+    .logo { display: block; height: 160px; margin: 0 auto 1rem; }
     .cover-title { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; font-size: 1.9rem; text-align: center; letter-spacing: 0.04em; text-transform: uppercase; background: linear-gradient(135deg, #e8c46a, #b8985a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.4rem; }
-    .cover-meta { text-align: center; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(232,230,225,0.45); margin-bottom: 2.5rem; }
+    .cover-meta { text-align: center; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(232,230,225,0.45); margin-bottom: 2.5rem; }
     .cover-rule { width: 90px; height: 1px; background: linear-gradient(90deg, transparent, #b8985a, transparent); margin: 0 auto 2.5rem; }
     h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; letter-spacing: 0.02em; color: #d9cca0; margin: 2rem 0 0.85rem; }
     h1 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid rgba(217,204,160,0.25); padding-bottom: 0.6rem; }
@@ -930,13 +930,13 @@ export function renderToHtml(doc: ParsedDocument): string {
     ul, ol { margin-bottom: 1.1rem; padding-left: 1.5rem; }
     li { margin-bottom: 0.55rem; }
     hr { border: none; border-top: 1px solid rgba(217,204,160,0.18); margin: 2.25rem 0; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 1.75rem; font-size: 0.88rem; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
-    th, td { border: 1px solid rgba(217,204,160,0.18); padding: 0.6rem 0.85rem; text-align: left; vertical-align: top; }
-    th { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; color: #0a0a0a; background: linear-gradient(135deg, #e8c46a, #b8985a); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.04em; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.75rem; font-size: 1.05rem; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+    th, td { border: 1px solid rgba(217,204,160,0.18); padding: 0.7rem 0.95rem; text-align: left; vertical-align: top; }
+    th { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; color: #0a0a0a; background: linear-gradient(135deg, #e8c46a, #b8985a); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.04em; }
     tr:nth-child(even) td { background: rgba(217,204,160,0.03); }
     a { color: #e8c46a; text-decoration: none; border-bottom: 1px solid rgba(232,196,106,0.4); }
     a:hover { border-bottom-color: #e8c46a; }
-    footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(217,204,160,0.15); text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(217,204,160,0.55); }
+    footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(217,204,160,0.15); text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(217,204,160,0.55); }
   </style>
 </head>
 <body>
@@ -964,7 +964,7 @@ export function renderToPdf(doc: ParsedDocument) {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { font-family: ${BRAND_FONT_BODY}; font-size: 12.5pt; line-height: 1.55; color: #2a2218; background: #fdfcfa; padding: 0.9in 0.85in; }
-    .logo { display: block; height: 1.2in; margin: 0 auto 0.2in; }
+    .logo { display: block; height: 1.5in; margin: 0 auto 0.2in; }
     .cover-title { font-family: ${BRAND_FONT_HEAD}; font-size: 22pt; text-align: center; letter-spacing: 0.06em; color: #2d5a3d; text-transform: uppercase; margin-bottom: 0.06in; }
     .cover-meta { text-align: center; font-size: 9.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #5c7a63; margin-bottom: 0.45in; }
     .cover-rule { width: 1.4in; height: 1px; background: linear-gradient(90deg, transparent, #3a7350, transparent); margin: 0 auto 0.45in; }

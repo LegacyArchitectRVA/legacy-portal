@@ -239,50 +239,6 @@ const ch02: Chapter = {
       structuralRules: ["Confirm authority before disclosing sensitive information."],
     },
     {
-      id: "final_wishes",
-      title: "Final Wishes",
-      icon: "Heart",
-      description:
-        "This page is meant to share personal values, wishes, and context during a difficult and uncertain time.",
-      howToUse:
-        "Use this page to understand where specific wishes or personal guidance are documented.",
-      tableColumns: [],
-      fields: [
-        {
-          id: "care_preferences",
-          label: "Care Preferences",
-          type: "textarea",
-          placeholder:
-            "High-level thoughts about medical care, comfort, and quality-of-life decisions...",
-        },
-        {
-          id: "memorial_remembrance",
-          label: "Memorial & Remembrance",
-          type: "textarea",
-          placeholder:
-            "Personal preferences related to services, gatherings, remembrance...",
-        },
-        {
-          id: "personal_messages",
-          label: "Personal Messages",
-          type: "textarea",
-          placeholder: "Letters, reflections, or notes intended for loved ones...",
-        },
-        {
-          id: "sentimental_items",
-          label: "Items of Personal or Sentimental Importance",
-          type: "textarea",
-          placeholder:
-            "Guidance regarding meaningful belongings, keepsakes, or items of emotional significance...",
-        },
-      ],
-      structuralRules: [
-        "High-level intent, not legal detail.",
-        "These reflections are not legal instructions and are not a replacement for formal documents.",
-      ],
-      crossRefs: ["Identification Documents", "Medical Information", "Insurance Policies"],
-    },
-    {
       id: "first_48_hours",
       title: "First 48-Hours Plan",
       icon: "Clock",
@@ -368,7 +324,7 @@ const ch03: Chapter = {
   id: "financial",
   chapterNumber: 3,
   title: "Financial & Asset Orientation",
-  shortTitle: "Financial",
+  shortTitle: "Financial & Assets",
   description:
     "High-level map of accounts, institutions, beneficiaries, and ownership structures.",
   color: "#D4AF37",
@@ -650,6 +606,50 @@ const ch06: Chapter = {
   colorName: "purple",
   tier: "archive",
   subSections: [
+    {
+      id: "final_wishes",
+      title: "Final Wishes",
+      icon: "Heart",
+      description:
+        "This page is meant to share personal values, wishes, and context during a difficult and uncertain time.",
+      howToUse:
+        "Use this page to understand where specific wishes or personal guidance are documented.",
+      tableColumns: [],
+      fields: [
+        {
+          id: "care_preferences",
+          label: "Care Preferences",
+          type: "textarea",
+          placeholder:
+            "High-level thoughts about medical care, comfort, and quality-of-life decisions...",
+        },
+        {
+          id: "memorial_remembrance",
+          label: "Memorial & Remembrance",
+          type: "textarea",
+          placeholder:
+            "Personal preferences related to services, gatherings, remembrance...",
+        },
+        {
+          id: "personal_messages",
+          label: "Personal Messages",
+          type: "textarea",
+          placeholder: "Letters, reflections, or notes intended for loved ones...",
+        },
+        {
+          id: "sentimental_items",
+          label: "Items of Personal or Sentimental Importance",
+          type: "textarea",
+          placeholder:
+            "Guidance regarding meaningful belongings, keepsakes, or items of emotional significance...",
+        },
+      ],
+      structuralRules: [
+        "High-level intent, not legal detail.",
+        "These reflections are not legal instructions and are not a replacement for formal documents.",
+      ],
+      crossRefs: ["Identification Documents", "Medical Information", "Insurance Policies"],
+    },
     {
       id: "digital_narrative_control",
       title: "Digital & Narrative Control",
@@ -968,4 +968,28 @@ export function getSubSection(
 ): SubSection | undefined {
   const ch = getChapter(chapterId);
   return ch?.subSections.find((s) => s.id === sectionId);
+}
+
+// Resolves a crossRefs entry (a human-readable title) to where it actually
+// lives, so it can be rendered as a real link instead of plain text.
+// crossRefs sometimes name a specific subsection ("Identification Documents")
+// and sometimes name a whole chapter by its short title ("Digital Life") —
+// try the more specific match first.
+export function resolveCrossRef(
+  name: string,
+): { chapterId: string; sectionId?: string } | null {
+  const normalized = name.trim().toLowerCase();
+  for (const ch of chapters) {
+    for (const sec of ch.subSections) {
+      if (sec.title.toLowerCase() === normalized) {
+        return { chapterId: ch.id, sectionId: sec.id };
+      }
+    }
+  }
+  for (const ch of chapters) {
+    if (ch.shortTitle.toLowerCase() === normalized || ch.title.toLowerCase() === normalized) {
+      return { chapterId: ch.id };
+    }
+  }
+  return null;
 }

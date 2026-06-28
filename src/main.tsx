@@ -6,6 +6,20 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
 
+// After a new deploy, a page left open from before the deploy can still try to
+// load an old, now-renamed JS chunk (e.g. lazy-loaded route or wasm loader).
+// Cloudflare's SPA fallback then serves index.html for that missing asset
+// with a 200 status instead of a real 404, so the browser fails trying to
+// parse HTML as a JS module ("Failed to fetch dynamically imported module").
+// Vite emits `vite:preloadError` for exactly this case — reload once to pick
+// up the current build instead of showing the user a broken error screen.
+let reloadedForStaleChunk = false;
+window.addEventListener("vite:preloadError", () => {
+  if (reloadedForStaleChunk) return; // avoid a reload loop if something else is wrong
+  reloadedForStaleChunk = true;
+  window.location.reload();
+});
+
 // Convex URL for production
 // Cloudflare Pages injects this as a global variable
 // @ts-ignore - Cloudflare injects CONVEX_URL as a global
@@ -31,3 +45,4 @@ createRoot(document.getElementById("root")!).render(
     </ConvexAuthProvider>
   </StrictMode>,
 );
+

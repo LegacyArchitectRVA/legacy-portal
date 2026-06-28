@@ -139,6 +139,10 @@ export const getClientManualData = query({
       .query("sectionFields")
       .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
       .collect();
+    const legalDocs = await ctx.db
+      .query("legalDocuments")
+      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .collect();
 
     // Group rows by "chapterId:sectionId" -> array of parsed data objects
     const rowsBySection: Record<string, Record<string, string>[]> = {};
@@ -161,7 +165,13 @@ export const getClientManualData = query({
       fieldsBySection[key][field.fieldId] = field.value;
     }
 
-    return { rowsBySection, fieldsBySection };
+    return {
+      rowsBySection,
+      fieldsBySection,
+      legalDocuments: legalDocs
+        .filter((d) => d.inForce)
+        .map((d) => ({ documentType: d.documentType, notes: d.notes || "" })),
+    };
   },
 });
 

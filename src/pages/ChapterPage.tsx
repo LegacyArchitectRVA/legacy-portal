@@ -1,9 +1,9 @@
 import { useMutation, useQuery } from "convex/react";
 import { RiArrowLeftLine as ArrowLeft, RiCheckLine as Check, RiArrowDownSLine as ChevronDown, RiLoader4Line as Loader2, RiAddLine as Plus, RiSaveLine as Save, RiDeleteBinLine as Trash2, RiCloseLine as X } from "@remixicon/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { chapters, PRIVACY_NOTE, type SubSection } from "../data/chapters";
+import { chapters, PRIVACY_NOTE, resolveCrossRef, type SubSection } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LucideIcon } from "../components/LucideIcon";
 import { EditableText } from "../components/EditableText";
@@ -128,6 +128,7 @@ function SectionAccordion({
   onBehalfOf?: Id<"users">;
 }) {
   const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const rows = useQuery(api.sections.getRows, { chapterId, sectionId: section.id, onBehalfOf });
   const fields = useQuery(api.sections.getFields, { chapterId, sectionId: section.id, onBehalfOf });
   const addRow = useMutation(api.sections.addRow);
@@ -151,6 +152,20 @@ function SectionAccordion({
   const fieldsFilled = Object.keys(fieldsObj).filter((k) => (fieldsObj as Record<string, string>)[k]).length;
   const completed = rowCount + fieldsFilled;
   const pct = totalFieldCount > 0 ? Math.round((completed / totalFieldCount) * 100) : 0;
+
+  // If a Related Sections link (or a deep link) targets this exact section,
+  // open it and scroll it into view. Runs on mount and on same-page hash changes.
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === `#${section.id}`) {
+        setOpen(true);
+        setTimeout(() => rootRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+      }
+    };
+    checkHash();
+    window.addEventListener("hashchange", checkHash);
+    return () => window.removeEventListener("hashchange", checkHash);
+  }, [section.id]);
 
   // Init field drafts from server data
   useEffect(() => {
@@ -220,7 +235,7 @@ function SectionAccordion({
   };
 
   return (
-    <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/50 overflow-hidden">
+    <div ref={rootRef} id={section.id} className="bg-[#0a0a0a] rounded-xl border border-gold-border/50 overflow-hidden">
       {/* Accordion Header */}
       <button
         type="button"
@@ -522,8 +537,61 @@ function SectionAccordion({
               )}
             </div>
           )}
+
+          {/* Related Sections (crossRefs) */}
+          {section.crossRefs && section.crossRefs.length > 0 && (
+            <div className="pt-2 border-t border-gold-border/20">
+              <h4 className="text-[10px] uppercase tracking-widest text-gold-muted font-heading mb-2">
+                Related Sections
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {section.crossRefs.map((refName) => (
+                  <CrossRefLink key={refName} name={refName} currentChapterId={chapterId} onBehalfOf={onBehalfOf} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
+  );
+}
+
+function CrossRefLink({
+  name,
+  currentChapterId,
+  onBehalfOf,
+}: {
+  name: string;
+  currentChapterId: string;
+  onBehalfOf?: Id<"users">;
+}) {
+  const navigate = useNavigate();
+  const target = resolveCrossRef(name);
+
+  if (!target) {
+    // No resolvable match — render as plain text rather than a dead link.
+    return <span className="text-xs text-[#e8e6e1]/75 px-2.5 py-1">{name}</span>;
+  }
+
+  const suffix = onBehalfOf ? `?for=${onBehalfOf}` : "";
+  const hash = target.sectionId ? `#${target.sectionId}` : "";
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        if (target.chapterId === currentChapterId && target.sectionId) {
+          // Same chapter — just update the hash; the matching accordion listens for it.
+          window.location.hash = target.sectionId;
+          window.dispatchEvent(new HashChangeEvent("hashchange"));
+        } else {
+          navigate(`/chapter/${target.chapterId}${suffix}${hash}`);
+        }
+      }}
+      className="text-xs text-gold-primary hover:text-gold-bright bg-gold-dark/10 hover:bg-gold-dark/20 px-2.5 py-1 rounded-full transition-colors"
+    >
+      {name} &rarr;
+    </button>
   );
 }
