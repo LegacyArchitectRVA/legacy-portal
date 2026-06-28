@@ -179,7 +179,19 @@ export default function GeneratePage() {
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    @page { margin: 0.6in 0.55in; }
+    @page {
+      margin: 0.6in 0.55in;
+      @bottom-center {
+        content: "${(client?.userName || "Client").replace(/"/g, '\\"')}'s Life Manual   |   Page " counter(page) " of " counter(pages);
+        font-family: 'Libre Baskerville', serif;
+        font-size: 8px;
+        color: #8a8a8a;
+        letter-spacing: 0.02em;
+      }
+    }
+    @page :first {
+      @bottom-center { content: none; }
+    }
     html { overflow-x: hidden; }
     img { max-width: 100%; }
     body {
@@ -206,7 +218,21 @@ export default function GeneratePage() {
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: rgba(217, 204, 160, 0.55);
-      margin-bottom: 2.5rem;
+      margin-bottom: 1.1rem;
+    }
+    .cover-disclosure {
+      max-width: 480px;
+      margin: 1.1rem auto 0;
+      font-size: 0.58rem;
+      line-height: 1.38;
+      color: rgba(217, 204, 160, 0.45);
+      text-align: left;
+    }
+    .cover-disclosure p {
+      margin-bottom: 0.4rem;
+    }
+    .cover-disclosure p:last-child {
+      margin-bottom: 0;
     }
     .cover .logo {
       height: 175px;
@@ -296,7 +322,7 @@ export default function GeneratePage() {
     }
     .section h3 {
       font-family: 'Cinzel', serif;
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 500;
       color: #e8e6e1;
       margin-bottom: 0.5rem;
@@ -322,7 +348,7 @@ export default function GeneratePage() {
     }
     .data-card-title {
       font-family: 'Cinzel', serif;
-      font-size: 1.45rem;
+      font-size: 1.3rem;
       font-weight: 600;
       color: #e8c46a;
       margin-bottom: 0.65rem;
@@ -429,7 +455,9 @@ export default function GeneratePage() {
     @media print {
       .cover { height: auto; min-height: 100vh; box-shadow: inset 0 0 0 1px rgba(45,90,61,0.35); }
       .cover .confidential { color: #1f3d2a; font-size: 0.81rem; }
-      .cover .logo { height: 350px; }
+      .cover-disclosure { color: #4a4a4a; }
+      .intro-subhead { color: #0a0a0a; font-weight: 700; }
+      .cover .logo { height: 240px; }
       body { background: white; color: black; }
       .cover { background: white; color: #0a0a0a; }
       .chapter { page-break-before: always; border-bottom: none; }
@@ -443,9 +471,9 @@ export default function GeneratePage() {
       .cover .meta { font-size: 0.98rem; }
       .chapter h2 { color: #0a0a0a; font-size: 1.73rem; }
       .chapter .desc { color: #4a4a4a; font-size: 1.21rem; }
-      .section h3 { color: #0a0a0a; font-weight: 700; font-size: 1.5rem; }
+      .section h3 { color: #0a0a0a; font-weight: 700; font-size: 1.84rem; }
       .data-card { background: #f7f5ee; border-color: #ddd3ad; border-left-color: #2d5a3d; box-shadow: none; }
-      .data-card-title { color: #0a0a0a; font-weight: 700; font-size: 1.67rem; }
+      .data-card-title { color: #0a0a0a; font-weight: 700; font-size: 1.5rem; }
       .data-card-label { color: #1f3d2a; font-size: 0.81rem; font-weight: 700; }
       .data-card-value { color: #0a0a0a; font-weight: 600; font-size: 1.24rem; }
       .field { color: rgba(10,10,10,0.85); font-size: 1.21rem; }
@@ -529,6 +557,14 @@ export default function GeneratePage() {
       padding-top: 0.1rem;
       margin: 0 0.12em 0 0;
     }
+    .intro-subhead {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #e8c46a;
+      margin: 1.5rem 0 0.6rem;
+      letter-spacing: 0.02em;
+    }
     .roadmap h3 {
       font-family: 'Cinzel', serif;
       font-size: 1.32rem;
@@ -595,8 +631,30 @@ export default function GeneratePage() {
     <p class="client-name">${client?.userName || "Client"}</p>
     <p class="tier">${tierInfo?.name || tier} Edition</p>
     <p class="meta">Prepared ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+    <div class="cover-disclosure">
+      <p>This Life Manual is intended solely for the use and retention of the Client and their designated survivor. The information contained within has been provided by the Client and organized by Legacy Architect RVA into a comprehensive reference designed to assist the designated survivor when needed.</p>
+      <p>The contents of this Life Manual are confidential and are intended only for the Client and their designated survivor. Legacy Architect RVA does not authorize the disclosure, distribution, or release of this document or its contents to any other individual or entity without the Client's express permission.</p>
+      <p>To protect the Client's privacy, Legacy Architect RVA does not retain copies of the information contained in this Life Manual following its completion and delivery.</p>
+    </div>
   </div>
+`;
 
+      // ── Introduction ──
+      html += `
+  <div class="chapter" id="introduction">
+    <a class="back-to-toc" href="#toc">&uarr; Table of Contents</a>
+    <h2>Introduction</h2>
+    <p class="intro-text intro-lead">${linkify(`This Life Manual brings together the accounts, systems, contacts, and instructions identified by the Client into a single, organized reference to help a designated survivor manage important affairs with confidence and clarity.`, refIndex, "#introduction")}</p>
+    <p class="intro-text">${linkify(`This manual is intended to be read in the following order: this Introduction, Legal Documents in Force, the Successor Roadmap, and then each chapter in sequence.`, refIndex, "#introduction")}</p>
+    <p class="intro-text">Nothing in this document replaces formal legal, financial, tax, or professional advice. Where a chapter references a legal document, attorney, financial advisor, or other professional, that source should be considered the authoritative reference.</p>
+    <h3 class="intro-subhead">Confidentiality &amp; Privacy Notice</h3>
+    <p class="privacy-note">This Life Manual contains confidential information provided by the Client and is intended solely for the Client and their designated survivor. Legacy Architect RVA has organized this information into a comprehensive reference for the Client's benefit but does not claim ownership of the information contained herein. To protect the Client's privacy, Legacy Architect RVA does not retain copies of the completed Life Manual or the personal information used to create it following its delivery. The contents of this manual should not be disclosed or distributed without the Client's permission.</p>
+    <p class="privacy-note">This Life Manual provides high-level orientation and location guidance throughout. It does not contain passwords, security codes, recovery keys, full account numbers, or other sensitive credentials. Nothing in this manual replaces formal legal or professional advice. Refer to original records and trusted advisors as appropriate.</p>
+    <div class="flourish">&#10070;</div>
+  </div>
+`;
+
+  html += `
   <div class="toc" id="toc">
     <h2>Table of Contents</h2>
     <div class="toc-chapter"><a href="#introduction">Introduction</a></div>
@@ -616,18 +674,6 @@ export default function GeneratePage() {
       }
 
       html += `  </div>
-`;
-
-      // ── Introduction ──
-      html += `
-  <div class="chapter" id="introduction">
-    <a class="back-to-toc" href="#toc">&uarr; Table of Contents</a>
-    <h2>Introduction</h2>
-    <p class="intro-text intro-lead">${linkify(`This Life Manual puts every account, system, and instruction that ${client?.userName || "the client"} identified in one place, organized so a successor can act on it directly without having to guess or search. It is meant to be read in order: this introduction, Legal Documents in Force, the Successor Roadmap, and then each chapter in turn.`, refIndex, "#introduction")}</p>
-    <p class="intro-text">Nothing in this document replaces formal legal advice. Where a chapter references a legal document, attorney, or advisor, that contact should be treated as the authoritative source.</p>
-    <p class="privacy-note">This Life Manual provides high-level orientation and location guidance throughout. It does not contain passwords, security codes, recovery keys, full account numbers, or sensitive credentials. Nothing here replaces formal legal documents or professional advice. Refer to original records and trusted advisors as appropriate.</p>
-    <div class="flourish">&#10070;</div>
-  </div>
 `;
 
       // ── Legal Documents in Force ──
