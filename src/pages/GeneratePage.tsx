@@ -595,6 +595,27 @@ export default function GeneratePage() {
       text-decoration: none;
       margin-bottom: 0.75rem;
     }
+    .copy-ref-btn {
+      display: inline-block;
+      margin-left: 0.7em;
+      font-size: 0.55em;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(217,204,160,0.5);
+      background: transparent;
+      border: 1px solid rgba(217,204,160,0.3);
+      border-radius: 4px;
+      padding: 0.2em 0.55em;
+      cursor: pointer;
+      font-family: 'Libre Baskerville', serif;
+      vertical-align: middle;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .copy-ref-btn:hover { color: rgba(217,204,160,0.9); border-color: rgba(217,204,160,0.6); }
+    .copy-ref-btn.copied { color: #e8c46a; border-color: #e8c46a; }
+    @media print {
+      .copy-ref-btn { display: none; }
+    }
     .inline-ref {
       color: ${BRAND_GOLD_LIGHT};
       text-decoration: underline;
@@ -811,7 +832,7 @@ export default function GeneratePage() {
         html += `
   <div class="chapter" id="${ch.id}">
     <a class="back-to-toc" href="#toc">&uarr; Table of Contents</a>
-    <h2>Chapter ${ch.chapterNumber}: ${ch.title}</h2>
+    <h2>Chapter ${ch.chapterNumber}: ${ch.title}<button class="copy-ref-btn" data-copy-ref="${escapeHtml(`Chapter ${ch.chapterNumber}: ${ch.title}`)}">Copy Reference</button></h2>
     <p class="desc">${ch.description}</p>
 `;
         for (const sec of ch.subSections) {
@@ -821,7 +842,7 @@ export default function GeneratePage() {
           const hasTableData = realRows.length > 0;
           const hasFieldData = Object.keys(realFields).length > 0;
 
-          html += `    <div class="section" id="${ch.id}-${sec.id}"><h3>${sec.title}</h3>`;
+          html += `    <div class="section" id="${ch.id}-${sec.id}"><h3>${sec.title}<button class="copy-ref-btn" data-copy-ref="${escapeHtml(`Chapter ${ch.chapterNumber}: ${ch.title} \u2192 ${sec.title}`)}">Copy Reference</button></h3>`;
 
           const tableAlreadyShowedEmpty = !!(sec.tableColumns && sec.tableColumns.length > 0 && !hasTableData);
 
@@ -1044,10 +1065,18 @@ export default function GeneratePage() {
         return null;
       }
 
+      function headingText(el) {
+        if (!el) return '';
+        var clone = el.cloneNode(true);
+        var btn = clone.querySelector('button');
+        if (btn) btn.remove();
+        return clone.textContent.trim();
+      }
+
       function chapterLabel(el) {
         if (el.classList.contains('toc')) return 'Table of Contents';
         var h2 = el.querySelector('h2');
-        var heading = h2 ? h2.textContent.trim() : 'Life Manual';
+        var heading = h2 ? headingText(h2) : 'Life Manual';
         var refY = window.scrollY + 80;
         var sections = el.querySelectorAll('.section');
         var sectionLabel = null;
@@ -1055,7 +1084,7 @@ export default function GeneratePage() {
           var s = sections[i];
           if (s.offsetTop <= refY) {
             var h3 = s.querySelector('h3');
-            sectionLabel = h3 ? h3.textContent.trim() : null;
+            sectionLabel = h3 ? headingText(h3) : null;
           }
         }
         return sectionLabel ? heading + ' \u2014 ' + sectionLabel : heading;
@@ -1102,6 +1131,44 @@ export default function GeneratePage() {
         });
       });
     })();
+
+    // ── Copy Reference buttons ──
+    // Lets someone reading on screen grab a plain-text location (chapter +
+    // section name) to text or email someone else, e.g. an attorney looking
+    // at their own copy of the same file. A raw #anchor link isn't reliable
+    // here since this file is typically opened locally (file://) rather
+    // than from a shared URL, so a human-readable reference that works
+    // with Ctrl+F in anyone's copy is the more robust choice.
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.copy-ref-btn');
+      if (!btn) return;
+      var text = btn.getAttribute('data-copy-ref') || '';
+      var done = function () {
+        var original = 'Copy Reference';
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+      } else {
+        fallbackCopy(text, done);
+      }
+    });
+    function fallbackCopy(text, done) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      done();
+    }
   </script>
 </body>
 </html>`;
