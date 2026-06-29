@@ -490,6 +490,9 @@ export default function GeneratePage() {
     }
     .toc-chapter { margin-bottom: 1.1rem; }
     .toc-chapter > a {
+      display: flex;
+      width: 100%;
+      align-items: baseline;
       font-family: 'Cinzel', serif;
       font-size: 1.15rem;
       color: #e8c46a;
@@ -506,9 +509,20 @@ export default function GeneratePage() {
     }
     .toc-sections li { margin-bottom: 0.3rem; break-inside: avoid; }
     .toc-sections a {
+      display: flex;
+      width: 100%;
+      align-items: baseline;
       font-size: 1.04rem;
       color: rgba(232,230,225,0.85);
       text-decoration: none;
+    }
+    .toc-pagenum {
+      margin-left: auto;
+      padding-left: 1em;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 0.85em;
+      opacity: 0.65;
+      flex: 0 0 auto;
     }
     .toc-sections a:hover { color: #d9cca0; text-decoration: underline; }
     .back-to-toc {
@@ -578,6 +592,7 @@ export default function GeneratePage() {
     }
     @media print {
       .toc-chapter > a { color: #0a0a0a; font-weight: 700; }
+      .toc-pagenum { opacity: 1; color: #4a4a4a; }
       .toc-sections a { color: #4a4a4a; }
       .back-to-toc { display: none; }
       .inline-ref { color: inherit; text-decoration: underline; text-decoration-color: #2d5a3d; }
@@ -762,6 +777,87 @@ export default function GeneratePage() {
     <p class="footer-meta">legacyarchitectrva.com<br>help@legacyarchitectrva.com &middot; (804) 866-1320</p>
     <div class="footer-qr-wrap"><img class="footer-qr" src="${QR_CODE_DATA_URI}" alt="" /></div>
   </div>
+  <script>
+    window.computeTocPageNumbers = function() {
+      var PAGE_HEIGHT_PX = 9.8 * 96; // Letter height minus 0.6in top+bottom @page margins, at 96 CSS px/in
+      var sectionPage = new Map(); // section/chapter/toc element -> page number where it starts
+      var page = 2; // the cover always occupies exactly page 1 (page-break-after:always, min-height:100vh)
+
+      var topLevel = Array.prototype.slice.call(document.querySelectorAll('.toc, .chapter'));
+      for (var t = 0; t < topLevel.length; t++) {
+        var el = topLevel[t];
+        sectionPage.set(el, page);
+        if (el.classList.contains('toc')) {
+          page += Math.max(1, Math.ceil(el.offsetHeight / PAGE_HEIGHT_PX));
+          continue;
+        }
+        // Simulate atomic-unit pagination within this chapter, since cards have
+        // page-break-inside:avoid and can leave a gap at the bottom of a page,
+        // which simple total-height division doesn't account for. Chapters that
+        // don't use the .section/.data-card structure (Introduction, Legal
+        // Documents, Successor Roadmap) fall back to simple height division.
+        var sections = el.querySelectorAll('.section');
+        if (sections.length === 0) {
+          page += Math.max(1, Math.ceil(el.offsetHeight / PAGE_HEIGHT_PX));
+          continue;
+        }
+        var units = [];
+        for (var s = 0; s < sections.length; s++) {
+          var sectionEl = sections[s];
+          var heading = sectionEl.querySelector('h3');
+          var cards = sectionEl.querySelectorAll('.data-card');
+          if (cards.length > 0) {
+            for (var c = 0; c < cards.length; c++) {
+              units.push({
+                sectionEl: sectionEl,
+                isFirst: c === 0,
+                top: (c === 0 && heading ? heading : cards[c]).getBoundingClientRect().top,
+              });
+            }
+          } else {
+            units.push({ sectionEl: sectionEl, isFirst: true, top: sectionEl.getBoundingClientRect().top });
+          }
+        }
+        var chapterHeading = el.querySelector('h2');
+        var startTop = chapterHeading ? chapterHeading.getBoundingClientRect().top : el.getBoundingClientRect().top;
+        var chapterBottom = el.getBoundingClientRect().bottom;
+        var currentPage = page;
+        var used = 0;
+        var lastTop = startTop;
+        for (var u = 0; u < units.length; u++) {
+          var nextTop = (u + 1 < units.length) ? units[u + 1].top : chapterBottom;
+          var unitHeight = Math.max(0, nextTop - units[u].top) + (u === 0 ? (units[u].top - startTop) : 0);
+          if (used > 0 && used + unitHeight > PAGE_HEIGHT_PX) {
+            currentPage += 1;
+            used = 0;
+          }
+          if (units[u].isFirst && !sectionPage.has(units[u].sectionEl)) {
+            sectionPage.set(units[u].sectionEl, currentPage);
+          }
+          used += unitHeight;
+        }
+        page = used > 0 ? currentPage + 1 : currentPage;
+      }
+
+      var links = document.querySelectorAll('.toc-chapter > a, .toc-sections a');
+      for (var j = 0; j < links.length; j++) {
+        var link = links[j];
+        var href = link.getAttribute('href');
+        if (!href || href.charAt(0) !== '#') continue;
+        var target = document.getElementById(href.slice(1));
+        if (!target) continue;
+        var pageNum = sectionPage.get(target) || sectionPage.get(target.closest('.toc, .chapter'));
+        if (!pageNum) continue;
+        var existing = link.querySelector('.toc-pagenum');
+        if (existing) existing.remove();
+        var span = document.createElement('span');
+        span.className = 'toc-pagenum';
+        span.textContent = String(pageNum);
+        link.appendChild(span);
+      }
+    };
+    window.addEventListener('beforeprint', window.computeTocPageNumbers);
+  </script>
 </body>
 </html>`;
 
