@@ -199,6 +199,10 @@ export default function GeneratePage() {
       background: #000000;
       color: #e8e6e1;
       line-height: 1.6;
+      padding-bottom: 2.5rem;
+    }
+    @media print {
+      body { padding-bottom: 0; }
     }
     .cover {
       page-break-after: always;
@@ -473,6 +477,49 @@ export default function GeneratePage() {
       .privacy-note { color: #595959; border-left-color: #ccc; font-size: 1.09rem; }
     }
     html { scroll-behavior: smooth; }
+    .print-measure-mode {
+      position: fixed;
+      top: 0;
+      left: -99999px;
+      width: 710px;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .print-measure-mode .chapter h2 { font-size: 1.95rem; }
+    .print-measure-mode .chapter .desc { font-size: 1.21rem; }
+    .print-measure-mode .section h3 { font-size: 1.6rem; }
+    .print-measure-mode .data-card-title { font-size: 1.5rem; }
+    .print-measure-mode .data-card-label { font-size: 1.15rem; }
+    .print-measure-mode .data-card-value { font-size: 1.09rem; }
+    .print-measure-mode .field { font-size: 1.09rem; }
+    .print-measure-mode .field strong { font-size: 1.15rem; }
+    .print-measure-mode .empty-note { font-size: 1.15rem; }
+    .print-measure-mode .toc h2 { font-size: 1.95rem; }
+    .print-measure-mode .toc-chapter > a { font-size: 1.04rem; }
+    .print-measure-mode .toc-sections a { font-size: 0.95rem; }
+    .screen-page-indicator {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(10, 8, 6, 0.92);
+      border-top: 1px solid rgba(217, 204, 160, 0.25);
+      color: rgba(232, 230, 225, 0.85);
+      font-family: 'Libre Baskerville', serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      padding: 0.55rem 1.25rem;
+      text-align: center;
+      z-index: 9998;
+      backdrop-filter: blur(4px);
+    }
+    .screen-page-indicator strong {
+      color: #e8c46a;
+      font-weight: 600;
+    }
+    @media print {
+      .screen-page-indicator, .print-measure-mode { display: none; }
+    }
     .toc {
       padding: 2.5rem 2rem;
       page-break-before: always;
@@ -857,6 +904,155 @@ export default function GeneratePage() {
       }
     };
     window.addEventListener('beforeprint', window.computeTocPageNumbers);
+
+    // ── Screen page indicator ──
+    // Shows a live "you are here" footer on screen that estimates which PDF
+    // page the current scroll position corresponds to, so someone viewing
+    // the HTML and someone viewing the printed PDF can reference the same
+    // spot. Print CSS only applies during an actual print action, so to
+    // estimate this while just scrolling on screen, we measure against a
+    // hidden clone with the print font-sizes/width applied directly (see
+    // .print-measure-mode rules above). If those print sizes ever change,
+    // update the matching .print-measure-mode rule too.
+    (function () {
+      var PAGE_HEIGHT_PX = 9.8 * 96;
+      var chapterMeta = []; // { real, startPage, pageCount }
+
+      function buildMeasureClone() {
+        var clone = document.createElement('div');
+        clone.className = 'print-measure-mode';
+        var realChapters = Array.prototype.slice.call(document.querySelectorAll('.toc, .chapter'));
+        var clonedNodes = realChapters.map(function (el) { return el.cloneNode(true); });
+        clonedNodes.forEach(function (n) { clone.appendChild(n); });
+        document.body.appendChild(clone);
+
+        var page = 2; // cover is always exactly page 1
+        for (var i = 0; i < clonedNodes.length; i++) {
+          var cloneEl = clonedNodes[i];
+          var realEl = realChapters[i];
+          var startPage = page;
+          if (cloneEl.classList.contains('toc')) {
+            page += Math.max(1, Math.ceil(cloneEl.offsetHeight / PAGE_HEIGHT_PX));
+            chapterMeta.push({ real: realEl, startPage: startPage, pageCount: page - startPage });
+            continue;
+          }
+          var sections = cloneEl.querySelectorAll('.section');
+          if (sections.length === 0) {
+            page += Math.max(1, Math.ceil(cloneEl.offsetHeight / PAGE_HEIGHT_PX));
+            chapterMeta.push({ real: realEl, startPage: startPage, pageCount: page - startPage });
+            continue;
+          }
+          // Same atomic-unit simulation as computeTocPageNumbers: walk card by
+          // card so a page-break-inside:avoid card that doesn't fit on the
+          // current page is correctly counted as starting a new one.
+          var units = [];
+          for (var s = 0; s < sections.length; s++) {
+            var sectionEl = sections[s];
+            var heading = sectionEl.querySelector('h3');
+            var cards = sectionEl.querySelectorAll('.data-card');
+            if (cards.length > 0) {
+              for (var c = 0; c < cards.length; c++) {
+                units.push({ top: (c === 0 && heading ? heading : cards[c]).getBoundingClientRect().top });
+              }
+            } else {
+              units.push({ top: sectionEl.getBoundingClientRect().top });
+            }
+          }
+          var chapterHeading = cloneEl.querySelector('h2');
+          var startTop = chapterHeading ? chapterHeading.getBoundingClientRect().top : cloneEl.getBoundingClientRect().top;
+          var chapterBottom = cloneEl.getBoundingClientRect().bottom;
+          var currentPage = page;
+          var used = 0;
+          for (var u = 0; u < units.length; u++) {
+            var nextTop = (u + 1 < units.length) ? units[u + 1].top : chapterBottom;
+            var unitHeight = Math.max(0, nextTop - units[u].top) + (u === 0 ? (units[u].top - startTop) : 0);
+            if (used > 0 && used + unitHeight > PAGE_HEIGHT_PX) {
+              currentPage += 1;
+              used = 0;
+            }
+            used += unitHeight;
+          }
+          page = used > 0 ? currentPage + 1 : currentPage;
+          chapterMeta.push({ real: realEl, startPage: startPage, pageCount: page - startPage });
+        }
+        clone.remove();
+      }
+
+      function currentChapterAndFraction() {
+        var refY = window.scrollY + 80;
+        for (var i = 0; i < chapterMeta.length; i++) {
+          var el = chapterMeta[i].real;
+          var top = el.offsetTop;
+          var bottom = top + el.offsetHeight;
+          if (refY >= top && refY < bottom) {
+            var fraction = (refY - top) / Math.max(1, el.offsetHeight);
+            return { meta: chapterMeta[i], fraction: Math.min(0.999, Math.max(0, fraction)) };
+          }
+        }
+        if (chapterMeta.length && refY < chapterMeta[0].real.offsetTop) {
+          return { meta: chapterMeta[0], fraction: 0 };
+        }
+        return null;
+      }
+
+      function chapterLabel(el) {
+        if (el.classList.contains('toc')) return 'Table of Contents';
+        var h2 = el.querySelector('h2');
+        var heading = h2 ? h2.textContent.trim() : 'Life Manual';
+        var refY = window.scrollY + 80;
+        var sections = el.querySelectorAll('.section');
+        var sectionLabel = null;
+        for (var i = 0; i < sections.length; i++) {
+          var s = sections[i];
+          if (s.offsetTop <= refY) {
+            var h3 = s.querySelector('h3');
+            sectionLabel = h3 ? h3.textContent.trim() : null;
+          }
+        }
+        return sectionLabel ? heading + ' \u2014 ' + sectionLabel : heading;
+      }
+
+      var totalPages = null;
+      function update() {
+        var result = currentChapterAndFraction();
+        var bar = document.getElementById('screen-page-indicator');
+        if (!bar) return;
+        if (!result) {
+          bar.innerHTML = '<strong>Life Manual</strong>';
+          return;
+        }
+        var meta = result.meta;
+        var estPage = meta.startPage + Math.floor(result.fraction * meta.pageCount);
+        var label = chapterLabel(meta.real);
+        bar.innerHTML = label + ' &nbsp;&middot;&nbsp; <strong>Page ' + estPage + (totalPages ? ' of ' + totalPages : '') + ' (PDF)</strong>';
+      }
+
+      var ticking = false;
+      function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function () { update(); ticking = false; });
+      }
+
+      window.addEventListener('load', function () {
+        var bar = document.createElement('div');
+        bar.id = 'screen-page-indicator';
+        bar.className = 'screen-page-indicator';
+        document.body.appendChild(bar);
+        buildMeasureClone();
+        if (chapterMeta.length) {
+          var last = chapterMeta[chapterMeta.length - 1];
+          totalPages = last.startPage + last.pageCount - 1;
+        }
+        update();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', function () {
+          chapterMeta = [];
+          buildMeasureClone();
+          update();
+        });
+      });
+    })();
   </script>
 </body>
 </html>`;
