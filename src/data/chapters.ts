@@ -231,10 +231,11 @@ const ch02: Chapter = {
       howToUse:
         "Use this table to determine: Who to call, When to involve them, Where their documents are stored.",
       tableColumns: [
-        { key: "name", label: "Name / Role", width: "20%" },
-        { key: "scope", label: "Authority Scope", width: "25%" },
-        { key: "trigger", label: "Trigger for Involvement", width: "25%" },
-        { key: "documents", label: "Where Documents Live", width: "30%" },
+        { key: "name", label: "Name / Role", width: "18%" },
+        { key: "phone", label: "Phone Number", width: "15%" },
+        { key: "scope", label: "Authority Scope", width: "20%" },
+        { key: "trigger", label: "Trigger for Involvement", width: "22%" },
+        { key: "documents", label: "Where Documents Live", width: "25%" },
       ],
       structuralRules: ["Confirm authority before disclosing sensitive information."],
     },

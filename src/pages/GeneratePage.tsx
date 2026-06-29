@@ -174,6 +174,14 @@ export default function GeneratePage() {
       );
       const refIndex = buildRefIndex(accessibleChapters);
 
+      // Quick Reference data — pulled from existing entries (Emergency
+      // Contacts, Legal Documents, First 48-Hours Plan) rather than a new
+      // form; needed both for the TOC entry and the section itself.
+      const qrPrimaryContact = (manualData?.rowsBySection["emergency:emergency_contacts"] || [])[0];
+      const qrWill = (manualData?.legalDocuments || []).find((d: any) => d.documentType === "Will" && d.inForce);
+      const qrFirstStep = manualData?.fieldsBySection["emergency:first_48_hours"]?.["crisis_step1"];
+      const showQuickReference = !!(qrPrimaryContact || qrWill || qrFirstStep);
+
       let html = `
 <!DOCTYPE html>
 <html>
@@ -690,6 +698,41 @@ export default function GeneratePage() {
   </div>
 `;
 
+      // ── Quick Reference ──
+      if (showQuickReference) {
+        html += `
+  <div class="chapter" id="quick-reference">
+    <h2>Quick Reference</h2>
+    <p class="desc">The essentials, for when there isn't time to read further. For complete information, see Emergency Contacts, Legal Documents in Force, and the Successor Roadmap.</p>
+    <div class="data-cards">
+`;
+        if (qrPrimaryContact) {
+          html += `<div class="data-card">
+      <div class="data-card-title">Primary Contact</div>
+      ${qrPrimaryContact.name ? `<div class="data-card-row"><span class="data-card-label">Name / Role</span><span class="data-card-value">${escapeHtml(qrPrimaryContact.name)}</span></div>` : ""}
+      ${qrPrimaryContact.phone ? `<div class="data-card-row"><span class="data-card-label">Phone Number</span><span class="data-card-value">${escapeHtml(qrPrimaryContact.phone)}</span></div>` : ""}
+      ${qrPrimaryContact.trigger ? `<div class="data-card-row"><span class="data-card-label">When to Involve</span><span class="data-card-value">${escapeHtml(qrPrimaryContact.trigger)}</span></div>` : ""}
+    </div>`;
+        }
+        if (qrWill) {
+          html += `<div class="data-card">
+      <div class="data-card-title">Will &amp; Key Documents</div>
+      ${qrWill.notes ? `<div class="data-card-row"><span class="data-card-label">Notes</span><span class="data-card-value">${escapeHtml(qrWill.notes)}</span></div>` : ""}
+    </div>`;
+        }
+        if (qrFirstStep) {
+          html += `<div class="data-card">
+      <div class="data-card-title">First Step</div>
+      <div class="data-card-row"><span class="data-card-label">Secure the Home</span><span class="data-card-value">${escapeHtml(qrFirstStep)}</span></div>
+    </div>`;
+        }
+        html += `
+    </div>
+    <div class="flourish">&#10070;</div>
+  </div>
+`;
+      }
+
       // ── Introduction ──
       html += `
   <div class="chapter" id="introduction">
@@ -708,6 +751,7 @@ export default function GeneratePage() {
   html += `
   <div class="toc" id="toc">
     <h2>Table of Contents</h2>
+    ${showQuickReference ? `<div class="toc-chapter"><a href="#quick-reference">Quick Reference</a></div>` : ""}
     <div class="toc-chapter"><a href="#introduction">Introduction</a></div>
     <div class="toc-chapter"><a href="#legal-documents">Legal Documents in Force</a></div>
     <div class="toc-chapter"><a href="#successor-roadmap">Successor Roadmap</a></div>
