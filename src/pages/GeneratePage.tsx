@@ -152,7 +152,7 @@ export default function GeneratePage() {
   if (!isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <p className="text-[${BRAND_OFFWHITE}]/75">Admin access required.</p>
+        <p className="text-[#e8e6e1]/75">Admin access required.</p>
       </div>
     );
   }
@@ -1079,7 +1079,7 @@ export default function GeneratePage() {
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       <button
         onClick={() => navigate("/admin")}
-        className="flex items-center gap-2 text-sm text-[${BRAND_OFFWHITE}]/80 hover:text-gold-primary transition-colors"
+        className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Admin
@@ -1087,23 +1087,23 @@ export default function GeneratePage() {
 
       <div>
         <h1 className="font-heading text-3xl text-gold-gradient">Generate Life Manual</h1>
-        <p className="text-[${BRAND_OFFWHITE}]/75 mt-2">
+        <p className="text-[#e8e6e1]/75 mt-2">
           Generate a formatted Life Manual for a client. The manual includes all completed data
           from their portal organized by chapter.
         </p>
       </div>
 
       {/* Client Selection */}
-      <div className="bg-[${BRAND_BLACK}] rounded-xl border border-gold-border p-5 space-y-4">
+      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
         <div>
-          <label className="text-xs text-[${BRAND_OFFWHITE}]/75 uppercase tracking-wider font-heading">Select Client</label>
+          <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading">Select Client</label>
           <select
             value={selectedClient}
             onChange={(e) => {
               setSelectedClient(e.target.value);
               setGeneratedHtml(null);
             }}
-            className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[${BRAND_OFFWHITE}] focus:border-gold-primary/50 focus:outline-none mt-1 appearance-none cursor-pointer"
+            className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] focus:border-gold-primary/50 focus:outline-none mt-1 appearance-none cursor-pointer"
           >
             <option value="">Choose a client...</option>
             {clients?.map((c: any) => (
@@ -1118,7 +1118,7 @@ export default function GeneratePage() {
           <button
             onClick={handleGenerate}
             disabled={generating || manualData === undefined}
-            className="flex items-center gap-2 bg-gradient-to-r from-[${BRAND_CREAM}] to-[#b89f6b] text-[${BRAND_BLACK}] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {generating || manualData === undefined ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -1132,19 +1132,19 @@ export default function GeneratePage() {
 
       {/* Generated Manual */}
       {generatedHtml && (
-        <div className="bg-[${BRAND_BLACK}] rounded-xl border border-gold-border p-5 space-y-4">
+        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
           <div className="flex items-center gap-2 text-gold-primary">
             <FileText className="w-5 h-5" />
             <h3 className="font-heading text-lg">Manual Generated</h3>
           </div>
-          <p className="text-sm text-[${BRAND_OFFWHITE}]/75">
+          <p className="text-sm text-[#e8e6e1]/75">
             Life Manual for {client?.userName} has been generated. Download the HTML file,
             then open it in a browser and print to PDF for a polished output.
           </p>
           <div className="flex gap-3">
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 bg-gradient-to-r from-[${BRAND_CREAM}] to-[#b89f6b] text-[${BRAND_BLACK}] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity"
+              className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity"
             >
               <Download className="w-4 h-4" /> Download HTML
             </button>
@@ -1152,7 +1152,7 @@ export default function GeneratePage() {
 
           <div className="bg-black rounded-lg border border-gold-border/20 p-3 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-            <p className="text-xs text-[${BRAND_OFFWHITE}]/80">
+            <p className="text-xs text-[#e8e6e1]/80">
               After delivery, all files and access are purged. Your information stays with you.
             </p>
           </div>
