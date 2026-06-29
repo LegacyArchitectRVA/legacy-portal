@@ -1,6 +1,7 @@
 import { marked } from "marked";
 import JSZip from "jszip";
 import { LOGO_DATA_URI } from "./brandAssets";
+import { BRAND_FONT_HEAD, BRAND_FONT_BODY, GOOGLE_FONTS_LINK, BRAND_BLACK, BRAND_OFFWHITE, BRAND_GOLD, BRAND_GOLD_LIGHT, BRAND_CREAM, TAGLINE } from "./brandTokens";
 
 // ─────────────────────────────────────────────────────────────
 // Common intermediate representation
@@ -18,10 +19,6 @@ export interface ParsedDocument {
   blocks: Block[];
 }
 
-const BRAND_FONT_HEAD = "Cinzel, serif";
-const BRAND_FONT_BODY = "'Libre Baskerville', serif";
-const GOOGLE_FONTS_LINK =
-  "https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap";
 
 function stripTags(html: string): string {
   return html.replace(/<[^>]+>/g, "").trim();
@@ -917,12 +914,12 @@ export function renderToHtml(doc: ParsedDocument): string {
   <link href="${GOOGLE_FONTS_LINK}" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    body { font-family: ${BRAND_FONT_BODY}; background: #0a0a0a; color: #e8e6e1; line-height: 1.65; padding: 3rem 2rem; max-width: 760px; margin: 0 auto; }
+    body { font-family: ${BRAND_FONT_BODY}; background: ${BRAND_BLACK}; color: ${BRAND_OFFWHITE}; line-height: 1.65; padding: 3rem 2rem; max-width: 760px; margin: 0 auto; }
     .logo { display: block; height: 160px; margin: 0 auto 1rem; }
-    .cover-title { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; font-size: 1.9rem; text-align: center; letter-spacing: 0.04em; text-transform: uppercase; background: linear-gradient(135deg, #e8c46a, #b8985a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.4rem; }
+    .cover-title { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; font-size: 1.9rem; text-align: center; letter-spacing: 0.04em; text-transform: uppercase; background: linear-gradient(135deg, ${BRAND_GOLD_LIGHT}, ${BRAND_GOLD}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.4rem; }
     .cover-meta { text-align: center; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(232,230,225,0.45); margin-bottom: 2.5rem; }
-    .cover-rule { width: 90px; height: 1px; background: linear-gradient(90deg, transparent, #b8985a, transparent); margin: 0 auto 2.5rem; }
-    h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; letter-spacing: 0.02em; color: #d9cca0; margin: 2rem 0 0.85rem; }
+    .cover-rule { width: 90px; height: 1px; background: linear-gradient(90deg, transparent, ${BRAND_GOLD}, transparent); margin: 0 auto 2.5rem; }
+    h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; letter-spacing: 0.02em; color: ${BRAND_CREAM}; margin: 2rem 0 0.85rem; }
     h1 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid rgba(217,204,160,0.25); padding-bottom: 0.6rem; }
     h2 { font-size: 1.25rem; }
     h3 { font-size: 1.05rem; color: #c4b896; }
@@ -932,10 +929,10 @@ export function renderToHtml(doc: ParsedDocument): string {
     hr { border: none; border-top: 1px solid rgba(217,204,160,0.18); margin: 2.25rem 0; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 1.75rem; font-size: 1.05rem; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
     th, td { border: 1px solid rgba(217,204,160,0.18); padding: 0.7rem 0.95rem; text-align: left; vertical-align: top; }
-    th { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; color: #0a0a0a; background: linear-gradient(135deg, #e8c46a, #b8985a); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.04em; }
+    th { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; color: ${BRAND_BLACK}; background: linear-gradient(135deg, ${BRAND_GOLD_LIGHT}, ${BRAND_GOLD}); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.04em; }
     tr:nth-child(even) td { background: rgba(217,204,160,0.03); }
-    a { color: #e8c46a; text-decoration: none; border-bottom: 1px solid rgba(232,196,106,0.4); }
-    a:hover { border-bottom-color: #e8c46a; }
+    a { color: ${BRAND_GOLD_LIGHT}; text-decoration: none; border-bottom: 1px solid rgba(232,196,106,0.4); }
+    a:hover { border-bottom-color: ${BRAND_GOLD_LIGHT}; }
     footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(217,204,160,0.15); text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(217,204,160,0.55); }
   </style>
 </head>
@@ -945,7 +942,7 @@ export function renderToHtml(doc: ParsedDocument): string {
   <div class="cover-meta">Prepared by Legacy Architect RVA &middot; ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</div>
   <div class="cover-rule"></div>
   ${blocksToInnerHtml(dedupeTitleBlock(doc))}
-  <footer>Order in Your Absence</footer>
+  <footer>${TAGLINE}</footer>
 </body>
 </html>`;
 }
@@ -992,7 +989,7 @@ export function renderToPdf(doc: ParsedDocument) {
   <div class="cover-meta">Prepared by Legacy Architect RVA &middot; ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</div>
   <div class="cover-rule"></div>
   ${blocksToInnerHtml(dedupeTitleBlock(doc))}
-  <div class="footer">Order in Your Absence</div>
+  <div class="footer">${TAGLINE}</div>
 </body>
 </html>`;
 
@@ -1165,11 +1162,11 @@ export async function renderToPngZip(
     for (let i = 0; i < pages.length; i++) {
       onProgress?.(i + 1, pages.length);
       container.innerHTML = `
-        <div style="width:1080px;min-height:1350px;background:#0a0a0a;color:#e8e6e1;font-family:${BRAND_FONT_BODY};padding:80px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;">
+        <div style="width:1080px;min-height:1350px;background:${BRAND_BLACK};color:${BRAND_OFFWHITE};font-family:${BRAND_FONT_BODY};padding:80px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;">
           <style>
-            h1,h2,h3 { font-family:${BRAND_FONT_HEAD}; color:#d9cca0; letter-spacing:0.02em; margin-bottom:24px; }
+            h1,h2,h3 { font-family:${BRAND_FONT_HEAD}; color:${BRAND_CREAM}; letter-spacing:0.02em; margin-bottom:24px; }
             h1 { font-size:56px; } h2 { font-size:44px; } h3 { font-size:34px; }
-            p { font-size:28px; line-height:1.5; margin-bottom:20px; color:#e8e6e1; }
+            p { font-size:28px; line-height:1.5; margin-bottom:20px; color:${BRAND_OFFWHITE}; }
             ul,ol { padding-left:40px; margin-bottom:20px; }
             li { font-size:28px; line-height:1.5; margin-bottom:14px; }
             hr { border:none; border-top:2px solid rgba(217,204,160,0.2); margin:30px 0; }
@@ -1183,7 +1180,7 @@ export async function renderToPngZip(
       // Load fonts before rasterizing
       await document.fonts.ready;
       const canvas = await html2canvas(container.firstElementChild as HTMLElement, {
-        backgroundColor: "#0a0a0a",
+        backgroundColor: BRAND_BLACK,
         scale: 1,
       });
       const blob: Blob = await new Promise((resolve) =>
