@@ -302,12 +302,13 @@ export default function GeneratePage() {
     }
     .chapter h2 {
       font-family: 'Cinzel', serif;
-      font-size: 1.5rem;
+      font-size: 1.7rem;
       font-weight: 600;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.45rem;
       color: #d9cca0;
-      letter-spacing: 0.02em;
-      text-decoration: underline;
+      letter-spacing: 0.015em;
+      border-bottom: 1.5px solid rgba(217, 204, 160, 0.35);
       page-break-after: avoid;
       break-after: avoid;
     }
@@ -322,7 +323,7 @@ export default function GeneratePage() {
     }
     .section h3 {
       font-family: 'Cinzel', serif;
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       font-weight: 500;
       color: #e8e6e1;
       margin-bottom: 0.5rem;
@@ -348,7 +349,7 @@ export default function GeneratePage() {
     }
     .data-card-title {
       font-family: 'Cinzel', serif;
-      font-size: 1.3rem;
+      font-size: 1.15rem;
       font-weight: 600;
       color: #e8c46a;
       margin-bottom: 0.65rem;
@@ -469,15 +470,15 @@ export default function GeneratePage() {
       .cover .client-name { font-size: 1.73rem; }
       .cover .tier { font-size: 1.09rem; opacity: 0.7; }
       .cover .meta { font-size: 0.98rem; }
-      .chapter h2 { color: #0a0a0a; font-size: 1.73rem; }
+      .chapter h2 { color: #0a0a0a; font-size: 1.95rem; border-bottom-color: #0a0a0a; }
       .chapter .desc { color: #4a4a4a; font-size: 1.21rem; }
-      .section h3 { color: #0a0a0a; font-weight: 700; font-size: 1.84rem; }
+      .section h3 { color: #0a0a0a; font-weight: 700; font-size: 1.6rem; }
       .data-card { background: #f7f5ee; border-color: #ddd3ad; border-left-color: #2d5a3d; box-shadow: none; }
-      .data-card-title { color: #0a0a0a; font-weight: 700; font-size: 1.5rem; }
+      .data-card-title { color: #0a0a0a; font-weight: 700; font-size: 1.32rem; }
       .data-card-label { color: #1f3d2a; font-size: 0.81rem; font-weight: 700; }
       .data-card-value { color: #0a0a0a; font-weight: 600; font-size: 1.24rem; }
-      .field { color: rgba(10,10,10,0.85); font-size: 1.21rem; }
-      .field strong { color: #0a0a0a; font-weight: 700; font-size: 1.04rem; }
+      .field { color: rgba(10,10,10,0.85); font-size: 1.21rem; font-weight: 600; }
+      .field strong { color: #1f3d2a; font-weight: 700; font-size: 1.04rem; }
       .empty, .empty-note { color: #6b6b6b; }
       .empty-note { font-size: 1.15rem; }
       .footer-tagline { color: #0a0a0a; font-weight: 700; font-size: 1.21rem; }
