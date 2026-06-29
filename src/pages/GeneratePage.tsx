@@ -6,6 +6,10 @@ import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LOGO_DATA_URI, QR_CODE_DATA_URI } from "../lib/brandAssets";
+// @ts-ignore - Vite raw-text import, used to embed the Paged.js polyfill so
+// the print-accurate preview works fully offline rather than depending on a
+// CDN at preview time.
+import PAGEDJS_POLYFILL from "../lib/pagedPolyfill.txt?raw";
 import { BRAND_FONT_HEAD, BRAND_FONT_BODY, GOOGLE_FONTS_LINK, BRAND_BLACK, BRAND_OFFWHITE, BRAND_GOLD, BRAND_GOLD_LIGHT, BRAND_CREAM, BRAND_GREEN_PRINT } from "../lib/brandTokens";
 
 function escapeHtml(s: string): string {
@@ -1075,6 +1079,77 @@ export default function GeneratePage() {
     URL.revokeObjectURL(url);
   };
 
+  /**
+   * Builds a second, separate rendering of the manual using Paged.js (a real
+   * pagination engine) instead of the hand-rolled JS estimate used in the
+   * main document's screen indicator. This is the only way to get genuinely
+   * accurate, dynamic page numbers and a running chapter name, since the
+   * browser's native print engine doesn't support target-counter() or
+   * string-set() for this (confirmed by direct testing). Kept as a separate
+   * on-demand preview rather than the default view, since Paged.js's preview
+   * model always renders using the print (light) styling, which would mean
+   * losing the dark/gold screen theme if it were the default experience.
+   */
+  const buildPrintAccurateVariant = (sourceHtml: string): string => {
+    const bodyMatch = sourceHtml.match(/<body>([\s\S]*)<\/body>/);
+    let body = bodyMatch ? bodyMatch[1] : "";
+    body = body.replace(/<div class="screen-page-indicator"[\s\S]*?<\/div>\s*<\/div>/, "");
+    body = body.replace(/<script>[\s\S]*?<\/script>/, "");
+
+    const styleMatch = sourceHtml.match(/<style>([\s\S]*)<\/style>/);
+    let css = styleMatch ? styleMatch[1] : "";
+    // This view's whole purpose is to preview the printed/PDF output, so the
+    // print-only rules apply unconditionally rather than staying gated behind
+    // @media print.
+    css = css.replace(/@media print\s*{([\s\S]*?)\n    }/, "$1");
+    css += `
+    .chapter h2, .toc h2 { string-set: chaptername content(); }
+    @page {
+      size: Letter;
+      margin: 0.6in 0.55in;
+      @top-left { content: string(chaptername); font-size: 9px; color: #8a8a8a; font-family: 'Libre Baskerville', serif; }
+    }
+    @page :first {
+      @top-left { content: none; }
+      @bottom-center { content: none; }
+    }
+    .toc-chapter > a, .toc-sections a { display: flex; width: 100%; align-items: baseline; }
+    .toc-chapter > a::after, .toc-sections a::after {
+      content: target-counter(attr(href), page);
+      margin-left: auto;
+      padding-left: 1em;
+      font-family: 'Libre Baskerville', serif;
+      font-size: 0.85em;
+      color: #4a4a4a;
+    }
+`;
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Print-Accurate Preview — ${client?.userName || "Client"}'s Life Manual</title>
+<style>
+${css}
+</style>
+</head>
+<body>
+${body}
+<script>
+${PAGEDJS_POLYFILL}
+</script>
+</body>
+</html>`;
+  };
+
+  const handleOpenPrintAccuratePreview = () => {
+    if (!generatedHtml) return;
+    const variant = buildPrintAccurateVariant(generatedHtml);
+    const blob = new Blob([variant], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       <button
@@ -1148,7 +1223,19 @@ export default function GeneratePage() {
             >
               <Download className="w-4 h-4" /> Download HTML
             </button>
+            <button
+              onClick={handleOpenPrintAccuratePreview}
+              className="flex items-center gap-2 bg-black border border-gold-border/40 text-[#e8e6e1] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:border-gold-primary/60 transition-colors"
+              title="Opens a separate preview with verified-accurate page numbers and a running chapter name, for confirming exact page references before sending to a client or attorney."
+            >
+              <BookOpen className="w-4 h-4" /> Print-Accurate Preview
+            </button>
           </div>
+          <p className="text-xs text-[#e8e6e1]/60">
+            Print-Accurate Preview opens a separate page-numbered rendering for double-checking exact page
+            references (e.g. before a call with a client's attorney). The downloaded HTML is the actual
+            deliverable; this preview is for verification only.
+          </p>
 
           <div className="bg-black rounded-lg border border-gold-border/20 p-3 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
