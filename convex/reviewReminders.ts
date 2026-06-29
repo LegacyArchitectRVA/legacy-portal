@@ -8,6 +8,14 @@ const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 const REMINDER_WINDOW_BEFORE_MS = 30 * 24 * 60 * 60 * 1000; // start reminding 30 days before due
 const REMINDER_WINDOW_AFTER_MS = 60 * 24 * 60 * 60 * 1000; // stop reminding 60 days after due if unresponsive
 
+interface DueReminder {
+  clientId: string;
+  tier: string;
+  dueDate: number;
+  email: string;
+  name: string | undefined;
+}
+
 function tierLabel(tier: string) {
   return tiers.find((t) => t.id === tier)?.name ?? tier;
 }
@@ -26,20 +34,14 @@ function tierReviewPriceLabel(tier: string) {
  */
 export const getClientsDueForReminder = internalQuery({
   args: {},
-  handler: async (ctx) => {
+  handler: async (ctx): Promise<DueReminder[]> => {
     const now = Date.now();
     const clients = await ctx.db
       .query("clients")
       .filter((q) => q.eq(q.field("deliveryStatus"), "delivered"))
       .collect();
 
-    const due: {
-      clientId: string;
-      tier: string;
-      dueDate: number;
-      email: string;
-      name: string | undefined;
-    }[] = [];
+    const due: DueReminder[] = [];
 
     for (const client of clients) {
       const anchor = client.lastReviewedAt ?? client.deliveryTimestamp;
@@ -143,8 +145,8 @@ Craig`;
  */
 export const sendDueReminders = internalAction({
   args: {},
-  handler: async (ctx) => {
-    const due = await ctx.runQuery(internal.reviewReminders.getClientsDueForReminder, {});
+  handler: async (ctx): Promise<{ checked: number; sent: number }> => {
+    const due: DueReminder[] = await ctx.runQuery(internal.reviewReminders.getClientsDueForReminder, {});
     let sent = 0;
     for (const item of due) {
       try {
