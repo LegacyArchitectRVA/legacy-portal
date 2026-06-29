@@ -42,7 +42,7 @@ const chapterDotColors: Record<string, string> = {
 
 // Short names matching original sidebar
 const chapterShortNames: Record<string, string> = {
-  digital: "Digital Access",
+  digital: "Digital Life",
   emergency: "Emergency",
   financial: "Financial",
   household: "Household",

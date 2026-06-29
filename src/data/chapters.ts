@@ -48,7 +48,7 @@ const PRIVACY_DISCLAIMER =
 const ch01: Chapter = {
   id: "digital",
   chapterNumber: 1,
-  title: "Digital & Access Systems",
+  title: "Digital Life",
   shortTitle: "Digital Life",
   description:
     "High-level map of digital systems. Linked sections define operational role, authority structure, recovery location, and transition handling.",

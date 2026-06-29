@@ -30,7 +30,7 @@ This roadmap provides your designated successor with a clear, sequential path to
 
 ## Phase 2: Short-Term Actions (Days 2-7)
 - Notify financial institutions listed in Chapter 3
-- Review all digital accounts in Chapter 1: Digital & Access Systems
+- Review all digital accounts in Chapter 1: Digital Life
 - Locate the Will, Trust, Power of Attorney, and any healthcare directives marked active, and contact the estate attorney where one is listed
 - Begin household continuity actions from Chapter 4
 
@@ -59,7 +59,7 @@ This roadmap provides your designated successor with a clear, sequential path to
 
 Use this checklist to ensure your Life Manual is complete and your successor is prepared.
 
-## Chapter 1: Digital & Access Systems
+## Chapter 1: Digital Life
 - [ ] All passwords documented in Password Manager section
 - [ ] Cloud storage accounts listed with access instructions
 - [ ] Email accounts catalogued with recovery information

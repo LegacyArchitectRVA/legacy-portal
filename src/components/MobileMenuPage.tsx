@@ -18,7 +18,7 @@ const chapterDotColors: Record<string, string> = {
 };
 
 const chapterShortNames: Record<string, string> = {
-  digital: "Digital Access",
+  digital: "Digital Life",
   emergency: "Emergency",
   financial: "Financial",
   household: "Household",

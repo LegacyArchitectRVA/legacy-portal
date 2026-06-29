@@ -85,7 +85,7 @@ This roadmap provides your designated successor with a clear, sequential path to
 
 ## Phase 2: Short-Term Actions (Days 2-7)
 - Notify financial institutions listed in Chapter 3
-- Review all digital accounts in Chapter 1: Digital & Access Systems
+- Review all digital accounts in Chapter 1: Digital Life
 - Locate the Will, Trust, Power of Attorney, and any healthcare directives marked active, and contact the estate attorney where one is listed
 - Begin household continuity actions from Chapter 4
 
@@ -243,6 +243,7 @@ export default function GeneratePage() {
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 100%;
       gap: 0.85rem;
       margin: 1.75rem 0;
       color: #b8985a;
@@ -448,8 +449,8 @@ export default function GeneratePage() {
       .cover { background: white; color: #0a0a0a; }
       .chapter { page-break-before: always; border-bottom: none; }
       .cover h1 { background: none; -webkit-text-fill-color: #0a0a0a; color: #0a0a0a; font-size: 2.88rem; }
-      .flourish { color: #2d5a3d; font-size: 0.75rem; }
-      .flourish::before, .flourish::after { background: linear-gradient(90deg, transparent, #3a7350, transparent); }
+      .flourish { color: #0a0a0a; font-size: 0.75rem; }
+      .flourish::before, .flourish::after { background: linear-gradient(90deg, transparent, #b8985a, transparent); }
       .cover .meta, .cover .subtitle { color: #0a0a0a; font-weight: 700; opacity: 1; }
       .cover .subtitle { font-size: 1.15rem; }
       .cover .client-name { font-size: 1.73rem; }
