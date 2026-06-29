@@ -18,9 +18,11 @@ export default function ClientDetailPage() {
   const addNote = useMutation(api.crm.addClientNote);
   const deleteNote = useMutation(api.crm.deleteClientNote);
   const sendMessage = useMutation(api.messages.sendMessage);
+  const markReviewComplete = useMutation(api.admin.markReviewComplete);
 
   const [noteText, setNoteText] = useState("");
   const [addingNote, setAddingNote] = useState(false);
+  const [markingReview, setMarkingReview] = useState(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   if (detail === undefined) {
@@ -193,6 +195,45 @@ export default function ClientDetailPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Annual Review */}
+      {detail.isClient && detail.deliveryStatus === "delivered" && detail.reviewDueDate && (
+        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
+          <h2 className="font-heading text-sm text-gold-primary flex items-center gap-2">
+            <Calendar className="w-4 h-4" /> Annual Review
+          </h2>
+          <p className="text-xs text-[#e8e6e1]/80">
+            {detail.lastReviewedAt ? "Last reviewed" : "Delivered"}{" "}
+            {new Date(detail.lastReviewedAt || detail.deliveryTimestamp || 0).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+            . Next review due{" "}
+            {new Date(detail.reviewDueDate).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+            . Reminder emails go out automatically starting 30 days before this date.
+          </p>
+          <button
+            onClick={async () => {
+              setMarkingReview(true);
+              try {
+                await markReviewComplete({ clientUserId: id });
+              } finally {
+                setMarkingReview(false);
+              }
+            }}
+            disabled={markingReview}
+            className="flex items-center gap-2 bg-black border border-gold-border/40 text-[#e8e6e1] font-heading text-sm font-semibold px-4 py-2 rounded-lg hover:border-gold-primary/60 transition-colors disabled:opacity-50"
+          >
+            {markingReview ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+            Mark Review Complete
+          </button>
         </div>
       )}
 

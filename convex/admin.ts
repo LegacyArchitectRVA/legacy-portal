@@ -117,6 +117,22 @@ export const markDelivered = mutation({
   },
 });
 
+export const markReviewComplete = mutation({
+  args: { clientUserId: v.id("users") },
+  handler: async (ctx, { clientUserId }) => {
+    await requireAdmin(ctx);
+    const client = await ctx.db
+      .query("clients")
+      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .unique();
+    if (!client) throw new Error("Client not found");
+    await ctx.db.patch(client._id, {
+      lastReviewedAt: Date.now(),
+      reviewReminderSentForCycle: undefined,
+    });
+  },
+});
+
 export const cancelDelivery = mutation({
   args: { clientUserId: v.id("users") },
   handler: async (ctx, { clientUserId }) => {

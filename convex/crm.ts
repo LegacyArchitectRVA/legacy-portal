@@ -61,6 +61,9 @@ export const getClientDetail = query({
       .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
       .collect();
 
+    const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+    const reviewAnchor = client?.lastReviewedAt ?? client?.deliveryTimestamp ?? null;
+
     return {
       userId: clientUserId,
       name: user.name || "",
@@ -72,6 +75,9 @@ export const getClientDetail = query({
       isActivated: client?.isActivated || false,
       deliveryStatus: client?.deliveryStatus || "pending",
       deliveryDate: client?.deliveryDate || null,
+      deliveryTimestamp: client?.deliveryTimestamp || null,
+      lastReviewedAt: client?.lastReviewedAt || null,
+      reviewDueDate: reviewAnchor ? reviewAnchor + YEAR_MS : null,
       hubspotId: client?.hubspotId || null,
       hubspotSyncedAt: client?.hubspotSyncedAt || null,
       legalDocuments: legalDocs.map((d) => ({

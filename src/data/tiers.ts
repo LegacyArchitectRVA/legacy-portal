@@ -3,6 +3,8 @@ export interface Tier {
   name: string;
   price: number;
   priceLabel: string;
+  reviewPrice: number;
+  reviewPriceLabel: string;
   description: string;
   chaptersUnlocked: number[];
   features: string[];
@@ -14,6 +16,8 @@ export const tiers: Tier[] = [
     name: "The Vault",
     price: 950,
     priceLabel: "$950",
+    reviewPrice: 400,
+    reviewPriceLabel: "$400",
     description:
       "A secure foundation for your essential documents and access details.",
     chaptersUnlocked: [1, 2, 4, 5],
@@ -28,6 +32,8 @@ export const tiers: Tier[] = [
     name: "The Archive",
     price: 1950,
     priceLabel: "$1,950",
+    reviewPrice: 800,
+    reviewPriceLabel: "$800",
     description:
       "Comprehensive clarity for complex lives. Every detail is organized and accessible.",
     chaptersUnlocked: [1, 2, 3, 4, 5, 6],
@@ -44,6 +50,8 @@ export const tiers: Tier[] = [
     name: "The Legacy",
     price: 3000,
     priceLabel: "$3,000+",
+    reviewPrice: 1200,
+    reviewPriceLabel: "$1,200",
     description:
       "Full operational continuity for business owners and multi-estate individuals.",
     chaptersUnlocked: [1, 2, 3, 4, 5, 6, 7],

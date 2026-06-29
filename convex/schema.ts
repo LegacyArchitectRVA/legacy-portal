@@ -32,6 +32,8 @@ const schema = defineSchema({
     deliveryStatus: v.optional(v.string()),
     deliveryTimestamp: v.optional(v.number()),
     deliveryDate: v.optional(v.string()),
+    lastReviewedAt: v.optional(v.number()),
+    reviewReminderSentForCycle: v.optional(v.number()),
     profilePhotoStorageId: v.optional(v.id("_storage")),
     profilePicId: v.optional(v.id("_storage")),
     crestId: v.optional(v.id("_storage")),
