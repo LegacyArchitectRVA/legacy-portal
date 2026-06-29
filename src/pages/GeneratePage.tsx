@@ -218,21 +218,7 @@ export default function GeneratePage() {
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: rgba(217, 204, 160, 0.55);
-      margin-bottom: 1.1rem;
-    }
-    .cover-disclosure {
-      max-width: 480px;
-      margin: 1.1rem auto 0;
-      font-size: 0.58rem;
-      line-height: 1.38;
-      color: rgba(217, 204, 160, 0.45);
-      text-align: left;
-    }
-    .cover-disclosure p {
-      margin-bottom: 0.4rem;
-    }
-    .cover-disclosure p:last-child {
-      margin-bottom: 0;
+      margin-bottom: 2.5rem;
     }
     .cover .logo {
       height: 175px;
@@ -456,9 +442,8 @@ export default function GeneratePage() {
     @media print {
       .cover { height: auto; min-height: 100vh; box-shadow: inset 0 0 0 1px rgba(45,90,61,0.35); }
       .cover .confidential { color: #1f3d2a; font-size: 0.81rem; }
-      .cover-disclosure { color: #4a4a4a; }
       .intro-subhead { color: #0a0a0a; font-weight: 700; }
-      .cover .logo { height: 240px; }
+      .cover .logo { height: 350px; }
       body { background: white; color: black; }
       .cover { background: white; color: #0a0a0a; }
       .chapter { page-break-before: always; border-bottom: none; }
@@ -632,11 +617,6 @@ export default function GeneratePage() {
     <p class="client-name">${client?.userName || "Client"}</p>
     <p class="tier">${tierInfo?.name || tier} Edition</p>
     <p class="meta">Prepared ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
-    <div class="cover-disclosure">
-      <p>This Life Manual is intended solely for the use and retention of the Client and their designated survivor. The information contained within has been provided by the Client and organized by Legacy Architect RVA into a comprehensive reference designed to assist the designated survivor when needed.</p>
-      <p>The contents of this Life Manual are confidential and are intended only for the Client and their designated survivor. Legacy Architect RVA does not authorize the disclosure, distribution, or release of this document or its contents to any other individual or entity without the Client's express permission.</p>
-      <p>To protect the Client's privacy, Legacy Architect RVA does not retain copies of the information contained in this Life Manual following its completion and delivery.</p>
-    </div>
   </div>
 `;
 

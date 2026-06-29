@@ -36,7 +36,7 @@ Convex will prompt you to log in and link to the project on first run. The front
 
 ## Deploying
 
-This project deploys to Cloudflare Pages via the Wrangler CLI directly. There is no Git-based deploy integration, pushing to `main` does not trigger a deploy by itself.
+This project deploys to Cloudflare Pages via the Wrangler CLI directly. The project does have a GitHub integration on the Cloudflare Pages dashboard, but its automatic deployments are intentionally **disabled** (its build command was empty, so it was publishing the raw, unbuilt repo on every push, do not re-enable it without setting a real build command and output directory first). Pushing to `main` does not trigger a deploy. All deploys are manual, via the steps below.
 
 **Backend (Convex):**
 
