@@ -178,13 +178,13 @@ export default function GeneratePage() {
   <title>Life Manual - ${client?.userName || "Client"}</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; overflow-wrap: break-word; word-break: break-word; }
     @page {
       margin: 0.6in 0.55in;
       @bottom-center {
-        content: "${(client?.userName || "Client").replace(/"/g, '\\"')}'s Life Manual   |   Page " counter(page) " of " counter(pages);
+        content: "Legacy Architect RVA — ${(client?.userName || "Client").replace(/"/g, '\\"')}'s Life Manual   |   Page " counter(page) " of " counter(pages);
         font-family: 'Libre Baskerville', serif;
-        font-size: 8px;
+        font-size: 10px;
         color: #8a8a8a;
         letter-spacing: 0.02em;
       }
@@ -245,7 +245,7 @@ export default function GeneratePage() {
       justify-content: center;
       width: 100%;
       gap: 0.85rem;
-      margin: 1.75rem 0;
+      margin: 1.25rem 0;
       color: #b8985a;
       font-size: 0.65rem;
       page-break-before: avoid;
@@ -281,7 +281,7 @@ export default function GeneratePage() {
       margin-top: 2rem;
     }
     .chapter {
-      padding: 2.5rem 2rem 2rem;
+      padding: 2.5rem 2rem 1rem;
       border-bottom: 2px solid rgba(217, 204, 160, 0.22);
     }
     .chapter + .chapter {
@@ -302,11 +302,11 @@ export default function GeneratePage() {
     .chapter .desc {
       font-size: 1.21rem;
       color: rgba(232, 230, 225, 0.8);
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.1rem;
       font-family: 'Libre Baskerville', serif;
     }
     .section {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
     }
     .section h3 {
       font-family: 'Cinzel', serif;
@@ -321,15 +321,15 @@ export default function GeneratePage() {
     .data-cards {
       display: flex;
       flex-direction: column;
-      gap: 0.85rem;
-      margin-top: 0.75rem;
+      gap: 0.65rem;
+      margin-top: 0.6rem;
     }
     .data-card {
       background: rgba(217, 204, 160, 0.04);
       border: 1px solid rgba(217, 204, 160, 0.18);
       border-left: 3px solid #b8985a;
       border-radius: 6px;
-      padding: 1.1rem 1.35rem;
+      padding: 0.95rem 1.35rem;
       box-shadow: 0 2px 10px rgba(0,0,0,0.25);
       page-break-inside: avoid;
       break-inside: avoid;
@@ -343,7 +343,7 @@ export default function GeneratePage() {
       letter-spacing: 0.01em;
     }
     .data-card-row {
-      margin-bottom: 0.55rem;
+      margin-bottom: 0.45rem;
     }
     .data-card-row:last-child {
       margin-bottom: 0;
@@ -439,7 +439,7 @@ export default function GeneratePage() {
       font-size: 1.09rem;
       border-left: 2px solid rgba(217, 204, 160, 0.2);
       padding-left: 1rem;
-      margin-top: 2rem;
+      margin-top: 1.2rem;
     }
     @media print {
       .cover { height: auto; min-height: 100vh; box-shadow: inset 0 0 0 1px rgba(45,90,61,0.35); }
@@ -566,7 +566,7 @@ export default function GeneratePage() {
       font-size: 1.15rem;
       font-weight: 600;
       color: #e8c46a;
-      margin: 1.5rem 0 0.6rem;
+      margin: 1rem 0 0.5rem;
       letter-spacing: 0.02em;
     }
     .roadmap h3 {
