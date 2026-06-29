@@ -263,7 +263,7 @@ export default function GeneratePage() {
     .cover .client-name {
       font-family: 'Cinzel', serif;
       font-size: 1.5rem;
-      margin-top: 0.5rem;
+      margin-top: 2.5rem;
     }
     .cover .tier {
       font-size: 1.09rem;
@@ -336,7 +336,7 @@ export default function GeneratePage() {
     }
     .data-card-title {
       font-family: 'Cinzel', serif;
-      font-size: 1.15rem;
+      font-size: 1.3rem;
       font-weight: 600;
       color: #e8c46a;
       margin-bottom: 0.65rem;
@@ -351,16 +351,17 @@ export default function GeneratePage() {
     .data-card-label {
       display: block;
       font-family: 'Cinzel', serif;
-      font-size: 0.7rem;
+      font-size: 1rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: rgba(217, 204, 160, 0.6);
-      margin-bottom: 0.15rem;
+      letter-spacing: 0.04em;
+      color: rgba(217, 204, 160, 0.85);
+      margin-bottom: 0.2rem;
     }
     .data-card-value {
       display: block;
-      font-size: 1.08rem;
-      color: rgba(232, 230, 225, 0.9);
+      font-size: 0.95rem;
+      color: rgba(232, 230, 225, 0.85);
       font-weight: 500;
       line-height: 1.5;
     }
@@ -376,7 +377,7 @@ export default function GeneratePage() {
       margin-top: 0.25rem;
     }
     .field {
-      font-size: 1.21rem;
+      font-size: 0.95rem;
       color: rgba(232, 230, 225, 0.85);
       margin-bottom: 0.4rem;
       line-height: 1.5;
@@ -384,8 +385,8 @@ export default function GeneratePage() {
     .field strong {
       color: rgba(217, 204, 160, 0.85);
       font-family: 'Cinzel', serif;
-      font-weight: 500;
-      font-size: 1.04rem;
+      font-weight: 700;
+      font-size: 1.1rem;
       text-transform: uppercase;
       letter-spacing: 0.03em;
       margin-right: 0.4rem;
@@ -460,11 +461,11 @@ export default function GeneratePage() {
       .chapter .desc { color: #4a4a4a; font-size: 1.21rem; }
       .section h3 { color: #0a0a0a; font-weight: 700; font-size: 1.6rem; }
       .data-card { background: #f7f5ee; border-color: #ddd3ad; border-left-color: #2d5a3d; box-shadow: none; }
-      .data-card-title { color: #0a0a0a; font-weight: 700; font-size: 1.32rem; }
-      .data-card-label { color: #1f3d2a; font-size: 0.81rem; font-weight: 700; }
-      .data-card-value { color: #0a0a0a; font-weight: 600; font-size: 1.24rem; }
-      .field { color: rgba(10,10,10,0.85); font-size: 1.21rem; font-weight: 600; }
-      .field strong { color: #1f3d2a; font-weight: 700; font-size: 1.04rem; }
+      .data-card-title { color: #0a0a0a; font-weight: 700; font-size: 1.5rem; }
+      .data-card-label { color: #0a0a0a; font-size: 1.15rem; font-weight: 700; }
+      .data-card-value { color: #1a1a1a; font-weight: 500; font-size: 1.09rem; }
+      .field { color: rgba(26,26,26,0.9); font-size: 1.09rem; font-weight: 500; }
+      .field strong { color: #0a0a0a; font-weight: 700; font-size: 1.15rem; }
       .empty, .empty-note { color: #6b6b6b; }
       .empty-note { font-size: 1.15rem; }
       .footer-tagline { color: #0a0a0a; font-weight: 700; font-size: 1.21rem; }
@@ -474,6 +475,8 @@ export default function GeneratePage() {
     html { scroll-behavior: smooth; }
     .toc {
       padding: 2.5rem 2rem;
+      page-break-before: always;
+      break-before: page;
     }
     .toc-chapter { page-break-inside: avoid; break-inside: avoid; }
     .toc h2 {
@@ -614,7 +617,6 @@ export default function GeneratePage() {
     <img class="logo" src="${LOGO_DATA_URI}" alt="" />
     <h1>LIFE MANUAL</h1>
     <p class="subtitle">Legacy Architect RVA</p>
-    <div class="flourish">&#10070;</div>
     <p class="client-name">${client?.userName || "Client"}</p>
     <p class="tier">${tierInfo?.name || tier} Edition</p>
     <p class="meta">Prepared ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
