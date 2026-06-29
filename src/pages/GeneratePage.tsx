@@ -6,6 +6,7 @@ import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LOGO_DATA_URI, QR_CODE_DATA_URI } from "../lib/brandAssets";
+import { BRAND_FONT_HEAD, BRAND_FONT_BODY, GOOGLE_FONTS_LINK, BRAND_BLACK, BRAND_OFFWHITE, BRAND_GOLD, BRAND_GOLD_LIGHT, BRAND_CREAM, BRAND_GREEN_PRINT } from "../lib/brandTokens";
 
 function escapeHtml(s: string): string {
   return s
@@ -151,7 +152,7 @@ export default function GeneratePage() {
   if (!isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+        <p className="text-[${BRAND_OFFWHITE}]/75">Admin access required.</p>
       </div>
     );
   }
@@ -176,14 +177,14 @@ export default function GeneratePage() {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Life Manual - ${client?.userName || "Client"}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="${GOOGLE_FONTS_LINK}" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; overflow-wrap: break-word; word-break: break-word; }
     @page {
       margin: 0.6in 0.55in;
       @bottom-center {
         content: "Legacy Architect RVA — ${(client?.userName || "Client").replace(/"/g, '\\"')}'s Life Manual   |   Page " counter(page) " of " counter(pages);
-        font-family: 'Libre Baskerville', serif;
+        font-family: ${BRAND_FONT_BODY};
         font-size: 13px;
         color: #8a8a8a;
         letter-spacing: 0.02em;
@@ -195,9 +196,9 @@ export default function GeneratePage() {
     html { overflow-x: hidden; }
     img { max-width: 100%; }
     body {
-      font-family: 'Libre Baskerville', serif;
+      font-family: ${BRAND_FONT_BODY};
       background: #000000;
-      color: #e8e6e1;
+      color: ${BRAND_OFFWHITE};
       line-height: 1.6;
       padding-bottom: 2.5rem;
     }
@@ -213,7 +214,7 @@ export default function GeneratePage() {
       justify-content: center;
       text-align: center;
       background: #000000;
-      color: #d9cca0;
+      color: ${BRAND_CREAM};
       padding: 2rem;
       box-shadow: inset 0 0 0 1px rgba(217,204,160,0.32);
     }
@@ -229,11 +230,11 @@ export default function GeneratePage() {
       margin-bottom: 1.25rem;
     }
     .cover h1 {
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 2.5rem;
       font-weight: 700;
       letter-spacing: 0.1em;
-      background: linear-gradient(135deg, #e8c46a, #b8985a);
+      background: linear-gradient(135deg, ${BRAND_GOLD_LIGHT}, ${BRAND_GOLD});
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -241,7 +242,7 @@ export default function GeneratePage() {
       font-size: 1.15rem;
       opacity: 0.6;
       margin-top: 1rem;
-      font-family: 'Libre Baskerville', serif;
+      font-family: ${BRAND_FONT_BODY};
     }
     .flourish {
       display: flex;
@@ -250,7 +251,7 @@ export default function GeneratePage() {
       width: 100%;
       gap: 0.85rem;
       margin: 1.25rem 0;
-      color: #b8985a;
+      color: ${BRAND_GOLD};
       font-size: 0.65rem;
       page-break-before: avoid;
       break-before: avoid;
@@ -262,10 +263,10 @@ export default function GeneratePage() {
       content: "";
       flex: 0 1 70px;
       height: 1px;
-      background: linear-gradient(90deg, transparent, #b8985a, transparent);
+      background: linear-gradient(90deg, transparent, ${BRAND_GOLD}, transparent);
     }
     .cover .client-name {
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 1.5rem;
       margin-top: 2.5rem;
     }
@@ -275,7 +276,7 @@ export default function GeneratePage() {
       margin-top: 0.5rem;
       text-transform: uppercase;
       letter-spacing: 0.2em;
-      font-family: 'Libre Baskerville', serif;
+      font-family: ${BRAND_FONT_BODY};
     }
     .cover .meta {
       font-size: 0.98rem;
@@ -292,12 +293,12 @@ export default function GeneratePage() {
       margin-top: 0.5rem;
     }
     .chapter h2 {
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 1.7rem;
       font-weight: 600;
       margin-bottom: 0.6rem;
       padding-bottom: 0.45rem;
-      color: #d9cca0;
+      color: ${BRAND_CREAM};
       letter-spacing: 0.015em;
       border-bottom: 1.5px solid rgba(217, 204, 160, 0.35);
       page-break-after: avoid;
@@ -307,16 +308,16 @@ export default function GeneratePage() {
       font-size: 1.21rem;
       color: rgba(232, 230, 225, 0.8);
       margin-bottom: 1.1rem;
-      font-family: 'Libre Baskerville', serif;
+      font-family: ${BRAND_FONT_BODY};
     }
     .section {
       margin-bottom: 1.2rem;
     }
     .section h3 {
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 1.4rem;
       font-weight: 500;
-      color: #e8e6e1;
+      color: ${BRAND_OFFWHITE};
       margin-bottom: 0.5rem;
       letter-spacing: 0.02em;
       page-break-after: avoid;
@@ -331,7 +332,7 @@ export default function GeneratePage() {
     .data-card {
       background: rgba(217, 204, 160, 0.04);
       border: 1px solid rgba(217, 204, 160, 0.18);
-      border-left: 3px solid #b8985a;
+      border-left: 3px solid ${BRAND_GOLD};
       border-radius: 6px;
       padding: 0.95rem 1.35rem;
       box-shadow: 0 2px 10px rgba(0,0,0,0.25);
@@ -339,10 +340,10 @@ export default function GeneratePage() {
       break-inside: avoid;
     }
     .data-card-title {
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 1.3rem;
       font-weight: 600;
-      color: #e8c46a;
+      color: ${BRAND_GOLD_LIGHT};
       margin-bottom: 0.65rem;
       letter-spacing: 0.01em;
     }
@@ -354,7 +355,7 @@ export default function GeneratePage() {
     }
     .data-card-label {
       display: block;
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 1rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -388,7 +389,7 @@ export default function GeneratePage() {
     }
     .field strong {
       color: rgba(217, 204, 160, 0.85);
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-weight: 700;
       font-size: 1.1rem;
       text-transform: uppercase;
@@ -424,7 +425,7 @@ export default function GeneratePage() {
       display: block;
     }
     .footer-tagline {
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 1.05rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -448,31 +449,31 @@ export default function GeneratePage() {
     @media print {
       .cover { height: auto; min-height: 100vh; box-shadow: inset 0 0 0 1px rgba(45,90,61,0.35); }
       .cover .confidential { color: #1f3d2a; font-size: 0.81rem; }
-      .intro-subhead { color: #0a0a0a; font-weight: 700; }
+      .intro-subhead { color: ${BRAND_BLACK}; font-weight: 700; }
       .cover .logo { height: 350px; }
       body { background: white; color: black; }
-      .cover { background: white; color: #0a0a0a; }
+      .cover { background: white; color: ${BRAND_BLACK}; }
       .chapter { page-break-before: always; border-bottom: none; }
-      .cover h1 { background: none; -webkit-text-fill-color: #0a0a0a; color: #0a0a0a; font-size: 2.88rem; }
-      .flourish { color: #0a0a0a; font-size: 0.75rem; }
-      .flourish::before, .flourish::after { background: linear-gradient(90deg, transparent, #b8985a, transparent); }
-      .cover .meta, .cover .subtitle { color: #0a0a0a; font-weight: 700; opacity: 1; }
+      .cover h1 { background: none; -webkit-text-fill-color: ${BRAND_BLACK}; color: ${BRAND_BLACK}; font-size: 2.88rem; }
+      .flourish { color: ${BRAND_BLACK}; font-size: 0.75rem; }
+      .flourish::before, .flourish::after { background: linear-gradient(90deg, transparent, ${BRAND_GOLD}, transparent); }
+      .cover .meta, .cover .subtitle { color: ${BRAND_BLACK}; font-weight: 700; opacity: 1; }
       .cover .subtitle { font-size: 1.15rem; }
       .cover .client-name { font-size: 1.73rem; }
       .cover .tier { font-size: 1.09rem; opacity: 0.7; }
       .cover .meta { font-size: 0.98rem; }
-      .chapter h2 { color: #0a0a0a; font-size: 1.95rem; border-bottom-color: #0a0a0a; }
+      .chapter h2 { color: ${BRAND_BLACK}; font-size: 1.95rem; border-bottom-color: ${BRAND_BLACK}; }
       .chapter .desc { color: #4a4a4a; font-size: 1.21rem; }
-      .section h3 { color: #0a0a0a; font-weight: 700; font-size: 1.6rem; }
-      .data-card { background: #f7f5ee; border-color: #ddd3ad; border-left-color: #2d5a3d; box-shadow: none; }
-      .data-card-title { color: #0a0a0a; font-weight: 700; font-size: 1.5rem; }
-      .data-card-label { color: #0a0a0a; font-size: 1.15rem; font-weight: 700; }
+      .section h3 { color: ${BRAND_BLACK}; font-weight: 700; font-size: 1.6rem; }
+      .data-card { background: #f7f5ee; border-color: #ddd3ad; border-left-color: ${BRAND_GREEN_PRINT}; box-shadow: none; }
+      .data-card-title { color: ${BRAND_BLACK}; font-weight: 700; font-size: 1.5rem; }
+      .data-card-label { color: ${BRAND_BLACK}; font-size: 1.15rem; font-weight: 700; }
       .data-card-value { color: #1a1a1a; font-weight: 500; font-size: 1.09rem; }
       .field { color: rgba(26,26,26,0.9); font-size: 1.09rem; font-weight: 500; }
-      .field strong { color: #0a0a0a; font-weight: 700; font-size: 1.15rem; }
+      .field strong { color: ${BRAND_BLACK}; font-weight: 700; font-size: 1.15rem; }
       .empty, .empty-note { color: #6b6b6b; }
       .empty-note { font-size: 1.15rem; }
-      .footer-tagline { color: #0a0a0a; font-weight: 700; font-size: 1.21rem; }
+      .footer-tagline { color: ${BRAND_BLACK}; font-weight: 700; font-size: 1.21rem; }
       .footer-meta { color: #5c5c5c; font-size: 0.81rem; }
       .privacy-note { color: #595959; border-left-color: #ccc; font-size: 1.09rem; }
     }
@@ -505,7 +506,7 @@ export default function GeneratePage() {
       background: rgba(10, 8, 6, 0.92);
       border-top: 1px solid rgba(217, 204, 160, 0.25);
       color: rgba(232, 230, 225, 0.85);
-      font-family: 'Libre Baskerville', serif;
+      font-family: ${BRAND_FONT_BODY};
       font-size: 0.78rem;
       letter-spacing: 0.02em;
       padding: 0.55rem 1.25rem;
@@ -514,7 +515,7 @@ export default function GeneratePage() {
       backdrop-filter: blur(4px);
     }
     .screen-page-indicator strong {
-      color: #e8c46a;
+      color: ${BRAND_GOLD_LIGHT};
       font-weight: 600;
     }
     @media print {
@@ -527,9 +528,9 @@ export default function GeneratePage() {
     }
     .toc-chapter { page-break-inside: avoid; break-inside: avoid; }
     .toc h2 {
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 1.5rem;
-      color: #d9cca0;
+      color: ${BRAND_CREAM};
       letter-spacing: 0.04em;
       text-transform: uppercase;
       margin-bottom: 1.5rem;
@@ -540,9 +541,9 @@ export default function GeneratePage() {
       display: flex;
       width: 100%;
       align-items: baseline;
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 1.15rem;
-      color: #e8c46a;
+      color: ${BRAND_GOLD_LIGHT};
       text-decoration: none;
       letter-spacing: 0.02em;
     }
@@ -566,12 +567,12 @@ export default function GeneratePage() {
     .toc-pagenum {
       margin-left: auto;
       padding-left: 1em;
-      font-family: 'Libre Baskerville', serif;
+      font-family: ${BRAND_FONT_BODY};
       font-size: 0.85em;
       opacity: 0.65;
       flex: 0 0 auto;
     }
-    .toc-sections a:hover { color: #d9cca0; text-decoration: underline; }
+    .toc-sections a:hover { color: ${BRAND_CREAM}; text-decoration: underline; }
     .back-to-toc {
       display: block;
       text-align: right;
@@ -583,15 +584,15 @@ export default function GeneratePage() {
       margin-bottom: 0.75rem;
     }
     .inline-ref {
-      color: #e8c46a;
+      color: ${BRAND_GOLD_LIGHT};
       text-decoration: underline;
       text-decoration-color: rgba(232, 196, 106, 0.4);
       text-underline-offset: 2px;
     }
     .inline-ref:hover {
-      text-decoration-color: #e8c46a;
+      text-decoration-color: ${BRAND_GOLD_LIGHT};
     }
-    .back-to-toc:hover { color: #d9cca0; }
+    .back-to-toc:hover { color: ${BRAND_CREAM}; }
     .intro-text {
       font-size: 1.21rem;
       color: rgba(232, 230, 225, 0.85);
@@ -599,28 +600,28 @@ export default function GeneratePage() {
       margin-bottom: 1rem;
     }
     .intro-lead::first-letter {
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 3.4rem;
       font-weight: 700;
-      color: #e8c46a;
+      color: ${BRAND_GOLD_LIGHT};
       float: left;
       line-height: 0.78;
       padding-top: 0.1rem;
       margin: 0 0.12em 0 0;
     }
     .intro-subhead {
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 1.15rem;
       font-weight: 600;
-      color: #e8c46a;
+      color: ${BRAND_GOLD_LIGHT};
       margin: 1rem 0 0.5rem;
       letter-spacing: 0.02em;
     }
     .roadmap h3 {
-      font-family: 'Cinzel', serif;
+      font-family: ${BRAND_FONT_HEAD};
       font-size: 1.32rem;
       font-weight: 500;
-      color: #e8e6e1;
+      color: ${BRAND_OFFWHITE};
       margin: 1.25rem 0 0.5rem;
       letter-spacing: 0.02em;
     }
@@ -638,14 +639,14 @@ export default function GeneratePage() {
       color: rgba(232, 230, 225, 0.65);
     }
     @media print {
-      .toc-chapter > a { color: #0a0a0a; font-weight: 700; }
+      .toc-chapter > a { color: ${BRAND_BLACK}; font-weight: 700; }
       .toc-pagenum { opacity: 1; color: #4a4a4a; }
       .toc-sections a { color: #4a4a4a; }
       .back-to-toc { display: none; }
-      .inline-ref { color: inherit; text-decoration: underline; text-decoration-color: #2d5a3d; }
+      .inline-ref { color: inherit; text-decoration: underline; text-decoration-color: ${BRAND_GREEN_PRINT}; }
       .intro-text { color: rgba(10,10,10,0.85); }
-      .intro-lead::first-letter { color: #0a0a0a; }
-      .roadmap h3 { color: #0a0a0a; font-weight: 700; }
+      .intro-lead::first-letter { color: ${BRAND_BLACK}; }
+      .roadmap h3 { color: ${BRAND_BLACK}; font-weight: 700; }
       .roadmap-list li { color: rgba(10,10,10,0.85); }
       .roadmap hr { border-top-color: #cfe0d3; }
       .roadmap-caption { color: #595959; }
@@ -1078,7 +1079,7 @@ export default function GeneratePage() {
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       <button
         onClick={() => navigate("/admin")}
-        className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
+        className="flex items-center gap-2 text-sm text-[${BRAND_OFFWHITE}]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Admin
@@ -1086,23 +1087,23 @@ export default function GeneratePage() {
 
       <div>
         <h1 className="font-heading text-3xl text-gold-gradient">Generate Life Manual</h1>
-        <p className="text-[#e8e6e1]/75 mt-2">
+        <p className="text-[${BRAND_OFFWHITE}]/75 mt-2">
           Generate a formatted Life Manual for a client. The manual includes all completed data
           from their portal organized by chapter.
         </p>
       </div>
 
       {/* Client Selection */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
+      <div className="bg-[${BRAND_BLACK}] rounded-xl border border-gold-border p-5 space-y-4">
         <div>
-          <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading">Select Client</label>
+          <label className="text-xs text-[${BRAND_OFFWHITE}]/75 uppercase tracking-wider font-heading">Select Client</label>
           <select
             value={selectedClient}
             onChange={(e) => {
               setSelectedClient(e.target.value);
               setGeneratedHtml(null);
             }}
-            className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] focus:border-gold-primary/50 focus:outline-none mt-1 appearance-none cursor-pointer"
+            className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[${BRAND_OFFWHITE}] focus:border-gold-primary/50 focus:outline-none mt-1 appearance-none cursor-pointer"
           >
             <option value="">Choose a client...</option>
             {clients?.map((c: any) => (
@@ -1117,7 +1118,7 @@ export default function GeneratePage() {
           <button
             onClick={handleGenerate}
             disabled={generating || manualData === undefined}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="flex items-center gap-2 bg-gradient-to-r from-[${BRAND_CREAM}] to-[#b89f6b] text-[${BRAND_BLACK}] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {generating || manualData === undefined ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -1131,19 +1132,19 @@ export default function GeneratePage() {
 
       {/* Generated Manual */}
       {generatedHtml && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
+        <div className="bg-[${BRAND_BLACK}] rounded-xl border border-gold-border p-5 space-y-4">
           <div className="flex items-center gap-2 text-gold-primary">
             <FileText className="w-5 h-5" />
             <h3 className="font-heading text-lg">Manual Generated</h3>
           </div>
-          <p className="text-sm text-[#e8e6e1]/75">
+          <p className="text-sm text-[${BRAND_OFFWHITE}]/75">
             Life Manual for {client?.userName} has been generated. Download the HTML file,
             then open it in a browser and print to PDF for a polished output.
           </p>
           <div className="flex gap-3">
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity"
+              className="flex items-center gap-2 bg-gradient-to-r from-[${BRAND_CREAM}] to-[#b89f6b] text-[${BRAND_BLACK}] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity"
             >
               <Download className="w-4 h-4" /> Download HTML
             </button>
@@ -1151,7 +1152,7 @@ export default function GeneratePage() {
 
           <div className="bg-black rounded-lg border border-gold-border/20 p-3 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-            <p className="text-xs text-[#e8e6e1]/80">
+            <p className="text-xs text-[${BRAND_OFFWHITE}]/80">
               After delivery, all files and access are purged. Your information stays with you.
             </p>
           </div>
