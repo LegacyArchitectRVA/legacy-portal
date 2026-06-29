@@ -184,7 +184,7 @@ export default function GeneratePage() {
       @bottom-center {
         content: "Legacy Architect RVA — ${(client?.userName || "Client").replace(/"/g, '\\"')}'s Life Manual   |   Page " counter(page) " of " counter(pages);
         font-family: 'Libre Baskerville', serif;
-        font-size: 10px;
+        font-size: 13px;
         color: #8a8a8a;
         letter-spacing: 0.02em;
       }
