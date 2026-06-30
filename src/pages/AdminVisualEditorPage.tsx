@@ -1,3 +1,4 @@
+import { FullPageLoader } from "../components/FullPageLoader";
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -230,9 +231,7 @@ export default function AdminVisualEditorPage() {
 
   if (isAdmin === undefined) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <CircleNotch className="w-6 h-6 text-gold-muted animate-spin" />
-      </div>
+<FullPageLoader />
     );
   }
   if (!isAdmin) {

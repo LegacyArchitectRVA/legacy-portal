@@ -325,6 +325,16 @@
 .animate-aurora { animation: aurora-float 8s ease-in-out infinite; }
 .animate-aurora-delayed { animation: aurora-float-delayed 10s ease-in-out infinite; }
 .animate-subtle-shimmer { animation: subtle-shimmer-kf 4s ease-in-out infinite; }
+@keyframes crest-pulse-kf {
+  0%, 100% { transform: scale(0.85); opacity: 0.5; }
+  50% { transform: scale(1.15); opacity: 0.15; }
+}
+@keyframes crest-breathe-kf {
+  0%, 100% { transform: scale(0.96); opacity: 0.75; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+.animate-crest-pulse { animation: crest-pulse-kf 2.6s ease-in-out infinite; }
+.animate-crest-breathe { animation: crest-breathe-kf 2.6s ease-in-out infinite; }
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }

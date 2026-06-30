@@ -1,3 +1,4 @@
+import { FullPageLoader } from "../components/FullPageLoader";
 import { useQuery } from "convex/react";
 import { RiArrowLeftLine as ArrowLeft, RiBankCardLine as CreditCard, RiShieldLine as Shield, RiSplitCellsHorizontal as SquareSplitVertical, RiLoader4Line as CircleNotch } from "@remixicon/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -12,9 +13,7 @@ export default function PaymentPage() {
 
   if (profile === undefined) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <CircleNotch className="w-6 h-6 text-gold-muted animate-spin" />
-      </div>
+<FullPageLoader />
     );
   }
 
