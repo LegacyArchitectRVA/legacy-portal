@@ -390,6 +390,7 @@ function SectionAccordion({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">Records</h4>
+                {canEdit && (
                 <button
                   onClick={() => {
                     setAddingRow(true);
@@ -399,10 +400,11 @@ function SectionAccordion({
                 >
                   <Plus className="w-3 h-3" /> Add Entry
                 </button>
+                )}
               </div>
 
               {/* Add Row Form */}
-              {addingRow && (
+              {canEdit && addingRow && (
                 <div className="bg-black rounded-lg border border-gold-primary/30 p-3 space-y-2">
                   {section.tableColumns.map((col) => (
                     <div key={col.key}>
