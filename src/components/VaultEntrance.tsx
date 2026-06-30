@@ -1,0 +1,117 @@
+import { useEffect, useState } from "react";
+
+const SESSION_KEY = "lrva_vault_opened";
+
+/**
+ * Full-screen cinematic entrance shown once per browser session, on the
+ * first time a client lands on the dashboard after logging in.
+ *
+ * Sequence:
+ *   0 – 600ms   Still. Black screen, shield icon and wordmark centered.
+ *   600ms       The gold dividing line expands from the center outward.
+ *   900ms       Left panel slides off-screen left. Right panel slides off-screen right.
+ *   1600ms      Overlay fades to transparent.
+ *   1900ms      Component unmounts, dashboard content takes over completely.
+ *
+ * Uses sessionStorage so it fires on every fresh login but not on every
+ * navigation to /dashboard within the same session.
+ */
+export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
+  const [phase, setPhase] = useState<"still" | "line" | "split" | "fade" | "done">("still");
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase("line"), 600);
+    const t2 = setTimeout(() => setPhase("split"), 900);
+    const t3 = setTimeout(() => setPhase("fade"), 1600);
+    const t4 = setTimeout(() => {
+      setPhase("done");
+      sessionStorage.setItem(SESSION_KEY, "1");
+      onComplete();
+    }, 1950);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+  }, [onComplete]);
+
+  if (phase === "done") return null;
+
+  const splitting = phase === "split" || phase === "fade";
+  const fading = phase === "fade";
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] overflow-hidden pointer-events-none"
+      aria-hidden="true"
+      style={{ opacity: fading ? 0 : 1, transition: fading ? "opacity 350ms ease-in 0ms" : "none" }}
+    >
+      {/* Left panel */}
+      <div
+        className="absolute inset-y-0 left-0 w-1/2 bg-[#060606]"
+        style={{
+          transform: splitting ? "translateX(-100%)" : "translateX(0)",
+          transition: splitting ? "transform 650ms cubic-bezier(0.76, 0, 0.24, 1)" : "none",
+        }}
+      />
+
+      {/* Right panel */}
+      <div
+        className="absolute inset-y-0 right-0 w-1/2 bg-[#060606]"
+        style={{
+          transform: splitting ? "translateX(100%)" : "translateX(0)",
+          transition: splitting ? "transform 650ms cubic-bezier(0.76, 0, 0.24, 1)" : "none",
+        }}
+      />
+
+      {/* Center content -- sits above both panels, stays fixed as they slide */}
+      <div
+        className="absolute inset-0 flex flex-col items-center justify-center gap-5"
+        style={{
+          opacity: splitting ? 0 : 1,
+          transition: splitting ? "opacity 200ms ease-in" : "none",
+        }}
+      >
+        {/* Shield SVG */}
+        <svg
+          width="52"
+          height="52"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#e8c46a"
+          strokeWidth={1.1}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ filter: "drop-shadow(0 0 12px rgba(232,196,106,0.35))" }}
+        >
+          <path d="M12 3 L19 6 V11.5 C19 16 16 19.5 12 21 C8 19.5 5 16 5 11.5 V6 Z" />
+          <path d="M12 7.5 V14.5" />
+          <path d="M9 11 L15 11" />
+        </svg>
+
+        {/* Wordmark */}
+        <div className="text-center space-y-1">
+          <p
+            className="font-heading text-[13px] tracking-[0.28em] uppercase text-[#d9cca0]"
+            style={{ textShadow: "0 0 18px rgba(217,204,160,0.25)" }}
+          >
+            Legacy Architect
+          </p>
+          <p className="font-heading text-[10px] tracking-[0.35em] uppercase text-[rgba(217,204,160,0.5)]">
+            RVA
+          </p>
+        </div>
+
+        {/* Expanding gold rule */}
+        <div
+          className="h-px bg-gradient-to-r from-transparent via-[#d9cca0] to-transparent"
+          style={{
+            width: phase === "still" ? "0px" : "140px",
+            transition: phase !== "still" ? "width 350ms ease-out" : "none",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Returns true if the vault entrance should be shown this session. */
+export function shouldShowVaultEntrance(): boolean {
+  return !sessionStorage.getItem(SESSION_KEY);
+}

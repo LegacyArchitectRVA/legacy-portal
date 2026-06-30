@@ -27,13 +27,39 @@ function formatRelative(ts: number) {
   return new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+function dateSeparatorLabel(ts: number): string {
+  const d = new Date(ts);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const isSameDay = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  if (isSameDay(d, today)) return "Today";
+  if (isSameDay(d, yesterday)) return "Yesterday";
+  return d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+}
+
+function DateSeparator({ ts }: { ts: number }) {
+  return (
+    <div className="flex items-center gap-3 my-3">
+      <div className="flex-1 h-px bg-[rgba(217,204,160,0.1)]" />
+      <span className="text-[10px] text-[#e8e6e1]/40 tracking-widest uppercase font-heading">
+        {dateSeparatorLabel(ts)}
+      </span>
+      <div className="flex-1 h-px bg-[rgba(217,204,160,0.1)]" />
+    </div>
+  );
+}
+
 function MessageBubble({
   msg,
   isMe,
+  canDelete,
   onDelete,
 }: {
   msg: { _id: string; content: string; createdAt: number; isRead: boolean };
   isMe: boolean;
+  canDelete: boolean;
   onDelete: (id: string) => void;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -41,7 +67,7 @@ function MessageBubble({
   return (
     <div className={`flex ${isMe ? "justify-end" : "justify-start"} group`}>
       <div className="flex items-end gap-1.5 max-w-[85%]">
-        {isMe && (
+        {canDelete && !isMe && (
           <button
             onClick={() => setConfirmDelete(true)}
             className="opacity-0 group-hover:opacity-100 transition-opacity text-[#e8e6e1]/50 hover:text-red-400 mb-1 shrink-0"
@@ -65,6 +91,15 @@ function MessageBubble({
             {isMe && msg.isRead && <CheckCheck className="w-3 h-3" />}
           </div>
         </div>
+        {canDelete && isMe && (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-[#e8e6e1]/50 hover:text-red-400 mb-1 shrink-0"
+            title="Remove message"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+        )}
       </div>
 
       {confirmDelete && (
@@ -101,11 +136,13 @@ function MessageBubble({
 function Thread({
   messages,
   myUserId,
+  isAdmin,
   onSend,
   onDelete,
 }: {
   messages: any[];
   myUserId: string | undefined;
+  isAdmin: boolean;
   onSend: (text: string) => void;
   onDelete: (id: string) => void;
 }) {
@@ -122,6 +159,23 @@ function Thread({
     setText("");
   };
 
+  // Build a list of messages with date separator markers inserted between
+  // messages that fall on different calendar days.
+  type Item =
+    | { kind: "msg"; msg: any }
+    | { kind: "date"; ts: number };
+  const items: Item[] = [];
+  let lastDay = "";
+  for (const msg of messages) {
+    const d = new Date(msg.createdAt);
+    const day = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    if (day !== lastDay) {
+      items.push({ kind: "date", ts: msg.createdAt });
+      lastDay = day;
+    }
+    items.push({ kind: "msg", msg });
+  }
+
   return (
     <>
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-2 pr-2 pb-4">
@@ -130,14 +184,19 @@ function Thread({
             No messages yet. Send a message to get started.
           </div>
         )}
-        {messages.map((msg) => (
-          <MessageBubble
-            key={msg._id}
-            msg={msg}
-            isMe={msg.fromUserId === myUserId}
-            onDelete={onDelete}
-          />
-        ))}
+        {items.map((item, i) =>
+          item.kind === "date" ? (
+            <DateSeparator key={`date-${item.ts}-${i}`} ts={item.ts} />
+          ) : (
+            <MessageBubble
+              key={item.msg._id}
+              msg={item.msg}
+              isMe={item.msg.fromUserId === myUserId}
+              canDelete={isAdmin || item.msg.fromUserId === myUserId}
+              onDelete={onDelete}
+            />
+          )
+        )}
       </div>
 
       <div className="flex items-center gap-2 pt-2">
@@ -194,15 +253,22 @@ export default function MessagesPage() {
   );
   const clientMessages = useQuery(api.messages.getMyMessages, !isAdmin ? {} : "skip");
 
+  // Mark messages read on mount only -- not on every update -- to avoid
+  // firing the mutation on every message arrival while the user is on a
+  // different page.
+  const markAllReadRef = useRef(markAllRead);
+  markAllReadRef.current = markAllRead;
   useEffect(() => {
-    if (!isAdmin) markAllRead();
-  }, [isAdmin, clientMessages, markAllRead]);
+    if (!isAdmin) markAllReadRef.current();
+  }, [isAdmin]);
 
+  const markThreadReadRef = useRef(markThreadRead);
+  markThreadReadRef.current = markThreadRead;
   useEffect(() => {
     if (isAdmin && selectedClient) {
-      markThreadRead({ clientUserId: selectedClient as Id<"users"> });
+      markThreadReadRef.current({ clientUserId: selectedClient as Id<"users"> });
     }
-  }, [isAdmin, selectedClient, adminThread, markThreadRead]);
+  }, [isAdmin, selectedClient]);
 
   const handleDelete = (messageId: string) => {
     deleteMessage({ messageId: messageId as Id<"messages"> });
@@ -352,6 +418,7 @@ export default function MessagesPage() {
         <Thread
           messages={adminThread || []}
           myUserId={profile?.userId}
+          isAdmin={true}
           onSend={(text) => sendMessage({ content: text, toUserId: selectedClient as Id<"users"> })}
           onDelete={handleDelete}
         />
@@ -373,9 +440,11 @@ export default function MessagesPage() {
       <Thread
         messages={clientMessages || []}
         myUserId={profile?.userId}
+        isAdmin={false}
         onSend={(text) => sendMessage({ content: text })}
         onDelete={handleDelete}
       />
     </div>
   );
 }
+

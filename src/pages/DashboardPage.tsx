@@ -1,4 +1,5 @@
 import { FullPageLoader } from "../components/FullPageLoader";
+import { VaultEntrance, shouldShowVaultEntrance } from "../components/VaultEntrance";
 import { useState, useEffect } from "react";
 import { useQuery } from "convex/react";
 import { RiArrowRightLine as ArrowRight, RiTimeLine as Clock, RiLockLine as Lock, RiShieldCheckLine as ShieldCheck, RiLoader4Line as CircleNotch } from "@remixicon/react";
@@ -21,6 +22,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [schedulerLoaded, setSchedulerLoaded] = useState(false);
+  const [showVault, setShowVault] = useState(() => shouldShowVaultEntrance());
   useEffect(() => {
     // The iframe's own onLoad event fires when Cal.com's outer page shell
     // loads, not when its internal React app actually finishes rendering
@@ -123,7 +125,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <>
+      {showVault && <VaultEntrance onComplete={() => setShowVault(false)} />}
+      <div className="max-w-5xl mx-auto space-y-6">
       {onBehalfOf && editingClient && (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
           <p className="text-xs text-amber-300">
@@ -410,5 +414,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
