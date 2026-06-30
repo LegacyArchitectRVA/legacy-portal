@@ -10,6 +10,7 @@ import {
   renderToDocx,
   renderToHtml,
   renderToPdf,
+  renderToPdfLib,
   renderToPngZip,
   type InputType,
   type OutputType,
@@ -78,6 +79,11 @@ export default function DocumentConversionPage() {
       } else if (outputType === "pdf") {
         renderToPdf(parsed);
         setSuccess(`Opened a print window. Use your browser's Save as PDF option to finish.${ocrNote}`);
+      } else if (outputType === "pdf-text") {
+        setProgressLabel("Building PDF with real text layer...");
+        const blob = await renderToPdfLib(parsed);
+        downloadBlob(blob, `${baseName}.pdf`);
+        setSuccess(`PDF downloaded with a guaranteed selectable text layer.${ocrNote}`);
       } else if (outputType === "docx") {
         const blob = await renderToDocx(parsed);
         downloadBlob(blob, `${baseName}.docx`);

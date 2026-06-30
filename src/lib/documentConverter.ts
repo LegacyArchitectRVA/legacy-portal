@@ -12,6 +12,7 @@ export type Block =
   | { type: "paragraph"; text: string }
   | { type: "list"; ordered: boolean; items: string[] }
   | { type: "table"; headers: string[]; rows: string[][] }
+  | { type: "image"; src: string; alt?: string; width?: number; height?: number }
   | { type: "hr" };
 
 export interface ParsedDocument {
@@ -99,13 +100,30 @@ export function parseHtmlString(html: string, fallbackTitle: string): ParsedDocu
       if (/^h[1-6]$/.test(tag)) {
         blocks.push({ type: "heading", level: Number(tag[1]) as any, text: child.textContent?.trim() || "" });
       } else if (tag === "p") {
+        const imgEls = Array.from(child.querySelectorAll("img"));
         const t = child.textContent?.trim() || "";
-        if (t) blocks.push({ type: "paragraph", text: t });
+        if (t) {
+          blocks.push({ type: "paragraph", text: t });
+        }
+        for (const imgEl of imgEls) {
+          const src = imgEl.getAttribute("src") || "";
+          if (!src) continue;
+          const w = Number(imgEl.getAttribute("width")) || undefined;
+          const h = Number(imgEl.getAttribute("height")) || undefined;
+          blocks.push({ type: "image", src, alt: imgEl.getAttribute("alt") || undefined, width: w, height: h });
+        }
       } else if (tag === "ul" || tag === "ol") {
         const items = Array.from(child.querySelectorAll("li")).map((li) => li.textContent?.trim() || "");
         if (items.length) blocks.push({ type: "list", ordered: tag === "ol", items });
       } else if (tag === "hr") {
         blocks.push({ type: "hr" });
+      } else if (tag === "img") {
+        const src = child.getAttribute("src") || "";
+        if (src) {
+          const w = Number(child.getAttribute("width")) || undefined;
+          const h = Number(child.getAttribute("height")) || undefined;
+          blocks.push({ type: "image", src, alt: child.getAttribute("alt") || undefined, width: w, height: h });
+        }
       } else if (tag === "table") {
         const rowEls = Array.from(child.querySelectorAll("tr"));
         if (rowEls.length > 0) {
@@ -705,6 +723,77 @@ function linkKnownTitles(blocks: Block[], slugByTitle: Map<string, string>) {
 }
 
 /**
+ * Walks a PDF page's drawing operations looking for embedded raster images
+ * (paintImageXObject), resolves each through pdf.js's object store, and
+ * draws it to a canvas to get a portable PNG data URI. Skips anything it
+ * can't decode rather than failing the whole conversion -- a missing image
+ * is a smaller loss than a failed conversion.
+ */
+async function extractPageImages(page: any, OPS: any): Promise<string[]> {
+  const opList = await page.getOperatorList();
+  const srcs: string[] = [];
+  const seen = new Set<string>();
+
+  for (let i = 0; i < opList.fnArray.length; i++) {
+    if (opList.fnArray[i] !== OPS.paintImageXObject) continue;
+    const objId = opList.argsArray[i][0];
+    if (typeof objId !== "string" || seen.has(objId)) continue;
+    seen.add(objId);
+
+    try {
+      const imgData: any = await new Promise((resolve) => {
+        page.objs.get(objId, resolve);
+      });
+      if (!imgData || !imgData.width || !imgData.height) continue;
+      // Skip tiny decorative artifacts (rule lines, spacer pixels) -- not
+      // worth carrying through as a real "image" block.
+      if (imgData.width < 24 || imgData.height < 24) continue;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = imgData.width;
+      canvas.height = imgData.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) continue;
+
+      if (imgData.bitmap) {
+        // Modern pdf.js resolves images as an ImageBitmap.
+        ctx.drawImage(imgData.bitmap, 0, 0, imgData.width, imgData.height);
+      } else if (imgData.data) {
+        // Older pdf.js fallback: raw pixel bytes, 1/3/4 channels per pixel.
+        const channels = imgData.data.length / (imgData.width * imgData.height);
+        const out = ctx.createImageData(imgData.width, imgData.height);
+        if (channels === 4) {
+          out.data.set(imgData.data);
+        } else if (channels === 3) {
+          for (let p = 0, q = 0; p < imgData.data.length; p += 3, q += 4) {
+            out.data[q] = imgData.data[p];
+            out.data[q + 1] = imgData.data[p + 1];
+            out.data[q + 2] = imgData.data[p + 2];
+            out.data[q + 3] = 255;
+          }
+        } else if (channels === 1) {
+          for (let p = 0, q = 0; p < imgData.data.length; p++, q += 4) {
+            out.data[q] = out.data[q + 1] = out.data[q + 2] = imgData.data[p];
+            out.data[q + 3] = 255;
+          }
+        } else {
+          continue;
+        }
+        ctx.putImageData(out, 0, 0);
+      } else {
+        continue;
+      }
+
+      srcs.push(canvas.toDataURL("image/png"));
+    } catch {
+      // Undecodable image (unsupported colorspace/filter) -- skip it.
+    }
+  }
+
+  return srcs;
+}
+
+/**
  * PDFs have no real document structure, just positioned glyphs, so this
  * infers headings vs. paragraphs vs. lists from font size and bullet
  * patterns. It's a heuristic, not a guarantee: well-formatted documents
@@ -724,7 +813,7 @@ export async function parsePdf(
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-  type Line = { text: string; fontSize: number };
+  type Line = { text: string; fontSize: number; pageEnd?: boolean };
   const lines: Line[] = [];
 
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -756,7 +845,7 @@ export async function parsePdf(
         row.items.reduce((s, i) => s + i.fontSize, 0) / row.items.length;
       lines.push({ text, fontSize: avgFontSize });
     }
-    lines.push({ text: "", fontSize: 0 }); // page break -> paragraph break
+    lines.push({ text: "", fontSize: 0, pageEnd: true }); // page break -> paragraph break
   }
 
   let usedOcr = false;
@@ -816,6 +905,19 @@ export async function parsePdf(
     }
   }
 
+  // Extract embedded images (logos, photos) per page -- only for PDFs with a
+  // real text layer. Skipped on the OCR path on purpose: a rasterized page
+  // is itself one giant "image" covering the whole page, and re-embedding
+  // that would just duplicate the OCR'd text as a huge picture underneath it.
+  const pageImages: string[][] = [];
+  if (!usedOcr) {
+    const OPS = pdfjsLib.OPS;
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      pageImages.push(await extractPageImages(page, OPS));
+    }
+  }
+
   // Body text size = the most common font size across all lines.
   const sizeCounts = new Map<number, number>();
   for (const l of lines) {
@@ -852,12 +954,19 @@ export async function parsePdf(
 
   const bulletRe = /^[•◦▪\-\*]\s+/;
   const numberedRe = /^\d+[.)]\s+/;
+  let pageCursor = 0;
 
   for (const line of lines) {
     const text = line.text.trim();
     if (!text) {
       flushParagraph();
       flushList();
+      if (line.pageEnd) {
+        for (const src of pageImages[pageCursor] || []) {
+          blocks.push({ type: "image", src });
+        }
+        pageCursor++;
+      }
       continue;
     }
     const ratio = line.fontSize / bodySize;
@@ -946,6 +1055,10 @@ function blocksToInnerHtml(blocks: Block[]): string {
       if (b.type === "heading") return `<h${b.level}${b.id ? ` id="${escapeHtml(b.id)}"` : ""}>${textToHtml(b.text)}</h${b.level}>`;
       if (b.type === "paragraph") return `<p>${textToHtml(b.text)}</p>`;
       if (b.type === "hr") return `<hr />`;
+      if (b.type === "image") {
+        const dims = b.width && b.height ? ` width="${b.width}" height="${b.height}"` : "";
+        return `<img src="${escapeHtml(b.src)}" alt="${escapeHtml(b.alt || "")}"${dims} />`;
+      }
       if (b.type === "table") {
         const headerRow = b.headers.some((h) => h)
           ? `<thead><tr>${b.headers.map((h) => `<th>${textToHtml(h)}</th>`).join("")}</tr></thead>`
@@ -987,6 +1100,7 @@ export function renderToHtml(doc: ParsedDocument): string {
     .cover-title { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; font-size: 1.9rem; text-align: center; letter-spacing: 0.04em; text-transform: uppercase; background: linear-gradient(135deg, ${BRAND_GOLD_LIGHT}, ${BRAND_GOLD}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.4rem; }
     .cover-meta { text-align: center; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(232,230,225,0.45); margin-bottom: 2.5rem; }
     .cover-rule { width: 90px; height: 1px; background: linear-gradient(90deg, transparent, ${BRAND_GOLD}, transparent); margin: 0 auto 2.5rem; }
+    img:not(.logo) { max-width: 100%; height: auto; display: block; margin: 1.75rem auto; border-radius: 4px; box-shadow: 0 4px 18px rgba(0,0,0,0.35); }
     h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; letter-spacing: 0.02em; color: ${BRAND_CREAM}; margin: 2rem 0 0.85rem; }
     h1 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid rgba(217,204,160,0.25); padding-bottom: 0.6rem; }
     h2 { font-size: 1.25rem; }
@@ -1033,6 +1147,7 @@ export function renderToPdf(doc: ParsedDocument) {
     .cover-title { font-family: ${BRAND_FONT_HEAD}; font-size: 22pt; text-align: center; letter-spacing: 0.06em; color: #2d5a3d; text-transform: uppercase; margin-bottom: 0.06in; }
     .cover-meta { text-align: center; font-size: 9.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #5c7a63; margin-bottom: 0.45in; }
     .cover-rule { width: 1.4in; height: 1px; background: linear-gradient(90deg, transparent, #3a7350, transparent); margin: 0 auto 0.45in; }
+    img:not(.logo) { max-width: 100%; height: auto; display: block; margin: 0.3in auto; }
     h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; color: #2d5a3d; margin: 0.32in 0 0.14in; text-transform: uppercase; letter-spacing: 0.03em; }
     h1 { font-size: 16pt; border-bottom: 1px solid #cfe0d3; padding-bottom: 0.08in; }
     h2 { font-size: 13.5pt; }
@@ -1070,8 +1185,38 @@ export function renderToPdf(doc: ParsedDocument) {
 }
 
 /** Builds a real .docx file and returns it as a Blob. */
+/** Decodes a `data:image/png;base64,...` URI into raw bytes and its declared mime type. */
+function decodeDataUri(dataUri: string): { bytes: Uint8Array; mime: string } | null {
+  const match = /^data:([^;]+);base64,(.*)$/s.exec(dataUri);
+  if (!match) return null;
+  const mime = match[1];
+  const binary = atob(match[2]);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return { bytes, mime };
+}
+
+/** Maps a data URI's mime type to the image type string docx's ImageRun expects. */
+function docxImageType(mime: string): "png" | "jpg" | "gif" | "bmp" | null {
+  if (mime.includes("png")) return "png";
+  if (mime.includes("jpeg") || mime.includes("jpg")) return "jpg";
+  if (mime.includes("gif")) return "gif";
+  if (mime.includes("bmp")) return "bmp";
+  return null;
+}
+
+/** Loads an image to read its intrinsic pixel dimensions when a Block didn't already carry them (e.g. images parsed from HTML/Word without explicit width/height attributes). */
+function getImageDimensions(src: string): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve({ width: img.naturalWidth || 400, height: img.naturalHeight || 300 });
+    img.onerror = () => reject(new Error("Could not read image dimensions"));
+    img.src = src;
+  });
+}
+
 export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
-  const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle, Bookmark, InternalHyperlink, ExternalHyperlink } = await import("docx");
+  const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle, Bookmark, InternalHyperlink, ExternalHyperlink, ImageRun } = await import("docx");
 
   // Named GOLD for historical reasons, but holds the light-mode forest
   // green values — DOCX is an inherently light/white-page document, so
@@ -1178,6 +1323,35 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
           })
         );
       }
+    } else if (b.type === "image") {
+      const decoded = decodeDataUri(b.src);
+      const imgType = decoded ? docxImageType(decoded.mime) : null;
+      if (decoded && imgType) {
+        try {
+          const dims = b.width && b.height ? { width: b.width, height: b.height } : await getImageDimensions(b.src);
+          const maxWidth = 460;
+          const scale = dims.width > maxWidth ? maxWidth / dims.width : 1;
+          children.push(
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              spacing: { before: 200, after: 200 },
+              children: [
+                new ImageRun({
+                  type: imgType,
+                  data: decoded.bytes,
+                  transformation: {
+                    width: Math.round(dims.width * scale),
+                    height: Math.round(dims.height * scale),
+                  },
+                }),
+              ],
+            })
+          );
+        } catch {
+          // Couldn't read this image's dimensions -- skip it rather than
+          // failing the whole document export.
+        }
+      }
     } else if (b.type === "hr") {
       children.push(new Paragraph({ text: "" }));
     }
@@ -1199,6 +1373,186 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
  * and bundles all images into a single zip — built for pulling each
  * page of a document into its own shareable image.
  */
+/**
+ * Builds a PDF directly with pdf-lib, drawing real selectable text glyph by
+ * glyph rather than relying on a browser's print-to-PDF pipeline. This
+ * exists specifically so a PDF coming out of this converter can never end
+ * up text-less the way a rasterized "print to PDF" export can (see
+ * parsePdf's OCR fallback above, which exists to recover from exactly that
+ * failure mode). Styling is intentionally simple -- this trades visual
+ * polish for a hard guarantee that the output always has a real text layer.
+ */
+export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
+  const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
+
+  const pdfDoc = await PDFDocument.create();
+  const bodyFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+  const boldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+  const italicFont = await pdfDoc.embedFont(StandardFonts.TimesRomanItalic);
+
+  const PAGE_W = 612; // US Letter, points
+  const PAGE_H = 792;
+  const MARGIN = 56;
+  const CONTENT_W = PAGE_W - MARGIN * 2;
+  const GOLD = rgb(0.45, 0.36, 0.16);
+  const INK = rgb(0.12, 0.1, 0.08);
+  const MUTED = rgb(0.45, 0.43, 0.4);
+  const RULE = rgb(0.78, 0.74, 0.6);
+
+  let page = pdfDoc.addPage([PAGE_W, PAGE_H]);
+  let y = PAGE_H - MARGIN;
+  const pages: typeof page[] = [page];
+
+  const newPage = () => {
+    page = pdfDoc.addPage([PAGE_W, PAGE_H]);
+    pages.push(page);
+    y = PAGE_H - MARGIN;
+  };
+
+  const ensureSpace = (needed: number) => {
+    if (y - needed < MARGIN) newPage();
+  };
+
+  // Greedy word-wrap using real glyph widths from the embedded font.
+  const wrapText = (text: string, font: typeof bodyFont, size: number, maxWidth: number): string[] => {
+    const words = text.split(/\s+/).filter(Boolean);
+    const out: string[] = [];
+    let line = "";
+    for (const word of words) {
+      const candidate = line ? `${line} ${word}` : word;
+      if (font.widthOfTextAtSize(candidate, size) > maxWidth && line) {
+        out.push(line);
+        line = word;
+      } else {
+        line = candidate;
+      }
+    }
+    if (line) out.push(line);
+    return out.length ? out : [""];
+  };
+
+  const drawParagraph = (text: string, opts: { font?: typeof bodyFont; size?: number; color?: any; lineHeight?: number; indent?: number; maxWidth?: number } = {}) => {
+    const font = opts.font || bodyFont;
+    const size = opts.size ?? 11;
+    const lineHeight = opts.lineHeight ?? size * 1.4;
+    const indent = opts.indent ?? 0;
+    const maxWidth = opts.maxWidth ?? CONTENT_W - indent;
+    const lines = wrapText(text, font, size, maxWidth);
+    for (const ln of lines) {
+      ensureSpace(lineHeight);
+      page.drawText(ln, { x: MARGIN + indent, y: y - size, size, font, color: opts.color || INK });
+      y -= lineHeight;
+    }
+  };
+
+  const HEADING_SIZES: Record<number, number> = { 1: 19, 2: 16, 3: 14, 4: 12.5, 5: 12, 6: 11.5 };
+
+  // Embed a PNG/JPG data URI as a real PDF image object, scaled to fit the
+  // content width while preserving aspect ratio.
+  const drawImageBlock = async (b: Extract<Block, { type: "image" }>) => {
+    const decoded = decodeDataUri(b.src);
+    if (!decoded) return;
+    let embedded;
+    try {
+      embedded = decoded.mime.includes("png")
+        ? await pdfDoc.embedPng(decoded.bytes)
+        : await pdfDoc.embedJpg(decoded.bytes);
+    } catch {
+      return; // unsupported image format -- skip rather than fail the export
+    }
+    const naturalW = b.width || embedded.width;
+    const naturalH = b.height || embedded.height;
+    const scale = naturalW > CONTENT_W ? CONTENT_W / naturalW : 1;
+    const w = naturalW * scale;
+    const h = naturalH * scale;
+    ensureSpace(h + 16);
+    page.drawImage(embedded, { x: MARGIN + (CONTENT_W - w) / 2, y: y - h, width: w, height: h });
+    y -= h + 16;
+  };
+
+  // ---- Cover ----
+  ensureSpace(60);
+  const titleSize = 22;
+  const titleLines = wrapText(doc.title, boldFont, titleSize, CONTENT_W);
+  for (const ln of titleLines) {
+    const tw = boldFont.widthOfTextAtSize(ln, titleSize);
+    page.drawText(ln, { x: MARGIN + (CONTENT_W - tw) / 2, y: y - titleSize, size: titleSize, font: boldFont, color: GOLD });
+    y -= titleSize * 1.25;
+  }
+  y -= 6;
+  const meta = `Prepared by Legacy Architect RVA  \u00b7  ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`;
+  const metaSize = 9.5;
+  const metaW = italicFont.widthOfTextAtSize(meta, metaSize);
+  page.drawText(meta, { x: MARGIN + (CONTENT_W - metaW) / 2, y: y - metaSize, size: metaSize, font: italicFont, color: MUTED });
+  y -= metaSize * 1.4 + 14;
+  page.drawLine({ start: { x: MARGIN + CONTENT_W / 2 - 50, y }, end: { x: MARGIN + CONTENT_W / 2 + 50, y }, thickness: 1, color: RULE });
+  y -= 28;
+
+  // ---- Body ----
+  for (const b of dedupeTitleBlock(doc)) {
+    if (b.type === "heading") {
+      const size = HEADING_SIZES[b.level] || 12;
+      ensureSpace(size * 1.6 + 14);
+      y -= 12;
+      drawParagraph(b.text, { font: boldFont, size, color: GOLD, lineHeight: size * 1.25 });
+      if (b.level <= 2) {
+        ensureSpace(10);
+        page.drawLine({ start: { x: MARGIN, y: y + 4 }, end: { x: MARGIN + CONTENT_W, y: y + 4 }, thickness: 0.75, color: RULE });
+      }
+      y -= 6;
+    } else if (b.type === "paragraph") {
+      drawParagraph(b.text);
+      y -= 4;
+    } else if (b.type === "list") {
+      for (let i = 0; i < b.items.length; i++) {
+        const prefix = b.ordered ? `${i + 1}.` : "\u2022";
+        ensureSpace(16);
+        page.drawText(prefix, { x: MARGIN, y: y - 11, size: 11, font: bodyFont, color: INK });
+        drawParagraph(b.items[i], { indent: 16 });
+      }
+      y -= 4;
+    } else if (b.type === "table") {
+      const cols = Math.max(b.headers.length, ...b.rows.map((r) => r.length), 1);
+      const colW = CONTENT_W / cols;
+      const drawRow = (cells: string[], isHeader: boolean) => {
+        const cellLines = cells.map((c) => wrapText(c, isHeader ? boldFont : bodyFont, 9, colW - 10));
+        const rowHeight = Math.max(...cellLines.map((l) => l.length), 1) * 12 + 8;
+        ensureSpace(rowHeight);
+        if (isHeader) {
+          page.drawRectangle({ x: MARGIN, y: y - rowHeight, width: CONTENT_W, height: rowHeight, color: rgb(0.93, 0.9, 0.82) });
+        }
+        cellLines.forEach((lines, ci) => {
+          lines.forEach((ln, li) => {
+            page.drawText(ln, { x: MARGIN + ci * colW + 5, y: y - 12 - li * 12, size: 9, font: isHeader ? boldFont : bodyFont, color: INK });
+          });
+        });
+        page.drawRectangle({ x: MARGIN, y: y - rowHeight, width: CONTENT_W, height: rowHeight, borderColor: RULE, borderWidth: 0.5, color: undefined });
+        y -= rowHeight;
+      };
+      if (b.headers.some((h) => h)) drawRow(b.headers, true);
+      for (const row of b.rows) drawRow(row, false);
+      y -= 10;
+    } else if (b.type === "image") {
+      await drawImageBlock(b);
+    } else if (b.type === "hr") {
+      ensureSpace(20);
+      y -= 8;
+      page.drawLine({ start: { x: MARGIN, y }, end: { x: MARGIN + CONTENT_W, y }, thickness: 0.75, color: RULE });
+      y -= 12;
+    }
+  }
+
+  // ---- Footer page numbers on every page ----
+  pages.forEach((p, i) => {
+    const label = `${i + 1} / ${pages.length}`;
+    const w = bodyFont.widthOfTextAtSize(label, 8.5);
+    p.drawText(label, { x: PAGE_W / 2 - w / 2, y: MARGIN / 2 - 4, size: 8.5, font: bodyFont, color: MUTED });
+  });
+
+  const bytes = await pdfDoc.save();
+  return new Blob([bytes], { type: "application/pdf" });
+}
+
 export async function renderToPngZip(
   doc: ParsedDocument,
   onProgress?: (current: number, total: number) => void
@@ -1238,6 +1592,7 @@ export async function renderToPngZip(
             ul,ol { padding-left:40px; margin-bottom:20px; }
             li { font-size:28px; line-height:1.5; margin-bottom:14px; }
             hr { border:none; border-top:2px solid rgba(217,204,160,0.2); margin:30px 0; }
+            img { max-width:100%; height:auto; display:block; margin:30px auto; border-radius:8px; }
           </style>
           ${blocksToInnerHtml(pages[i])}
           <div style="margin-top:auto;padding-top:40px;text-align:center;font-family:${BRAND_FONT_HEAD};font-size:18px;letter-spacing:0.15em;color:#8a7340;text-transform:uppercase;">
@@ -1263,7 +1618,7 @@ export async function renderToPngZip(
   return await zip.generateAsync({ type: "blob" });
 }
 
-export type OutputType = "html" | "pdf" | "docx" | "png";
+export type OutputType = "html" | "pdf" | "pdf-text" | "docx" | "png";
 
 export const INPUT_TYPES: { id: InputType; label: string; accept: string }[] = [
   { id: "markdown", label: "Markdown", accept: ".md,.markdown,.txt" },
@@ -1276,6 +1631,7 @@ export const INPUT_TYPES: { id: InputType; label: string; accept: string }[] = [
 export const OUTPUT_TYPES: { id: OutputType; label: string; description: string }[] = [
   { id: "html", label: "HTML", description: "Branded, styled web page" },
   { id: "pdf", label: "PDF", description: "Print-ready via your browser" },
+  { id: "pdf-text", label: "PDF (Guaranteed Text)", description: "Built directly with real, selectable text -- skips the print dialog entirely" },
   { id: "docx", label: "Word (.docx)", description: "Editable Word document" },
   { id: "png", label: "Images (.zip)", description: "One image per page, for social/marketing" },
 ];

@@ -1412,8 +1412,15 @@ ${PAGEDJS_POLYFILL}
             <h3 className="font-heading text-lg">Manual Generated</h3>
           </div>
           <p className="text-sm text-[#e8e6e1]/75">
-            Life Manual for {client?.userName} has been generated. Download the HTML file,
-            then open it in a browser and print to PDF for a polished output.
+            Life Manual for {client?.userName} has been generated. Download the HTML file below,
+            or use the{" "}
+            <button
+              onClick={() => navigate("/convert")}
+              className="underline text-gold-primary hover:opacity-80 transition-opacity"
+            >
+              Document Converter
+            </button>
+            {" "}to export a PDF with a guaranteed selectable text layer (choose <strong>PDF (Guaranteed Text)</strong> as the output format).
           </p>
           <div className="flex gap-3">
             <button
