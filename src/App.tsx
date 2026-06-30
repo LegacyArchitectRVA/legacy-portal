@@ -27,6 +27,7 @@ const LegalPage = lazy(() => import("./pages/LegalPage"));
 const UpgradePage = lazy(() => import("./pages/UpgradePage"));
 const PaymentPage = lazy(() => import("./pages/PaymentPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
+const UserAccessPage = lazy(() => import("./pages/UserAccessPage"));
 const ClientDetailPage = lazy(() => import("./pages/ClientDetailPage"));
 const ProspectsPage = lazy(() => import("./pages/ProspectsPage"));
 const AdminVisualEditorPage = lazy(() => import("./pages/AdminVisualEditorPage"));
@@ -72,6 +73,7 @@ function App() {
                 <Route path="/upgrade" element={<UpgradePage />} />
                 <Route path="/payment" element={<PaymentPage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/admin/users" element={<UserAccessPage />} />
                 <Route path="/admin/client/:clientUserId" element={<ClientDetailPage />} />
                 <Route path="/admin/prospects" element={<ProspectsPage />} />
                 <Route path="/admin/visual-editor" element={<AdminVisualEditorPage />} />

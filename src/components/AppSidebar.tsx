@@ -1,6 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
-import { RiArrowUpSLine as ChevronUp, RiLayoutGridLine as LayoutDashboard, RiLogoutBoxRLine as LogOut, RiChat3Line as MessageSquare, RiSettings3Line as Settings, RiShieldCheckLine as ShieldCheck, RiBookOpenLine as BookOpen, RiLineChartLine as TrendingUp, RiUserLine as User, RiTeamLine as Users, RiFileLine as File, RiPaintBrushLine as PaintBrush, RiPlugLine as PlugsConnected } from "@remixicon/react";
+import { RiArrowUpSLine as ChevronUp, RiLayoutGridLine as LayoutDashboard, RiLogoutBoxRLine as LogOut, RiChat3Line as MessageSquare, RiSettings3Line as Settings, RiShieldCheckLine as ShieldCheck, RiBookOpenLine as BookOpen, RiLineChartLine as TrendingUp, RiUserLine as User, RiTeamLine as Users, RiUserSettingsLine as UserCog, RiFileLine as File, RiPaintBrushLine as PaintBrush, RiPlugLine as PlugsConnected } from "@remixicon/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
@@ -251,6 +251,15 @@ export function AppSidebar() {
                   >
                     <ShieldCheck className="w-4 h-4" />
                     <span>Dashboard</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={location.pathname === "/admin/users"}
+                    onClick={() => navTo("/admin/users")}
+                  >
+                    <UserCog className="w-4 h-4" />
+                    <span>User Access</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>

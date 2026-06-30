@@ -1,7 +1,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { startRegistration, browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { RiErrorWarningLine as AlertTriangle, RiNotification3Line as Bell, RiCheckLine as Check, RiArrowRightSLine as ChevronRight, RiEyeLine as Eye, RiEyeOffLine as EyeOff, RiFingerprintLine as Fingerprint, RiFileTextLine as FileText, RiKeyLine as KeyRound, RiLoader4Line as Loader2, RiLogoutBoxRLine as LogOut, RiSmartphoneLine as MonitorSmartphone, RiShieldLine as Shield, RiShieldCheckLine as ShieldCheck, RiSmartphoneLine as Smartphone, RiDeleteBinLine as Trash2, RiSunLine as Sun } from "@remixicon/react";
+import { RiErrorWarningLine as AlertTriangle, RiNotification3Line as Bell, RiCheckLine as Check, RiArrowRightSLine as ChevronRight, RiEyeLine as Eye, RiEyeOffLine as EyeOff, RiFingerprintLine as Fingerprint, RiFileTextLine as FileText, RiKeyLine as KeyRound, RiLoader4Line as Loader2, RiLogoutBoxRLine as LogOut, RiSmartphoneLine as MonitorSmartphone, RiShieldLine as Shield, RiShieldCheckLine as ShieldCheck, RiDeleteBinLine as Trash2, RiSunLine as Sun } from "@remixicon/react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
@@ -247,19 +247,6 @@ export default function SettingsPage() {
               onCheckedChange={handleToggleNotifications}
             />
           )}
-        </div>
-
-        <div className="flex items-center justify-between opacity-50">
-          <div className="flex-1 pr-4">
-            <p className="text-sm text-[#e8e6e1] flex items-center gap-2">
-              <Smartphone className="w-3.5 h-3.5" /> Text me about new messages
-            </p>
-            <p className="text-xs text-[#e8e6e1]/75 mt-0.5">
-              Not available yet, this needs a text-messaging provider connected on the
-              backend first. Ask Craig to set this up if you want it enabled.
-            </p>
-          </div>
-          <Switch checked={false} disabled />
         </div>
       </div>
 

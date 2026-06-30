@@ -287,7 +287,7 @@ function SectionAccordion({
         <div className="border-t border-gold-border/30 p-4 space-y-4 animate-fade-in" style={{ animationDuration: "0.3s" }}>
           {!canEdit && (
             <div className="rounded-lg border border-gold-border/30 bg-black/40 px-3 py-2 text-xs text-[#e8e6e1]/75">
-              Chapter sections are view-only in the client portal. Contact Legacy Architect RVA to request a change.
+              Chapter sections are view-only in the client portal.
             </div>
           )}
           {section.description && (

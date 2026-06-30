@@ -1,6 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
-import { RiArrowRightSLine as ChevronRight, RiFileLine as File, RiLayoutGridLine as LayoutDashboard, RiLogoutBoxRLine as LogOut, RiChat3Line as MessageSquare, RiSettings3Line as Settings, RiShieldCheckLine as ShieldCheck, RiBookOpenLine as BookOpen, RiLineChartLine as TrendingUp, RiUserLine as User, RiTeamLine as Users, RiPaintBrushLine as PaintBrush, RiPlugLine as PlugsConnected, RiCloseLine as X } from "@remixicon/react";
+import { RiArrowRightSLine as ChevronRight, RiFileLine as File, RiLayoutGridLine as LayoutDashboard, RiLogoutBoxRLine as LogOut, RiChat3Line as MessageSquare, RiSettings3Line as Settings, RiShieldCheckLine as ShieldCheck, RiBookOpenLine as BookOpen, RiLineChartLine as TrendingUp, RiUserLine as User, RiTeamLine as Users, RiUserSettingsLine as UserCog, RiPaintBrushLine as PaintBrush, RiPlugLine as PlugsConnected, RiCloseLine as X } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
@@ -170,6 +170,7 @@ export function MobileMenuPage() {
           <>
             <SectionLabel>Admin</SectionLabel>
             <Row icon={<ShieldCheck className="w-4 h-4 text-gold-muted" />} label="Dashboard" onClick={() => go("/admin")} />
+            <Row icon={<UserCog className="w-4 h-4 text-gold-muted" />} label="User Access" onClick={() => go("/admin/users")} />
             <Row icon={<Users className="w-4 h-4 text-gold-muted" />} label="Prospects" onClick={() => go("/admin/prospects")} />
             <Row icon={<BookOpen className="w-4 h-4 text-gold-muted" />} label="Generate Manual" onClick={() => go("/generate")} />
             <Row icon={<File className="w-4 h-4 text-gold-muted" />} label="Document Conversion" onClick={() => go("/convert")} />
