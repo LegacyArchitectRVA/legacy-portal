@@ -23,6 +23,51 @@ function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// A curated topic index, not just an alphabetized restating of the table of
+// contents. The point is covering the words someone would actually search
+// for ("attorney", "bank", "pets") even when they don't match a section
+// title exactly, since Ctrl+F only finds what's literally on the page, and
+// doesn't exist at all on a printed copy. Each ref names its own anchor and
+// label directly rather than being resolved from chapter data, since a few
+// terms point at special top-level sections (Legal Documents in Force) that
+// aren't part of the regular chapter/section structure.
+const INDEX_TERMS: { term: string; refs: { anchor: string; label: string; chapterId?: string }[] }[] = [
+  { term: "Accounts, financial", refs: [{ anchor: "financial-accounts_institutions", label: "Accounts & Institutions", chapterId: "financial" }, { anchor: "digital-digital_financial", label: "Digital Financial Accounts", chapterId: "digital" }] },
+  { term: "Attorney", refs: [{ anchor: "emergency-emergency_contacts", label: "Emergency Contacts", chapterId: "emergency" }, { anchor: "legal-documents", label: "Legal Documents in Force" }] },
+  { term: "Bank, banking", refs: [{ anchor: "financial-accounts_institutions", label: "Accounts & Institutions", chapterId: "financial" }, { anchor: "digital-digital_financial", label: "Digital Financial Accounts", chapterId: "digital" }] },
+  { term: "Beneficiaries", refs: [{ anchor: "financial-beneficiaries", label: "Beneficiaries Overview", chapterId: "financial" }] },
+  { term: "Business assets", refs: [{ anchor: "business-business_assets", label: "Business Assets & Property", chapterId: "business" }] },
+  { term: "Car, vehicle", refs: [{ anchor: "household-vehicle_info", label: "Vehicle Information", chapterId: "household" }] },
+  { term: "Children, dependents", refs: [{ anchor: "emergency-child_care_dependents", label: "Child Care & Dependents", chapterId: "emergency" }] },
+  { term: "Cloud storage", refs: [{ anchor: "digital-cloud_storage", label: "Cloud Storage", chapterId: "digital" }] },
+  { term: "Contracts", refs: [{ anchor: "business-contracts_obligations", label: "Contracts & Obligations", chapterId: "business" }] },
+  { term: "Credit, loans", refs: [{ anchor: "business-loan_credit", label: "Loan & Credit Agreements", chapterId: "business" }] },
+  { term: "Devices, computers, phones", refs: [{ anchor: "digital-devices_os", label: "Devices & Operating Systems", chapterId: "digital" }] },
+  { term: "Doctor, physician", refs: [{ anchor: "vitals-medical_providers", label: "Active Medical Providers", chapterId: "vitals" }] },
+  { term: "Email", refs: [{ anchor: "digital-primary_email", label: "Primary E-Mail", chapterId: "digital" }] },
+  { term: "Emergency contacts", refs: [{ anchor: "emergency-emergency_contacts", label: "Emergency Contacts", chapterId: "emergency" }] },
+  { term: "Employees, staff", refs: [{ anchor: "business-internal_leadership", label: "Internal Leadership", chapterId: "business" }] },
+  { term: "Final wishes, funeral", refs: [{ anchor: "context-final_wishes", label: "Final Wishes", chapterId: "context" }] },
+  { term: "Guardian", refs: [{ anchor: "emergency-child_care_dependents", label: "Child Care & Dependents", chapterId: "emergency" }] },
+  { term: "Home, house", refs: [{ anchor: "household-home_systems", label: "Home Systems & Shut-offs", chapterId: "household" }] },
+  { term: "Identification documents", refs: [{ anchor: "vitals-identification_documents", label: "Identification Documents", chapterId: "vitals" }] },
+  { term: "Insurance", refs: [{ anchor: "financial-insurance_policies", label: "Insurance Policies", chapterId: "financial" }, { anchor: "business-business_insurance", label: "Business Insurance & Risk Coverage", chapterId: "business" }] },
+  { term: "Key relationships", refs: [{ anchor: "business-key_relationships", label: "Key Relationships", chapterId: "business" }] },
+  { term: "Locks, alarms, security", refs: [{ anchor: "household-security_access", label: "Security & Access", chapterId: "household" }] },
+  { term: "Medical information, medications", refs: [{ anchor: "vitals-medical_information", label: "Medical Information", chapterId: "vitals" }] },
+  { term: "Passwords", refs: [{ anchor: "digital-password_manager", label: "Password Manager", chapterId: "digital" }, { anchor: "digital-twofa_recovery", label: "2FA & Recovery Codes", chapterId: "digital" }] },
+  { term: "Personal values, legacy", refs: [{ anchor: "context-personal_values", label: "Personal Values & Context", chapterId: "context" }] },
+  { term: "Pets", refs: [{ anchor: "household-petcare", label: "Petcare", chapterId: "household" }] },
+  { term: "Photos, memories, social media", refs: [{ anchor: "digital-online_presence", label: "Online Presence", chapterId: "digital" }, { anchor: "context-digital_narrative_control", label: "Digital & Narrative Control", chapterId: "context" }] },
+  { term: "Property, real estate", refs: [{ anchor: "financial-titles_ownership", label: "Titles & Ownership", chapterId: "financial" }, { anchor: "business-business_assets", label: "Business Assets & Property", chapterId: "business" }] },
+  { term: "Subscriptions, renewals", refs: [{ anchor: "digital-subscriptions_renewals", label: "Subscriptions & Renewals", chapterId: "digital" }] },
+  { term: "Successor, who's in charge", refs: [{ anchor: "emergency-emergency_contacts", label: "Emergency Contacts", chapterId: "emergency" }, { anchor: "business-internal_leadership", label: "Internal Leadership", chapterId: "business" }, { anchor: "successor-roadmap", label: "Successor Roadmap" }] },
+  { term: "Two-factor authentication, recovery codes", refs: [{ anchor: "digital-twofa_recovery", label: "2FA & Recovery Codes", chapterId: "digital" }] },
+  { term: "Utilities", refs: [{ anchor: "household-home_systems", label: "Home Systems & Shut-offs", chapterId: "household" }] },
+  { term: "Vendors, service providers", refs: [{ anchor: "business-vendor_agreements", label: "Vendor & Service Agreements", chapterId: "business" }] },
+  { term: "Will, power of attorney", refs: [{ anchor: "legal-documents", label: "Legal Documents in Force" }, { anchor: "context-final_wishes", label: "Final Wishes", chapterId: "context" }] },
+];
+
 // Builds a single regex that matches any known chapter/subsection title
 // (longest first, so "Vital Records" wins over any shorter overlapping
 // phrase) plus a lookup from matched title -> its anchor href.
@@ -181,6 +226,15 @@ export default function GeneratePage() {
       const qrWill = (manualData?.legalDocuments || []).find((d: any) => d.documentType === "Will" && d.inForce);
       const qrFirstStep = manualData?.fieldsBySection["emergency:first_48_hours"]?.["crisis_step1"];
       const showQuickReference = !!(qrPrimaryContact || qrWill || qrFirstStep);
+
+      const accessibleChapterIds = new Set(accessibleChapters.map((c) => c.id));
+      const visibleIndexTerms = INDEX_TERMS
+        .map((entry) => ({
+          term: entry.term,
+          refs: entry.refs.filter((r) => !r.chapterId || accessibleChapterIds.has(r.chapterId)),
+        }))
+        .filter((entry) => entry.refs.length > 0)
+        .sort((a, b) => a.term.localeCompare(b.term));
 
       let html = `
 <!DOCTYPE html>
@@ -789,6 +843,9 @@ export default function GeneratePage() {
         html += `      </ul>\n    </div>\n`;
       }
 
+      if (visibleIndexTerms.length > 0) {
+        html += `    <div class="toc-chapter"><a href="#index">Index</a></div>\n`;
+      }
       html += `  </div>
 `;
 
@@ -884,6 +941,26 @@ export default function GeneratePage() {
           html += `</div>`;
         }
         html += `    <div class="flourish">&#10070;</div>\n  </div>`;
+      }
+
+      // ── Index ──
+      if (visibleIndexTerms.length > 0) {
+        html += `
+  <div class="chapter" id="index">
+    <a class="back-to-toc" href="#toc">&uarr; Table of Contents</a>
+    <h2>Index</h2>
+    <p class="desc">Common topics and where to find them, for when the exact section name isn't obvious.</p>
+    <div class="toc-sections" style="columns: 1;">
+`;
+        for (const entry of visibleIndexTerms) {
+          for (const ref of entry.refs) {
+            html += `      <div class="toc-chapter" style="margin-bottom: 0.5rem;"><a href="#${ref.anchor}"><strong>${escapeHtml(entry.term)}</strong> &mdash; ${escapeHtml(ref.label)}</a></div>\n`;
+          }
+        }
+        html += `
+    </div>
+  </div>
+`;
       }
 
       html += `
