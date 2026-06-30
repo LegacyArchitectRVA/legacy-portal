@@ -115,6 +115,7 @@ export const sendPasswordResetEmail = action({
     const apiKey = process.env.AUTH_RESEND_KEY;
     if (!apiKey) throw new Error("AUTH_RESEND_KEY environment variable not configured.");
     const greetingName = user.name ? String(user.name).split(" ")[0] : "there";
+    const loginUrl = "https://portal.legacyarchitectrva.com/login";
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
@@ -126,14 +127,19 @@ export const sendPasswordResetEmail = action({
           <div style="font-family: Georgia, serif; max-width: 480px; margin: 0 auto; padding: 24px; color: #1a1a1a; line-height: 1.6;">
             <p>Hi ${greetingName},</p>
             <p>Your password for the ${APP_NAME} client portal has been reset. Here is your new temporary password:</p>
-            <p style="font-family: monospace; font-size: 18px; background: #f5f5f5; padding: 12px 16px; border-radius: 6px; letter-spacing: 1px;">${temporaryPassword}</p>
-            <p>Use this to sign in, then update it to something only you know from Settings.</p>
+            <p style="font-family: monospace; font-size: 18px; background: #f5f5f5; padding: 12px 16px; border-radius: 6px;">${temporaryPassword}</p>
+            <p style="font-size: 13px; color: #666;">Copy and paste this exactly as shown — it's case-sensitive and has no spaces, even though it may look spaced out in some email apps.</p>
+            <p style="text-align: center; margin: 28px 0;">
+              <a href="${loginUrl}" style="display: inline-block; background: #1a1a1a; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-family: Georgia, serif;">Sign In to the Portal</a>
+            </p>
+            <p style="font-size: 13px; color: #666;">Or go to ${loginUrl} directly.</p>
+            <p>Once you're in, update your password to something only you know from Settings.</p>
             <p>Best,<br/>Craig</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
             <p style="color: #999; font-size: 12px;">This email was sent by ${APP_NAME}</p>
           </div>
         `,
-        text: `Hi ${greetingName},\n\nYour password for the ${APP_NAME} client portal has been reset. Your new temporary password is:\n\n${temporaryPassword}\n\nUse this to sign in, then update it to something only you know from Settings.\n\nBest,\nCraig`,
+        text: `Hi ${greetingName},\n\nYour password for the ${APP_NAME} client portal has been reset. Your new temporary password is:\n\n${temporaryPassword}\n\nCopy and paste this exactly as shown — it's case-sensitive and has no spaces.\n\nSign in here: ${loginUrl}\n\nOnce you're in, update your password to something only you know from Settings.\n\nBest,\nCraig`,
       }),
     });
     if (!response.ok) {
