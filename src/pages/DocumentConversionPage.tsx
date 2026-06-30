@@ -64,27 +64,30 @@ export default function DocumentConversionPage() {
     setProgressLabel(null);
 
     try {
-      const parsed = await parseInput(file, inputType);
+      const parsed = await parseInput(file, inputType, (current, total) =>
+        setProgressLabel(`Reading page ${current} of ${total} (OCR)...`)
+      );
+      const ocrNote = parsed.warnings?.length ? ` ${parsed.warnings.join(" ")}` : "";
       const baseName = file.name.replace(/\.[^.]+$/, "");
 
       if (outputType === "html") {
         const html = renderToHtml(parsed);
         setPreviewHtml(html);
         downloadText(html, `${baseName}.html`, "text/html");
-        setSuccess("Converted to HTML and downloaded.");
+        setSuccess(`Converted to HTML and downloaded.${ocrNote}`);
       } else if (outputType === "pdf") {
         renderToPdf(parsed);
-        setSuccess("Opened a print window. Use your browser's Save as PDF option to finish.");
+        setSuccess(`Opened a print window. Use your browser's Save as PDF option to finish.${ocrNote}`);
       } else if (outputType === "docx") {
         const blob = await renderToDocx(parsed);
         downloadBlob(blob, `${baseName}.docx`);
-        setSuccess("Converted to a Word document and downloaded.");
+        setSuccess(`Converted to a Word document and downloaded.${ocrNote}`);
       } else if (outputType === "png") {
         const zip = await renderToPngZip(parsed, (current, total) =>
           setProgressLabel(`Rendering page ${current} of ${total}...`)
         );
         downloadBlob(zip, `${baseName}-images.zip`);
-        setSuccess("Each page rendered as its own image and downloaded as a zip.");
+        setSuccess(`Each page rendered as its own image and downloaded as a zip.${ocrNote}`);
       }
     } catch (err: any) {
       setError(err?.message || "Conversion failed. Check the file and try again.");

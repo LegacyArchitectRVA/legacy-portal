@@ -17,6 +17,8 @@ export type Block =
 export interface ParsedDocument {
   title: string;
   blocks: Block[];
+  /** Non-fatal notes about the parse (e.g. OCR fallback was used) to surface to the user. */
+  warnings?: string[];
 }
 
 
@@ -709,7 +711,10 @@ function linkKnownTitles(blocks: Block[], slugByTitle: Map<string, string>) {
  * (consistent heading sizes, real bullet characters) convert cleanly;
  * unusual layouts may come through as plain paragraphs.
  */
-export async function parsePdf(file: File): Promise<ParsedDocument> {
+export async function parsePdf(
+  file: File,
+  onProgress?: (current: number, total: number) => void
+): Promise<ParsedDocument> {
   const pdfjsLib = await import("pdfjs-dist");
   pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.mjs",
@@ -754,10 +759,61 @@ export async function parsePdf(file: File): Promise<ParsedDocument> {
     lines.push({ text: "", fontSize: 0 }); // page break -> paragraph break
   }
 
+  let usedOcr = false;
+
   if (lines.every((l) => !l.text)) {
-    throw new Error(
-      "No extractable text found in this PDF. It may be a scanned image without OCR text."
-    );
+    // No real text layer (most likely an image-only / rasterized export, e.g.
+    // a mobile "print to PDF" that flattened the page). Fall back to OCR
+    // rather than failing outright.
+    usedOcr = true;
+    lines.length = 0;
+
+    const { createWorker } = await import("tesseract.js");
+    const worker = await createWorker("eng");
+
+    try {
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        onProgress?.(pageNum, pdf.numPages);
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 2.5 });
+        const canvas = document.createElement("canvas");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) continue;
+        await page.render({ canvasContext: ctx, viewport, canvas } as any).promise;
+
+        const { data } = await worker.recognize(canvas);
+        const pageLines = (data.text || "").split("\n");
+
+        for (const raw of pageLines) {
+          const text = raw.trim();
+          if (!text) {
+            lines.push({ text: "", fontSize: 0 });
+            continue;
+          }
+          // No font-size info from OCR, so headings are detected by the
+          // brand's own formatting standard instead: section headers are
+          // printed ALL CAPS, the cover title is short Title/Caps text.
+          const letters = text.replace(/[^A-Za-z]/g, "");
+          const isAllCaps =
+            letters.length >= 3 && letters === letters.toUpperCase() && text.length <= 80;
+          // Encode the heading signal as an inflated fontSize so the existing
+          // ratio-based block-building logic below still works unmodified.
+          const fontSize = isAllCaps ? 20 : 12;
+          lines.push({ text, fontSize });
+        }
+        lines.push({ text: "", fontSize: 0 }); // page break -> paragraph break
+      }
+    } finally {
+      await worker.terminate();
+    }
+
+    if (lines.every((l) => !l.text)) {
+      throw new Error(
+        "OCR could not find any readable text in this PDF either. The file may be corrupted or fully blank."
+      );
+    }
   }
 
   // Body text size = the most common font size across all lines.
@@ -832,12 +888,24 @@ export async function parsePdf(file: File): Promise<ParsedDocument> {
   flushParagraph();
   flushList();
 
-  return { title: guessTitle(blocks, file.name.replace(/\.[^.]+$/, "")), blocks };
+  return {
+    title: guessTitle(blocks, file.name.replace(/\.[^.]+$/, "")),
+    blocks,
+    warnings: usedOcr
+      ? [
+          "This PDF had no embedded text layer (likely an image-only export). Text was recovered using OCR -- review headings, line breaks, and formatting before sending to a client.",
+        ]
+      : undefined,
+  };
 }
 
 export type InputType = "markdown" | "html" | "word" | "affine" | "pdf";
 
-export async function parseInput(file: File, inputType: InputType): Promise<ParsedDocument> {
+export async function parseInput(
+  file: File,
+  inputType: InputType,
+  onProgress?: (current: number, total: number) => void
+): Promise<ParsedDocument> {
   switch (inputType) {
     case "markdown":
       return parseMarkdown(file);
@@ -848,7 +916,7 @@ export async function parseInput(file: File, inputType: InputType): Promise<Pars
     case "affine":
       return parseAffine(file);
     case "pdf":
-      return parsePdf(file);
+      return parsePdf(file, onProgress);
   }
 }
 
