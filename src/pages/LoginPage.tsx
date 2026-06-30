@@ -1,6 +1,6 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { startAuthentication, browserSupportsWebAuthn } from "@simplewebauthn/browser";
-import { useAction } from "convex/react";
+import { useAction, useQuery } from "convex/react";
 import { ConvexError } from "convex/values";
 import { RiEyeLine as Eye, RiEyeOffLine as EyeSlash, RiFingerprintLine as Fingerprint, RiLoader4Line as CircleNotch } from "@remixicon/react";
 import { useEffect, useState } from "react";
@@ -31,6 +31,8 @@ export default function LoginPage() {
   const [info, setInfo] = useState("");
   const [passkeySupported, setPasskeySupported] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const registeredPasskeys = useQuery(api.webauthn.listMyCredentials);
+  const hasPasskeys = registeredPasskeys !== undefined && registeredPasskeys.length > 0;
 
   useEffect(() => {
     setPasskeySupported(browserSupportsWebAuthn());
@@ -180,18 +182,29 @@ export default function LoginPage() {
           <>
             {passkeySupported && (
               <>
-                <button
-                  onClick={handlePasskeySignIn}
-                  disabled={passkeyLoading}
-                  className="w-full flex items-center justify-center gap-2 border border-gold-border/40 text-gold-primary hover:border-gold-primary/50 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  {passkeyLoading ? (
-                    <CircleNotch className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Fingerprint className="w-4 h-4" />
-                  )}
-                  <EditableText cmsKey="login_passkey_button" as="span" />
-                </button>
+                {hasPasskeys ? (
+                  <button
+                    onClick={handlePasskeySignIn}
+                    disabled={passkeyLoading}
+                    className="w-full flex items-center justify-center gap-2 border border-gold-border/40 text-gold-primary hover:border-gold-primary/50 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {passkeyLoading ? (
+                      <CircleNotch className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Fingerprint className="w-4 h-4" />
+                    )}
+                    <EditableText cmsKey="login_passkey_button" as="span" />
+                  </button>
+                ) : (
+                  <p className="text-center text-[10px] text-[#e8e6e1]/40 tracking-wide">
+                    <Fingerprint className="w-3 h-3 inline mr-1 opacity-60" />
+                    Face ID / fingerprint sign-in available &mdash; set it up in{" "}
+                    <Link to="/settings" className="text-gold-muted hover:text-gold-primary underline underline-offset-2 transition-colors">
+                      Settings
+                    </Link>{" "}
+                    after signing in.
+                  </p>
+                )}
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-gold-border/30" />
                   <span className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-widest">or</span>
