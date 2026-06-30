@@ -152,6 +152,12 @@ export const getClientManualData = query({
 
     // Group rows by "chapterId:sectionId" -> array of parsed data objects
     const rowsBySection: Record<string, Record<string, string>[]> = {};
+    // Per-chapter last-touched timestamp, derived from data that's already
+    // tracked (sectionRows/sectionFields.updatedAt) — no new field needed.
+    // Lets the generated manual show "As of [date]" per chapter instead of
+    // a single cover-level date, so a successor can tell which chapters
+    // were actually kept current versus untouched since delivery.
+    const lastUpdatedByChapter: Record<string, number> = {};
     for (const row of rows) {
       const key = `${row.chapterId}:${row.sectionId}`;
       rowsBySection[key] ||= [];
@@ -159,6 +165,9 @@ export const getClientManualData = query({
         rowsBySection[key].push(JSON.parse(row.data));
       } catch {
         // skip malformed row data rather than fail the whole manual
+      }
+      if (!lastUpdatedByChapter[row.chapterId] || row.updatedAt > lastUpdatedByChapter[row.chapterId]) {
+        lastUpdatedByChapter[row.chapterId] = row.updatedAt;
       }
     }
 
@@ -169,11 +178,15 @@ export const getClientManualData = query({
       const key = `${field.chapterId}:${field.sectionId}`;
       fieldsBySection[key] ||= {};
       fieldsBySection[key][field.fieldId] = field.value;
+      if (!lastUpdatedByChapter[field.chapterId] || field.updatedAt > lastUpdatedByChapter[field.chapterId]) {
+        lastUpdatedByChapter[field.chapterId] = field.updatedAt;
+      }
     }
 
     return {
       rowsBySection,
       fieldsBySection,
+      lastUpdatedByChapter,
       legalDocuments: legalDocs
         .filter((d) => d.inForce)
         .map((d) => ({ documentType: d.documentType, notes: d.notes || "" })),

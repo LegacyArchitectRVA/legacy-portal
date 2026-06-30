@@ -376,6 +376,13 @@ export default function GeneratePage() {
       margin-bottom: 1.1rem;
       font-family: ${BRAND_FONT_BODY};
     }
+    .as-of-date {
+      font-size: 0.85rem;
+      color: rgba(217, 204, 160, 0.55);
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
     .section {
       margin-bottom: 1.2rem;
     }
@@ -530,6 +537,7 @@ export default function GeneratePage() {
       .cover .meta { font-size: 0.98rem; }
       .chapter h2 { color: ${BRAND_BLACK}; font-size: 1.95rem; border-bottom-color: ${BRAND_BLACK}; }
       .chapter .desc { color: #4a4a4a; font-size: 1.21rem; }
+      .as-of-date { color: #6b6b6b; font-size: 0.78rem; }
       .section h3 { color: ${BRAND_BLACK}; font-weight: 700; font-size: 1.6rem; }
       .data-card { background: #f7f5ee; border-color: #ddd3ad; border-left-color: ${BRAND_GREEN_PRINT}; box-shadow: none; }
       .data-card-title { color: ${BRAND_BLACK}; font-weight: 700; font-size: 1.5rem; }
@@ -554,6 +562,7 @@ export default function GeneratePage() {
     }
     .print-measure-mode .chapter h2 { font-size: 1.95rem; }
     .print-measure-mode .chapter .desc { font-size: 1.21rem; }
+    .print-measure-mode .as-of-date { font-size: 0.78rem; }
     .print-measure-mode .section h3 { font-size: 1.6rem; }
     .print-measure-mode .data-card-title { font-size: 1.5rem; }
     .print-measure-mode .data-card-label { font-size: 1.15rem; }
@@ -886,10 +895,12 @@ export default function GeneratePage() {
 `;
 
       for (const ch of accessibleChapters) {
+        const chapterLastUpdated = manualData?.lastUpdatedByChapter?.[ch.id];
         html += `
   <div class="chapter" id="${ch.id}">
     <a class="back-to-toc" href="#toc">&uarr; Table of Contents</a>
     <h2>Chapter ${ch.chapterNumber}: ${ch.title}<button class="copy-ref-btn" data-copy-ref="${escapeHtml(`Chapter ${ch.chapterNumber}: ${ch.title}`)}">Copy Reference</button></h2>
+    ${chapterLastUpdated ? `<p class="as-of-date">As of ${new Date(chapterLastUpdated).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>` : ""}
     <p class="desc">${ch.description}</p>
 `;
         for (const sec of ch.subSections) {
