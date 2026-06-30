@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "convex/react";
 import { RiArrowRightLine as ArrowRight, RiTimeLine as Clock, RiLockLine as Lock, RiShieldCheckLine as ShieldCheck, RiLoader4Line as CircleNotch } from "@remixicon/react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -17,6 +18,17 @@ const tierImages: Record<string, string> = {
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [schedulerLoaded, setSchedulerLoaded] = useState(false);
+  useEffect(() => {
+    // The iframe's own onLoad event fires when Cal.com's outer page shell
+    // loads, not when its internal React app actually finishes rendering
+    // a visible calendar — and since it's cross-origin, there's no way to
+    // detect real content-readiness from the parent page. A fixed minimum
+    // display duration (long enough in practice) is the honest fix here,
+    // not a load-event listener that would hide the skeleton too early.
+    const timer = setTimeout(() => setSchedulerLoaded(true), 2200);
+    return () => clearTimeout(timer);
+  }, []);
   const onBehalfOf = searchParams.get("for") as Id<"users"> | null;
   const isAdmin = useQuery(api.admin.isAdmin);
   const editingClient = useQuery(
@@ -281,7 +293,13 @@ export default function DashboardPage() {
       {/* Schedule a Meeting - Cal.com Embed */}
       <div className="space-y-3">
         <h2 className="font-heading text-lg text-[#e8e6e1]">Schedule a Meeting</h2>
-        <div className="rounded-lg border border-gold-border overflow-hidden">
+        <div className="rounded-lg border border-gold-border overflow-hidden relative" style={{ minHeight: 500 }}>
+          {!schedulerLoaded && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black">
+              <CircleNotch className="w-6 h-6 animate-spin text-gold-primary" />
+              <p className="text-xs text-[#e8e6e1]/60">Loading scheduler…</p>
+            </div>
+          )}
           <iframe
             src="https://cal.com/legacyarchitectrva/60min?embed=true&theme=dark"
             width="100%"
