@@ -6,6 +6,7 @@ import { api } from "../../convex/_generated/api";
 import { chapters, PRIVACY_NOTE, resolveCrossRef, type SubSection } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LucideIcon } from "../components/LucideIcon";
+import { ChapterIcon } from "../components/ChapterIcons";
 import { EditableText } from "../components/EditableText";
 import type { Id } from "../../convex/_generated/dataModel";
 
@@ -71,7 +72,14 @@ export default function ChapterPage({ chapterIdOverride }: { chapterIdOverride?:
       {/* Chapter Header */}
       <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(217,204,160,0.04),_transparent_60%)]" />
-        <div className="relative">
+        <div className="relative flex items-start gap-4">
+          <div
+            className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
+            style={{ backgroundColor: `${chapter.color}18`, border: `1px solid ${chapter.color}40` }}
+          >
+            <ChapterIcon chapterId={chapter.id} color={chapter.color} size={26} />
+          </div>
+          <div className="min-w-0">
           <p className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">
             Chapter {chapter.chapterNumber}
           </p>
@@ -87,6 +95,7 @@ export default function ChapterPage({ chapterIdOverride }: { chapterIdOverride?:
           <p className="text-xs text-gold-muted mt-2 leading-relaxed">
             <EditableText cmsKey="chapter_intro" as="span" />
           </p>
+          </div>
         </div>
       </div>
 

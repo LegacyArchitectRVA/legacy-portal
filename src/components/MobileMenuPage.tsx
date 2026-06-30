@@ -1,4 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
+import { ChapterIcon } from "./ChapterIcons";
 import { useQuery } from "convex/react";
 import { RiArrowRightSLine as ChevronRight, RiFileLine as File, RiLayoutGridLine as LayoutDashboard, RiLogoutBoxRLine as LogOut, RiChat3Line as MessageSquare, RiSettings3Line as Settings, RiShieldCheckLine as ShieldCheck, RiBookOpenLine as BookOpen, RiLineChartLine as TrendingUp, RiUserLine as User, RiTeamLine as Users, RiUserSettingsLine as UserCog, RiPaintBrushLine as PaintBrush, RiPlugLine as PlugsConnected, RiCloseLine as X } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +13,7 @@ const chapterDotColors: Record<string, string> = {
   emergency: "#F43F5E",
   financial: "#D4AF37",
   household: "#10B981",
-  vital: "#FFFFFF",
+  vitals: "#FFFFFF",
   context: "#A855F7",
   business: "#94A3B8",
 };
@@ -128,15 +129,7 @@ export function MobileMenuPage() {
           return (
             <Row
               key={ch.id}
-              icon={
-                <span
-                  className="w-2.5 h-2.5 rounded-full inline-block"
-                  style={{
-                    backgroundColor: dotColor,
-                    boxShadow: accessible ? `0 0 6px ${dotColor}80` : "none",
-                  }}
-                />
-              }
+              icon={<ChapterIcon chapterId={ch.id} color={accessible ? dotColor : `${dotColor}66`} size={16} />}
               label={`Ch. ${ch.chapterNumber} · ${shortName}`}
               disabled={!accessible}
               onClick={() => accessible && go(`/chapter/${ch.id}`)}

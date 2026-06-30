@@ -7,6 +7,7 @@ import { chapters } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { EditableText } from "../components/EditableText";
 import { EditableImage } from "../components/EditableImage";
+import { ChapterIcon } from "../components/ChapterIcons";
 import type { Id } from "../../convex/_generated/dataModel";
 
 const tierImages: Record<string, string> = {
@@ -325,10 +326,7 @@ export default function DashboardPage() {
                 <div key={ch.id} className="rounded-lg border border-gold-border/20 bg-black/40 p-4 opacity-50">
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-3">
-                      <div
-                        className="size-3 rounded-full shrink-0"
-                        style={{ backgroundColor: `${ch.color}40` }}
-                      />
+                      <ChapterIcon chapterId={ch.id} color={`${ch.color}80`} size={18} />
                       <div>
                         <span className="text-sm font-heading" style={{ fontWeight: 600 }}>
                           Ch. {ch.chapterNumber} · {ch.shortTitle}
@@ -352,12 +350,12 @@ export default function DashboardPage() {
                 <div className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div
-                        className="size-3 rounded-full shrink-0 animate-pulse-slow"
-                        style={{
-                          backgroundColor: ch.color,
-                          boxShadow: `0 0 6px ${ch.color}80, 0 0 12px ${ch.color}40, 0 0 20px ${ch.color}20`,
-                        }}
+                      <ChapterIcon
+                        chapterId={ch.id}
+                        color={ch.color}
+                        size={20}
+                        className="animate-pulse-slow"
+                        style={{ filter: `drop-shadow(0 0 5px ${ch.color}90)` }}
                       />
                       <div>
                         <p className="text-sm font-heading" style={{ fontWeight: 600 }}>

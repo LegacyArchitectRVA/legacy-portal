@@ -1,3 +1,4 @@
+import { ChapterIcon } from "./ChapterIcons";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import { RiArrowUpSLine as ChevronUp, RiLayoutGridLine as LayoutDashboard, RiLogoutBoxRLine as LogOut, RiChat3Line as MessageSquare, RiSettings3Line as Settings, RiShieldCheckLine as ShieldCheck, RiBookOpenLine as BookOpen, RiLineChartLine as TrendingUp, RiUserLine as User, RiTeamLine as Users, RiUserSettingsLine as UserCog, RiFileLine as File, RiPaintBrushLine as PaintBrush, RiPlugLine as PlugsConnected } from "@remixicon/react";
@@ -35,7 +36,7 @@ const chapterDotColors: Record<string, string> = {
   emergency: "#F43F5E",  // rose
   financial: "#D4AF37",  // gold
   household: "#10B981",  // emerald
-  vital: "#FFFFFF",      // white
+  vitals: "#FFFFFF",     // white
   context: "#A855F7",    // purple
   business: "#94A3B8",   // silver
 };
@@ -188,15 +189,11 @@ export function AppSidebar() {
                       onClick={() => accessible && navTo(`/chapter/${ch.id}`)}
                       className={!accessible ? "opacity-40 cursor-not-allowed" : ""}
                     >
-                      {/* Colored dot */}
-                      <span
-                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                        style={{
-                          backgroundColor: dotColor,
-                          boxShadow: accessible
-                            ? `0 0 6px ${dotColor}80, 0 0 10px ${dotColor}40`
-                            : "none",
-                        }}
+                      {/* Chapter icon */}
+                      <ChapterIcon
+                        chapterId={ch.id}
+                        color={accessible ? dotColor : `${dotColor}66`}
+                        size={15}
                       />
                       <span className="text-xs">
                         Ch. {ch.chapterNumber} · {shortName}
