@@ -1385,6 +1385,42 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
 export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
   const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
 
+  // pdf-lib Standard Fonts use WinAnsiEncoding. Any character outside that
+  // range causes widthOfTextAtSize / drawText to throw, crashing the whole
+  // export. This sanitizer maps the most common out-of-range Unicode characters
+  // to their WinAnsi-safe equivalents, then strips anything that's still
+  // outside the 0x00–0xFF range (which WinAnsi covers).
+  function sanitize(text: string): string {
+    return text
+      // Zero-width / invisible characters that contribute no visual width
+      .replace(/[\u200B\u200C\u200D\uFEFF\u00AD]/g, "")
+      // Directional marks
+      .replace(/[\u200E\u200F\u202A-\u202E]/g, "")
+      // Fancy quotation marks → straight equivalents
+      .replace(/[\u2018\u2019\u02BC]/g, "'")
+      .replace(/[\u201A\u201B\u2032]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[\u201E\u201F\u2033]/g, '"')
+      // Dashes
+      .replace(/[\u2013]/g, "-")  // en-dash
+      .replace(/[\u2014\u2015]/g, "--")  // em-dash
+      // Ellipsis
+      .replace(/\u2026/g, "...")
+      // Bullets and similar markers
+      .replace(/[\u2022\u2023\u2043\u204C\u204D\u2219\u25AA\u25AB\u25CF\u25E6]/g, "*")
+      // Checkmarks / special marks
+      .replace(/[\u2713\u2714]/g, "+")
+      .replace(/[\u2715\u2716]/g, "x")
+      // Non-breaking space → regular space
+      .replace(/\u00A0/g, " ")
+      // Arrows
+      .replace(/[\u2190-\u21FF]/g, "->")
+      // Mathematical operators
+      .replace(/\u00D7/g, "x")  // multiplication sign (already in WinAnsi, keep)
+      // Any remaining non-WinAnsi characters (code point > 255)
+      .replace(/[^\x00-\xFF]/g, "");
+  }
+
   const pdfDoc = await PDFDocument.create();
   const bodyFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
   const boldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
@@ -1414,17 +1450,26 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
   };
 
   // Greedy word-wrap using real glyph widths from the embedded font.
+  // Sanitizes text first so widthOfTextAtSize never encounters an
+  // out-of-encoding character.
   const wrapText = (text: string, font: typeof bodyFont, size: number, maxWidth: number): string[] => {
-    const words = text.split(/\s+/).filter(Boolean);
+    const safe = sanitize(text);
+    const words = safe.split(/\s+/).filter(Boolean);
     const out: string[] = [];
     let line = "";
     for (const word of words) {
       const candidate = line ? `${line} ${word}` : word;
-      if (font.widthOfTextAtSize(candidate, size) > maxWidth && line) {
-        out.push(line);
-        line = word;
-      } else {
-        line = candidate;
+      try {
+        if (font.widthOfTextAtSize(candidate, size) > maxWidth && line) {
+          out.push(line);
+          line = word;
+        } else {
+          line = candidate;
+        }
+      } catch {
+        // Fallback: character-level sanitization missed something; skip word.
+        if (line) out.push(line);
+        line = "";
       }
     }
     if (line) out.push(line);
@@ -1439,8 +1484,13 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
     const maxWidth = opts.maxWidth ?? CONTENT_W - indent;
     const lines = wrapText(text, font, size, maxWidth);
     for (const ln of lines) {
+      if (!ln) continue;
       ensureSpace(lineHeight);
-      page.drawText(ln, { x: MARGIN + indent, y: y - size, size, font, color: opts.color || INK });
+      try {
+        page.drawText(ln, { x: MARGIN + indent, y: y - size, size, font, color: opts.color || INK });
+      } catch {
+        // Skip lines that still contain unencodable characters after sanitization.
+      }
       y -= lineHeight;
     }
   };
@@ -1475,8 +1525,11 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
   const titleSize = 22;
   const titleLines = wrapText(doc.title, boldFont, titleSize, CONTENT_W);
   for (const ln of titleLines) {
-    const tw = boldFont.widthOfTextAtSize(ln, titleSize);
-    page.drawText(ln, { x: MARGIN + (CONTENT_W - tw) / 2, y: y - titleSize, size: titleSize, font: boldFont, color: GOLD });
+    if (!ln) continue;
+    try {
+      const tw = boldFont.widthOfTextAtSize(ln, titleSize);
+      page.drawText(ln, { x: MARGIN + (CONTENT_W - tw) / 2, y: y - titleSize, size: titleSize, font: boldFont, color: GOLD });
+    } catch { /* skip unencodable cover title line */ }
     y -= titleSize * 1.25;
   }
   y -= 6;

@@ -68,22 +68,18 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
           transition: splitting ? "opacity 200ms ease-in" : "none",
         }}
       >
-        {/* Shield SVG */}
-        <svg
-          width="52"
-          height="52"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#e8c46a"
-          strokeWidth={1.1}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ filter: "drop-shadow(0 0 12px rgba(232,196,106,0.35))" }}
-        >
-          <path d="M12 3 L19 6 V11.5 C19 16 16 19.5 12 21 C8 19.5 5 16 5 11.5 V6 Z" />
-          <path d="M12 7.5 V14.5" />
-          <path d="M9 11 L15 11" />
-        </svg>
+        {/* Official logo */}
+        <img
+          src="/logo.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            width: 72,
+            height: 72,
+            objectFit: "contain",
+            filter: "drop-shadow(0 0 16px rgba(232,196,106,0.4))",
+          }}
+        />
 
         {/* Wordmark */}
         <div className="text-center space-y-1">
