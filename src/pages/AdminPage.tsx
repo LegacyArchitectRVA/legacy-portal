@@ -9,7 +9,7 @@ import { tiers } from "../data/tiers";
 export default function AdminPage() {
   const navigate = useNavigate();
   const isAdmin = useQuery(api.admin.isAdmin);
-  const clients = useQuery(api.admin.listClients);
+  const clients = useQuery(api.admin.listClients, isAdmin ? {} : "skip");
   const updateTier = useMutation(api.admin.updateClientTier);
   const activateClient = useMutation(api.admin.activateClient);
   const pushToHubSpot = useAction(api.hubspot.pushClientToHubSpot);

@@ -19,7 +19,8 @@ function statusMeta(id: string) {
 
 export default function ProspectsPage() {
   const navigate = useNavigate();
-  const prospects = useQuery(api.prospects.listProspects);
+  const isAdmin = useQuery(api.admin.isAdmin);
+  const prospects = useQuery(api.prospects.listProspects, isAdmin ? {} : "skip");
   const addProspect = useMutation(api.prospects.addProspect);
   const updateProspect = useMutation(api.prospects.updateProspect);
   const deleteProspect = useMutation(api.prospects.deleteProspect);
@@ -94,6 +95,17 @@ export default function ProspectsPage() {
     if (notes === undefined) return;
     updateProspect({ prospectId: prospectId as Id<"prospects">, notes });
   };
+
+  if (isAdmin === undefined) {
+    return null;
+  }
+  if (!isAdmin) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-5">

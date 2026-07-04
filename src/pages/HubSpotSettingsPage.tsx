@@ -104,28 +104,28 @@ export default function HubSpotSettingsPage() {
           <div className="flex gap-3">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              <strong className="text-[#e8e6e1]">Push to HubSpot</strong> — from any client's row in
+              <strong className="text-[#e8e6e1]">Push to HubSpot</strong>: from any client's row in
               Client Management, send their name, email, and phone to HubSpot as a contact.
             </span>
           </div>
           <div className="flex gap-3">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              <strong className="text-[#e8e6e1]">Pull from HubSpot</strong> — look up a client's
+              <strong className="text-[#e8e6e1]">Pull from HubSpot</strong>: look up a client's
               current HubSpot contact record right next to their portal data.
             </span>
           </div>
           <div className="flex gap-3">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              <strong className="text-[#e8e6e1]">Go to Portal Profile</strong> — after a successful
+              <strong className="text-[#e8e6e1]">Go to Portal Profile</strong>: after a successful
               sync, jump straight from HubSpot context to that client's full CRM profile in the portal.
             </span>
           </div>
           <div className="flex gap-3">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              <strong className="text-[#e8e6e1]">View in HubSpot</strong> — once synced, a client's
+              <strong className="text-[#e8e6e1]">View in HubSpot</strong>: once synced, a client's
               profile page links directly back to their HubSpot contact record.
             </span>
           </div>

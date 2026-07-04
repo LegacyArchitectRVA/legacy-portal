@@ -244,7 +244,7 @@ export default function DashboardPage() {
                     : "opacity-30 cursor-not-allowed"
                 }`}
                 disabled={!accessible}
-                title={`Ch. ${ch.chapterNumber}: ${ch.shortTitle} — ${ch.pct}%`}
+                title={`Ch. ${ch.chapterNumber}: ${ch.shortTitle}: ${ch.pct}%`}
               >
                 {/* Pillar (glass fill-up) */}
                 <div

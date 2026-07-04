@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { RiAlertLine as AlertCircle, RiCheckboxCircleLine as CheckCircle2, RiDownloadLine as Download, RiFileLine as File, RiFileTextLine as FileText, RiImageLine as ImageIcon, RiLoader4Line as Loader2, RiFontSize2 as Type, RiUploadLine as Upload, RiCloseLine as X } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -27,6 +29,7 @@ const INPUT_ICONS: Record<InputType, any> = {
 const OUTPUT_ICONS: Record<OutputType, any> = {
   html: File,
   pdf: FileText,
+  "pdf-text": FileText,
   docx: FileText,
   png: ImageIcon,
 };
@@ -34,6 +37,7 @@ const OUTPUT_ICONS: Record<OutputType, any> = {
 export default function DocumentConversionPage() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isAdmin = useQuery(api.admin.isAdmin);
 
   const [inputType, setInputType] = useState<InputType | null>(null);
   const [outputType, setOutputType] = useState<OutputType | null>(null);
@@ -110,6 +114,17 @@ export default function DocumentConversionPage() {
     setPreviewHtml(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  if (isAdmin === undefined) {
+    return null;
+  }
+  if (!isAdmin) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6 animate-fade-in">

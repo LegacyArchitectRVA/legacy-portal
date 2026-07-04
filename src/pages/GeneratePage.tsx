@@ -188,7 +188,7 @@ export default function GeneratePage() {
   const [searchParams] = useSearchParams();
   const clientId = searchParams.get("client");
   const isAdmin = useQuery(api.admin.isAdmin);
-  const clients = useQuery(api.admin.listClients);
+  const clients = useQuery(api.admin.listClients, isAdmin ? {} : "skip");
   const [selectedClient, setSelectedClient] = useState(clientId || "");
   const [generating, setGenerating] = useState(false);
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
@@ -249,7 +249,7 @@ export default function GeneratePage() {
     @page {
       margin: 0.6in 0.55in;
       @bottom-center {
-        content: "Legacy Architect RVA — ${(client?.userName || "Client").replace(/"/g, '\\"')}'s Life Manual   |   Page " counter(page) " of " counter(pages);
+        content: "Legacy Architect RVA  |  ${(client?.userName || "Client").replace(/"/g, '\\"')}'s Life Manual   |   Page " counter(page) " of " counter(pages);
         font-family: ${BRAND_FONT_BODY};
         font-size: 13px;
         color: #8a8a8a;
@@ -965,7 +965,7 @@ export default function GeneratePage() {
 `;
         for (const entry of visibleIndexTerms) {
           for (const ref of entry.refs) {
-            html += `      <div class="toc-chapter" style="margin-bottom: 0.5rem;"><a href="#${ref.anchor}"><strong>${escapeHtml(entry.term)}</strong> &mdash; ${escapeHtml(ref.label)}</a></div>\n`;
+            html += `      <div class="toc-chapter" style="margin-bottom: 0.5rem;"><a href="#${ref.anchor}"><strong>${escapeHtml(entry.term)}</strong>, ${escapeHtml(ref.label)}</a></div>\n`;
           }
         }
         html += `
@@ -1327,7 +1327,7 @@ export default function GeneratePage() {
 <html>
 <head>
 <meta charset="utf-8">
-<title>Print-Accurate Preview — ${client?.userName || "Client"}'s Life Manual</title>
+<title>Print-Accurate Preview | ${client?.userName || "Client"}'s Life Manual</title>
 <style>
 ${css}
 </style>

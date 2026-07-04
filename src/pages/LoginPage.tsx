@@ -198,7 +198,7 @@ export default function LoginPage() {
                 ) : (
                   <p className="text-center text-[10px] text-[#e8e6e1]/40 tracking-wide">
                     <Fingerprint className="w-3 h-3 inline mr-1 opacity-60" />
-                    Face ID / fingerprint sign-in available &mdash; set it up in{" "}
+                    Face ID and fingerprint sign-in is available. Set it up in{" "}
                     <Link to="/settings" className="text-gold-muted hover:text-gold-primary underline underline-offset-2 transition-colors">
                       Settings
                     </Link>{" "}
