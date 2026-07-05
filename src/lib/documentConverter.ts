@@ -1675,7 +1675,7 @@ export async function renderToPngZip(
   return await zip.generateAsync({ type: "blob" });
 }
 
-export type OutputType = "html" | "pdf" | "pdf-text" | "docx" | "png";
+export type OutputType = "html" | "pdf" | "docx" | "png";
 
 export const INPUT_TYPES: { id: InputType; label: string; accept: string }[] = [
   { id: "markdown", label: "Markdown", accept: ".md,.markdown,.txt" },
@@ -1687,8 +1687,7 @@ export const INPUT_TYPES: { id: InputType; label: string; accept: string }[] = [
 
 export const OUTPUT_TYPES: { id: OutputType; label: string; description: string }[] = [
   { id: "html", label: "HTML", description: "Branded, styled web page" },
-  { id: "pdf", label: "PDF", description: "Print-ready via your browser" },
-  { id: "pdf-text", label: "PDF (Guaranteed Text)", description: "Built directly with real, selectable text -- skips the print dialog entirely" },
+  { id: "pdf", label: "PDF", description: "Branded document with real, selectable text" },
   { id: "docx", label: "Word (.docx)", description: "Editable Word document" },
   { id: "png", label: "Images (.zip)", description: "One image per page, for social/marketing" },
 ];

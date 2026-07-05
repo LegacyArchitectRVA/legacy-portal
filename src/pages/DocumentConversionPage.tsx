@@ -11,7 +11,6 @@ import {
   parseInput,
   renderToDocx,
   renderToHtml,
-  renderToPdf,
   renderToPdfLib,
   renderToPngZip,
   type InputType,
@@ -29,7 +28,6 @@ const INPUT_ICONS: Record<InputType, any> = {
 const OUTPUT_ICONS: Record<OutputType, any> = {
   html: File,
   pdf: FileText,
-  "pdf-text": FileText,
   docx: FileText,
   png: ImageIcon,
 };
@@ -81,13 +79,10 @@ export default function DocumentConversionPage() {
         downloadText(html, `${baseName}.html`, "text/html");
         setSuccess(`Converted to HTML and downloaded.${ocrNote}`);
       } else if (outputType === "pdf") {
-        renderToPdf(parsed);
-        setSuccess(`Opened a print window. Use your browser's Save as PDF option to finish.${ocrNote}`);
-      } else if (outputType === "pdf-text") {
-        setProgressLabel("Building PDF with real text layer...");
+        setProgressLabel("Building your PDF...");
         const blob = await renderToPdfLib(parsed);
         downloadBlob(blob, `${baseName}.pdf`);
-        setSuccess(`PDF downloaded with a guaranteed selectable text layer.${ocrNote}`);
+        setSuccess(`Converted to PDF and downloaded.${ocrNote}`);
       } else if (outputType === "docx") {
         const blob = await renderToDocx(parsed);
         downloadBlob(blob, `${baseName}.docx`);

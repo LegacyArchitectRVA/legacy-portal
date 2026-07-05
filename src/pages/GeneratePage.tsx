@@ -1420,7 +1420,7 @@ ${PAGEDJS_POLYFILL}
             >
               Document Converter
             </button>
-            {" "}to export a PDF with a guaranteed selectable text layer (choose <strong>PDF (Guaranteed Text)</strong> as the output format).
+            {" "}to export it as a branded PDF with real, selectable text (choose <strong>PDF</strong> as the output format).
           </p>
           <div className="flex gap-3">
             <button
