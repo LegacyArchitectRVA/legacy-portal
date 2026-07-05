@@ -163,7 +163,7 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
           const color = nodeColor(s);
           const lines = labelLines(s.title);
           // Push labels outward from the ring so they never collide with it
-          const labelY = y > CY + 40 ? y + NODE_R + 14 : y < CY - 40 ? y - NODE_R - 14 - (lines.length - 1) * 11 : y - NODE_R - 12 - (lines.length - 1) * 11;
+          const labelY = y > CY + 40 ? y + NODE_R + 14 : y < CY - 40 ? y - NODE_R - 14 - (lines.length - 1) * 11 : y - NODE_R - 16 - (lines.length - 1) * 11;
           const pct = s.assessed === 0 ? "" : `${100 - s.riskPct}%`;
 
           return (
