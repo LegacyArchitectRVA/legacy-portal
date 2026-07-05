@@ -1512,7 +1512,11 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
     }
     const naturalW = b.width || embedded.width;
     const naturalH = b.height || embedded.height;
-    const scale = naturalW > CONTENT_W ? CONTENT_W / naturalW : 1;
+    // Cap both dimensions: width to the content column, height to 380pt so a
+    // large square image (like the Gap Map) fits beneath the cover content
+    // instead of forcing a page break that strands a blank half page.
+    const MAX_H = 380;
+    const scale = Math.min(CONTENT_W / naturalW, MAX_H / naturalH, 1);
     const w = naturalW * scale;
     const h = naturalH * scale;
     ensureSpace(h + 16);

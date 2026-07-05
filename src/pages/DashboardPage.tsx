@@ -2,7 +2,8 @@ import { FullPageLoader } from "../components/FullPageLoader";
 import { VaultEntrance, shouldShowVaultEntrance } from "../components/VaultEntrance";
 import { useState, useEffect } from "react";
 import { useQuery } from "convex/react";
-import { RiArrowRightLine as ArrowRight, RiTimeLine as Clock, RiLockLine as Lock, RiShieldCheckLine as ShieldCheck, RiLoader4Line as CircleNotch } from "@remixicon/react";
+import { RiArrowRightLine as ArrowRight, RiTimeLine as Clock, RiLockLine as Lock, RiLoader4Line as CircleNotch } from "@remixicon/react";
+import { LucideIcon } from "../components/LucideIcon";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
@@ -155,7 +156,9 @@ export default function DashboardPage() {
       {/* Tier Badge with Image */}
       {isAdmin && !onBehalfOf ? (
         <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c46a]/20 bg-gradient-to-r from-[#e8c46a]/[0.06] to-transparent p-3 md:p-4">
-          <ShieldCheck className="w-14 h-14 text-[#e8c46a] shrink-0" />
+          <div className="w-14 h-14 rounded-lg bg-[#e8c46a]/[0.08] border border-[#e8c46a]/25 flex items-center justify-center shrink-0">
+            <LucideIcon name="KeyRound" size={28} className="text-[#e8c46a]" />
+          </div>
           <div className="flex-1">
             <p className="font-semibold text-sm text-[#e8c46a] font-heading">
               Administrator · Full Access
@@ -217,7 +220,7 @@ export default function DashboardPage() {
       {/* ZK Notice */}
       <div className="relative z-10 flex items-center gap-3 rounded-lg border border-gold-border bg-black/50 p-3 md:p-4">
         <div className="size-10 rounded-lg bg-gold-dark/10 border border-gold-border flex items-center justify-center shrink-0">
-          <ShieldCheck className="size-5 text-gold-primary" />
+          <LucideIcon name="ShieldCheck" size={20} className="text-gold-primary" />
         </div>
         <div className="flex-1">
           <p className="font-semibold text-sm text-gold-primary font-heading">Zero-Knowledge Standard</p>
