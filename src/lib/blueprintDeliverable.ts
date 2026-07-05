@@ -118,6 +118,82 @@ function pillarTitle(pillarId: string): string {
   return BLUEPRINT_PILLARS.find((p) => p.id === pillarId)?.title ?? pillarId;
 }
 
+/** Overall readiness: 100 minus exposure, weighted by how much of each pillar was assessed. */
+export function overallReadiness(scores: PillarScore[]): number {
+  let weighted = 0;
+  let total = 0;
+  for (const s of scores) {
+    if (s.assessed === 0) continue;
+    weighted += s.riskPct * s.assessed;
+    total += s.assessed;
+  }
+  if (total === 0) return 0;
+  return Math.round(100 - weighted / total);
+}
+
+/**
+ * Generates the "What This Means" narrative for the PDF: a plain-spoken
+ * reading of the gaps that stays realistic without turning dramatic. Built
+ * entirely from the assessed data so every sentence is earned, not stock.
+ */
+function buildWhatThisMeans(scores: PillarScore[]): Block[] {
+  const blocks: Block[] = [];
+  const assessed = scores.filter((s) => s.assessed > 0);
+  if (assessed.length === 0) return blocks;
+
+  const readiness = overallReadiness(scores);
+  const ranked = [...assessed].sort((a, b) => b.riskPct - a.riskPct);
+  const worst = ranked.filter((s) => s.riskPct >= 30).slice(0, 3);
+  const strongest = ranked[ranked.length - 1];
+
+  blocks.push({ type: "heading", level: 1, text: "What This Means" });
+
+  // Calibrated opening
+  let opening: string;
+  if (readiness >= 80) {
+    opening = `At ${readiness}% readiness, the foundation here is real. Someone stepping in would find most of what they need. The gaps that remain are specific and fixable, which is the best kind of problem to have.`;
+  } else if (readiness >= 55) {
+    opening = `At ${readiness}% readiness, this sits where most organized households actually live: the important things exist, but a good portion of them live in one person's head. A successor could eventually piece it together. The word doing the heavy lifting in that sentence is eventually.`;
+  } else {
+    opening = `At ${readiness}% readiness, the honest read is that a successor would be starting from scratch in several areas. Nothing here is unusual and none of it reflects carelessness. It reflects a life that got built faster than it got documented, which describes nearly everyone.`;
+  }
+  blocks.push({ type: "paragraph", text: opening });
+
+  // The realistic consequence read, per top-exposure pillar. The closers
+  // rotate so three exposed pillars don't end on the same canned line.
+  const closers = [
+    "None of that is hypothetical. It's the standard sequence when this area stays undocumented, and it plays out during the exact week the family has the least capacity for it.",
+    "That's not a scare scenario, it's the default one. Documentation is the only thing that changes the script.",
+    "All of it is avoidable with a few findable pages, which is exactly what the plan below starts building.",
+  ];
+  worst.forEach((s, wi) => {
+    const items = [...s.exposedItems, ...s.partialItems].slice(0, 3);
+    if (items.length === 0) return;
+    const consequence = items
+      .map((i) => i.checkpoint.impact)
+      .join(" ");
+    blocks.push({
+      type: "paragraph",
+      text: `${s.title} is the ${wi === 0 ? "widest" : "next"} gap at ${s.riskPct}% exposure. In practical terms: ${consequence} ${closers[wi % closers.length]}`,
+    });
+  });
+
+  // Credit where it's due
+  if (strongest && strongest.riskPct < 30) {
+    blocks.push({
+      type: "paragraph",
+      text: `On the other side of the ledger, ${strongest.title} is in genuinely good shape at ${100 - strongest.riskPct}% handled. That area shows what the rest of the map looks like once it's done: not perfect, just findable and actionable by someone who isn't you.`,
+    });
+  }
+
+  blocks.push({
+    type: "paragraph",
+    text: `Gaps like these are the normal state of a full life. The plan below exists to move the worst of them from exposed to handled in seventy-two hours, while the details from this session are still fresh.`,
+  });
+
+  return blocks;
+}
+
 /**
  * Assembles the combined Blueprint Session deliverable (Gap Map followed by
  * the 72-Hour Action Plan) as a ParsedDocument, ready for renderToPdfLib's
@@ -127,7 +203,8 @@ export function buildDeliverable(
   prospectName: string,
   sessionDate: number,
   assessments: SessionAssessment[],
-  actions: SessionAction[]
+  actions: SessionAction[],
+  gapMapImage?: { src: string; width: number; height: number }
 ): ParsedDocument {
   const scores = scorePillars(assessments);
   const ranked = [...scores].filter((s) => s.assessed > 0).sort((a, b) => b.riskPct - a.riskPct);
@@ -142,6 +219,16 @@ export function buildDeliverable(
   // ---- Part 1: Gap Map ----
   blocks.push({ type: "heading", level: 1, text: "The Gap Map" });
   blocks.push({ type: "paragraph", text: "Seven areas, assessed together, one sitting. Handled means a successor could act on it today. Partial means the information exists but is scattered or stale. Exposed means it lives in one person's head." });
+
+  if (gapMapImage) {
+    blocks.push({
+      type: "image",
+      src: gapMapImage.src,
+      alt: "Gap Map: seven pillars of continuity with current exposure levels",
+      width: gapMapImage.width,
+      height: gapMapImage.height,
+    });
+  }
 
   blocks.push({
     type: "table",
@@ -166,7 +253,11 @@ export function buildDeliverable(
     }
   }
 
-  // ---- Part 2: 72-Hour Action Plan ----
+  // ---- Part 2: What This Means ----
+  blocks.push({ type: "hr" });
+  blocks.push(...buildWhatThisMeans(scores));
+
+  // ---- Part 3: 72-Hour Action Plan ----
   blocks.push({ type: "hr" });
   blocks.push({ type: "heading", level: 1, text: "The 72-Hour Action Plan" });
   blocks.push({ type: "paragraph", text: "The highest-exposure items from the Gap Map, sequenced across three days. Each step is small on purpose. The goal isn't perfection in a weekend; it's moving the worst risks from exposed to handled while the momentum is fresh." });

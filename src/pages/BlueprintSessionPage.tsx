@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "convex/react";
 import { RiArrowLeftLine as ArrowLeft, RiArrowDownSLine as ChevronDown, RiDownloadLine as Download, RiSparklingLine as Sparkle, RiArrowUpLine as Up, RiArrowDownLine as Down, RiDeleteBinLine as Trash2, RiLoader4Line as Loader2 } from "@remixicon/react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -13,9 +13,11 @@ import {
 import {
   buildDeliverable,
   generatePlan,
+  overallReadiness,
   scorePillars,
   type SessionAction,
 } from "../lib/blueprintDeliverable";
+import { GapMapVisual, gapMapToPng } from "../components/GapMapVisual";
 import { downloadBlob, renderToPdfLib } from "../lib/documentConverter";
 
 const STATUS_CHIP: Record<CheckStatus, string> = {
@@ -49,6 +51,8 @@ export default function BlueprintSessionPage() {
     () => scorePillars(session?.assessments ?? []),
     [session?.assessments]
   );
+  const readiness = useMemo(() => overallReadiness(scores), [scores]);
+  const gapMapRef = useRef<SVGSVGElement>(null);
   const totalExposed = scores.reduce((s, p) => s + p.exposed, 0);
   const totalAssessed = scores.reduce((s, p) => s + p.assessed, 0);
   const totalCheckpoints = BLUEPRINT_PILLARS.reduce((s, p) => s + p.checkpoints.length, 0);
@@ -124,11 +128,21 @@ export default function BlueprintSessionPage() {
     if (exporting) return;
     setExporting(true);
     try {
+      let mapImage: { src: string; width: number; height: number } | undefined;
+      if (gapMapRef.current) {
+        try {
+          mapImage = await gapMapToPng(gapMapRef.current);
+        } catch {
+          // The PDF still carries the full table and narrative without the
+          // visual, so a rasterization failure shouldn't block the export.
+        }
+      }
       const doc = buildDeliverable(
         session.prospectName,
         session.sessionDate,
         session.assessments,
-        session.actions as SessionAction[]
+        session.actions as SessionAction[],
+        mapImage
       );
       const blob = await renderToPdfLib(doc);
       const safeName = session.prospectName.replace(/\s+/g, "-").toLowerCase();
@@ -167,30 +181,13 @@ export default function BlueprintSessionPage() {
         </select>
       </div>
 
-      {/* Gap Map summary bar */}
-      <div className="bg-[#0a0a0a] border border-gold-border rounded-xl p-4 space-y-3">
+      {/* Gap Map */}
+      <div className="bg-[#0a0a0a] border border-gold-border rounded-xl p-4 space-y-2">
         <p className="font-heading text-xs text-gold-primary uppercase tracking-widest">Gap Map</p>
-        <div className="space-y-2">
-          {scores.map((s) => (
-            <div key={s.pillarId} className="flex items-center gap-3">
-              <span className="text-[10px] font-heading text-[#e8e6e1]/70 w-32 truncate shrink-0">
-                {s.number} {s.title}
-              </span>
-              <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: s.assessed === 0 ? "0%" : `${Math.max(s.riskPct, 4)}%`,
-                    background: s.riskPct > 60 ? "#f43f5e" : s.riskPct > 30 ? "#f59e0b" : "#10b981",
-                  }}
-                />
-              </div>
-              <span className="text-[10px] text-[#e8e6e1]/60 w-10 text-right shrink-0">
-                {s.assessed === 0 ? "" : `${s.riskPct}%`}
-              </span>
-            </div>
-          ))}
-        </div>
+        <GapMapVisual ref={gapMapRef} scores={scores} readiness={readiness} />
+        <p className="text-[10px] text-[#e8e6e1]/50 text-center">
+          Updates live as checkpoints are assessed. This map prints into the PDF deliverable.
+        </p>
       </div>
 
       {/* Assessment pillars */}
