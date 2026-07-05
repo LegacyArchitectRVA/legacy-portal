@@ -167,6 +167,42 @@ const schema = defineSchema({
     notes: v.optional(v.string()),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
+
+  // Blueprint Session ($249 product): live sit-down assessment across the
+  // seven Readiness Check pillars, producing a Gap Map and 72-Hour Action
+  // Plan. Admin-run; prospects are not portal users yet, so this stores
+  // name/email directly rather than a userId reference.
+  blueprintSessions: defineTable({
+    prospectName: v.string(),
+    prospectEmail: v.optional(v.string()),
+    sessionDate: v.number(),
+    status: v.union(v.literal("draft"), v.literal("completed"), v.literal("delivered")),
+    notes: v.optional(v.string()),
+    assessments: v.array(
+      v.object({
+        checkpointId: v.string(),
+        status: v.union(
+          v.literal("handled"),
+          v.literal("partial"),
+          v.literal("exposed"),
+          v.literal("na")
+        ),
+        note: v.optional(v.string()),
+      })
+    ),
+    actions: v.array(
+      v.object({
+        id: v.string(),
+        title: v.string(),
+        detail: v.optional(v.string()),
+        day: v.union(v.literal(1), v.literal(2), v.literal(3)),
+        pillarId: v.string(),
+        done: v.boolean(),
+      })
+    ),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_updatedAt", ["updatedAt"]),
 });
 
 export default schema;

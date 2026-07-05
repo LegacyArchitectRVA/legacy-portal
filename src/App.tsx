@@ -35,6 +35,8 @@ const HubSpotSettingsPage = lazy(() => import("./pages/HubSpotSettingsPage"));
 const GeneratePage = lazy(() => import("./pages/GeneratePage"));
 const ManualViewPage = lazy(() => import("./pages/ManualViewPage"));
 const DocumentConversionPage = lazy(() => import("./pages/DocumentConversionPage"));
+const BlueprintListPage = lazy(() => import("./pages/BlueprintListPage"));
+const BlueprintSessionPage = lazy(() => import("./pages/BlueprintSessionPage"));
 
 function RouteFallback() {
   return (
@@ -76,6 +78,8 @@ function App() {
                 <Route path="/admin/users" element={<UserAccessPage />} />
                 <Route path="/admin/client/:clientUserId" element={<ClientDetailPage />} />
                 <Route path="/admin/prospects" element={<ProspectsPage />} />
+                <Route path="/admin/blueprint" element={<BlueprintListPage />} />
+                <Route path="/admin/blueprint/:sessionId" element={<BlueprintSessionPage />} />
                 <Route path="/admin/visual-editor" element={<AdminVisualEditorPage />} />
                 <Route path="/admin/hubspot" element={<HubSpotSettingsPage />} />
                 <Route path="/generate" element={<GeneratePage />} />

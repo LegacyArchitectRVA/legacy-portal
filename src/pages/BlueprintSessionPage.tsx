@@ -1,0 +1,312 @@
+import { useQuery, useMutation } from "convex/react";
+import { RiArrowLeftLine as ArrowLeft, RiArrowDownSLine as ChevronDown, RiDownloadLine as Download, RiSparklingLine as Sparkle, RiArrowUpLine as Up, RiArrowDownLine as Down, RiDeleteBinLine as Trash2, RiLoader4Line as Loader2 } from "@remixicon/react";
+import { useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
+import {
+  BLUEPRINT_PILLARS,
+  STATUS_CYCLE,
+  STATUS_META,
+  type CheckStatus,
+} from "../data/blueprintPillars";
+import {
+  buildDeliverable,
+  generatePlan,
+  scorePillars,
+  type SessionAction,
+} from "../lib/blueprintDeliverable";
+import { downloadBlob, renderToPdfLib } from "../lib/documentConverter";
+
+const STATUS_CHIP: Record<CheckStatus, string> = {
+  exposed: "bg-rose-500/15 text-rose-300 border-rose-500/40",
+  partial: "bg-amber-500/15 text-amber-300 border-amber-500/40",
+  handled: "bg-emerald-500/15 text-emerald-300 border-emerald-500/40",
+  na: "bg-white/5 text-[#e8e6e1]/50 border-white/10",
+};
+
+export default function BlueprintSessionPage() {
+  const navigate = useNavigate();
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const isAdmin = useQuery(api.admin.isAdmin);
+  const session = useQuery(
+    api.blueprint.getSession,
+    isAdmin && sessionId ? { sessionId: sessionId as Id<"blueprintSessions"> } : "skip"
+  );
+  const setAssessment = useMutation(api.blueprint.setAssessment);
+  const setActions = useMutation(api.blueprint.setActions);
+  const updateMeta = useMutation(api.blueprint.updateSessionMeta);
+
+  const [openPillar, setOpenPillar] = useState<string | null>(BLUEPRINT_PILLARS[0].id);
+  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
+  const [exporting, setExporting] = useState(false);
+
+  const assessMap = useMemo(
+    () => new Map((session?.assessments ?? []).map((a) => [a.checkpointId, a])),
+    [session?.assessments]
+  );
+  const scores = useMemo(
+    () => scorePillars(session?.assessments ?? []),
+    [session?.assessments]
+  );
+  const totalExposed = scores.reduce((s, p) => s + p.exposed, 0);
+  const totalAssessed = scores.reduce((s, p) => s + p.assessed, 0);
+  const totalCheckpoints = BLUEPRINT_PILLARS.reduce((s, p) => s + p.checkpoints.length, 0);
+
+  if (isAdmin === undefined) return null;
+  if (!isAdmin) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+      </div>
+    );
+  }
+  if (session === undefined) return null;
+  if (session === null) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+        <p className="text-[#e8e6e1]/75">Session not found.</p>
+      </div>
+    );
+  }
+
+  const cycleStatus = (checkpointId: string) => {
+    const current = assessMap.get(checkpointId)?.status;
+    const idx = current ? STATUS_CYCLE.indexOf(current) : -1;
+    const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+    setAssessment({
+      sessionId: session._id,
+      assessment: {
+        checkpointId,
+        status: next,
+        note: assessMap.get(checkpointId)?.note,
+      },
+    });
+  };
+
+  const saveNote = (checkpointId: string) => {
+    const draft = noteDrafts[checkpointId];
+    if (draft === undefined) return;
+    const existing = assessMap.get(checkpointId);
+    setAssessment({
+      sessionId: session._id,
+      assessment: {
+        checkpointId,
+        status: existing?.status ?? "exposed",
+        note: draft.trim() || undefined,
+      },
+    });
+  };
+
+  const handleGenerate = () => {
+    const plan = generatePlan(session.assessments);
+    setActions({ sessionId: session._id, actions: plan });
+  };
+
+  const moveAction = (id: string, dir: -1 | 1) => {
+    const list = [...session.actions] as SessionAction[];
+    const i = list.findIndex((a) => a.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= list.length) return;
+    [list[i], list[j]] = [list[j], list[i]];
+    // Re-day: three per day in order
+    const redayed = list.map((a, idx) => ({ ...a, day: (Math.floor(idx / 3) + 1) as 1 | 2 | 3 }));
+    setActions({ sessionId: session._id, actions: redayed });
+  };
+
+  const removeAction = (id: string) => {
+    const list = (session.actions as SessionAction[]).filter((a) => a.id !== id);
+    const redayed = list.map((a, idx) => ({ ...a, day: (Math.floor(idx / 3) + 1) as 1 | 2 | 3 }));
+    setActions({ sessionId: session._id, actions: redayed });
+  };
+
+  const handleExport = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const doc = buildDeliverable(
+        session.prospectName,
+        session.sessionDate,
+        session.assessments,
+        session.actions as SessionAction[]
+      );
+      const blob = await renderToPdfLib(doc);
+      const safeName = session.prospectName.replace(/\s+/g, "-").toLowerCase();
+      downloadBlob(blob, `blueprint-session-${safeName}.pdf`);
+      if (session.status === "draft") {
+        updateMeta({ sessionId: session._id, status: "completed" });
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6 animate-fade-in pb-24">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <button onClick={() => navigate("/admin/blueprint")} className="text-[#e8e6e1]/75 hover:text-gold-primary transition-colors shrink-0">
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <div className="flex-1 min-w-0">
+          <h1 className="font-heading text-xl font-bold text-[#e8e6e1] truncate">{session.prospectName}</h1>
+          <p className="text-xs text-[#e8e6e1]/75">
+            {new Date(session.sessionDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            {" · "}{totalAssessed}/{totalCheckpoints} assessed
+            {" · "}<span className={totalExposed > 0 ? "text-rose-400" : "text-emerald-400"}>{totalExposed} exposed</span>
+          </p>
+        </div>
+        <select
+          value={session.status}
+          onChange={(e) => updateMeta({ sessionId: session._id, status: e.target.value as any })}
+          className="bg-[#111111] border border-gold-border/40 rounded-lg px-2 py-1.5 text-xs text-[#e8e6e1] focus:outline-none shrink-0"
+        >
+          <option value="draft">Draft</option>
+          <option value="completed">Completed</option>
+          <option value="delivered">Delivered</option>
+        </select>
+      </div>
+
+      {/* Gap Map summary bar */}
+      <div className="bg-[#0a0a0a] border border-gold-border rounded-xl p-4 space-y-3">
+        <p className="font-heading text-xs text-gold-primary uppercase tracking-widest">Gap Map</p>
+        <div className="space-y-2">
+          {scores.map((s) => (
+            <div key={s.pillarId} className="flex items-center gap-3">
+              <span className="text-[10px] font-heading text-[#e8e6e1]/70 w-32 truncate shrink-0">
+                {s.number} {s.title}
+              </span>
+              <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: s.assessed === 0 ? "0%" : `${Math.max(s.riskPct, 4)}%`,
+                    background: s.riskPct > 60 ? "#f43f5e" : s.riskPct > 30 ? "#f59e0b" : "#10b981",
+                  }}
+                />
+              </div>
+              <span className="text-[10px] text-[#e8e6e1]/60 w-10 text-right shrink-0">
+                {s.assessed === 0 ? "" : `${s.riskPct}%`}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Assessment pillars */}
+      <div className="space-y-2">
+        {BLUEPRINT_PILLARS.map((pillar) => {
+          const open = openPillar === pillar.id;
+          const score = scores.find((s) => s.pillarId === pillar.id)!;
+          return (
+            <div key={pillar.id} className="bg-[#0a0a0a] border border-gold-border rounded-xl overflow-hidden">
+              <button
+                onClick={() => setOpenPillar(open ? null : pillar.id)}
+                className="w-full flex items-center justify-between gap-3 p-4 text-left"
+              >
+                <span className="font-heading text-sm text-[#e8e6e1]">
+                  <span style={{ color: pillar.color }}>{pillar.number}</span> {pillar.title}
+                </span>
+                <span className="flex items-center gap-2 shrink-0">
+                  <span className="text-[10px] text-[#e8e6e1]/60">
+                    {score.assessed}/{pillar.checkpoints.length}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-[#e8e6e1]/50 transition-transform ${open ? "rotate-180" : ""}`} />
+                </span>
+              </button>
+              {open && (
+                <div className="border-t border-gold-border/20 divide-y divide-gold-border/10">
+                  {pillar.checkpoints.map((c) => {
+                    const a = assessMap.get(c.id);
+                    const status = a?.status;
+                    return (
+                      <div key={c.id} className="p-4 space-y-2">
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="text-sm text-[#e8e6e1] flex-1">{c.label}</p>
+                          <button
+                            onClick={() => cycleStatus(c.id)}
+                            className={`shrink-0 text-[10px] font-heading uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${
+                              status ? STATUS_CHIP[status] : "bg-white/5 text-[#e8e6e1]/40 border-white/10"
+                            }`}
+                          >
+                            {status ? STATUS_META[status].label : "Tap to assess"}
+                          </button>
+                        </div>
+                        {(status === "exposed" || status === "partial") && (
+                          <input
+                            type="text"
+                            defaultValue={a?.note ?? ""}
+                            onChange={(e) => setNoteDrafts((p) => ({ ...p, [c.id]: e.target.value }))}
+                            onBlur={() => saveNote(c.id)}
+                            placeholder="Session note (optional)"
+                            className="w-full bg-[#111111] border border-gold-border/30 rounded-lg px-3 py-2 text-xs text-[#e8e6e1] placeholder:text-[#e8e6e1]/40 focus:border-gold-primary/50 focus:outline-none"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 72-Hour Action Plan */}
+      <div className="bg-[#0a0a0a] border border-gold-border rounded-xl p-4 space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-heading text-xs text-gold-primary uppercase tracking-widest">72-Hour Action Plan</p>
+          <button
+            onClick={handleGenerate}
+            disabled={totalAssessed === 0}
+            className="flex items-center gap-1.5 bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 text-xs font-heading px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
+          >
+            <Sparkle className="w-3.5 h-3.5" />
+            {session.actions.length > 0 ? "Regenerate" : "Generate from Gap Map"}
+          </button>
+        </div>
+
+        {session.actions.length === 0 ? (
+          <p className="text-xs text-[#e8e6e1]/60">
+            Assess the pillars above, then generate. The plan pulls the highest-exposure items and sequences them across three days.
+          </p>
+        ) : (
+          [1, 2, 3].map((day) => {
+            const dayActions = (session.actions as SessionAction[]).filter((a) => a.day === day);
+            if (dayActions.length === 0) return null;
+            return (
+              <div key={day} className="space-y-2">
+                <p className="text-[10px] font-heading text-[#e8e6e1]/60 uppercase tracking-widest">Day {day}</p>
+                {dayActions.map((a) => (
+                  <div key={a.id} className="flex items-start gap-2 bg-[#111111] rounded-lg p-3 group">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-[#e8e6e1]">{a.title}</p>
+                      {a.detail && <p className="text-[10px] text-[#e8e6e1]/55 mt-0.5">Closes: {a.detail}</p>}
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => moveAction(a.id, -1)} className="text-[#e8e6e1]/60 hover:text-gold-primary p-0.5"><Up className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => moveAction(a.id, 1)} className="text-[#e8e6e1]/60 hover:text-gold-primary p-0.5"><Down className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => removeAction(a.id)} className="text-[#e8e6e1]/60 hover:text-red-400 p-0.5"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Export */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleExport}
+          disabled={exporting || totalAssessed === 0}
+          className="btn-gold flex items-center gap-2 text-sm px-5 py-2.5 disabled:opacity-40"
+        >
+          {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          Export Deliverable PDF
+        </button>
+      </div>
+    </div>
+  );
+}

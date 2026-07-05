@@ -270,6 +270,15 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
+                    isActive={location.pathname.startsWith("/admin/blueprint")}
+                    onClick={() => navTo("/admin/blueprint")}
+                  >
+                    <TrendingUp className="w-4 h-4" />
+                    <span>Blueprint Sessions</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
                     isActive={location.pathname.startsWith("/generate")}
                     onClick={() => navTo("/generate")}
                   >
