@@ -813,7 +813,7 @@ export async function parsePdf(
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-  type Line = { text: string; fontSize: number; pageEnd?: boolean };
+  type Line = { text: string; fontSize: number; pageEnd?: boolean; cells?: string[] };
   const lines: Line[] = [];
 
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -860,6 +860,42 @@ export async function parsePdf(
     const { createWorker } = await import("tesseract.js");
     const worker = await createWorker("eng");
 
+    /** True for OCR noise: dash runs, ornament fragments, stray glyph rows. */
+    const isJunkLine = (t: string): boolean => {
+      if (/^\d+[.)%]?$/.test(t)) return false; // bare numbers are real cells
+      if (/^[\s\-–—_=~•·.*«»°'"`,|]+$/.test(t)) return true;
+      const alnum = t.replace(/[^A-Za-z0-9]/g, "").length;
+      if (t.length >= 6 && alnum / t.length < 0.3) return true;
+      if (alnum <= 1 && t.length <= 3) return true;
+      // Rows of shattered fragments (what table ruling lines OCR into):
+      // mostly tokens of one or two characters with no real words present.
+      const tokens = t.split(/\s+/);
+      if (tokens.length >= 4) {
+        const frag = tokens.filter((w) => w.replace(/[^A-Za-z0-9]/g, "").length <= 2).length;
+        const hasRealWord = tokens.some((w) => /[A-Za-z]{4,}/.test(w));
+        if (frag / tokens.length > 0.6 && !hasRealWord) return true;
+      }
+      return false;
+    };
+
+    /** Cleans a single OCR text run: artifact prefixes, dash runs, bullet glyphs. */
+    const cleanRun = (t: string): string => {
+      let s = t
+        .replace(/-{4,}/g, " ")
+        .replace(/~{2,}/g, " ")
+        .replace(/={2,}/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      // Leading ornament/artifact tokens OCR invents from rules and marks
+      s = s.replace(/^(?:[0oOe«»*~_·]{1,2}\s+)+(?=[A-Z])/, "");
+      // Stray opening quote artifact glued onto a capitalized word
+      s = s.replace(/^['\u2018\u2019`]\s?(?=[A-Z])/, "");
+      // Bullet glyphs the source used (checks, plus marks, guillemets) -> bullet
+      s = s.replace(/^[«»]+\s*/, "\u2022 ");
+      s = s.replace(/^[+*]\s+/, "\u2022 ");
+      return s.trim();
+    };
+
     try {
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         onProgress?.(pageNum, pdf.numPages);
@@ -873,26 +909,92 @@ export async function parsePdf(
         await page.render({ canvasContext: ctx, viewport, canvas } as any).promise;
 
         const { data } = await worker.recognize(canvas);
-        const pageLines = (data.text || "").split("\n");
 
-        for (const raw of pageLines) {
-          const text = raw.trim();
-          if (!text) {
+        // Work from word bounding boxes, not the flat text dump. Grouping
+        // words back into lines and splitting on wide horizontal gaps lets
+        // ruled tables come back out as tables instead of word salad.
+        type OcrWord = { text: string; x0: number; x1: number; y0: number; y1: number };
+        const words: OcrWord[] = [];
+        for (const ln of (data as any).lines ?? []) {
+          for (const w of ln.words ?? []) {
+            const t = (w.text || "").trim();
+            if (!t) continue;
+            words.push({ text: t, x0: w.bbox.x0, x1: w.bbox.x1, y0: w.bbox.y0, y1: w.bbox.y1 });
+          }
+        }
+
+        // Group into visual rows by vertical midpoint
+        words.sort((a, b) => (a.y0 + a.y1) / 2 - (b.y0 + b.y1) / 2);
+        const rows: OcrWord[][] = [];
+        for (const w of words) {
+          const mid = (w.y0 + w.y1) / 2;
+          const last = rows[rows.length - 1];
+          if (last) {
+            const lm = last.reduce((s, x) => s + (x.y0 + x.y1) / 2, 0) / last.length;
+            const lh = last.reduce((s, x) => s + (x.y1 - x.y0), 0) / last.length;
+            if (Math.abs(mid - lm) < lh * 0.6) {
+              last.push(w);
+              continue;
+            }
+          }
+          rows.push([w]);
+        }
+
+        let prevBottom = -1;
+        for (const row of rows) {
+          row.sort((a, b) => a.x0 - b.x0);
+          const rowTop = Math.min(...row.map((w) => w.y0));
+          const rowBottom = Math.max(...row.map((w) => w.y1));
+          const rowH = rowBottom - rowTop;
+
+          // Vertical whitespace between rows -> paragraph break
+          if (prevBottom >= 0 && rowTop - prevBottom > rowH * 0.9) {
             lines.push({ text: "", fontSize: 0 });
+          }
+          prevBottom = rowBottom;
+
+          // Split the row into cells on wide horizontal gaps. The threshold
+          // scales with the row's own average character width so it holds
+          // across font sizes and render scales.
+          const totalChars = row.reduce((s, w) => s + w.text.length, 0) || 1;
+          const totalInk = row.reduce((s, w) => s + (w.x1 - w.x0), 0);
+          const charW = Math.max(totalInk / totalChars, 6);
+          const cells: string[] = [];
+          let current = row[0].text;
+          for (let wi = 1; wi < row.length; wi++) {
+            const gap = row[wi].x0 - row[wi - 1].x1;
+            if (gap > charW * 3.2) {
+              cells.push(current);
+              current = row[wi].text;
+            } else {
+              current += " " + row[wi].text;
+            }
+          }
+          cells.push(current);
+
+          const cleaned = cells.map(cleanRun).filter((c) => c && !isJunkLine(c));
+          if (cleaned.length === 0) continue;
+
+          if (cleaned.length >= 2) {
+            // Multi-cell row: candidate table row. Carried through with the
+            // cells intact so the block builder can assemble a real table.
+            lines.push({ text: cleaned.join(" | "), fontSize: 12, cells: cleaned });
             continue;
           }
-          // No font-size info from OCR, so headings are detected by the
-          // brand's own formatting standard instead: section headers are
-          // printed ALL CAPS, the cover title is short Title/Caps text.
+
+          const text = cleaned[0];
+          // Headings by the brand's own standard: short ALL CAPS lines.
+          // Requires four letters and a tight length cap so table headers
+          // and shouty fragments don't get promoted.
           const letters = text.replace(/[^A-Za-z]/g, "");
           const isAllCaps =
-            letters.length >= 3 && letters === letters.toUpperCase() && text.length <= 80;
-          // Encode the heading signal as an inflated fontSize so the existing
-          // ratio-based block-building logic below still works unmodified.
-          const fontSize = isAllCaps ? 20 : 12;
-          lines.push({ text, fontSize });
+            letters.length >= 4 &&
+            letters === letters.toUpperCase() &&
+            text.length <= 60 &&
+            !text.startsWith("\u2022");
+          lines.push({ text, fontSize: isAllCaps ? 20 : 12 });
         }
-        lines.push({ text: "", fontSize: 0 }); // page break -> paragraph break
+        lines.push({ text: "", fontSize: 0, pageEnd: true }); // page break
       }
     } finally {
       await worker.terminate();
@@ -936,8 +1038,9 @@ export async function parsePdf(
 
   const blocks: Block[] = [];
   let paragraphBuffer: string[] = [];
-  let listBuffer: string[] = [];
+  let listBuffer: { stripped: string; raw: string }[] = [];
   let listOrdered = false;
+  let tableBuffer: string[][] = [];
 
   const flushParagraph = () => {
     if (paragraphBuffer.length) {
@@ -946,10 +1049,27 @@ export async function parsePdf(
     }
   };
   const flushList = () => {
-    if (listBuffer.length) {
-      blocks.push({ type: "list", ordered: listOrdered, items: listBuffer });
-      listBuffer = [];
+    if (!listBuffer.length) return;
+    if (listOrdered && listBuffer.length === 1) {
+      // A lone numbered line is a numbered section title or reference, not a
+      // list. Rendering it as a one-item ordered list would renumber it to
+      // "1.", so it stays a paragraph with its original number intact.
+      blocks.push({ type: "paragraph", text: listBuffer[0].raw });
+    } else {
+      blocks.push({ type: "list", ordered: listOrdered, items: listBuffer.map((i) => i.stripped) });
     }
+    listBuffer = [];
+  };
+  const flushTable = () => {
+    if (tableBuffer.length >= 2) {
+      const cols = Math.max(...tableBuffer.map((r) => r.length));
+      const norm = tableBuffer.map((r) => [...r, ...Array(cols - r.length).fill("")]);
+      blocks.push({ type: "table", headers: norm[0], rows: norm.slice(1) });
+    } else if (tableBuffer.length === 1) {
+      // A single multi-cell row isn't a table; keep it as readable text.
+      blocks.push({ type: "paragraph", text: tableBuffer[0].join("  \u00b7  ") });
+    }
+    tableBuffer = [];
   };
 
   const bulletRe = /^[•◦▪\-\*]\s+/;
@@ -961,7 +1081,11 @@ export async function parsePdf(
     if (!text) {
       flushParagraph();
       flushList();
+      // Row padding inside ruled tables reads as vertical gaps, so blank
+      // lines must not close an open table. Only a page boundary or real
+      // non-cell content does.
       if (line.pageEnd) {
+        flushTable();
         for (const src of pageImages[pageCursor] || []) {
           blocks.push({ type: "image", src });
         }
@@ -969,6 +1093,15 @@ export async function parsePdf(
       }
       continue;
     }
+
+    if (line.cells && line.cells.length >= 2) {
+      flushParagraph();
+      flushList();
+      tableBuffer.push(line.cells);
+      continue;
+    }
+    flushTable();
+
     const ratio = line.fontSize / bodySize;
     const isBullet = bulletRe.test(text);
     const isNumbered = numberedRe.test(text);
@@ -986,9 +1119,10 @@ export async function parsePdf(
       flushList();
       blocks.push({ type: "heading", level: 3, text });
     } else if (isBullet || isNumbered) {
+      if (listBuffer.length && listOrdered !== isNumbered) flushList();
       flushParagraph();
       listOrdered = isNumbered;
-      listBuffer.push(text.replace(bulletRe, "").replace(numberedRe, ""));
+      listBuffer.push({ stripped: text.replace(bulletRe, "").replace(numberedRe, ""), raw: text });
     } else {
       flushList();
       paragraphBuffer.push(text);
@@ -996,6 +1130,7 @@ export async function parsePdf(
   }
   flushParagraph();
   flushList();
+  flushTable();
 
   return {
     title: guessTitle(blocks, file.name.replace(/\.[^.]+$/, "")),
@@ -1571,23 +1706,48 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
     } else if (b.type === "table") {
       const cols = Math.max(b.headers.length, ...b.rows.map((r) => r.length), 1);
       const colW = CONTENT_W / cols;
-      const drawRow = (cells: string[], isHeader: boolean) => {
+      const hasHeader = b.headers.some((h) => h);
+
+      const measureRow = (cells: string[], isHeader: boolean) => {
         const cellLines = cells.map((c) => wrapText(c, isHeader ? boldFont : bodyFont, 9, colW - 10));
-        const rowHeight = Math.max(...cellLines.map((l) => l.length), 1) * 12 + 8;
-        ensureSpace(rowHeight);
+        return { cellLines, rowHeight: Math.max(...cellLines.map((l) => l.length), 1) * 12 + 8 };
+      };
+
+      const drawMeasuredRow = (m: ReturnType<typeof measureRow>, isHeader: boolean) => {
         if (isHeader) {
-          page.drawRectangle({ x: MARGIN, y: y - rowHeight, width: CONTENT_W, height: rowHeight, color: rgb(0.93, 0.9, 0.82) });
+          page.drawRectangle({ x: MARGIN, y: y - m.rowHeight, width: CONTENT_W, height: m.rowHeight, color: rgb(0.93, 0.9, 0.82) });
         }
-        cellLines.forEach((lines, ci) => {
+        m.cellLines.forEach((lines, ci) => {
           lines.forEach((ln, li) => {
             page.drawText(ln, { x: MARGIN + ci * colW + 5, y: y - 12 - li * 12, size: 9, font: isHeader ? boldFont : bodyFont, color: INK });
           });
         });
-        page.drawRectangle({ x: MARGIN, y: y - rowHeight, width: CONTENT_W, height: rowHeight, borderColor: RULE, borderWidth: 0.5, color: undefined });
-        y -= rowHeight;
+        page.drawRectangle({ x: MARGIN, y: y - m.rowHeight, width: CONTENT_W, height: m.rowHeight, borderColor: RULE, borderWidth: 0.5, color: undefined });
+        y -= m.rowHeight;
       };
-      if (b.headers.some((h) => h)) drawRow(b.headers, true);
-      for (const row of b.rows) drawRow(row, false);
+
+      const headerM = hasHeader ? measureRow(b.headers, true) : null;
+      const rowMs = b.rows.map((r) => measureRow(r, false));
+
+      // If the whole table would fit on a fresh page but not in the space
+      // that's left, start it on the fresh page instead of stranding the
+      // header and a row or two at the bottom of this one.
+      const totalH = (headerM?.rowHeight ?? 0) + rowMs.reduce((s, m) => s + m.rowHeight, 0);
+      const remaining = y - MARGIN;
+      if (totalH > remaining && totalH <= PAGE_H - MARGIN * 2) newPage();
+
+      if (headerM) {
+        ensureSpace(headerM.rowHeight + (rowMs[0]?.rowHeight ?? 0));
+        drawMeasuredRow(headerM, true);
+      }
+      for (const m of rowMs) {
+        if (y - m.rowHeight < MARGIN) {
+          newPage();
+          // Repeat the header so continued rows never float without context.
+          if (headerM) drawMeasuredRow(measureRow(b.headers, true), true);
+        }
+        drawMeasuredRow(m, false);
+      }
       y -= 10;
     } else if (b.type === "image") {
       await drawImageBlock(b);

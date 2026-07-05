@@ -17,7 +17,7 @@ const STATUS_COLORS = {
   strong: "#3da977",
   watch: "#d9a441",
   exposed: "#b3413a",
-  unassessed: "#3a3a3a",
+  unassessed: "#6b675e",
 } as const;
 
 function nodeColor(s: PillarScore): string {
@@ -41,8 +41,8 @@ const PILLAR_ICON_PATHS: Record<string, string> = {
   household: `<path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/><path d="M10 20 V14 H14 V20"/>`,
   health: `<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/>`,
   legal: `<line x1="12" y1="3" x2="12" y2="21"/><path d="M5 8l7-5 7 5"/><path d="M5 8l-3 7a4 4 0 0 0 6 0z"/><path d="M19 8l3 7a4 4 0 0 1-6 0z"/>`,
-  business: `<rect x="4" y="3" width="16" height="18"/><line x1="9" y1="21" x2="9" y2="14"/><line x1="15" y1="21" x2="15" y2="14"/><rect x="9" y="14" width="6" height="7"/><line x1="8" y1="7" x2="8" y2="7.01" stroke-width="2.4"/><line x1="12" y1="7" x2="12" y2="7.01" stroke-width="2.4"/><line x1="16" y1="7" x2="16" y2="7.01" stroke-width="2.4"/>`,
-  legacy: `<path d="M12 3l1.2 4.2H17.5l-3.4 2.6 1.2 4.2-3.3-2.6-3.3 2.6 1.2-4.2L6.5 7.2h4.3z" fill="currentColor" stroke="none"/><circle cx="5" cy="17" r="1.2" fill="currentColor" stroke="none"/><circle cx="19" cy="17" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="20.5" r="1.2" fill="currentColor" stroke="none"/>`,
+  business: `<rect x="4" y="3" width="16" height="18"/><rect x="10" y="15" width="4" height="6"/><line x1="8" y1="7.5" x2="16" y2="7.5"/><line x1="8" y1="11.5" x2="16" y2="11.5"/>`,
+  legacy: `<path d="M12 3.5l2 5 5.4.2-4.3 3.3 1.6 5.2L12 14l-4.7 3.2 1.6-5.2L4.6 8.7 10 8.5z"/>`,
 };
 
 /** Two-line label splitting for the longer pillar titles. */
@@ -162,8 +162,12 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
           const y = CY + RING * Math.sin(ang);
           const color = nodeColor(s);
           const lines = labelLines(s.title);
+          // Chip sits on the hub-facing side of the node, along the spoke,
+          // so it can never collide with labels, which always face outward.
+          const chipX = x - (NODE_R - 1) * Math.cos(ang);
+          const chipY = y - (NODE_R - 1) * Math.sin(ang);
           // Push labels outward from the ring so they never collide with it
-          const labelY = y > CY + 40 ? y + NODE_R + 14 : y < CY - 40 ? y - NODE_R - 14 - (lines.length - 1) * 11 : y - NODE_R - 16 - (lines.length - 1) * 11;
+          const labelY = y > CY + 40 ? y + NODE_R + 14 : y < CY - 40 ? y - NODE_R - 20 - (lines.length - 1) * 11 : y - NODE_R - 22 - (lines.length - 1) * 11;
           const pct = s.assessed === 0 ? "" : `${100 - s.riskPct}%`;
 
           return (
@@ -172,25 +176,25 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
               <circle cx={x} cy={y} r={NODE_R + 8} fill={color} fillOpacity={0.13} />
               {/* Node */}
               <circle cx={x} cy={y} r={NODE_R} fill="#0d0d0d" stroke={color} strokeWidth={1.8} />
-              {/* Number chip */}
-              <circle cx={x + NODE_R - 5} cy={y - NODE_R + 5} r={8} fill="#0d0d0d" stroke={color} strokeWidth={1.2} />
-              <text x={x + NODE_R - 5} y={y - NODE_R + 8} textAnchor="middle" fontSize={8.5} fontFamily="Georgia, serif" fill={color} fontWeight={700}>
-                {s.number.replace(/^0/, "")}
-              </text>
               {/* Icon */}
               <svg
-                x={x - 11}
-                y={y - 11}
-                width={22}
-                height={22}
+                x={x - 13}
+                y={y - 13}
+                width={26}
+                height={26}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke={color}
-                strokeWidth={1.6}
+                strokeWidth={1.7}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 dangerouslySetInnerHTML={{ __html: PILLAR_ICON_PATHS[s.pillarId] || "" }}
               />
+              {/* Number chip, hub side */}
+              <circle cx={chipX} cy={chipY} r={8} fill="#0d0d0d" stroke={color} strokeWidth={1.2} />
+              <text x={chipX} y={chipY + 3} textAnchor="middle" fontSize={8.5} fontFamily="Georgia, serif" fill={color} fontWeight={700}>
+                {s.number.replace(/^0/, "")}
+              </text>
               {/* Label */}
               {lines.map((ln, li) => (
                 <text

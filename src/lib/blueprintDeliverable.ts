@@ -207,7 +207,11 @@ export function buildDeliverable(
   gapMapImage?: { src: string; width: number; height: number }
 ): ParsedDocument {
   const scores = scorePillars(assessments);
-  const ranked = [...scores].filter((s) => s.assessed > 0).sort((a, b) => b.riskPct - a.riskPct);
+  // Pillar order is locked. The table and findings walk 01 through 07 in
+  // sequence; severity ordering belongs only to What This Means and the plan.
+  // The table carries all seven rows so the numbering never skips: an
+  // unassessed pillar reads "Not assessed" rather than silently vanishing.
+  const inOrder = scores.filter((s) => s.assessed > 0);
   const blocks: Block[] = [];
 
   const dateStr = new Date(sessionDate).toLocaleDateString("en-US", {
@@ -233,16 +237,16 @@ export function buildDeliverable(
   blocks.push({
     type: "table",
     headers: ["Area", "Handled", "Partial", "Exposed", "Exposure"],
-    rows: ranked.map((s) => [
+    rows: scores.map((s) => [
       `${s.number} ${s.title}`,
-      String(s.handled),
-      String(s.partial),
-      String(s.exposed),
+      s.assessed === 0 ? "-" : String(s.handled),
+      s.assessed === 0 ? "-" : String(s.partial),
+      s.assessed === 0 ? "-" : String(s.exposed),
       s.assessed === 0 ? "Not assessed" : `${s.riskPct}%`,
     ]),
   });
 
-  for (const s of ranked) {
+  for (const s of inOrder) {
     if (s.exposedItems.length === 0 && s.partialItems.length === 0) continue;
     blocks.push({ type: "heading", level: 2, text: `${s.number} ${s.title}` });
     for (const item of s.exposedItems) {
