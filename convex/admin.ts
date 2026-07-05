@@ -1,5 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { mutation, query, internalQuery } from "./_generated/server";
+import { mutation, query, internalQuery, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
@@ -426,5 +426,24 @@ export const setHubSpotConfig = mutation({
     } else {
       await ctx.db.insert("settings", { key: "hubspot_api_key", value: apiKey });
     }
+  },
+});
+
+/**
+ * Ops-only role toggle, callable exclusively via deploy key (never from
+ * clients). Exists so admin-gated pages can be visually verified with the
+ * dedicated test account flipped to admin for the duration of a check and
+ * flipped back after. Not reachable from any UI.
+ */
+export const setAdminByEmail = internalMutation({
+  args: { email: v.string(), isAdmin: v.boolean() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("email"), args.email))
+      .first();
+    if (!user) throw new Error("No user with that email");
+    await ctx.db.patch(user._id, { isAdmin: args.isAdmin });
+    return { userId: user._id, isAdmin: args.isAdmin };
   },
 });

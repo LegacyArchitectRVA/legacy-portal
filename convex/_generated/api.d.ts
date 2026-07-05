@@ -17,6 +17,7 @@ import type * as crm from "../crm.js";
 import type * as crons from "../crons.js";
 import type * as http from "../http.js";
 import type * as hubspot from "../hubspot.js";
+import type * as importer from "../importer.js";
 import type * as legalDocuments from "../legalDocuments.js";
 import type * as messages from "../messages.js";
 import type * as passkeyAuth from "../passkeyAuth.js";
@@ -49,6 +50,7 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   http: typeof http;
   hubspot: typeof hubspot;
+  importer: typeof importer;
   legalDocuments: typeof legalDocuments;
   messages: typeof messages;
   passkeyAuth: typeof passkeyAuth;

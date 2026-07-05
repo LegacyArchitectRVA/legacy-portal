@@ -1363,7 +1363,15 @@ ${PAGEDJS_POLYFILL}
         <h1 className="font-heading text-3xl text-gold-gradient">Generate Life Manual</h1>
         <p className="text-[#e8e6e1]/75 mt-2">
           Generate a formatted Life Manual for a client. The manual includes all completed data
-          from their portal organized by chapter.
+          from their portal organized by chapter. If a client's manual only exists as an old PDF,
+          use{" "}
+          <button
+            onClick={() => navigate("/admin/import")}
+            className="underline text-gold-primary hover:opacity-80 transition-opacity"
+          >
+            Import to Life Manual
+          </button>
+          {" "}first to bring that content into their portal chapters.
         </p>
       </div>
 
@@ -1422,16 +1430,16 @@ ${PAGEDJS_POLYFILL}
             </button>
             {" "}to export it as a branded PDF with real, selectable text (choose <strong>PDF</strong> as the output format).
           </p>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity"
+              className="w-full sm:w-auto justify-center flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-5 py-3 rounded-lg hover:opacity-90 transition-opacity"
             >
               <Download className="w-4 h-4" /> Download HTML
             </button>
             <button
               onClick={handleOpenPrintAccuratePreview}
-              className="flex items-center gap-2 bg-black border border-gold-border/40 text-[#e8e6e1] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:border-gold-primary/60 transition-colors"
+              className="w-full sm:w-auto justify-center flex items-center gap-2 bg-black border border-gold-border/40 text-[#e8e6e1] font-heading text-sm font-semibold px-5 py-3 rounded-lg hover:border-gold-primary/60 transition-colors"
               title="Opens a separate preview with verified-accurate page numbers and a running chapter name, for confirming exact page references before sending to a client or attorney."
             >
               <BookOpen className="w-4 h-4" /> Print-Accurate Preview
