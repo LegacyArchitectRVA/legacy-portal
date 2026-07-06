@@ -50,8 +50,10 @@ const ALIASES: Record<string, { chapterId: string; sectionId: string }> = {
   TWOFARECOVERYCODES: { chapterId: "digital", sectionId: "twofa_recovery" },
   "2FARECOVERYCODES": { chapterId: "digital", sectionId: "twofa_recovery" },
   // Old-edition narrative and orientation sections
-  LIFELOVESTATEMENT: { chapterId: "context", sectionId: "personal_values" },
-  LIFEANDLOVESTATEMENT: { chapterId: "context", sectionId: "personal_values" },
+  WELCOMEPURPOSE: { chapterId: "introduction", sectionId: "welcome_purpose" },
+  WELCOMEANDPURPOSE: { chapterId: "introduction", sectionId: "welcome_purpose" },
+  LIFELOVESTATEMENT: { chapterId: "introduction", sectionId: "life_love_statement" },
+  LIFEANDLOVESTATEMENT: { chapterId: "introduction", sectionId: "life_love_statement" },
   MEDICALINFORMATION: { chapterId: "vitals", sectionId: "medical_information" },
   SECURITYACCESS: { chapterId: "household", sectionId: "security_access" },
   PETCARE: { chapterId: "household", sectionId: "petcare" },
@@ -78,8 +80,33 @@ const CHAPTER_ALIASES: Record<string, string> = {
   BUSINESSCONTINUITY: "business",
 };
 
+/**
+ * Destinations that exist in the generated manual but not as portal
+ * chapter pages. Content imported here is stored in sectionFields under
+ * the introduction chapterId and rendered by the manual generator.
+ */
+const EXTRA_TARGETS: SectionTarget[] = [
+  {
+    chapterId: "introduction",
+    sectionId: "welcome_purpose",
+    chapterTitle: "Introduction",
+    sectionTitle: "Welcome & Purpose",
+    columnKeys: [],
+    firstTextFieldId: "content",
+  },
+  {
+    chapterId: "introduction",
+    sectionId: "life_love_statement",
+    chapterTitle: "Introduction",
+    sectionTitle: "Life & Love Statement",
+    columnKeys: [],
+    firstTextFieldId: "content",
+  },
+];
+
 function buildTargets(): Map<string, SectionTarget> {
   const map = new Map<string, SectionTarget>();
+  for (const t of EXTRA_TARGETS) map.set(normalize(t.sectionTitle), t);
   for (const ch of CHAPTERS) {
     for (const sec of ch.subSections as any[]) {
       const target: SectionTarget = {
@@ -100,7 +127,9 @@ function buildTargets(): Map<string, SectionTarget> {
 }
 
 export function listAllTargets(): SectionTarget[] {
-  return [...buildTargets().values()];
+  // Introduction leads, mirroring the locked manual order.
+  const rest = [...buildTargets().values()].filter((t) => t.chapterId !== "introduction");
+  return [...EXTRA_TARGETS, ...rest];
 }
 
 export function resolveTarget(chapterId: string, sectionId: string): SectionTarget | null {

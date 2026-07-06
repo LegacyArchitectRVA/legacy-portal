@@ -818,6 +818,8 @@ export default function GeneratePage() {
       }
 
       // ── Introduction ──
+      const introWelcome = manualData?.fieldsBySection["introduction:welcome_purpose"]?.["content"];
+      const introLifeLove = manualData?.fieldsBySection["introduction:life_love_statement"]?.["content"];
       html += `
   <div class="chapter" id="introduction">
     <a class="back-to-toc" href="#toc">&uarr; Table of Contents</a>
@@ -825,6 +827,8 @@ export default function GeneratePage() {
     <p class="intro-text intro-lead">${linkify(`This Life Manual brings together the accounts, systems, contacts, and instructions identified by the Client into a single, organized reference to help a designated survivor manage important affairs with confidence and clarity.`, refIndex, "#introduction")}</p>
     <p class="intro-text">${linkify(`This manual is intended to be read in the following order: this Introduction, Legal Documents in Force, the Successor Roadmap, and then each chapter in sequence.`, refIndex, "#introduction")}</p>
     <p class="intro-text">Nothing in this document replaces formal legal, financial, tax, or professional advice. Where a chapter references a legal document, attorney, financial advisor, or other professional, that source should be considered the authoritative reference.</p>
+    ${introWelcome ? introWelcome.split(/\n{2,}/).map((p: string) => `<p class="intro-text">${escapeHtml(p.trim()).replace(/\n/g, "<br/>")}</p>`).join("\n    ") : ""}
+    ${introLifeLove ? `<h3 class="intro-subhead">Life &amp; Love Statement</h3>\n    ` + introLifeLove.split(/\n{2,}/).map((p: string) => `<p class="intro-text" style="font-style: italic;">${escapeHtml(p.trim()).replace(/\n/g, "<br/>")}</p>`).join("\n    ") : ""}
     <h3 class="intro-subhead">Confidentiality &amp; Privacy Notice</h3>
     <p class="privacy-note">This Life Manual contains confidential information provided by the Client and is intended solely for the Client and their designated survivor. Legacy Architect RVA has organized this information into a comprehensive reference for the Client's benefit but does not claim ownership of the information contained herein. To protect the Client's privacy, Legacy Architect RVA does not retain copies of the completed Life Manual or the personal information used to create it following its delivery. The contents of this manual should not be disclosed or distributed without the Client's permission.</p>
     <p class="privacy-note">This Life Manual provides high-level orientation and location guidance throughout. It does not contain passwords, security codes, recovery keys, full account numbers, or other sensitive credentials. Nothing in this manual replaces formal legal or professional advice. Refer to original records and trusted advisors as appropriate.</p>
