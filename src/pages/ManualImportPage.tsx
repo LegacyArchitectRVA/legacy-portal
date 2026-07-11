@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import { parsePdf } from "../lib/documentConverter";
+import { parseInput, parsePdf } from "../lib/documentConverter";
 import {
   chunksToImportPayload,
   listAllTargets,
@@ -54,15 +54,18 @@ export default function ManualImportPage() {
     setDone(null);
     setChunks(null);
     try {
-      const parsed = await parsePdf(file, (c, t) => setProgress(`Reading page ${c} of ${t} (OCR)...`));
+      const isAffine = /\.(affine|db|sqlite|json)$/i.test(file.name);
+      const parsed = isAffine
+        ? await parseInput(file, "affine")
+        : await parsePdf(file, (c, t) => setProgress(`Reading page ${c} of ${t} (OCR)...`));
       const mapped = mapManualToPortal(parsed);
       if (!mapped.length) {
-        setError("Nothing readable came out of this PDF.");
+        setError("Nothing readable came out of this file.");
       } else {
         setChunks(mapped);
       }
     } catch (e: any) {
-      setError(e?.message || "Could not read this PDF.");
+      setError(e?.message || "Could not read this file.");
     } finally {
       setParsing(false);
       setProgress(null);
@@ -134,7 +137,7 @@ export default function ManualImportPage() {
         <input
           ref={fileRef}
           type="file"
-          accept=".pdf"
+          accept=".pdf,.affine,.db,.sqlite,.json"
           className="hidden"
           onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
         />
@@ -144,7 +147,7 @@ export default function ManualImportPage() {
           className="w-full sm:w-auto justify-center flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-5 py-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-40"
         >
           {parsing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-          {parsing ? progress || "Reading PDF..." : "Choose Old Manual PDF"}
+          {parsing ? progress || "Reading PDF..." : "Choose Old Manual (PDF or AFFiNE)"}
         </button>
       </div>
 

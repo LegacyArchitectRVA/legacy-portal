@@ -59,7 +59,42 @@ const ALIASES: Record<string, { chapterId: string; sectionId: string }> = {
   PETCARE: { chapterId: "household", sectionId: "petcare" },
   INSURANCEOVERVIEW: { chapterId: "financial", sectionId: "insurance_policies" },
   BENEFICIARIESREVIEW: { chapterId: "financial", sectionId: "beneficiaries" },
+  // Account-type groupings under the old Accounts & Institutions section
+  SAVINGS: { chapterId: "financial", sectionId: "accounts_institutions" },
+  CHECKING: { chapterId: "financial", sectionId: "accounts_institutions" },
+  RETIREMENT: { chapterId: "financial", sectionId: "accounts_institutions" },
+  BROKERAGEINVESTMENTS: { chapterId: "financial", sectionId: "accounts_institutions" },
+  CREDITCARDS: { chapterId: "financial", sectionId: "accounts_institutions" },
+  UTILITIESVENDORS: { chapterId: "household", sectionId: "home_systems" },
+  MEDICALAUTHORITYDOCUMENTS: { chapterId: "vitals", sectionId: "medical_information" },
+  PERSONALNOTESANDLEGACYMESSAGES: { chapterId: "context", sectionId: "final_wishes" },
 };
+
+/**
+ * The old edition repeats these ALL CAPS sub-blocks inside every account
+ * or system entry. They belong to the section they appear in, never to a
+ * new chunk, so they always continue the current one.
+ */
+const CONTINUATION_SUBHEADINGS = new Set([
+  "HOWTOUSETHISSECTION",
+  "HOWTOUSETHISPAGE",
+  "AUTHORITYACCESSLOCATION",
+  "2FARECOVERYHANDLING",
+  "TWOFARECOVERYHANDLING",
+  "WHATTODOIFACCESSFAILS",
+  "ROLEOFTHISEMAIL",
+  "ROLEOFTHISSYSTEM",
+  "ROLEOFTHISACCOUNT",
+  "WHATDEPENDSONTHISSYSTEM",
+  "WHATDEPENDSONTHISEMAIL",
+  "WHATDEPENDSONTHISACCOUNT",
+  "HANDOFFINSTRUCTIONS",
+  "SUCCESSORINSTRUCTIONS",
+  "IMPORTANTNOTES",
+  "CAREPREFERENCES",
+  "AREASTHISPAGEREFERENCES",
+  "WHATTHISGUIDEINCLUDES",
+]);
 
 /**
  * Old-edition chapter headings map the reader into a chapter without
@@ -69,6 +104,7 @@ const ALIASES: Record<string, { chapterId: string; sectionId: string }> = {
 const CHAPTER_ALIASES: Record<string, string> = {
   IMMEDIATERESPONSESUCCESSORGUIDANCE: "emergency",
   IMMEDIATERESPONSE: "emergency",
+  EMERGENCYSUCCESSORACCESS: "emergency",
   DIGITALACCESSSYSTEMS: "digital",
   DIGITALLIFE: "digital",
   FINANCIALASSETORIENTATION: "financial",
@@ -188,7 +224,38 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
       current.text += (current.text ? "\n" : "") + trimmed;
       return;
     }
+    // Chapter overview pages ("01: DIGITAL LIFE - OVERVIEW", hyphen or
+    // dash) set chapter context so everything after prefers that chapter.
+    const overview = /^\d{2}:\s*(.+?)\s*[-\u2013\u2014]\s*OVERVIEW$/i.exec(trimmed);
+    if (overview) {
+      const chKey = normalize(overview[1]);
+      if (CHAPTER_ALIASES[chKey]) activeChapter.id = CHAPTER_ALIASES[chKey];
+    }
+    // Known per-entry sub-blocks continue the section they live in, caps
+    // or not, keeping their content and tables with the parent entry.
+    // Prefix rules cover the recurring families and their plural and
+    // business variants (WHAT DEPENDS ON THESE ACCOUNTS, ROLE OF BUSINESS
+    // PLATFORMS, BUSINESS PLATFORM, and so on).
+    const normalizedHeading = normalize(trimmed);
+    const isContinuationSubheading =
+      CONTINUATION_SUBHEADINGS.has(normalizedHeading) ||
+      /^(WHATDEPENDSON|ROLEOF|WHATTODOIF|HOWTOUSE|BUSINESSPLATFORM)/.test(normalizedHeading);
+    if (current && isContinuationSubheading) {
+      current.text += (current.text ? "\n\n" : "") + trimmed + ":";
+      return;
+    }
     const target = matchHeading(trimmed, targets, activeChapter);
+    // Intra-section sub-headings (Title Case: "How to Use This Section",
+    // "Important Notes") continue the section they live in instead of
+    // cutting it into unmatched slivers and dragging their tables away.
+    // Real section headers in the manual are ALL CAPS, so an unmatched
+    // ALL CAPS heading still starts a fresh chunk for manual assignment.
+    const letters = trimmed.replace(/[^A-Za-z]/g, "");
+    const isAllCapsHeading = letters.length >= 4 && letters === letters.toUpperCase();
+    if (!target && !overview && !isAllCapsHeading && current) {
+      current.text += (current.text ? "\n\n" : "") + trimmed + ":";
+      return;
+    }
     // A repeated heading (running headers, page-spanning sections) that
     // resolves to the same destination continues the current chunk.
     if (
