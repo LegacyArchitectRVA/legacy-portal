@@ -984,14 +984,21 @@ export async function parsePdf(
 
           const text = cleaned[0];
           // Headings by the brand's own standard: short ALL CAPS lines.
-          // Requires four letters and a tight length cap so table headers
-          // and shouty fragments don't get promoted.
+          // Tightened against three false-heading sources seen in real old
+          // manuals: table header rows (many capitalized tokens, slashes),
+          // cross-references ("SEE EMERGENCY CONTACTS"), and bullet or
+          // checkbox-marked list lines. Each false heading would start a
+          // new chunk and cut content in the wrong place.
           const letters = text.replace(/[^A-Za-z]/g, "");
+          const capsWords = text.trim().split(/\s+/);
           const isAllCaps =
             letters.length >= 4 &&
             letters === letters.toUpperCase() &&
-            text.length <= 60 &&
-            !text.startsWith("\u2022");
+            text.length <= 42 &&
+            capsWords.length <= 5 &&
+            !/^SEE\b/i.test(text.trim()) &&
+            !(capsWords.length >= 4 && /\//.test(text)) &&
+            !/^[\u2022\u00ab\u00bb+*\-]/.test(text.trim());
           lines.push({ text, fontSize: isAllCaps ? 20 : 12 });
         }
         lines.push({ text: "", fontSize: 0, pageEnd: true }); // page break

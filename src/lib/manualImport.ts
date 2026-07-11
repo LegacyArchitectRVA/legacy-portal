@@ -181,11 +181,30 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
   let counter = 0;
 
   const startChunk = (heading: string) => {
+    const trimmed = heading.trim();
+    // Cross-reference lines that slipped through as headings continue the
+    // current chunk as content rather than cutting it.
+    if (current && /^SEE\b/i.test(trimmed)) {
+      current.text += (current.text ? "\n" : "") + trimmed;
+      return;
+    }
+    const target = matchHeading(trimmed, targets, activeChapter);
+    // A repeated heading (running headers, page-spanning sections) that
+    // resolves to the same destination continues the current chunk.
+    if (
+      current &&
+      target &&
+      current.target &&
+      target.chapterId === current.target.chapterId &&
+      target.sectionId === current.target.sectionId
+    ) {
+      return;
+    }
     if (current && (current.text.trim() || current.tableRows.length)) chunks.push(current);
     current = {
       id: `chunk-${counter++}`,
-      sourceHeading: heading,
-      target: matchHeading(heading, targets, activeChapter),
+      sourceHeading: trimmed,
+      target,
       text: "",
       tableRows: [],
       include: true,
@@ -210,7 +229,26 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
     chunks.push(current);
   }
 
-  return chunks;
+  // Adjacent chunks sharing a destination merge into one, so page breaks
+  // and repeated headings can't fragment a section into slivers.
+  const merged: MappedChunk[] = [];
+  for (const c of chunks) {
+    const prev = merged[merged.length - 1];
+    if (
+      prev &&
+      prev.target &&
+      c.target &&
+      prev.target.chapterId === c.target.chapterId &&
+      prev.target.sectionId === c.target.sectionId
+    ) {
+      prev.text += c.text ? (prev.text ? "\n\n" : "") + c.text : "";
+      prev.tableRows.push(...c.tableRows);
+    } else {
+      merged.push(c);
+    }
+  }
+
+  return merged;
 }
 
 /** Synonym vocabulary: new column key concepts -> old header words. */
