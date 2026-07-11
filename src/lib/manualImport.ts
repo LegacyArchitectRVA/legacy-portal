@@ -27,7 +27,7 @@ export interface MappedChunk {
   sourceHeading: string;
   target: SectionTarget | null; // null = unmatched, admin assigns
   text: string; // editable free text destined for the section's text field
-  tableRows: string[][]; // raw cell rows destined for the section's table
+  tables: { headers: string[]; rows: string[][] }[]; // each keeps its own header for column mapping
   include: boolean;
 }
 
@@ -209,55 +209,152 @@ function matchHeading(
   return null;
 }
 
+/** Strips markdown link syntax and stray anchors down to readable text. */
+function cleanInline(s: string): string {
+  return s
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/\(#[\w-]+\)/g, "")
+    .trim();
+}
+
+/** Old-template instruction paragraphs that must never import as client data. */
+const TEMPLATE_NOISE = /^(high-level description only|do not include passwords|this section provides high-level orientation|use this page first during an emergency|nothing here replaces formal legal)/i;
+/** Same phrases arriving mid-line (after a sub-heading label prefix). */
+const TEMPLATE_NOISE_ANY = /(high-level description only|do not include passwords|use this page first during an emergency|nothing here replaces formal legal)/i;
+
+/** Sub-headings whose entire content is old-template instructions. */
+const SKIP_CONTENT_SUBHEADINGS = /^(HOWTOUSETHIS|WHATTHISGUIDEINCLUDES)/;
+
 export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
   const targets = buildTargets();
   const chunks: MappedChunk[] = [];
   const activeChapter = { id: null as string | null };
   let current: MappedChunk | null = null;
   let counter = 0;
+  let skippingTemplate = false;
+  let pendingUntitled = false;
+
+  const pushCurrent = () => {
+    if (current && (current.text.trim() || current.tables.length)) chunks.push(current);
+    current = null;
+  };
 
   const startChunk = (heading: string) => {
-    const trimmed = heading.trim();
-    // Cross-reference lines that slipped through as headings continue the
-    // current chunk as content rather than cutting it.
+    const trimmed = cleanInline(heading);
+    const normalizedHeading = normalize(trimmed);
+
+    // Untitled AFFiNE documents: surface as a review chunk, excluded by
+    // default, labeled with a snippet of their first content so the admin
+    // can recognize what they are (the old intro pages usually live here).
+    if (normalizedHeading === "UNTITLED" || !normalizedHeading) {
+      pushCurrent();
+      skippingTemplate = false;
+      pendingUntitled = true;
+      current = {
+        id: `chunk-${counter++}`,
+        sourceHeading: "Untitled document",
+        target: null,
+        text: "",
+        tables: [],
+        include: false,
+      };
+      return;
+    }
+
+    // Cross-reference lines continue the current chunk as content.
     if (current && /^SEE\b/i.test(trimmed)) {
       current.text += (current.text ? "\n" : "") + trimmed;
       return;
     }
-    // Chapter overview pages ("01: DIGITAL LIFE - OVERVIEW", hyphen or
-    // dash) set chapter context so everything after prefers that chapter.
+
+    // Template-instruction sub-headings: skip the heading AND everything
+    // under it until the next heading. Their content is old boilerplate.
+    if (SKIP_CONTENT_SUBHEADINGS.test(normalizedHeading)) {
+      skippingTemplate = true;
+      return;
+    }
+    skippingTemplate = false;
+
+    // AFFiNE app template docs are tool scaffolding, never client data.
+    // They surface excluded so nothing vanishes without a trace.
+    if (/^(TEMPLATE|GETTINGSTARTED|HOWTOUSEFOLDER)/.test(normalizedHeading)) {
+      pushCurrent();
+      pendingUntitled = false;
+      current = {
+        id: `chunk-${counter++}`,
+        sourceHeading: trimmed,
+        target: null,
+        text: "",
+        tables: [],
+        include: false,
+      };
+      return;
+    }
+
+    // Per-entry document titles: the old workspace keeps one doc per
+    // account or system, named after the thing itself. Order matters:
+    // "Auto Insurance" is insurance, bare "Auto" is the vehicle.
+    const ENTRY_PATTERNS: { re: RegExp; chapterId: string; sectionId: string }[] = [
+      { re: /INSURANCE$/, chapterId: "financial", sectionId: "insurance_policies" },
+      { re: /(CHECKING|SAVINGS|RETIREMENT|BROKERAGE)/, chapterId: "financial", sectionId: "accounts_institutions" },
+      { re: /^(ELECTRICITY|WATER|GAS|INTERNET|TRASH|SEWER|POWER)/, chapterId: "household", sectionId: "home_systems" },
+      { re: /^EMAIL/, chapterId: "digital", sectionId: "primary_email" },
+      { re: /^AUTO$|^VEHICLE/, chapterId: "household", sectionId: "vehicle_info" },
+    ];
+    for (const p of ENTRY_PATTERNS) {
+      if (!p.re.test(normalizedHeading)) continue;
+      const entryTarget = resolveTarget(p.chapterId, p.sectionId);
+      if (!entryTarget) break;
+      if (
+        current &&
+        current.target &&
+        current.target.chapterId === entryTarget.chapterId &&
+        current.target.sectionId === entryTarget.sectionId
+      ) {
+        // Same destination as the running chunk: label the entry inline.
+        current.text += (current.text ? "\n\n" : "") + trimmed + ":";
+        return;
+      }
+      pushCurrent();
+      pendingUntitled = false;
+      current = {
+        id: `chunk-${counter++}`,
+        sourceHeading: trimmed,
+        target: entryTarget,
+        text: "",
+        tables: [],
+        include: true,
+      };
+      return;
+    }
+
+    // Chapter overview pages set chapter context.
     const overview = /^\d{2}:\s*(.+?)\s*[-\u2013\u2014]\s*OVERVIEW$/i.exec(trimmed);
     if (overview) {
       const chKey = normalize(overview[1]);
       if (CHAPTER_ALIASES[chKey]) activeChapter.id = CHAPTER_ALIASES[chKey];
     }
-    // Known per-entry sub-blocks continue the section they live in, caps
-    // or not, keeping their content and tables with the parent entry.
-    // Prefix rules cover the recurring families and their plural and
-    // business variants (WHAT DEPENDS ON THESE ACCOUNTS, ROLE OF BUSINESS
-    // PLATFORMS, BUSINESS PLATFORM, and so on).
-    const normalizedHeading = normalize(trimmed);
+
+    // Known per-entry sub-blocks continue the section they live in.
     const isContinuationSubheading =
       CONTINUATION_SUBHEADINGS.has(normalizedHeading) ||
-      /^(WHATDEPENDSON|ROLEOF|WHATTODOIF|HOWTOUSE|BUSINESSPLATFORM)/.test(normalizedHeading);
+      /^(WHATDEPENDSON|ROLEOF|WHATTODOIF|BUSINESSPLATFORM)/.test(normalizedHeading);
     if (current && isContinuationSubheading) {
       current.text += (current.text ? "\n\n" : "") + trimmed + ":";
       return;
     }
+
     const target = matchHeading(trimmed, targets, activeChapter);
-    // Intra-section sub-headings (Title Case: "How to Use This Section",
-    // "Important Notes") continue the section they live in instead of
-    // cutting it into unmatched slivers and dragging their tables away.
-    // Real section headers in the manual are ALL CAPS, so an unmatched
-    // ALL CAPS heading still starts a fresh chunk for manual assignment.
+
+    // Intra-section Title Case sub-headings continue their section.
     const letters = trimmed.replace(/[^A-Za-z]/g, "");
     const isAllCapsHeading = letters.length >= 4 && letters === letters.toUpperCase();
-    if (!target && !overview && !isAllCapsHeading && current) {
+    if (!target && !overview && !isAllCapsHeading && current && !pendingUntitled) {
       current.text += (current.text ? "\n\n" : "") + trimmed + ":";
       return;
     }
-    // A repeated heading (running headers, page-spanning sections) that
-    // resolves to the same destination continues the current chunk.
+
+    // Same-destination repeats continue the current chunk.
     if (
       current &&
       target &&
@@ -267,13 +364,15 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
     ) {
       return;
     }
-    if (current && (current.text.trim() || current.tableRows.length)) chunks.push(current);
+
+    pushCurrent();
+    pendingUntitled = false;
     current = {
       id: `chunk-${counter++}`,
       sourceHeading: trimmed,
       target,
       text: "",
-      tableRows: [],
+      tables: [],
       include: true,
     };
   };
@@ -283,21 +382,36 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
   for (const b of parsed.blocks as Block[]) {
     if (b.type === "heading") {
       startChunk(b.text);
-    } else if (b.type === "paragraph" && current) {
-      current.text += (current.text ? "\n\n" : "") + b.text;
-    } else if (b.type === "list" && current) {
-      current.text += (current.text ? "\n" : "") + b.items.map((i) => `- ${i}`).join("\n");
     } else if (b.type === "table" && current) {
-      const rows = [b.headers, ...b.rows].filter((r) => r.some((c) => c && c.trim()));
-      current.tableRows.push(...rows);
+      // Tables are client data wherever they appear, including under
+      // template-instruction headings, so they survive skip mode.
+      current.tables.push({
+        headers: b.headers.map(cleanInline),
+        rows: b.rows.map((r) => r.map(cleanInline)),
+      });
+    } else if (skippingTemplate) {
+      continue;
+    } else if (b.type === "paragraph" && current) {
+      const text = cleanInline(b.text);
+      if (!text || TEMPLATE_NOISE.test(text)) continue;
+      if (text.length < 220 && TEMPLATE_NOISE_ANY.test(text)) continue;
+      current.text += (current.text ? "\n\n" : "") + text;
+      if (pendingUntitled && current.sourceHeading === "Untitled document") {
+        current.sourceHeading = `Untitled document ("${text.slice(0, 48)}${text.length > 48 ? "..." : ""}")`;
+      }
+    } else if (b.type === "list" && current) {
+      const items = b.items.map(cleanInline).filter((i) => i && !TEMPLATE_NOISE.test(i));
+      if (items.length) current.text += (current.text ? "\n" : "") + items.map((i) => `- ${i}`).join("\n");
+    } else if (b.type === "table" && current) {
+      current.tables.push({
+        headers: b.headers.map(cleanInline),
+        rows: b.rows.map((r) => r.map(cleanInline)),
+      });
     }
   }
-  if (current && ((current as MappedChunk).text.trim() || (current as MappedChunk).tableRows.length)) {
-    chunks.push(current);
-  }
+  pushCurrent();
 
-  // Adjacent chunks sharing a destination merge into one, so page breaks
-  // and repeated headings can't fragment a section into slivers.
+  // Adjacent chunks sharing a destination merge into one.
   const merged: MappedChunk[] = [];
   for (const c of chunks) {
     const prev = merged[merged.length - 1];
@@ -309,7 +423,7 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
       prev.target.sectionId === c.target.sectionId
     ) {
       prev.text += c.text ? (prev.text ? "\n\n" : "") + c.text : "";
-      prev.tableRows.push(...c.tableRows);
+      prev.tables.push(...c.tables);
     } else {
       merged.push(c);
     }
@@ -415,37 +529,42 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
     if (!c.include || !c.target) continue;
     const t = c.target;
 
-    if (c.tableRows.length && t.columnKeys.length) {
-      let dataRows = c.tableRows;
-      let mapping: number[] | null = null;
-      let spill: { into: number; from: number[] } | null = null;
-
-      if (looksLikeHeaderRow(dataRows[0])) {
-        mapping = buildColumnMapping(dataRows[0], t.columnKeys);
-        spill = (mapping as any).spill ?? null;
-        dataRows = dataRows.slice(1);
-      }
-
-      for (const raw of dataRows) {
-        const data: Record<string, string> = {};
-        t.columnKeys.forEach((k, ki) => {
-          const oi = mapping ? mapping[ki] : ki;
-          data[k] = oi >= 0 ? (raw[oi] ?? "").trim() : "";
-        });
-        if (spill) {
-          const extra = spill.from.map((oi) => (raw[oi] ?? "").trim()).filter(Boolean).join(" \u00b7 ");
-          if (extra) {
-            const k = t.columnKeys[spill.into];
-            data[k] = data[k] ? `${data[k]} \u00b7 ${extra}` : extra;
-          }
+    if (c.tables.length && t.columnKeys.length) {
+      for (const table of c.tables) {
+        // Each table maps through its own header: AFFiNE tables carry real
+        // headers directly, OCR tables carry them as the first row.
+        let dataRows = table.rows;
+        let headerSource = table.headers.some((h) => h && h.trim()) ? table.headers : null;
+        if (!headerSource && dataRows.length && looksLikeHeaderRow(dataRows[0])) {
+          headerSource = dataRows[0];
+          dataRows = dataRows.slice(1);
         }
-        const values = Object.values(data).join("").trim();
-        if (!values) continue;
-        rows.push({ chapterId: t.chapterId, sectionId: t.sectionId, data: JSON.stringify(data) });
+        const mapping = headerSource ? buildColumnMapping(headerSource, t.columnKeys) : null;
+        const spill: { into: number; from: number[] } | null = mapping ? ((mapping as any).spill ?? null) : null;
+
+        for (const raw of dataRows) {
+          const data: Record<string, string> = {};
+          t.columnKeys.forEach((k, ki) => {
+            const oi = mapping ? mapping[ki] : ki;
+            data[k] = oi >= 0 ? (raw[oi] ?? "").trim() : "";
+          });
+          if (spill) {
+            const extra = spill.from.map((oi) => (raw[oi] ?? "").trim()).filter(Boolean).join(" \u00b7 ");
+            if (extra) {
+              const k = t.columnKeys[spill.into];
+              data[k] = data[k] ? `${data[k]} \u00b7 ${extra}` : extra;
+            }
+          }
+          const values = Object.values(data).join("").trim();
+          if (!values) continue;
+          rows.push({ chapterId: t.chapterId, sectionId: t.sectionId, data: JSON.stringify(data) });
+        }
       }
-    } else if (c.tableRows.length) {
+    } else if (c.tables.length) {
       // Table content headed for a field-based section: flatten readably.
-      const flat = c.tableRows.map((r) => r.filter(Boolean).join("  \u00b7  ")).join("\n");
+      const flat = c.tables
+        .map((table) => [table.headers, ...table.rows].map((r) => r.filter(Boolean).join("  \u00b7  ")).join("\n"))
+        .join("\n\n");
       c.text += (c.text ? "\n\n" : "") + flat;
     }
 

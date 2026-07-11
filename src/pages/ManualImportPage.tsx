@@ -190,7 +190,7 @@ export default function ManualImportPage() {
                 <div className="min-w-0">
                   <p className="font-heading text-sm text-gold-primary truncate">{c.sourceHeading}</p>
                   <p className="text-[10px] text-[#e8e6e1]/50 mt-0.5">
-                    {c.tableRows.length ? `${c.tableRows.length} table rows \u00b7 ` : ""}
+                    {c.tables.length ? `${c.tables.reduce((s, tb) => s + tb.rows.length, 0)} table rows \u00b7 ` : ""}
                     {c.text ? `${c.text.length} chars text` : ""}
                   </p>
                 </div>
@@ -230,21 +230,32 @@ export default function ManualImportPage() {
                 />
               ) : null}
 
-              {c.tableRows.length > 0 && (
-                <div className="overflow-x-auto">
-                  <table className="text-[10px] text-[#e8e6e1]/80 w-full">
-                    <tbody>
-                      {c.tableRows.slice(0, 4).map((r, ri) => (
-                        <tr key={ri} className="border-b border-gold-border/10">
-                          {r.map((cell, ci) => (
-                            <td key={ci} className="py-1 pr-3 whitespace-nowrap max-w-[160px] truncate">{cell}</td>
+              {c.tables.length > 0 && (
+                <div className="overflow-x-auto space-y-2">
+                  {c.tables.slice(0, 2).map((tb, ti) => (
+                    <table key={ti} className="text-[10px] text-[#e8e6e1]/80 w-full">
+                      <thead>
+                        <tr className="border-b border-gold-border/25">
+                          {tb.headers.map((h, hi) => (
+                            <th key={hi} className="py-1 pr-3 text-left text-gold-muted font-heading whitespace-nowrap max-w-[160px] truncate">{h}</th>
                           ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  {c.tableRows.length > 4 && (
-                    <p className="text-[10px] text-[#e8e6e1]/50 mt-1">+ {c.tableRows.length - 4} more rows</p>
+                      </thead>
+                      <tbody>
+                        {tb.rows.slice(0, 3).map((r, ri) => (
+                          <tr key={ri} className="border-b border-gold-border/10">
+                            {r.map((cell, ci) => (
+                              <td key={ci} className="py-1 pr-3 whitespace-nowrap max-w-[160px] truncate">{cell}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ))}
+                  {(c.tables.length > 2 || c.tables.some((tb) => tb.rows.length > 3)) && (
+                    <p className="text-[10px] text-[#e8e6e1]/50 mt-1">
+                      {c.tables.reduce((s, tb) => s + tb.rows.length, 0)} rows across {c.tables.length} table{c.tables.length === 1 ? "" : "s"} total
+                    </p>
                   )}
                 </div>
               )}
