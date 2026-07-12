@@ -146,7 +146,7 @@ export function MobileMenuPage() {
           );
         })}
 
-        {!isAdmin && (
+        {(
           <>
             <div className="px-4 pt-3">
               <div className="h-px bg-gold-dark/20" />

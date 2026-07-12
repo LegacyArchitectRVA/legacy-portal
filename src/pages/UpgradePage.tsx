@@ -76,22 +76,18 @@ export default function UpgradePage() {
     ? tiers.filter((tier) => tier.id === "legacy")
     : tiers.filter((tier) => tierRank[tier.id] >= currentRank);
 
-  if (isAdmin && !isEditingInVisualEditor) {
-    return (
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="rounded-xl border border-gold-border bg-[#0a0a0a] p-6 text-center space-y-2">
-          <Shield className="w-8 h-8 text-gold-primary mx-auto" />
-          <h1 className="font-heading text-xl text-gold-gradient">Administrator · Full Access</h1>
-          <p className="text-sm text-[#e8e6e1]/75">
-            Admin accounts bypass tier restrictions everywhere. There's nothing to upgrade.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
+      {isAdmin && !isEditingInVisualEditor && (
+        <div className="rounded-xl border border-gold-border bg-[#0a0a0a] p-4 flex items-start gap-3">
+          <Shield className="w-5 h-5 text-gold-primary mt-0.5 shrink-0" />
+          <p className="text-sm text-[#e8e6e1]/75">
+            <span className="text-gold-primary font-heading">Operator preview.</span> Admin accounts
+            bypass tier restrictions everywhere, so nothing here applies to you. This is the page
+            exactly as a client sees it, for reviewing pricing and layout.
+          </p>
+        </div>
+      )}
       <div>
         <h1 className="font-heading text-3xl text-gold-gradient">
           <EditableText cmsKey="upgrade_title" as="span" />

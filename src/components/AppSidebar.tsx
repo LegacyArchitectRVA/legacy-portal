@@ -211,10 +211,11 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className={isAdmin ? "hidden" : ""} />
+        <SidebarSeparator />
 
-        {/* Upgrade Plan link — hidden for admins, nothing to upgrade to */}
-        <SidebarGroup className={isAdmin ? "hidden" : ""}>
+        {/* Upgrade Plan link — visible to everyone, including admins, so the
+            operator can review pricing and layout the way a client sees it */}
+        <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
