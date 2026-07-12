@@ -15,6 +15,7 @@ import { requireAdmin } from "./admin";
 export const importManualContent = mutation({
   args: {
     clientUserId: v.id("users"),
+
     fields: v.array(
       v.object({
         chapterId: v.string(),
@@ -34,6 +35,22 @@ export const importManualContent = mutation({
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
     const now = Date.now();
+
+    // The uploaded manual IS the manual: everything the client's
+    // sections held before clears first, so imports can never stack on
+    // top of old data.
+    {
+      const oldFields = await ctx.db
+        .query("sectionFields")
+        .withIndex("by_user_section", (q) => q.eq("userId", args.clientUserId))
+        .collect();
+      for (const f of oldFields) await ctx.db.delete(f._id);
+      const oldRows = await ctx.db
+        .query("sectionRows")
+        .withIndex("by_user_section", (q) => q.eq("userId", args.clientUserId))
+        .collect();
+      for (const r of oldRows) await ctx.db.delete(r._id);
+    }
 
     for (const f of args.fields) {
       const existing = await ctx.db

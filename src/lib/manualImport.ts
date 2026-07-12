@@ -92,6 +92,7 @@ const CONTINUATION_SUBHEADINGS = new Set([
   "SUCCESSORINSTRUCTIONS",
   "IMPORTANTNOTES",
   "CAREPREFERENCES",
+  "PURPOSE",
   "AREASTHISPAGEREFERENCES",
   "WHATTHISGUIDEINCLUDES",
 ]);
@@ -197,7 +198,7 @@ function matchHeading(
   if (key.length >= 6) {
     const candidates: SectionTarget[] = [];
     for (const [tKey, target] of targets) {
-      if (tKey.length >= 6 && (tKey.includes(key) || key.includes(tKey))) candidates.push(target);
+      if (Math.min(tKey.length, key.length) >= 10 && (tKey.includes(key) || key.includes(tKey))) candidates.push(target);
     }
     if (candidates.length) {
       // Ambiguity resolves toward the chapter the document is currently in.
@@ -235,7 +236,26 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
   let pendingUntitled = false;
 
   const pushCurrent = () => {
-    if (current && (current.text.trim() || current.tables.length)) chunks.push(current);
+    if (current && (current.text.trim() || current.tables.length)) {
+      // Untitled docs that identify themselves as the old intro content
+      // auto-assign to Introduction instead of waiting on a human.
+      if (!current.target && current.sourceHeading.startsWith("Untitled document")) {
+        const t = current.text;
+        if (/life\s*(&|and)\s*love/i.test(t) || /though loved ones know me/i.test(t)) {
+          current.target = resolveTarget("introduction", "life_love_statement");
+          current.include = !!current.target;
+        } else if (/^purpose\b/i.test(t) || /this life manual exists/i.test(t) || /^welcome\b/i.test(t)) {
+          current.target = resolveTarget("introduction", "welcome_purpose");
+          current.include = !!current.target;
+        }
+      }
+      // Chapter overview pages are the old edition's own template text;
+      // the new manual writes its own overviews, so they default to off.
+      if (/^\d{2}:\s*.+?[-\u2013\u2014]\s*OVERVIEW$/i.test(current.sourceHeading)) {
+        current.include = false;
+      }
+      chunks.push(current);
+    }
     current = null;
   };
 
@@ -328,11 +348,24 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
       return;
     }
 
-    // Chapter overview pages set chapter context.
+    // Chapter overview pages set chapter context, then exclude themselves:
+    // the new manual writes its own chapter overviews, so the old ones are
+    // never client data.
     const overview = /^\d{2}:\s*(.+?)\s*[-\u2013\u2014]\s*OVERVIEW$/i.exec(trimmed);
     if (overview) {
       const chKey = normalize(overview[1]);
       if (CHAPTER_ALIASES[chKey]) activeChapter.id = CHAPTER_ALIASES[chKey];
+      pushCurrent();
+      pendingUntitled = false;
+      current = {
+        id: `chunk-${counter++}`,
+        sourceHeading: trimmed,
+        target: null,
+        text: "",
+        tables: [],
+        include: false,
+      };
+      return;
     }
 
     // Known per-entry sub-blocks continue the section they live in.
@@ -349,7 +382,7 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
     // Intra-section Title Case sub-headings continue their section.
     const letters = trimmed.replace(/[^A-Za-z]/g, "");
     const isAllCapsHeading = letters.length >= 4 && letters === letters.toUpperCase();
-    if (!target && !overview && !isAllCapsHeading && current && !pendingUntitled) {
+    if (!target && !isAllCapsHeading && current && !pendingUntitled) {
       current.text += (current.text ? "\n\n" : "") + trimmed + ":";
       return;
     }
@@ -398,6 +431,15 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
       current.text += (current.text ? "\n\n" : "") + text;
       if (pendingUntitled && current.sourceHeading === "Untitled document") {
         current.sourceHeading = `Untitled document ("${text.slice(0, 48)}${text.length > 48 ? "..." : ""}")`;
+        // Untitled docs that identify themselves as intro pieces assign
+        // and include themselves so the manual opens the way it should.
+        if (/life\s*(&|and)?\s*love/i.test(text)) {
+          current.target = resolveTarget("introduction", "life_love_statement");
+          current.include = true;
+        } else if (/\b(purpose|welcome)\b/i.test(text)) {
+          current.target = resolveTarget("introduction", "welcome_purpose");
+          current.include = true;
+        }
       }
     } else if (b.type === "list" && current) {
       const items = b.items.map(cleanInline).filter((i) => i && !TEMPLATE_NOISE.test(i));
@@ -581,5 +623,19 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
     }
   }
 
-  return { fields, rows };
+  // Several chunks can legitimately target the same field (the intro doc
+  // plus an untitled purpose page, for instance). They merge into one
+  // value in document order rather than the last one clobbering the rest.
+  const mergedFields = new Map<string, { chapterId: string; sectionId: string; fieldId: string; value: string }>();
+  for (const f of fields) {
+    const key = `${f.chapterId}/${f.sectionId}/${f.fieldId}`;
+    const existing = mergedFields.get(key);
+    if (existing) {
+      existing.value += `\n\n${f.value}`;
+    } else {
+      mergedFields.set(key, { ...f });
+    }
+  }
+
+  return { fields: [...mergedFields.values()], rows };
 }

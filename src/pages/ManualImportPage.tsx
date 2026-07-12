@@ -87,10 +87,11 @@ export default function ManualImportPage() {
       const payload = chunksToImportPayload(chunks);
       const result = await doImport({
         clientUserId: clientUserId as Id<"users">,
+
         fields: payload.fields,
         rows: payload.rows,
       });
-      setDone(`Imported ${result.fieldsWritten} fields and ${result.rowsWritten} table rows into the client's Life Manual.`);
+      setDone(`Imported ${result.fieldsWritten} fields and ${result.rowsWritten} table rows. The client's previous manual data was cleared first, so this upload is now the manual.`);
       setChunks(null);
     } catch (e: any) {
       setError(e?.message || "Import failed.");
@@ -112,8 +113,8 @@ export default function ManualImportPage() {
       <div>
         <h1 className="font-heading text-3xl text-gold-gradient">Import to Life Manual</h1>
         <p className="text-[#e8e6e1]/75 mt-2">
-          Pull the contents of an old Life Manual PDF into a client's portal chapters. Everything
-          is reviewed and assigned before a single field is written.
+          Upload the old manual and everything lands in its place. Importing replaces whatever the
+          client's manual held before, so the upload becomes the manual: no old data, no leftovers.
         </p>
       </div>
 
