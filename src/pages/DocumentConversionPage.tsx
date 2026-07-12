@@ -122,7 +122,7 @@ export default function DocumentConversionPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6 animate-fade-in">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">Document Conversion</h1>

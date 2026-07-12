@@ -39,7 +39,7 @@ export default function PaymentPage() {
   const priceDiff = targetTier.price - (currentTierInfo?.price || 0);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
       {/* Back */}
       <button
         onClick={() => navigate("/upgrade")}

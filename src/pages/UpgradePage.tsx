@@ -78,7 +78,7 @@ export default function UpgradePage() {
 
   if (isAdmin && !isEditingInVisualEditor) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="rounded-xl border border-gold-border bg-[#0a0a0a] p-6 text-center space-y-2">
           <Shield className="w-8 h-8 text-gold-primary mx-auto" />
           <h1 className="font-heading text-xl text-gold-gradient">Administrator · Full Access</h1>

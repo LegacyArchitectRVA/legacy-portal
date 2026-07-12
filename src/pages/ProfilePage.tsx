@@ -76,7 +76,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-6 animate-fade-in">
+    <div className="p-6 max-w-3xl mx-auto space-y-6 animate-fade-in">
       <div>
         <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">
           <EditableText cmsKey="profile_title" as="span" />

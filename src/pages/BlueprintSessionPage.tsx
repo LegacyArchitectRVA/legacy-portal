@@ -156,7 +156,7 @@ export default function BlueprintSessionPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6 animate-fade-in pb-24">
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-6 animate-fade-in pb-24">
       {/* Header */}
       <div className="flex items-center gap-3">
         <button onClick={() => navigate("/admin/blueprint")} className="text-[#e8e6e1]/75 hover:text-gold-primary transition-colors shrink-0">
@@ -181,15 +181,18 @@ export default function BlueprintSessionPage() {
         </select>
       </div>
 
-      {/* Gap Map */}
-      <div className="bg-[#0a0a0a] border border-gold-border rounded-xl p-4 space-y-2">
-        <p className="font-heading text-xs text-gold-primary uppercase tracking-widest">Gap Map</p>
-        <GapMapVisual ref={gapMapRef} scores={scores} readiness={readiness} />
-        <p className="text-[10px] text-[#e8e6e1]/50 text-center">
-          Updates live as checkpoints are assessed. This map prints into the PDF deliverable.
-        </p>
-      </div>
+      {/* Desktop: map pinned left, work column right. Mobile: stacked. */}
+      <div className="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-6 lg:items-start space-y-6 lg:space-y-0">
+        {/* Gap Map */}
+        <div className="bg-[#0a0a0a] border border-gold-border rounded-xl p-4 space-y-2 lg:sticky lg:top-6">
+          <p className="font-heading text-xs text-gold-primary uppercase tracking-widest">Gap Map</p>
+          <GapMapVisual ref={gapMapRef} scores={scores} readiness={readiness} />
+          <p className="text-[10px] text-[#e8e6e1]/50 text-center">
+            Updates live as checkpoints are assessed. This map prints into the PDF deliverable.
+          </p>
+        </div>
 
+        <div className="space-y-6">
       {/* Assessment pillars */}
       <div className="space-y-2">
         {BLUEPRINT_PILLARS.map((pillar) => {
@@ -303,6 +306,8 @@ export default function BlueprintSessionPage() {
           {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
           Export Deliverable PDF
         </button>
+      </div>
+        </div>
       </div>
     </div>
   );

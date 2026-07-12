@@ -48,7 +48,7 @@ export default function BlueprintListPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-5 animate-fade-in">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-5 animate-fade-in">
       <div className="flex items-center gap-3">
         <button onClick={() => navigate("/admin")} className="text-[#e8e6e1]/75 hover:text-gold-primary transition-colors">
           <ArrowLeft className="w-5 h-5" />

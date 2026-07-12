@@ -277,7 +277,7 @@ export default function MessagesPage() {
   // --- Admin: conversation list ---
   if (isAdmin && !selectedClient) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-4">
+      <div className="max-w-3xl mx-auto px-4 py-8 space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">
@@ -400,7 +400,7 @@ export default function MessagesPage() {
       conversations?.find((c) => c.clientUserId === selectedClient) ||
       messageableUsers?.find((u) => u.userId === selectedClient);
     return (
-      <div className="flex flex-col h-[calc(100vh-4rem)] max-w-3xl mx-auto p-6 animate-fade-in">
+      <div className="flex flex-col h-[calc(100vh-4rem)] max-w-4xl mx-auto p-6 animate-fade-in">
         <div className="mb-4 flex items-center gap-3">
           <button
             onClick={() => setSelectedClient(null)}
@@ -428,7 +428,7 @@ export default function MessagesPage() {
 
   // --- Client: single thread with Legacy Architect RVA ---
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] max-w-3xl mx-auto p-6 animate-fade-in">
+    <div className="flex flex-col h-[calc(100vh-4rem)] max-w-4xl mx-auto p-6 animate-fade-in">
       <div className="mb-4">
         <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">
           <EditableText cmsKey="messages_title" as="span" />

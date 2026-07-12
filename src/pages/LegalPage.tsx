@@ -235,7 +235,7 @@ export default function LegalPage() {
   const [tab, setTab] = useState<"privacy" | "terms">("privacy");
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       <button
         onClick={() => navigate("/settings")}
         className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
