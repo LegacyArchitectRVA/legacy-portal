@@ -1,4 +1,4 @@
-# Legacy Architect RVA — Client Portal
+# Legacy Architect RVA: Client Portal
 
 Private client portal and Life Manual generation platform for [Legacy Architect RVA](https://legacyarchitectrva.com), a Richmond, VA-based continuity planning service. Legacy Architect RVA helps individuals and business owners document personal, digital, financial, and household information into a structured **Life Manual**, so a trusted successor can act immediately without confusion.
 
