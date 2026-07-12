@@ -215,16 +215,23 @@ function cleanInline(s: string): string {
   return s
     .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
     .replace(/\(#[\w-]+\)/g, "")
+    // Legacy parser placeholder for unresolvable page references
+    .replace(/\blinked section\b/gi, "")
+    // Dangling cross-reference remnants: "See" with nothing after it
+    .replace(/\bSee\s*(?=$|[.,;)\]\n])/g, "")
+    // Run-together references from older conversions ("SeeEmergency")
+    .replace(/\bSee(?=[A-Z][a-z])/g, "See ")
+    .replace(/[ \t]{2,}/g, " ")
     .trim();
 }
 
 /** Old-template instruction paragraphs that must never import as client data. */
-const TEMPLATE_NOISE = /^(high-level description only|do not include passwords|this section provides high-level orientation|use this page first during an emergency|nothing here replaces formal legal)/i;
+const TEMPLATE_NOISE = /^(high-level description only|do not include passwords|this section provides high-level orientation|use this page first during an emergency|nothing here replaces formal legal|legacy architect is owned and operated)/i;
 /** Same phrases arriving mid-line (after a sub-heading label prefix). */
-const TEMPLATE_NOISE_ANY = /(high-level description only|do not include passwords|use this page first during an emergency|nothing here replaces formal legal)/i;
+const TEMPLATE_NOISE_ANY = /(high-level description only|do not include passwords|use this page first during an emergency|nothing here replaces formal legal|legacy architect is owned and operated)/i;
 
 /** Sub-headings whose entire content is old-template instructions. */
-const SKIP_CONTENT_SUBHEADINGS = /^(HOWTOUSETHIS|WHATTHISGUIDEINCLUDES)/;
+const SKIP_CONTENT_SUBHEADINGS = /^(HOWTOUSETHIS|WHATTHISGUIDEINCLUDES|PRIVACYDATAHANDLING|PRIVACYANDDATAHANDLING)/;
 
 export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
   const targets = buildTargets();
@@ -567,6 +574,28 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
   const fields: { chapterId: string; sectionId: string; fieldId: string; value: string }[] = [];
   const rows: { chapterId: string; sectionId: string; data: string }[] = [];
 
+  // The old edition ships blank template pages whose cells hold hint text
+  // ("Bank, investment firm", "Health, life, property", "Cash, retirement,
+  // brokerage") instead of real values. A row whose cells are all hints,
+  // or all empty, is scaffolding and must not import as client data.
+  const PLACEHOLDER_CELL = /^(bank, investment firm|health, life, property|cash, retirement, brokerage|holding, income, growth|advisor, firm|protection area|portal or vault|contact type|coverage purpose|where documents live|name of service|e\.g\.,?|ex\.|required\.?|optional\.?|high-level|protection|\d\u2013\d sentences|1\u20132 sentences)/i;
+
+  // Only the ownership/marketing block is boilerplate ("Legacy Architect is
+  // owned and operated by Craig..."). Client-authored privacy notes
+  // ("Privacy & Boundaries", "this manual does not contain...") are real
+  // content and must survive, so the marker is the ownership sentence, and
+  // the strip reaches to the next blank line past that paragraph only.
+  const stripPrivacyBlock = (text: string): string => {
+    // The ownership/data-handling appendix ("Legacy Architect is owned and
+    // operated...", "Information You Choose to Share", "What This Manual Does
+    // NOT Contain") is template that trails real content. Cut from the
+    // ownership sentence (and its optional "Privacy & Data Handling:" label)
+    // to the end of the chunk.
+    const m = /(\n\s*)?(Privacy\s*&?\s*Data Handling:?\s*\n+)?Legacy Architect is owned and operated[\s\S]*$/i.exec(text);
+    if (!m) return text;
+    return text.slice(0, m.index).replace(/\n{3,}/g, "\n\n").trim();
+  };
+
   for (const c of chunks) {
     if (!c.include || !c.target) continue;
     const t = c.target;
@@ -599,6 +628,15 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
           }
           const values = Object.values(data).join("").trim();
           if (!values) continue;
+          // A row can carry the ownership appendix as one giant cell when
+          // the privacy prose was parsed as a table row. Drop those.
+          if (/Legacy Architect is owned and operated|Information You Choose to Share/i.test(values)) continue;
+          // Scrub any individual cell still holding template hint text, then
+          // drop the row only if nothing real remains.
+          for (const k of Object.keys(data)) {
+            if (PLACEHOLDER_CELL.test(data[k].trim())) data[k] = "";
+          }
+          if (Object.values(data).join("").trim().length < 2) continue;
           rows.push({ chapterId: t.chapterId, sectionId: t.sectionId, data: JSON.stringify(data) });
         }
       }
@@ -610,7 +648,9 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
       c.text += (c.text ? "\n\n" : "") + flat;
     }
 
-    if (c.text.trim()) {
+    c.text = stripPrivacyBlock(c.text);
+
+    if (c.text.trim() && !/Legacy Architect is owned and operated|Information You Choose to Share/i.test(c.text)) {
       if (t.firstTextFieldId) {
         fields.push({ chapterId: t.chapterId, sectionId: t.sectionId, fieldId: t.firstTextFieldId, value: c.text.trim() });
       } else if (t.columnKeys.length) {

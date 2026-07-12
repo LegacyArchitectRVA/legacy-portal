@@ -277,7 +277,11 @@ async function parseAffineSqlite(bytes: Uint8Array, fileName: string): Promise<P
 }
 
 /** Resolves a BlockSuite YText into plain text, converting any inline page-reference into a markdown link. */
-function affineTextOf(ytext: any, slugByPageId: Map<string, string>): string {
+function affineTextOf(
+  ytext: any,
+  slugByPageId: Map<string, string>,
+  titleByPageId?: Map<string, string>
+): string {
   if (!ytext) return "";
   const delta = typeof ytext.toDelta === "function" ? ytext.toDelta() : null;
   if (!delta) return typeof ytext === "string" ? ytext : ytext.toString?.() || "";
@@ -285,10 +289,17 @@ function affineTextOf(ytext: any, slugByPageId: Map<string, string>): string {
     .map((d: any) => {
       const ref = d?.attributes?.reference;
       if (ref) {
-        const slug = (ref.pageId && slugByPageId.get(ref.pageId)) || (ref.title && slugify(ref.title));
-        const label = ref.title || "linked section";
-        if (slug) return `[${label}](#${slug})`;
-        return label; // Reference target not found — keep the label as plain text rather than dropping it.
+        // Labels resolve from the workspace title registry first, then the
+        // reference's own title. An unresolvable reference contributes
+        // nothing rather than a placeholder literal; the dangling-"See"
+        // cleanup downstream handles the sentence remnant.
+        const label =
+          (ref.pageId && titleByPageId?.get(ref.pageId)) ||
+          ref.title ||
+          (typeof d?.insert === "string" ? d.insert.trim() : "");
+        if (!label) return "";
+        const slug = (ref.pageId && slugByPageId.get(ref.pageId)) || slugify(label);
+        return slug ? `[${label}](#${slug})` : label;
       }
       return d?.insert ?? "";
     })
@@ -313,7 +324,7 @@ function walkAffinePage(
   }
   if (!pageBlock) return;
 
-  const pageTitle = affineTextOf(pageBlock.get("prop:title"), slugByPageId) || "Untitled";
+  const pageTitle = affineTextOf(pageBlock.get("prop:title"), slugByPageId, titleByPageId) || "Untitled";
   const slug = slugify(pageTitle);
   slugByTitle.set(pageTitle.trim().toLowerCase(), slug);
   out.push({ type: "heading", level: 1, text: pageTitle, id: slug });
@@ -361,7 +372,7 @@ function walkAffineChildren(
     const grandchildren = block.get("sys:children")?.toArray?.() || [];
 
     if (flavour === "affine:list") {
-      const text = affineTextOf(block.get("prop:text"), slugByPageId);
+      const text = affineTextOf(block.get("prop:text"), slugByPageId, titleByPageId);
       const ordered = block.get("prop:type") === "numbered";
       if (!pendingList || pendingList.ordered !== ordered) {
         flushList();
@@ -379,7 +390,7 @@ function walkAffineChildren(
     flushList();
 
     if (flavour === "affine:paragraph" || flavour === "affine:edgeless-text") {
-      const text = affineTextOf(block.get("prop:text"), slugByPageId);
+      const text = affineTextOf(block.get("prop:text"), slugByPageId, titleByPageId);
       const headingType = block.get("prop:type");
       const headingMatch = typeof headingType === "string" && headingType.match(/^h([1-6])$/);
       if (headingMatch) {
@@ -390,7 +401,7 @@ function walkAffineChildren(
     } else if (flavour === "affine:divider") {
       out.push({ type: "hr" });
     } else if (flavour === "affine:callout") {
-      const text = affineTextOf(block.get("prop:text"), slugByPageId);
+      const text = affineTextOf(block.get("prop:text"), slugByPageId, titleByPageId);
       if (text) out.push({ type: "paragraph", text });
     } else if (flavour === "affine:table") {
       const table = extractAffineTableBlock(block);
@@ -419,8 +430,8 @@ function walkAffineChildren(
       // Unknown flavour — try whatever text-like property exists
       // rather than silently dropping the block.
       const fallback =
-        affineTextOf(block.get("prop:text"), slugByPageId) ||
-        affineTextOf(block.get("prop:title"), slugByPageId);
+        affineTextOf(block.get("prop:text"), slugByPageId, titleByPageId) ||
+        affineTextOf(block.get("prop:title"), slugByPageId, titleByPageId);
       if (fallback) out.push({ type: "paragraph", text: fallback });
     }
 
