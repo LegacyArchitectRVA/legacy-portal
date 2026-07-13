@@ -51,4 +51,3 @@ createRoot(document.getElementById("root")!).render(
     </ConvexAuthProvider>
   </StrictMode>,
 );
-
