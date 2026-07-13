@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:cloudflare": "tsc -b && vite build && node scripts/inject-convex-url.mjs https://usable-hornet-255.convex.cloud",
+    "build:cloudflare": "vite build && node scripts/inject-convex-url.mjs https://usable-hornet-255.convex.cloud",
     "preview": "vite preview",
     "check": "biome check .",
     "format": "biome check --write .",
