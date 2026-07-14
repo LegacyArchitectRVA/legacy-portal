@@ -1,6 +1,6 @@
 import { FullPageLoader } from "../components/FullPageLoader";
 import { useQuery } from "convex/react";
-import { RiArrowRightLine as ArrowRight, RiCheckLine as Check, RiLockLine as Lock, RiShieldLine as Shield, RiLoader4Line as CircleNotch } from "@remixicon/react";
+import { RiArrowRightLine as ArrowRight, RiCheckLine as Check, RiLockLine as Lock, RiShieldLine as Shield } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
