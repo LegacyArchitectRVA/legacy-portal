@@ -227,7 +227,7 @@ async function parseAffineSqlite(bytes: Uint8Array, fileName: string): Promise<P
       const meta = ydoc.getMap("meta");
       const name = meta.get("name");
       if (typeof name === "string") workspaceName = name;
-      const pagesArr = meta.get("pages");
+      const pagesArr = meta.get("pages") as any;
       if (pagesArr) {
         pageRegistry = (pagesArr.toArray?.() || []).map((p: any) =>
           p && typeof p.toJSON === "function" ? p.toJSON() : p
@@ -435,6 +435,11 @@ function orderByCanonicalSection(pageGroups: { title: string; blocks: Block[] }[
 }
 
 /**
+ * Decides whether an AFFiNE page is scaffolding rather than real client
+ * content, so the converter can drop it. Catches: the built-in AFFiNE
+ * "Getting Started" tutorial, blank "Untitled" stubs, empty "Template - ..."
+ * starters, and internal SOP/onboarding material.
+ */
 function isJunkPage(title: string, blockMap: any): boolean {
   const t = title.toLowerCase().trim();
 
@@ -713,7 +718,7 @@ function extractAffineDatabaseBlock(
   block: any,
   blockMap: any,
   slugByPageId: Map<string, string>,
-  Y: any
+  _Y: any
 ): { headers: string[]; rows: string[][] } | null {
   const columns = block.get("prop:columns")?.toArray?.() || [];
   const columnDefs = columns.map((c: any) => (c && typeof c.toJSON === "function" ? c.toJSON() : c));
@@ -1996,7 +2001,7 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
   });
 
   const bytes = await pdfDoc.save();
-  return new Blob([bytes], { type: "application/pdf" });
+  return new Blob([bytes as BlobPart], { type: "application/pdf" });
 }
 
 export async function renderToPngZip(
