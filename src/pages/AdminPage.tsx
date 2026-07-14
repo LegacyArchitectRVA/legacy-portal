@@ -365,7 +365,7 @@ export default function AdminPage() {
                     )}
                   </div>
                 )}
-                {pulledData?.id === client._id && (
+                {pulledData && pulledData.id === client._id && (
                   <div className="text-[10px] mt-1.5 pl-8 text-[#e8e6e1]/80 space-y-0.5">
                     <p className="text-gold-muted">From HubSpot:</p>
                     {Object.entries(pulledData.properties)
