@@ -1,6 +1,6 @@
 import { FullPageLoader } from "../components/FullPageLoader";
 import { useQuery, useMutation } from "convex/react";
-import { RiUserLine as User, RiSaveLine as Save, RiCheckLine as Check, RiCameraLine as Camera, RiVipCrownLine as Crown, RiLoader4Line as CircleNotch } from "@remixicon/react";
+import { RiUserLine as User, RiSaveLine as Save, RiCheckLine as Check, RiCameraLine as Camera, RiVipCrownLine as Crown } from "@remixicon/react";
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../convex/_generated/api";
 import { EditableText } from "../components/EditableText";
