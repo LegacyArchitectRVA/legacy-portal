@@ -1,6 +1,6 @@
 import { FullPageLoader } from "../components/FullPageLoader";
 import { useQuery } from "convex/react";
-import { RiArrowLeftLine as ArrowLeft, RiBankCardLine as CreditCard, RiShieldLine as Shield, RiSplitCellsHorizontal as SquareSplitVertical, RiLoader4Line as CircleNotch } from "@remixicon/react";
+import { RiArrowLeftLine as ArrowLeft, RiBankCardLine as CreditCard, RiShieldLine as Shield, RiSplitCellsHorizontal as SquareSplitVertical } from "@remixicon/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { stripeLinks, getTierByName } from "../data/tiers";
