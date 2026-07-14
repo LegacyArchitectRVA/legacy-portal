@@ -87,9 +87,9 @@ export default function DashboardPage() {
     );
   }
 
-  // Delivery/purge status
-  const deliveryStatus = profile?.deliveryStatus;
-  const deliveryDate = profile?.deliveryDate;
+  // Delivery/purge status (only present on the full profile shape)
+  const deliveryStatus = profile && "deliveryStatus" in profile ? profile.deliveryStatus : undefined;
+  const deliveryDate = profile && "deliveryDate" in profile ? profile.deliveryDate : undefined;
 
   // Calculate purge countdown
   const getPurgeCountdown = () => {
