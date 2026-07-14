@@ -425,37 +425,35 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
     } else if (b.type === "table" && current) {
       // Tables are client data wherever they appear, including under
       // template-instruction headings, so they survive skip mode.
-      current.tables.push({
+      const cur: MappedChunk = current;
+      cur.tables.push({
         headers: b.headers.map(cleanInline),
         rows: b.rows.map((r) => r.map(cleanInline)),
       });
     } else if (skippingTemplate) {
       continue;
     } else if (b.type === "paragraph" && current) {
+      const cur: MappedChunk = current;
       const text = cleanInline(b.text);
       if (!text || TEMPLATE_NOISE.test(text)) continue;
       if (text.length < 220 && TEMPLATE_NOISE_ANY.test(text)) continue;
-      current.text += (current.text ? "\n\n" : "") + text;
-      if (pendingUntitled && current.sourceHeading === "Untitled document") {
-        current.sourceHeading = `Untitled document ("${text.slice(0, 48)}${text.length > 48 ? "..." : ""}")`;
+      cur.text += (cur.text ? "\n\n" : "") + text;
+      if (pendingUntitled && cur.sourceHeading === "Untitled document") {
+        cur.sourceHeading = `Untitled document ("${text.slice(0, 48)}${text.length > 48 ? "..." : ""}")`;
         // Untitled docs that identify themselves as intro pieces assign
         // and include themselves so the manual opens the way it should.
         if (/life\s*(&|and)?\s*love/i.test(text)) {
-          current.target = resolveTarget("introduction", "life_love_statement");
-          current.include = true;
+          cur.target = resolveTarget("introduction", "life_love_statement");
+          cur.include = true;
         } else if (/\b(purpose|welcome)\b/i.test(text)) {
-          current.target = resolveTarget("introduction", "welcome_purpose");
-          current.include = true;
+          cur.target = resolveTarget("introduction", "welcome_purpose");
+          cur.include = true;
         }
       }
     } else if (b.type === "list" && current) {
+      const cur: MappedChunk = current;
       const items = b.items.map(cleanInline).filter((i) => i && !TEMPLATE_NOISE.test(i));
-      if (items.length) current.text += (current.text ? "\n" : "") + items.map((i) => `- ${i}`).join("\n");
-    } else if (b.type === "table" && current) {
-      current.tables.push({
-        headers: b.headers.map(cleanInline),
-        rows: b.rows.map((r) => r.map(cleanInline)),
-      });
+      if (items.length) cur.text += (cur.text ? "\n" : "") + items.map((i) => `- ${i}`).join("\n");
     }
   }
   pushCurrent();
