@@ -1384,17 +1384,126 @@ export async function parseInput(
   inputType: InputType,
   onProgress?: (current: number, total: number) => void
 ): Promise<ParsedDocument> {
+  let parsed: ParsedDocument;
   switch (inputType) {
     case "markdown":
-      return parseMarkdown(file);
+      parsed = await parseMarkdown(file);
+      break;
     case "html":
-      return parseHtml(file);
+      parsed = await parseHtml(file);
+      break;
     case "word":
-      return parseWord(file);
+      parsed = await parseWord(file);
+      break;
     case "affine":
-      return parseAffine(file);
+      parsed = await parseAffine(file);
+      break;
     case "pdf":
-      return parsePdf(file, onProgress);
+      parsed = await parsePdf(file, onProgress);
+      break;
+  }
+  // Every input format gets the same cleanup: drop scaffolding/junk
+  // sections, strip dead cross-links, and reorder into the canonical
+  // Life Manual section sequence. The AFFiNE parser also does page-level
+  // filtering of its own; this is the universal safety net so PDF, HTML,
+  // Word, and Markdown come out just as clean.
+  return cleanParsedDocument(parsed);
+}
+
+/**
+ * Universal post-processor applied to every converted document regardless
+ * of source format. Works on the generic Block[] so PDF/HTML/Word/Markdown
+ * get the same cleanup the AFFiNE path already had.
+ */
+function cleanParsedDocument(doc: ParsedDocument): ParsedDocument {
+  // 1) Split the flat block stream into sections at level-1/2 headings.
+  const groups: { title: string; blocks: Block[] }[] = [];
+  let currentGroup: { title: string; blocks: Block[] } | null = null;
+  const preamble: Block[] = [];
+
+  for (const b of doc.blocks) {
+    const isSectionHead = b.type === "heading" && (b.level === 1 || b.level === 2);
+    if (isSectionHead) {
+      currentGroup = { title: (b as any).text || "", blocks: [b] };
+      groups.push(currentGroup);
+    } else if (currentGroup) {
+      currentGroup.blocks.push(b);
+    } else {
+      preamble.push(b);
+    }
+  }
+
+  // 2) Drop groups that are scaffolding/junk (tutorial, SOP, empty templates).
+  const kept = groups.filter((g) => !isJunkSection(g.title, g.blocks));
+
+  // 3) Reorder kept groups into canonical section order (overview-first),
+  //    keeping any preamble at the very top.
+  const orderedBlocks = orderByCanonicalSection(kept);
+
+  // 4) Strip dead links across everything that survived.
+  const finalBlocks = [...preamble, ...orderedBlocks];
+  const liveTitles = new Set<string>();
+  for (const g of kept) {
+    const slug = g.title.toLowerCase().trim().replace(/[^\w]+/g, "-").replace(/^-+|-+$/g, "");
+    if (slug) liveTitles.add(slug);
+  }
+  stripDeadLinksInPlace(finalBlocks, liveTitles);
+
+  return { ...doc, blocks: finalBlocks };
+}
+
+/**
+ * Block-level junk detector that works for any format (not just AFFiNE).
+ * A section is junk if its title or its combined text matches the known
+ * scaffolding fingerprints, or if it's an empty "Template - ..." / blank
+ * "Untitled" stub.
+ */
+function isJunkSection(title: string, blocks: Block[]): boolean {
+  const t = title.toLowerCase().trim();
+
+  const titleMarkers = [
+    "internal sop", "onboarding checklist", "master template",
+    "emojioptimized", "emoji-optimized", "sidebar titles",
+  ];
+  if (titleMarkers.some((m) => t.includes(m))) return true;
+  if (/^template\s*[-–]?\s/.test(t)) return true;
+
+  // Combine the section's text to fingerprint tutorial/SOP content.
+  let combined = "";
+  for (const b of blocks) {
+    if (b.type === "paragraph" || b.type === "heading") combined += " " + (b as any).text;
+    else if (b.type === "list") combined += " " + (b as any).items.join(" ");
+  }
+  const low = combined.toLowerCase();
+  const contentMarkers = [
+    "welcome to affine", "rabbit hole", "edgeless canvas", "docs.affine.pro",
+    "everything is now done", "internal sop for delivering",
+    "emojioptimized sidebar", "master template -- duplicate",
+    "client onboarding checklist",
+  ];
+  if (contentMarkers.some((m) => low.includes(m))) return true;
+
+  // Blank/near-empty "Untitled" section.
+  if ((t === "" || t === "untitled" || t === "untitled document") && combined.trim().length < 40) {
+    return true;
+  }
+  return false;
+}
+
+/** In-place dead-link stripper operating on a Block[] (any format). */
+function stripDeadLinksInPlace(blocks: Block[], liveSlugs: Set<string>): void {
+  const clean = (s: string): string =>
+    s.replace(/\[([^\]]+)\]\((#[\w-]+)\)/g, (_m, label: string, anchor: string) => {
+      const slug = anchor.slice(1);
+      return liveSlugs.has(slug) ? `[${label}](${anchor})` : label;
+    });
+  for (const b of blocks) {
+    if (b.type === "paragraph" || b.type === "heading") (b as any).text = clean((b as any).text);
+    else if (b.type === "list") (b as any).items = (b as any).items.map(clean);
+    else if (b.type === "table") {
+      (b as any).headers = (b as any).headers.map(clean);
+      (b as any).rows = (b as any).rows.map((r: string[]) => r.map(clean));
+    }
   }
 }
 
