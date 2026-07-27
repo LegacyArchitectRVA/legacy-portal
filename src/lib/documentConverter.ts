@@ -1640,24 +1640,24 @@ export function renderToHtml(doc: ParsedDocument): string {
     body { font-family: ${BRAND_FONT_BODY}; background: ${BRAND_BLACK}; color: ${BRAND_OFFWHITE}; line-height: 1.65; padding: 3rem 2rem; max-width: 760px; margin: 0 auto; }
     .logo { display: block; height: 160px; margin: 0 auto 1rem; }
     .cover-title { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; font-size: 1.9rem; text-align: center; letter-spacing: 0.04em; text-transform: uppercase; background: linear-gradient(135deg, ${BRAND_GOLD_LIGHT}, ${BRAND_GOLD}); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.4rem; }
-    .cover-meta { text-align: center; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(232,230,225,0.45); margin-bottom: 2.5rem; }
+    .cover-meta { text-align: center; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(242, 237, 226,0.45); margin-bottom: 2.5rem; }
     .cover-rule { width: 90px; height: 1px; background: linear-gradient(90deg, transparent, ${BRAND_GOLD}, transparent); margin: 0 auto 2.5rem; }
     img:not(.logo) { max-width: 100%; height: auto; display: block; margin: 1.75rem auto; border-radius: 4px; box-shadow: 0 4px 18px rgba(0,0,0,0.35); }
     h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; letter-spacing: 0.02em; color: ${BRAND_CREAM}; margin: 2rem 0 0.85rem; }
-    h1 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid rgba(217,204,160,0.25); padding-bottom: 0.6rem; }
+    h1 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid rgba(212, 182, 97,0.25); padding-bottom: 0.6rem; }
     h2 { font-size: 1.25rem; }
     h3 { font-size: 1.05rem; color: #c4b896; }
-    p { margin-bottom: 1.1rem; color: rgba(232,230,225,0.92); }
+    p { margin-bottom: 1.1rem; color: rgba(242, 237, 226,0.92); }
     ul, ol { margin-bottom: 1.1rem; padding-left: 1.5rem; }
     li { margin-bottom: 0.55rem; }
-    hr { border: none; border-top: 1px solid rgba(217,204,160,0.18); margin: 2.25rem 0; }
+    hr { border: none; border-top: 1px solid rgba(212, 182, 97,0.18); margin: 2.25rem 0; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 1.75rem; font-size: 1.05rem; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
-    th, td { border: 1px solid rgba(217,204,160,0.18); padding: 0.7rem 0.95rem; text-align: left; vertical-align: top; }
+    th, td { border: 1px solid rgba(212, 182, 97,0.18); padding: 0.7rem 0.95rem; text-align: left; vertical-align: top; }
     th { font-family: ${BRAND_FONT_HEAD}; font-weight: 600; color: ${BRAND_BLACK}; background: linear-gradient(135deg, ${BRAND_GOLD_LIGHT}, ${BRAND_GOLD}); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.04em; }
-    tr:nth-child(even) td { background: rgba(217,204,160,0.03); }
-    a { color: ${BRAND_GOLD_LIGHT}; text-decoration: none; border-bottom: 1px solid rgba(232,196,106,0.4); }
+    tr:nth-child(even) td { background: rgba(212, 182, 97,0.03); }
+    a { color: ${BRAND_GOLD_LIGHT}; text-decoration: none; border-bottom: 1px solid rgba(232, 200, 105,0.4); }
     a:hover { border-bottom-color: ${BRAND_GOLD_LIGHT}; }
-    footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(217,204,160,0.15); text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(217,204,160,0.55); }
+    footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(212, 182, 97,0.15); text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(212, 182, 97,0.55); }
   </style>
 </head>
 <body>
@@ -1686,25 +1686,25 @@ export function renderToPdf(doc: ParsedDocument) {
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { font-family: ${BRAND_FONT_BODY}; font-size: 12.5pt; line-height: 1.55; color: #2a2218; background: #fdfcfa; padding: 0.9in 0.85in; }
     .logo { display: block; height: 1.5in; margin: 0 auto 0.2in; }
-    .cover-title { font-family: ${BRAND_FONT_HEAD}; font-size: 22pt; text-align: center; letter-spacing: 0.06em; color: #2d5a3d; text-transform: uppercase; margin-bottom: 0.06in; }
-    .cover-meta { text-align: center; font-size: 9.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #5c7a63; margin-bottom: 0.45in; }
-    .cover-rule { width: 1.4in; height: 1px; background: linear-gradient(90deg, transparent, #3a7350, transparent); margin: 0 auto 0.45in; }
+    .cover-title { font-family: ${BRAND_FONT_HEAD}; font-size: 22pt; text-align: center; letter-spacing: 0.06em; color: #7D6224; text-transform: uppercase; margin-bottom: 0.06in; }
+    .cover-meta { text-align: center; font-size: 9.5pt; letter-spacing: 0.08em; text-transform: uppercase; color: #7D6224; margin-bottom: 0.45in; }
+    .cover-rule { width: 1.4in; height: 1px; background: linear-gradient(90deg, transparent, #8f7230, transparent); margin: 0 auto 0.45in; }
     img:not(.logo) { max-width: 100%; height: auto; display: block; margin: 0.3in auto; }
-    h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; color: #2d5a3d; margin: 0.32in 0 0.14in; text-transform: uppercase; letter-spacing: 0.03em; }
+    h1, h2, h3, h4, h5, h6 { font-family: ${BRAND_FONT_HEAD}; color: #7D6224; margin: 0.32in 0 0.14in; text-transform: uppercase; letter-spacing: 0.03em; }
     h1 { font-size: 16pt; border-bottom: 1px solid #cfe0d3; padding-bottom: 0.08in; }
     h2 { font-size: 13.5pt; }
-    h3 { font-size: 11.5pt; color: #1f3d2a; letter-spacing: 0.02em; }
+    h3 { font-size: 11.5pt; color: #EAE3D4; letter-spacing: 0.02em; }
     p { margin-bottom: 0.12in; }
     ul, ol { margin: 0 0 0.16in 0.28in; }
     li { margin-bottom: 0.07in; }
     hr { border: none; border-top: 1px solid #cfe0d3; margin: 0.3in 0; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 0.2in; font-size: 10pt; box-shadow: 0 1px 3px rgba(45,90,61,0.08); }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 0.2in; font-size: 10pt; box-shadow: 0 1px 3px rgba(125, 98, 36,0.08); }
     th, td { border: 1px solid #d3e0d6; padding: 7px 10px; text-align: left; vertical-align: top; }
     td { background: #fdfffd; }
-    th { background: linear-gradient(180deg, #2d5a3d, #1f3d2a); font-family: ${BRAND_FONT_HEAD}; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.03em; color: #fdfcfa; border-color: #1f3d2a; }
+    th { background: linear-gradient(180deg, #7D6224, #EAE3D4); font-family: ${BRAND_FONT_HEAD}; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.03em; color: #fdfcfa; border-color: #EAE3D4; }
     tr:nth-child(even) td { background: #f0f6f1; }
-    a { color: #2d5a3d; text-decoration: none; border-bottom: 1px solid #7aa388; }
-    .footer { margin-top: 0.6in; padding-top: 0.22in; border-top: 1px solid #cfe0d3; text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 9.5pt; letter-spacing: 0.14em; color: #2d5a3d; text-transform: uppercase; }
+    a { color: #7D6224; text-decoration: none; border-bottom: 1px solid #7aa388; }
+    .footer { margin-top: 0.6in; padding-top: 0.22in; border-top: 1px solid #cfe0d3; text-align: center; font-family: ${BRAND_FONT_HEAD}; font-size: 9.5pt; letter-spacing: 0.14em; color: #7D6224; text-transform: uppercase; }
     @media print { body { padding: 0.6in 0.7in; } }
   </style>
 </head>
@@ -1760,12 +1760,11 @@ function getImageDimensions(src: string): Promise<{ width: number; height: numbe
 export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
   const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle, Bookmark, InternalHyperlink, ExternalHyperlink, ImageRun } = await import("docx");
 
-  // Named GOLD for historical reasons, but holds the light-mode forest
-  // green values — DOCX is an inherently light/white-page document, so
-  // it follows the same "light version uses green, not gold" rule as
-  // the rest of the light-themed output.
-  const GOLD = "2D5A3D";
-  const GOLD_LIGHT = "A8C4AE";
+  // DOCX is an inherently light/white-page document, so these use the
+  // print-safe bronze from the light theme rather than the on-screen
+  // gold, which is unreadable on white.
+  const GOLD = "7D6224";
+  const GOLD_LIGHT = "C9BE9A";
   const HEADING_LEVELS: Record<number, any> = {
     1: HeadingLevel.HEADING_1,
     2: HeadingLevel.HEADING_2,
@@ -2215,7 +2214,7 @@ export async function renderToPngZip(
             p { font-size:28px; line-height:1.5; margin-bottom:20px; color:${BRAND_OFFWHITE}; }
             ul,ol { padding-left:40px; margin-bottom:20px; }
             li { font-size:28px; line-height:1.5; margin-bottom:14px; }
-            hr { border:none; border-top:2px solid rgba(217,204,160,0.2); margin:30px 0; }
+            hr { border:none; border-top:2px solid rgba(212, 182, 97,0.2); margin:30px 0; }
             img { max-width:100%; height:auto; display:block; margin:30px auto; border-radius:8px; }
           </style>
           ${blocksToInnerHtml(pages[i])}
