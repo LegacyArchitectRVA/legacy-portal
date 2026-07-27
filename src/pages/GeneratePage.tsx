@@ -201,7 +201,7 @@ export default function GeneratePage() {
   if (!isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+        <p className="text-[#f2ede2]/75">Admin access required.</p>
       </div>
     );
   }
@@ -282,13 +282,13 @@ export default function GeneratePage() {
       background: #000000;
       color: ${BRAND_CREAM};
       padding: 2rem;
-      box-shadow: inset 0 0 0 1px rgba(217,204,160,0.32);
+      box-shadow: inset 0 0 0 1px rgba(212, 182, 97,0.32);
     }
     .cover .confidential {
       font-size: 0.7rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: rgba(217, 204, 160, 0.55);
+      color: rgba(212, 182, 97, 0.55);
       margin-bottom: 2.5rem;
     }
     .cover .logo {
@@ -348,12 +348,12 @@ export default function GeneratePage() {
       font-size: 0.98rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: rgba(217,204,160,0.6);
+      color: rgba(212, 182, 97,0.6);
       margin-top: 2rem;
     }
     .chapter {
       padding: 2.5rem 2rem 1rem;
-      border-bottom: 2px solid rgba(217, 204, 160, 0.22);
+      border-bottom: 2px solid rgba(212, 182, 97, 0.22);
     }
     .chapter + .chapter {
       margin-top: 0.5rem;
@@ -366,19 +366,19 @@ export default function GeneratePage() {
       padding-bottom: 0.45rem;
       color: ${BRAND_CREAM};
       letter-spacing: 0.015em;
-      border-bottom: 1.5px solid rgba(217, 204, 160, 0.35);
+      border-bottom: 1.5px solid rgba(212, 182, 97, 0.35);
       page-break-after: avoid;
       break-after: avoid;
     }
     .chapter .desc {
       font-size: 1.21rem;
-      color: rgba(232, 230, 225, 0.8);
+      color: rgba(242, 237, 226, 0.8);
       margin-bottom: 1.1rem;
       font-family: ${BRAND_FONT_BODY};
     }
     .as-of-date {
       font-size: 0.85rem;
-      color: rgba(217, 204, 160, 0.55);
+      color: rgba(212, 182, 97, 0.55);
       margin-top: -0.5rem;
       margin-bottom: 1rem;
       font-style: italic;
@@ -403,8 +403,8 @@ export default function GeneratePage() {
       margin-top: 0.6rem;
     }
     .data-card {
-      background: rgba(217, 204, 160, 0.04);
-      border: 1px solid rgba(217, 204, 160, 0.18);
+      background: rgba(212, 182, 97, 0.04);
+      border: 1px solid rgba(212, 182, 97, 0.18);
       border-left: 3px solid ${BRAND_GOLD};
       border-radius: 6px;
       padding: 0.95rem 1.35rem;
@@ -433,35 +433,35 @@ export default function GeneratePage() {
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: rgba(217, 204, 160, 0.85);
+      color: rgba(212, 182, 97, 0.85);
       margin-bottom: 0.2rem;
     }
     .data-card-value {
       display: block;
       font-size: 0.95rem;
-      color: rgba(232, 230, 225, 0.85);
+      color: rgba(242, 237, 226, 0.85);
       font-weight: 500;
       line-height: 1.5;
     }
     .empty {
-      color: rgba(232, 230, 225, 0.55);
+      color: rgba(242, 237, 226, 0.55);
       font-style: italic;
       text-align: center;
     }
     .empty-note {
-      color: rgba(232, 230, 225, 0.55);
+      color: rgba(242, 237, 226, 0.55);
       font-style: italic;
       font-size: 1.15rem;
       margin-top: 0.25rem;
     }
     .field {
       font-size: 0.95rem;
-      color: rgba(232, 230, 225, 0.85);
+      color: rgba(242, 237, 226, 0.85);
       margin-bottom: 0.4rem;
       line-height: 1.5;
     }
     .field strong {
-      color: rgba(217, 204, 160, 0.85);
+      color: rgba(212, 182, 97, 0.85);
       font-family: ${BRAND_FONT_HEAD};
       font-weight: 700;
       font-size: 1.1rem;
@@ -473,7 +473,7 @@ export default function GeneratePage() {
       text-align: center;
       margin-top: 3rem;
       padding-top: 2.5rem;
-      border-top: 1px solid rgba(217, 204, 160, 0.1);
+      border-top: 1px solid rgba(212, 182, 97, 0.1);
       page-break-before: always;
       break-before: page;
       page-break-inside: avoid;
@@ -502,26 +502,26 @@ export default function GeneratePage() {
       font-size: 1.05rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: rgba(217,204,160,0.7);
+      color: rgba(212, 182, 97,0.7);
       margin-top: 0.5rem;
     }
     .footer-meta {
       font-size: 0.7rem;
       letter-spacing: 0.08em;
-      color: rgba(217,204,160,0.4);
+      color: rgba(212, 182, 97,0.4);
       margin-top: 0.5rem;
     }
     .privacy-note {
       font-style: italic;
-      color: rgba(232, 230, 225, 0.55);
+      color: rgba(242, 237, 226, 0.55);
       font-size: 1.09rem;
-      border-left: 2px solid rgba(217, 204, 160, 0.2);
+      border-left: 2px solid rgba(212, 182, 97, 0.2);
       padding-left: 1rem;
       margin-top: 1.2rem;
     }
     @media print {
-      .cover { height: auto; min-height: 100vh; box-shadow: inset 0 0 0 1px rgba(45,90,61,0.35); }
-      .cover .confidential { color: #1f3d2a; font-size: 0.81rem; }
+      .cover { height: auto; min-height: 100vh; box-shadow: inset 0 0 0 1px rgba(125, 98, 36,0.35); }
+      .cover .confidential { color: #EAE3D4; font-size: 0.81rem; }
       .intro-subhead { color: ${BRAND_BLACK}; font-weight: 700; }
       .cover .logo { height: 350px; }
       body { background: white; color: black; }
@@ -579,8 +579,8 @@ export default function GeneratePage() {
       left: 0;
       right: 0;
       background: rgba(10, 8, 6, 0.92);
-      border-top: 1px solid rgba(217, 204, 160, 0.25);
-      color: rgba(232, 230, 225, 0.85);
+      border-top: 1px solid rgba(212, 182, 97, 0.25);
+      color: rgba(242, 237, 226, 0.85);
       font-family: ${BRAND_FONT_BODY};
       font-size: 0.78rem;
       letter-spacing: 0.02em;
@@ -636,7 +636,7 @@ export default function GeneratePage() {
       width: 100%;
       align-items: baseline;
       font-size: 1.04rem;
-      color: rgba(232,230,225,0.85);
+      color: rgba(242, 237, 226,0.85);
       text-decoration: none;
     }
     .toc-pagenum {
@@ -654,7 +654,7 @@ export default function GeneratePage() {
       font-size: 0.81rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: rgba(217,204,160,0.65);
+      color: rgba(212, 182, 97,0.65);
       text-decoration: none;
       margin-bottom: 0.75rem;
     }
@@ -664,25 +664,25 @@ export default function GeneratePage() {
       font-size: 0.55em;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: rgba(217,204,160,0.5);
+      color: rgba(212, 182, 97,0.5);
       background: transparent;
-      border: 1px solid rgba(217,204,160,0.3);
+      border: 1px solid rgba(212, 182, 97,0.3);
       border-radius: 4px;
       padding: 0.2em 0.55em;
       cursor: pointer;
-      font-family: 'Libre Baskerville', serif;
+      font-family: 'Cormorant Garamond', Georgia, serif;
       vertical-align: middle;
       transition: color 0.15s, border-color 0.15s;
     }
-    .copy-ref-btn:hover { color: rgba(217,204,160,0.9); border-color: rgba(217,204,160,0.6); }
-    .copy-ref-btn.copied { color: #e8c46a; border-color: #e8c46a; }
+    .copy-ref-btn:hover { color: rgba(212, 182, 97,0.9); border-color: rgba(212, 182, 97,0.6); }
+    .copy-ref-btn.copied { color: #e8c869; border-color: #e8c869; }
     @media print {
       .copy-ref-btn { display: none; }
     }
     .inline-ref {
       color: ${BRAND_GOLD_LIGHT};
       text-decoration: underline;
-      text-decoration-color: rgba(232, 196, 106, 0.4);
+      text-decoration-color: rgba(232, 200, 105, 0.4);
       text-underline-offset: 2px;
     }
     .inline-ref:hover {
@@ -691,7 +691,7 @@ export default function GeneratePage() {
     .back-to-toc:hover { color: ${BRAND_CREAM}; }
     .intro-text {
       font-size: 1.21rem;
-      color: rgba(232, 230, 225, 0.85);
+      color: rgba(242, 237, 226, 0.85);
       line-height: 1.7;
       margin-bottom: 1rem;
     }
@@ -724,15 +724,15 @@ export default function GeneratePage() {
     .roadmap-list { margin: 0 0 0.5rem 1.25rem; }
     .roadmap-list li {
       font-size: 1.21rem;
-      color: rgba(232, 230, 225, 0.85);
+      color: rgba(242, 237, 226, 0.85);
       margin-bottom: 0.4rem;
       line-height: 1.5;
     }
-    .roadmap hr { border: none; border-top: 1px solid rgba(217,204,160,0.15); margin: 1.5rem 0; }
+    .roadmap hr { border: none; border-top: 1px solid rgba(212, 182, 97,0.15); margin: 1.5rem 0; }
     .roadmap-caption {
       font-style: italic;
       font-size: 1.04rem;
-      color: rgba(232, 230, 225, 0.65);
+      color: rgba(242, 237, 226, 0.65);
     }
     @media print {
       .toc-chapter > a { color: ${BRAND_BLACK}; font-weight: 700; }
@@ -740,10 +740,10 @@ export default function GeneratePage() {
       .toc-sections a { color: #4a4a4a; }
       .back-to-toc { display: none; }
       .inline-ref { color: inherit; text-decoration: underline; text-decoration-color: ${BRAND_GREEN_PRINT}; }
-      .intro-text { color: rgba(10,10,10,0.85); }
+      .intro-text { color: rgba(15, 12, 8,0.85); }
       .intro-lead::first-letter { color: ${BRAND_BLACK}; }
       .roadmap h3 { color: ${BRAND_BLACK}; font-weight: 700; }
-      .roadmap-list li { color: rgba(10,10,10,0.85); }
+      .roadmap-list li { color: rgba(15, 12, 8,0.85); }
       .roadmap hr { border-top-color: #cfe0d3; }
       .roadmap-caption { color: #595959; }
     }
@@ -1310,7 +1310,7 @@ export default function GeneratePage() {
     @page {
       size: Letter;
       margin: 0.6in 0.55in;
-      @top-left { content: string(chaptername); font-size: 9px; color: #8a8a8a; font-family: 'Libre Baskerville', serif; }
+      @top-left { content: string(chaptername); font-size: 9px; color: #8a8a8a; font-family: 'Cormorant Garamond', Georgia, serif; }
     }
     @page :first {
       @top-left { content: none; }
@@ -1321,7 +1321,7 @@ export default function GeneratePage() {
       content: target-counter(attr(href), page);
       margin-left: auto;
       padding-left: 1em;
-      font-family: 'Libre Baskerville', serif;
+      font-family: 'Cormorant Garamond', Georgia, serif;
       font-size: 0.85em;
       color: #4a4a4a;
     }
@@ -1357,7 +1357,7 @@ ${PAGEDJS_POLYFILL}
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       <button
         onClick={() => navigate("/admin")}
-        className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
+        className="flex items-center gap-2 text-sm text-[#f2ede2]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Admin
@@ -1365,7 +1365,7 @@ ${PAGEDJS_POLYFILL}
 
       <div>
         <h1 className="font-heading text-3xl text-gold-gradient">Generate Life Manual</h1>
-        <p className="text-[#e8e6e1]/75 mt-2">
+        <p className="text-[#f2ede2]/75 mt-2">
           Generate a formatted Life Manual for a client. The manual includes all completed data
           from their portal organized by chapter. If a client's manual only exists as an old PDF,
           use{" "}
@@ -1380,16 +1380,16 @@ ${PAGEDJS_POLYFILL}
       </div>
 
       {/* Client Selection */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-4">
         <div>
-          <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading">Select Client</label>
+          <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading">Select Client</label>
           <select
             value={selectedClient}
             onChange={(e) => {
               setSelectedClient(e.target.value);
               setGeneratedHtml(null);
             }}
-            className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] focus:border-gold-primary/50 focus:outline-none mt-1 appearance-none cursor-pointer"
+            className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] focus:border-gold-primary/50 focus:outline-none mt-1 appearance-none cursor-pointer"
           >
             <option value="">Choose a client...</option>
             {clients?.map((c: any) => (
@@ -1404,7 +1404,7 @@ ${PAGEDJS_POLYFILL}
           <button
             onClick={handleGenerate}
             disabled={generating || manualData === undefined}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {generating || manualData === undefined ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -1418,12 +1418,12 @@ ${PAGEDJS_POLYFILL}
 
       {/* Generated Manual */}
       {generatedHtml && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
+        <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-4">
           <div className="flex items-center gap-2 text-gold-primary">
             <FileText className="w-5 h-5" />
             <h3 className="font-heading text-lg">Manual Generated</h3>
           </div>
-          <p className="text-sm text-[#e8e6e1]/75">
+          <p className="text-sm text-[#f2ede2]/75">
             Life Manual for {client?.userName} has been generated. Download the HTML file below,
             or use the{" "}
             <button
@@ -1437,19 +1437,19 @@ ${PAGEDJS_POLYFILL}
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleDownload}
-              className="w-full sm:w-auto justify-center flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold px-5 py-3 rounded-lg hover:opacity-90 transition-opacity"
+              className="w-full sm:w-auto justify-center flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold px-5 py-3 rounded-lg hover:opacity-90 transition-opacity"
             >
               <Download className="w-4 h-4" /> Download HTML
             </button>
             <button
               onClick={handleOpenPrintAccuratePreview}
-              className="w-full sm:w-auto justify-center flex items-center gap-2 bg-black border border-gold-border/40 text-[#e8e6e1] font-heading text-sm font-semibold px-5 py-3 rounded-lg hover:border-gold-primary/60 transition-colors"
+              className="w-full sm:w-auto justify-center flex items-center gap-2 bg-black border border-gold-border/40 text-[#f2ede2] font-heading text-sm font-semibold px-5 py-3 rounded-lg hover:border-gold-primary/60 transition-colors"
               title="Opens a separate preview with verified-accurate page numbers and a running chapter name, for confirming exact page references before sending to a client or attorney."
             >
               <BookOpen className="w-4 h-4" /> Print-Accurate Preview
             </button>
           </div>
-          <p className="text-xs text-[#e8e6e1]/60">
+          <p className="text-xs text-[#f2ede2]/60">
             Print-Accurate Preview opens a separate page-numbered rendering for double-checking exact page
             references (e.g. before a call with a client's attorney). The downloaded HTML is the actual
             deliverable; this preview is for verification only.
@@ -1457,7 +1457,7 @@ ${PAGEDJS_POLYFILL}
 
           <div className="bg-black rounded-lg border border-gold-border/20 p-3 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-            <p className="text-xs text-[#e8e6e1]/80">
+            <p className="text-xs text-[#f2ede2]/80">
               After delivery, all files and access are purged. Your information stays with you.
             </p>
           </div>

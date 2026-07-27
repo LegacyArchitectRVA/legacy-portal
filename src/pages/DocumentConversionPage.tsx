@@ -116,7 +116,7 @@ export default function DocumentConversionPage() {
   if (!isAdmin) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+        <p className="text-[#f2ede2]/75">Admin access required.</p>
       </div>
     );
   }
@@ -126,7 +126,7 @@ export default function DocumentConversionPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">Document Conversion</h1>
-          <p className="text-[#e8e6e1]/75 mt-2">
+          <p className="text-[#f2ede2]/75 mt-2">
             Convert between formats while preserving Legacy Architect styling
           </p>
         </div>
@@ -139,7 +139,7 @@ export default function DocumentConversionPage() {
       </div>
 
       {/* Step 1: Input type */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/30 p-5 space-y-3">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border/30 p-5 space-y-3">
         <h2 className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">
           1. What are you converting from?
         </h2>
@@ -157,7 +157,7 @@ export default function DocumentConversionPage() {
                 className={`flex flex-col items-center gap-2 rounded-xl border p-3 transition-colors ${
                   active
                     ? "border-gold-primary bg-gold-dark/15 text-gold-primary"
-                    : "border-gold-border/30 text-[#e8e6e1]/80 hover:border-gold-primary/40"
+                    : "border-gold-border/30 text-[#f2ede2]/80 hover:border-gold-primary/40"
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -170,7 +170,7 @@ export default function DocumentConversionPage() {
 
       {/* Step 2: Upload */}
       {inputType && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/30 p-5 space-y-3">
+        <div className="bg-[#0f0c08] rounded-xl border border-gold-border/30 p-5 space-y-3">
           <h2 className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">
             2. Upload your {selectedInput?.label} file
           </h2>
@@ -188,13 +188,13 @@ export default function DocumentConversionPage() {
               className="flex flex-col items-center gap-2 border-2 border-dashed border-gold-border/30 rounded-xl py-10 cursor-pointer hover:border-gold-primary/40 transition-colors"
             >
               <Upload className="w-6 h-6 text-gold-muted" />
-              <span className="text-sm text-[#e8e6e1]/80">Drag & drop or click to browse</span>
-              <span className="text-xs text-[#e8e6e1]/50">({selectedInput?.accept})</span>
+              <span className="text-sm text-[#f2ede2]/80">Drag & drop or click to browse</span>
+              <span className="text-xs text-[#f2ede2]/50">({selectedInput?.accept})</span>
             </label>
           ) : (
             <div className="flex items-center justify-between bg-black/40 rounded-lg px-4 py-3">
-              <span className="text-sm text-[#e8e6e1] truncate">{file.name}</span>
-              <button onClick={reset} className="text-[#e8e6e1]/50 hover:text-red-400 shrink-0 ml-2">
+              <span className="text-sm text-[#f2ede2] truncate">{file.name}</span>
+              <button onClick={reset} className="text-[#f2ede2]/50 hover:text-red-400 shrink-0 ml-2">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -204,7 +204,7 @@ export default function DocumentConversionPage() {
 
       {/* Step 3: Output type */}
       {inputType && file && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/30 p-5 space-y-3">
+        <div className="bg-[#0f0c08] rounded-xl border border-gold-border/30 p-5 space-y-3">
           <h2 className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">
             3. Convert to
           </h2>
@@ -219,12 +219,12 @@ export default function DocumentConversionPage() {
                   className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-colors ${
                     active
                       ? "border-gold-primary bg-gold-dark/15 text-gold-primary"
-                      : "border-gold-border/30 text-[#e8e6e1]/80 hover:border-gold-primary/40"
+                      : "border-gold-border/30 text-[#f2ede2]/80 hover:border-gold-primary/40"
                   }`}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="text-xs font-heading">{t.label}</span>
-                  <span className="text-[9px] text-[#e8e6e1]/50 leading-tight">{t.description}</span>
+                  <span className="text-[9px] text-[#f2ede2]/50 leading-tight">{t.description}</span>
                 </button>
               );
             })}
@@ -237,7 +237,7 @@ export default function DocumentConversionPage() {
         <button
           onClick={handleConvert}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {isLoading ? (
             <>
@@ -267,9 +267,9 @@ export default function DocumentConversionPage() {
       )}
 
       {previewHtml && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border/30 overflow-hidden">
+        <div className="bg-[#0f0c08] rounded-xl border border-gold-border/30 overflow-hidden">
           <div className="px-4 py-2 border-b border-gold-border/20">
-            <h3 className="font-heading text-[#e8e6e1] text-sm">Preview</h3>
+            <h3 className="font-heading text-[#f2ede2] text-sm">Preview</h3>
           </div>
           <div className="bg-black p-4 max-h-[400px] overflow-y-auto">
             <iframe

@@ -46,9 +46,9 @@ function SectionView({
         <LucideIcon
           name={section.icon}
           className="w-4 h-4"
-          style={{ color: chapter.color === "#FFFFFF" ? (theme === "light" ? "#1f2e22" : "#e8e6e1") : chapter.color }}
+          style={{ color: chapter.color === "#FFFFFF" ? (theme === "light" ? "#181410" : "#f2ede2") : chapter.color }}
         />
-        <h3 className="font-heading text-base font-semibold text-[#e8e6e1]">
+        <h3 className="font-heading text-base font-semibold text-[#f2ede2]">
           {section.title}
         </h3>
       </div>
@@ -62,7 +62,7 @@ function SectionView({
                 {section.tableColumns.map((col) => (
                   <th
                     key={col.key}
-                    className="text-left px-3 py-2 font-heading text-[10px] uppercase tracking-wider text-[#d9cca0]/70 bg-[#0e0e0e] border-b border-[rgba(217,204,160,0.08)]"
+                    className="text-left px-3 py-2 font-heading text-[10px] uppercase tracking-wider text-[#d4b661]/70 bg-[#141009] border-b border-[rgba(212, 182, 97,0.08)]"
                   >
                     {col.label}
                   </th>
@@ -75,9 +75,9 @@ function SectionView({
                   try { return JSON.parse(row.data); } catch { return {}; }
                 })();
                 return (
-                  <tr key={row._id} className="border-b border-[rgba(217,204,160,0.04)]">
+                  <tr key={row._id} className="border-b border-[rgba(212, 182, 97,0.04)]">
                     {section.tableColumns.map((col) => (
-                      <td key={col.key} className="px-3 py-2 text-[#e8e6e1]/70">
+                      <td key={col.key} className="px-3 py-2 text-[#f2ede2]/70">
                         {data[col.key] || "-"}
                       </td>
                     ))}
@@ -97,10 +97,10 @@ function SectionView({
           if (!f || !f.value || !f.value.trim()) return null;
           return (
             <div key={fieldDef.id} className="mb-3">
-              <p className="text-xs font-heading text-[#d9cca0]/70 mb-1">
+              <p className="text-xs font-heading text-[#d4b661]/70 mb-1">
                 {fieldDef.label}
               </p>
-              <p className="text-sm text-[#e8e6e1]/70 whitespace-pre-wrap bg-[#0e0e0e] rounded-lg px-4 py-3">
+              <p className="text-sm text-[#f2ede2]/70 whitespace-pre-wrap bg-[#141009] rounded-lg px-4 py-3">
                 {f.value}
               </p>
             </div>
@@ -124,7 +124,7 @@ export default function ManualViewPage({ clientUserIdOverride }: { clientUserIdO
 
   if (!isAdmin) {
     return (
-      <div className="p-6 text-center text-[#e8e6e1]/80">
+      <div className="p-6 text-center text-[#f2ede2]/80">
         Admin access required.
       </div>
     );
@@ -184,23 +184,23 @@ export default function ManualViewPage({ clientUserIdOverride }: { clientUserIdO
     const html = `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <title>Life Manual - ${escapeHtml(client?.userName || "Client")}</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Libre Baskerville', serif; font-size: 11.5pt; line-height: 1.4; color: #1a1a1a; background: #fdfcfa; padding: 1in 0.9in; }
+body { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 11.5pt; line-height: 1.4; color: #1a1a1a; background: #fdfcfa; padding: 1in 0.9in; }
 .logo { display: block; height: 0.55in; margin: 0 auto 0.15in; }
 .title { font-family: 'Cinzel', serif; font-size: 18pt; text-align: center; letter-spacing: 0.05em; color: #8a6d1f; text-transform: uppercase; margin-bottom: 0.05in; }
 .subtitle { text-align: center; font-size: 10pt; color: #555; margin-bottom: 0.4in; }
 .chapter { margin-bottom: 0.3in; page-break-inside: avoid; }
-.chapter h2 { font-family: 'Cinzel', serif; font-size: 14pt; text-transform: uppercase; letter-spacing: 0.03em; color: #8a6d1f; border-bottom: 1px solid #d9cca0; padding-bottom: 0.08in; margin-bottom: 0.15in; }
+.chapter h2 { font-family: 'Cinzel', serif; font-size: 14pt; text-transform: uppercase; letter-spacing: 0.03em; color: #8a6d1f; border-bottom: 1px solid #d4b661; padding-bottom: 0.08in; margin-bottom: 0.15in; }
 .section { margin-bottom: 0.18in; }
 .section h3 { font-family: 'Cinzel', serif; font-size: 12pt; color: #4a3a10; margin-bottom: 0.06in; }
 table { width: 100%; border-collapse: collapse; margin-bottom: 0.1in; font-size: 10pt; }
 th, td { border: 1px solid #e0d8c5; padding: 5px 8px; text-align: left; }
-th { background: #f5f0e3; font-family: 'Cinzel', serif; font-size: 8.5pt; text-transform: uppercase; color: #8a6d1f; }
+th { background: #F2EDE2; font-family: 'Cinzel', serif; font-size: 8.5pt; text-transform: uppercase; color: #8a6d1f; }
 .field { font-size: 10.5pt; margin-bottom: 0.06in; }
 .field strong { color: #4a3a10; font-family: 'Cinzel', serif; font-size: 9pt; text-transform: uppercase; }
-.footer { margin-top: 0.4in; padding-top: 0.15in; border-top: 1px solid #d9cca0; text-align: center; font-family: 'Cinzel', serif; font-size: 9pt; letter-spacing: 0.1em; color: #8a6d1f; text-transform: uppercase; }
+.footer { margin-top: 0.4in; padding-top: 0.15in; border-top: 1px solid #d4b661; text-align: center; font-family: 'Cinzel', serif; font-size: 9pt; letter-spacing: 0.1em; color: #8a6d1f; text-transform: uppercase; }
 @media print { body { padding: 0.55in 0.65in; } }
 </style></head>
 <body>
@@ -225,7 +225,7 @@ ${body || '<p style="text-align:center;color:#888;font-style:italic;">No informa
         <button
           type="button"
           onClick={() => navigate("/admin")}
-          className="flex items-center gap-2 text-sm text-[#d9cca0]/60 hover:text-[#d9cca0]"
+          className="flex items-center gap-2 text-sm text-[#d4b661]/60 hover:text-[#d4b661]"
         >
           <ArrowLeft className="w-4 h-4" />
           Admin
@@ -241,16 +241,16 @@ ${body || '<p style="text-align:center;color:#888;font-style:italic;">No informa
       </div>
 
       {/* Manual Header */}
-      <div className="text-center py-8 border-b border-[rgba(217,204,160,0.1)]">
-        <BookOpen className="w-10 h-10 text-[#d9cca0] mx-auto mb-4" />
+      <div className="text-center py-8 border-b border-[rgba(212, 182, 97,0.1)]">
+        <BookOpen className="w-10 h-10 text-[#d4b661] mx-auto mb-4" />
         <h1 className="font-heading text-3xl font-bold text-gold-gradient mb-2">
           <EditableText cmsKey="manual_view_title" as="span" />
         </h1>
-        <p className="text-sm text-[#e8e6e1]/80">
+        <p className="text-sm text-[#f2ede2]/80">
           Prepared for {client?.userName || "Client"} •{" "}
           <span className="capitalize">{tier}</span> Edition
         </p>
-        <p className="text-xs text-[#e8e6e1]/80 mt-2">
+        <p className="text-xs text-[#f2ede2]/80 mt-2">
           Generated {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
         </p>
       </div>
@@ -260,14 +260,14 @@ ${body || '<p style="text-align:center;color:#888;font-style:italic;">No informa
         .filter((ch) => canAccessChapter(tier, ch.chapterNumber))
         .map((ch) => (
           <div key={ch.id} className="space-y-4">
-            <div className="pt-6 pb-2 border-b border-[rgba(217,204,160,0.08)]">
+            <div className="pt-6 pb-2 border-b border-[rgba(212, 182, 97,0.08)]">
               <span
                 className="font-heading text-xs uppercase tracking-widest whitespace-nowrap"
-                style={{ color: ch.color === "#FFFFFF" ? (theme === "light" ? "#1f2e22" : "#e8e6e1") : ch.color }}
+                style={{ color: ch.color === "#FFFFFF" ? (theme === "light" ? "#181410" : "#f2ede2") : ch.color }}
               >
                 Chapter {ch.chapterNumber}
               </span>
-              <span className="font-heading text-lg font-semibold text-[#e8e6e1] block mt-0.5">
+              <span className="font-heading text-lg font-semibold text-[#f2ede2] block mt-0.5">
                 {ch.title}
               </span>
             </div>
@@ -285,7 +285,7 @@ ${body || '<p style="text-align:center;color:#888;font-style:italic;">No informa
         ))}
 
       {/* Privacy note */}
-      <div className="pt-8 border-t border-[rgba(217,204,160,0.06)]">
+      <div className="pt-8 border-t border-[rgba(212, 182, 97,0.06)]">
         <p className="privacy-disclaimer">{PRIVACY_NOTE}</p>
       </div>
     </div>

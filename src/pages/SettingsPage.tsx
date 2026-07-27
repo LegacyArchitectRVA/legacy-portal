@@ -175,44 +175,44 @@ export default function SettingsPage() {
       </h1>
 
       {/* Account Info */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-3">
         <h2 className="font-heading text-sm text-gold-primary">Account</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Name</p>
-            <p className="text-sm text-[#e8e6e1]">{profile?.name || "Not set"}</p>
+            <p className="text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">Name</p>
+            <p className="text-sm text-[#f2ede2]">{profile?.name || "Not set"}</p>
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Email</p>
-            <p className="text-sm text-[#e8e6e1] break-all">{profile?.email || "Not set"}</p>
+            <p className="text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">Email</p>
+            <p className="text-sm text-[#f2ede2] break-all">{profile?.email || "Not set"}</p>
           </div>
           <div>
-            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">
+            <p className="text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">
               {profile?.isAdmin ? "Access" : "Tier"}
             </p>
-            <p className="text-sm text-[#e8e6e1] capitalize">
+            <p className="text-sm text-[#f2ede2] capitalize">
               {profile?.isAdmin ? "Administrator" : profile?.tier || "Vault"}
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest">Status</p>
-            <p className="text-sm text-[#e8e6e1]">{profile?.isActivated ? "Active" : "Pending"}</p>
+            <p className="text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">Status</p>
+            <p className="text-sm text-[#f2ede2]">{profile?.isActivated ? "Active" : "Pending"}</p>
           </div>
         </div>
       </div>
 
       {/* Appearance */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Sun className="w-4 h-4 text-gold-primary" />
           <h2 className="font-heading text-sm text-gold-primary">Appearance</h2>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex-1 pr-4">
-            <p className="text-sm text-[#e8e6e1]">
+            <p className="text-sm text-[#f2ede2]">
               {theme === "dark" ? "Dark mode" : "Light mode"}
             </p>
-            <p className="text-xs text-[#e8e6e1]/75 mt-0.5">
+            <p className="text-xs text-[#f2ede2]/75 mt-0.5">
               {theme === "dark"
                 ? "The classic gold-on-black look."
                 : "Sand & Forest Green, a lighter alternative."}
@@ -226,15 +226,15 @@ export default function SettingsPage() {
       </div>
 
       {/* Notifications */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Bell className="w-4 h-4 text-gold-primary" />
           <h2 className="font-heading text-sm text-gold-primary">Notifications</h2>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex-1 pr-4">
-            <p className="text-sm text-[#e8e6e1]">Email me about new messages</p>
-            <p className="text-xs text-[#e8e6e1]/75 mt-0.5">
+            <p className="text-sm text-[#f2ede2]">Email me about new messages</p>
+            <p className="text-xs text-[#f2ede2]/75 mt-0.5">
               We'll only email you when you have an unread message in your portal.
             </p>
           </div>
@@ -251,7 +251,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Security Center */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-4">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-4">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-gold-primary" />
           <h2 className="font-heading text-sm text-gold-primary">Security Center</h2>
@@ -259,7 +259,7 @@ export default function SettingsPage() {
 
         {/* Sessions */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm text-[#e8e6e1]">
+          <div className="flex items-center gap-2 text-sm text-[#f2ede2]">
             <MonitorSmartphone className="w-3.5 h-3.5 text-gold-muted" />
             Active Sessions
           </div>
@@ -267,7 +267,7 @@ export default function SettingsPage() {
             <Loader2 className="w-4 h-4 animate-spin text-gold-muted" />
           ) : (
             <>
-              <p className="text-xs text-[#e8e6e1]/75">
+              <p className="text-xs text-[#f2ede2]/75">
                 Signed in on {sessions.length} device{sessions.length === 1 ? "" : "s"}.
               </p>
               <div className="space-y-1.5">
@@ -276,10 +276,10 @@ export default function SettingsPage() {
                     key={s._id}
                     className="flex items-center justify-between text-xs bg-black/40 rounded-lg px-3 py-2"
                   >
-                    <span className="text-[#e8e6e1]/85">
+                    <span className="text-[#f2ede2]/85">
                       {s.isCurrent ? "This device" : "Another device"}
                     </span>
-                    <span className="text-[#e8e6e1]/75">{timeAgo(s.createdAt)}</span>
+                    <span className="text-[#f2ede2]/75">{timeAgo(s.createdAt)}</span>
                   </div>
                 ))}
               </div>
@@ -307,13 +307,13 @@ export default function SettingsPage() {
         {/* Change Password */}
         {!isTestAccount && (
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-[#e8e6e1]">
+            <div className="flex items-center gap-2 text-sm text-[#f2ede2]">
               <KeyRound className="w-3.5 h-3.5 text-gold-muted" />
               Password
             </div>
             {pwMode === "idle" ? (
               <>
-                <p className="text-xs text-[#e8e6e1]/75">
+                <p className="text-xs text-[#f2ede2]/75">
                   We'll send a one-time code to your email to confirm any change.
                 </p>
                 {pwInfo && <p className="text-xs text-emerald-400">{pwInfo}</p>}
@@ -333,7 +333,7 @@ export default function SettingsPage() {
               <form onSubmit={handleChangePassword} className="space-y-3">
                 {pwInfo && <p className="text-xs text-emerald-400">{pwInfo}</p>}
                 <div>
-                  <label className="block text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mb-1">
+                  <label className="block text-[10px] text-[#f2ede2]/75 uppercase tracking-widest mb-1">
                     Code
                   </label>
                   <input
@@ -341,12 +341,12 @@ export default function SettingsPage() {
                     required
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] tracking-widest focus:outline-none focus:border-gold-primary/50"
+                    className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 text-sm text-[#f2ede2] tracking-widest focus:outline-none focus:border-gold-primary/50"
                     placeholder="6-digit code"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mb-1">
+                  <label className="block text-[10px] text-[#f2ede2]/75 uppercase tracking-widest mb-1">
                     New Password
                   </label>
                   <div className="relative">
@@ -355,13 +355,13 @@ export default function SettingsPage() {
                       required
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 pr-9 text-sm text-[#e8e6e1] focus:outline-none focus:border-gold-primary/50"
+                      className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 pr-9 text-sm text-[#f2ede2] focus:outline-none focus:border-gold-primary/50"
                       placeholder="At least 8 characters"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#e8e6e1]/75"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#f2ede2]/75"
                     >
                       {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
@@ -374,7 +374,7 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={pwLoading}
-                    className="flex items-center gap-2 text-xs bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
+                    className="flex items-center gap-2 text-xs bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
                   >
                     {pwLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                     Update Password
@@ -387,7 +387,7 @@ export default function SettingsPage() {
                       setCode("");
                       setNewPassword("");
                     }}
-                    className="text-xs text-[#e8e6e1]/75 hover:text-[#e8e6e1] px-4 py-2"
+                    className="text-xs text-[#f2ede2]/75 hover:text-[#f2ede2] px-4 py-2"
                   >
                     Cancel
                   </button>
@@ -401,18 +401,18 @@ export default function SettingsPage() {
 
         {/* Biometric login (passkeys) */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm text-[#e8e6e1]">
+          <div className="flex items-center gap-2 text-sm text-[#f2ede2]">
             <Fingerprint className="w-3.5 h-3.5 text-gold-muted" />
             Face ID / Fingerprint Sign-In
           </div>
 
           {!passkeySupported ? (
-            <p className="text-xs text-[#e8e6e1]/75">
+            <p className="text-xs text-[#f2ede2]/75">
               This device or browser doesn't support passkeys.
             </p>
           ) : (
             <>
-              <p className="text-xs text-[#e8e6e1]/75">
+              <p className="text-xs text-[#f2ede2]/75">
                 Add a passkey to sign in with Face ID, fingerprint, or your device PIN,
                 no email or password needed.
               </p>
@@ -426,7 +426,7 @@ export default function SettingsPage() {
                       key={p._id}
                       className="flex items-center justify-between text-xs bg-black/40 rounded-lg px-3 py-2"
                     >
-                      <span className="text-[#e8e6e1]/85">{p.name}</span>
+                      <span className="text-[#f2ede2]/85">{p.name}</span>
                       <button
                         onClick={() => handleDeletePasskey(p._id)}
                         className="text-red-400/80 hover:text-red-400"
@@ -466,34 +466,34 @@ export default function SettingsPage() {
       {/* Legal */}
       <Link
         to="/legal"
-        className="flex items-center justify-between bg-[#0a0a0a] rounded-xl border border-gold-border p-5 hover:border-gold-primary/40 transition-colors"
+        className="flex items-center justify-between bg-[#0f0c08] rounded-xl border border-gold-border p-5 hover:border-gold-primary/40 transition-colors"
       >
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-gold-primary" />
           <span className="font-heading text-sm text-gold-primary">Privacy Policy & Terms of Service</span>
         </div>
-        <ChevronRight className="w-4 h-4 text-[#e8e6e1]/50" />
+        <ChevronRight className="w-4 h-4 text-[#f2ede2]/50" />
       </Link>
 
       {/* Zero-Knowledge Protocol */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-3">
         <div className="flex items-center gap-2">
           <Shield className="w-4 h-4 text-gold-primary" />
           <h2 className="font-heading text-sm text-gold-primary">Zero-Knowledge Standard</h2>
         </div>
-        <p className="text-xs text-[#e8e6e1]/80 leading-relaxed">
+        <p className="text-xs text-[#f2ede2]/80 leading-relaxed">
           Legacy Architect RVA does not store or retain your credentials. All data is accessible
           only to you and can be purged at any time from this page.
         </p>
       </div>
 
       {/* Data Purge */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-red-500/20 p-5 space-y-3">
+      <div className="bg-[#0f0c08] rounded-xl border border-red-500/20 p-5 space-y-3">
         <div className="flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-red-400" />
           <h2 className="font-heading text-sm text-red-400">Danger Zone</h2>
         </div>
-        <p className="text-xs text-[#e8e6e1]/80 leading-relaxed">
+        <p className="text-xs text-[#f2ede2]/80 leading-relaxed">
           All data across all 7 chapters will be permanently deleted.
           This action cannot be undone.
         </p>
@@ -521,7 +521,7 @@ export default function SettingsPage() {
               </button>
               <button
                 onClick={() => setShowPurge(false)}
-                className="text-xs text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80 px-4 py-2"
+                className="text-xs text-[#f2ede2]/80 hover:text-[#f2ede2]/80 px-4 py-2"
               >
                 Cancel
               </button>

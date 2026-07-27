@@ -75,7 +75,7 @@ export default function AdminPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <Crown className="w-10 h-10 text-gold-muted mb-4" />
-        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+        <p className="text-[#f2ede2]/75">Admin access required.</p>
       </div>
     );
   }
@@ -103,35 +103,35 @@ export default function AdminPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">Admin Dashboard</h1>
-          <p className="text-[#e8e6e1]/75 mt-1">
+          <p className="text-[#f2ede2]/75 mt-1">
             Manage clients, tiers, and Life Manual generation
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => navigate("/admin/prospects")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
           >
             <Users className="w-4 h-4" />
             Prospects
           </button>
           <button
             onClick={() => navigate("/generate")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
           >
             <BookOpen className="w-4 h-4" />
             Generate Manual
           </button>
           <button
             onClick={() => navigate("/admin/visual-editor")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
           >
             <Paintbrush className="w-4 h-4" />
             Visual Editor
           </button>
           <button
             onClick={() => navigate("/admin/hubspot")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
           >
             <Settings className="w-4 h-4" />
             HubSpot
@@ -141,27 +141,27 @@ export default function AdminPage() {
 
       {/* Search */}
       <div className="relative">
-        <div className="flex items-center gap-2 bg-[#0a0a0a] border border-gold-border rounded-xl px-3 py-2.5">
+        <div className="flex items-center gap-2 bg-[#0f0c08] border border-gold-border rounded-xl px-3 py-2.5">
           <Search className="w-4 h-4 text-gold-muted shrink-0" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by name or email..."
-            className="flex-1 bg-transparent text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/50 focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none"
           />
           {searchTerm && (
-            <button onClick={() => setSearchTerm("")} className="text-[#e8e6e1]/50 hover:text-[#e8e6e1]">
+            <button onClick={() => setSearchTerm("")} className="text-[#f2ede2]/50 hover:text-[#f2ede2]">
               <XCircle className="w-4 h-4" />
             </button>
           )}
         </div>
         {searchTerm.trim() && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-[#0a0a0a] border border-gold-border rounded-xl z-10 max-h-72 overflow-y-auto">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-[#0f0c08] border border-gold-border rounded-xl z-10 max-h-72 overflow-y-auto">
             {searchResults === undefined ? (
-              <p className="text-sm text-[#e8e6e1]/75 p-4">Searching...</p>
+              <p className="text-sm text-[#f2ede2]/75 p-4">Searching...</p>
             ) : searchResults.length === 0 ? (
-              <p className="text-sm text-[#e8e6e1]/75 p-4">No matches.</p>
+              <p className="text-sm text-[#f2ede2]/75 p-4">No matches.</p>
             ) : (
               searchResults.map((r) => (
                 <button
@@ -178,15 +178,15 @@ export default function AdminPage() {
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-[#e8e6e1] truncate">{r.name || r.email}</p>
-                    {r.name && <p className="text-[10px] text-[#e8e6e1]/75 truncate">{r.email}</p>}
+                    <p className="text-sm text-[#f2ede2] truncate">{r.name || r.email}</p>
+                    {r.name && <p className="text-[10px] text-[#f2ede2]/75 truncate">{r.email}</p>}
                   </div>
                   {r.isClient ? (
                     <span className="text-[9px] bg-gold-dark/20 text-gold-muted px-1.5 py-0.5 rounded-full capitalize shrink-0">
                       {r.tier}
                     </span>
                   ) : (
-                    <span className="text-[9px] text-[#e8e6e1]/50 shrink-0">Not a client</span>
+                    <span className="text-[9px] text-[#f2ede2]/50 shrink-0">Not a client</span>
                   )}
                 </button>
               ))
@@ -197,27 +197,27 @@ export default function AdminPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 text-center space-y-2">
+        <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-4 text-center space-y-2">
           <IconMedallion icon={Users} size={16} className="mx-auto" />
           <p className="text-2xl font-heading text-gold-bright">{clients?.length || 0}</p>
-          <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mt-1">Total Clients</p>
+          <p className="text-[10px] text-[#f2ede2]/75 uppercase tracking-widest mt-1">Total Clients</p>
         </div>
         {tiers.map((t) => {
           const tierIcon = t.id === "legacy" ? Crown : t.id === "archive" ? ArchiveStack : Safe;
           return (
-            <div key={t.id} className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 text-center space-y-2">
+            <div key={t.id} className="bg-[#0f0c08] rounded-xl border border-gold-border p-4 text-center space-y-2">
               <IconMedallion icon={tierIcon} size={16} className="mx-auto" />
               <p className="text-2xl font-heading text-gold-primary">
                 {clients?.filter((c: any) => c.tier === t.id).length || 0}
               </p>
-              <p className="text-[10px] text-[#e8e6e1]/75 uppercase tracking-widest mt-1">{t.name}</p>
+              <p className="text-[10px] text-[#f2ede2]/75 uppercase tracking-widest mt-1">{t.name}</p>
             </div>
           );
         })}
       </div>
 
       {/* Client List */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border overflow-hidden">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border overflow-hidden">
         <div className="p-4 border-b border-gold-border/30 flex items-center justify-between">
           <h2 className="font-heading text-sm text-gold-primary flex items-center gap-2">
             <UserCog className="w-4 h-4" /> Client Management
@@ -240,7 +240,7 @@ export default function AdminPage() {
               return (
                 <div
                   key={client._id}
-                  className="px-4 py-3 hover:bg-[#e8c46a]/5 transition-colors space-y-2"
+                  className="px-4 py-3 hover:bg-[#e8c869]/5 transition-colors space-y-2"
                 >
                 <div className="flex items-center gap-3">
                   {/* Status */}
@@ -254,11 +254,11 @@ export default function AdminPage() {
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[#e8e6e1] truncate font-medium">
+                    <p className="text-sm text-[#f2ede2] truncate font-medium">
                       {client.userName || client.userEmail || "Unknown"}
                     </p>
                     {client.hasRealName && (
-                      <p className="text-[10px] text-[#e8e6e1]/75 truncate">{client.userEmail}</p>
+                      <p className="text-[10px] text-[#f2ede2]/75 truncate">{client.userEmail}</p>
                     )}
                   </div>
                 </div>
@@ -269,7 +269,7 @@ export default function AdminPage() {
                     value={client.tier || "vault"}
                     onChange={(e) => handleTierChange(client._id, e.target.value)}
                     disabled={isUpdating}
-                    className="bg-black border border-gold-border/30 rounded px-2 py-1 text-xs text-[#e8e6e1] focus:outline-none cursor-pointer shrink-0"
+                    className="bg-black border border-gold-border/30 rounded px-2 py-1 text-xs text-[#f2ede2] focus:outline-none cursor-pointer shrink-0"
                   >
                     {tiers.map((t) => (
                       <option key={t.id} value={t.id}>{t.name}</option>
@@ -366,13 +366,13 @@ export default function AdminPage() {
                   </div>
                 )}
                 {pulledData && pulledData.id === client._id && (
-                  <div className="text-[10px] mt-1.5 pl-8 text-[#e8e6e1]/80 space-y-0.5">
+                  <div className="text-[10px] mt-1.5 pl-8 text-[#f2ede2]/80 space-y-0.5">
                     <p className="text-gold-muted">From HubSpot:</p>
                     {Object.entries(pulledData.properties)
                       .filter(([, v]) => v)
                       .map(([k, v]) => (
                         <p key={k}>
-                          <span className="text-[#e8e6e1]/50">{k}:</span> {String(v)}
+                          <span className="text-[#f2ede2]/50">{k}:</span> {String(v)}
                         </p>
                       ))}
                   </div>
@@ -382,7 +382,7 @@ export default function AdminPage() {
             })}
           </div>
         ) : (
-          <div className="p-8 text-center text-sm text-[#e8e6e1]/75">
+          <div className="p-8 text-center text-sm text-[#f2ede2]/75">
             No clients yet.
           </div>
         )}
@@ -394,12 +394,12 @@ export default function AdminPage() {
           onClick={() => setShowAddClient(false)}
         >
           <div
-            className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[70vh] flex flex-col animate-modal-sheet"
+            className="bg-[#0f0c08] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[70vh] flex flex-col animate-modal-sheet"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b border-gold-border/20">
               <h2 className="font-heading text-sm text-gold-primary">Add Client</h2>
-              <button onClick={() => setShowAddClient(false)} className="text-[#e8e6e1]/75">
+              <button onClick={() => setShowAddClient(false)} className="text-[#f2ede2]/75">
                 <XCircle className="w-4 h-4" />
               </button>
             </div>
@@ -408,9 +408,9 @@ export default function AdminPage() {
                 <p className="text-xs text-red-400 bg-red-400/10 m-3 rounded-lg px-3 py-2">{addClientError}</p>
               )}
               {addableUsers === undefined ? (
-                <p className="text-sm text-[#e8e6e1]/75 p-4">Loading...</p>
+                <p className="text-sm text-[#f2ede2]/75 p-4">Loading...</p>
               ) : addableUsers.length === 0 ? (
-                <p className="text-sm text-[#e8e6e1]/75 p-4">
+                <p className="text-sm text-[#f2ede2]/75 p-4">
                   No registered users available to add. They need to create a portal
                   account first, then they'll show up here.
                 </p>
@@ -426,14 +426,14 @@ export default function AdminPage() {
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm text-[#e8e6e1] truncate">{u.name || u.email}</p>
-                      {u.name && <p className="text-xs text-[#e8e6e1]/75 truncate">{u.email}</p>}
+                      <p className="text-sm text-[#f2ede2] truncate">{u.name || u.email}</p>
+                      {u.name && <p className="text-xs text-[#f2ede2]/75 truncate">{u.email}</p>}
                     </div>
                     <select
                       defaultValue=""
                       disabled={addingTierFor === u.userId}
                       onChange={(e) => handleAddClient(u.userId, e.target.value)}
-                      className="bg-black border border-gold-border/30 rounded px-2 py-1 text-xs text-[#e8e6e1] focus:outline-none cursor-pointer shrink-0"
+                      className="bg-black border border-gold-border/30 rounded px-2 py-1 text-xs text-[#f2ede2] focus:outline-none cursor-pointer shrink-0"
                     >
                       <option value="" disabled>
                         {addingTierFor === u.userId ? "Adding..." : "Add as..."}

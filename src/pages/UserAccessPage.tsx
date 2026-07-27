@@ -38,7 +38,7 @@ export default function UserAccessPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <Users className="w-10 h-10 text-gold-muted mb-4" />
-        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+        <p className="text-[#f2ede2]/75">Admin access required.</p>
       </div>
     );
   }
@@ -104,7 +104,7 @@ export default function UserAccessPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">User Access</h1>
-          <p className="text-[#e8e6e1]/75 mt-1">
+          <p className="text-[#f2ede2]/75 mt-1">
             Everyone with portal access. Set a temporary password, send a reset email, or unlock an account.
           </p>
         </div>
@@ -124,24 +124,24 @@ export default function UserAccessPage() {
             return (
               <div
                 key={u.userId}
-                className="bg-[#0a0a0a] rounded-xl border border-gold-border p-4 space-y-3"
+                className="bg-[#0f0c08] rounded-xl border border-gold-border p-4 space-y-3"
               >
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm text-[#e8e6e1] font-medium truncate">{u.name || "(no name)"}</p>
+                      <p className="text-sm text-[#f2ede2] font-medium truncate">{u.name || "(no name)"}</p>
                       {u.isAdmin && (
                         <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-gold-primary bg-gold-dark/15 px-2 py-0.5 rounded-full">
                           <ShieldCheck className="w-3 h-3" /> Admin
                         </span>
                       )}
                       {u.hasClientRecord && (
-                        <span className="text-[10px] uppercase tracking-wider text-[#e8e6e1]/75 bg-white/5 px-2 py-0.5 rounded-full capitalize">
+                        <span className="text-[10px] uppercase tracking-wider text-[#f2ede2]/75 bg-white/5 px-2 py-0.5 rounded-full capitalize">
                           {u.tier} {u.isActivated ? "· Active" : "· Pending"}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#e8e6e1]/75 truncate">{u.email || "(no email)"}</p>
+                    <p className="text-xs text-[#f2ede2]/75 truncate">{u.email || "(no email)"}</p>
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap">
@@ -160,7 +160,7 @@ export default function UserAccessPage() {
                     <button
                       onClick={() => handleSendResetEmail(u.userId, u.email)}
                       disabled={isBusy}
-                      className="flex items-center gap-1.5 text-xs border border-gold-border/40 text-[#e8e6e1] hover:border-gold-primary/60 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                      className="flex items-center gap-1.5 text-xs border border-gold-border/40 text-[#f2ede2] hover:border-gold-primary/60 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
                     >
                       {isBusy && busyAction === "reset" ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -172,7 +172,7 @@ export default function UserAccessPage() {
                     <button
                       onClick={() => handleUnlock(u.userId)}
                       disabled={isBusy}
-                      className="flex items-center gap-1.5 text-xs border border-gold-border/40 text-[#e8e6e1] hover:border-gold-primary/60 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                      className="flex items-center gap-1.5 text-xs border border-gold-border/40 text-[#f2ede2] hover:border-gold-primary/60 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
                     >
                       {isBusy && busyAction === "unlock" ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -190,11 +190,11 @@ export default function UserAccessPage() {
                       <p className="text-[10px] uppercase tracking-widest text-gold-muted">
                         Temporary password (shown once)
                       </p>
-                      <p className="text-sm text-[#e8e6e1] font-mono tracking-wide">{tempPasswordResult.password}</p>
+                      <p className="text-sm text-[#f2ede2] font-mono tracking-wide">{tempPasswordResult.password}</p>
                     </div>
                     <button
                       onClick={() => setTempPasswordResult(null)}
-                      className="text-[#e8e6e1]/75 hover:text-[#e8e6e1]"
+                      className="text-[#f2ede2]/75 hover:text-[#f2ede2]"
                     >
                       <X className="w-4 h-4" />
                     </button>

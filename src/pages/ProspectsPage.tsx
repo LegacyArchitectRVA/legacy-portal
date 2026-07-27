@@ -10,7 +10,7 @@ const STATUSES = [
   { id: "contacted", label: "Contacted", color: "text-amber-400", icon: Phone },
   { id: "follow_up", label: "Follow Up", color: "text-purple-400", icon: FollowUpIcon },
   { id: "converted", label: "Converted", color: "text-emerald-400", icon: ConvertedIcon },
-  { id: "inactive", label: "Inactive", color: "text-[#e8e6e1]/50", icon: InactiveIcon },
+  { id: "inactive", label: "Inactive", color: "text-[#f2ede2]/50", icon: InactiveIcon },
 ] as const;
 
 function statusMeta(id: string) {
@@ -102,7 +102,7 @@ export default function ProspectsPage() {
   if (!isAdmin) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+        <p className="text-[#f2ede2]/75">Admin access required.</p>
       </div>
     );
   }
@@ -111,7 +111,7 @@ export default function ProspectsPage() {
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-5">
       <button
         onClick={() => navigate("/admin")}
-        className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
+        className="flex items-center gap-2 text-sm text-[#f2ede2]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Admin
@@ -120,10 +120,10 @@ export default function ProspectsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="font-heading text-3xl text-gold-gradient">Prospects</h1>
-          <p className="text-[#e8e6e1]/75 mt-1 text-sm">
+          <p className="text-[#f2ede2]/75 mt-1 text-sm">
             Referral leads and contacts, before they're clients
           </p>
-          <p className="text-[#e8e6e1]/50 text-[10px] mt-0.5">
+          <p className="text-[#f2ede2]/50 text-[10px] mt-0.5">
             Synced automatically from HubSpot every 6 hours, or tap Sync for now.
           </p>
         </div>
@@ -152,7 +152,7 @@ export default function ProspectsPage() {
         <button
           onClick={() => setStatusFilter("all")}
           className={`text-[10px] px-3 py-1.5 rounded-full font-heading transition-colors ${
-            statusFilter === "all" ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"
+            statusFilter === "all" ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"
           }`}
         >
           All
@@ -162,7 +162,7 @@ export default function ProspectsPage() {
             key={s.id}
             onClick={() => setStatusFilter(s.id)}
             className={`flex items-center gap-1 text-[10px] px-3 py-1.5 rounded-full font-heading transition-colors ${
-              statusFilter === s.id ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"
+              statusFilter === s.id ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"
             }`}
           >
             <s.icon className="w-3 h-3" />
@@ -174,7 +174,7 @@ export default function ProspectsPage() {
       {prospects === undefined ? (
         <Loader2 className="w-5 h-5 animate-spin text-gold-muted" />
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 py-16 text-[#e8e6e1]/75">
+        <div className="flex flex-col items-center gap-2 py-16 text-[#f2ede2]/75">
           <User className="w-8 h-8 opacity-40" />
           <p className="text-sm">No prospects {statusFilter !== "all" ? `in "${statusMeta(statusFilter).label}"` : "yet"}.</p>
         </div>
@@ -184,7 +184,7 @@ export default function ProspectsPage() {
             const meta = statusMeta(p.status);
             const isOpen = expandedId === p._id;
             return (
-              <div key={p._id} className="bg-[#0a0a0a] border border-gold-border rounded-xl overflow-hidden">
+              <div key={p._id} className="bg-[#0f0c08] border border-gold-border rounded-xl overflow-hidden">
                 <button
                   onClick={() => setExpandedId(isOpen ? null : p._id)}
                   className="w-full flex items-center gap-3 p-4 text-left"
@@ -195,8 +195,8 @@ export default function ProspectsPage() {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[#e8e6e1] font-medium truncate">{p.name}</p>
-                    <p className="text-xs text-[#e8e6e1]/75 truncate">
+                    <p className="text-sm text-[#f2ede2] font-medium truncate">{p.name}</p>
+                    <p className="text-xs text-[#f2ede2]/75 truncate">
                       {p.source || p.email || p.phone || "No details yet"}
                     </p>
                   </div>
@@ -209,11 +209,11 @@ export default function ProspectsPage() {
                 {isOpen && (
                   <div className="border-t border-gold-border/20 p-4 space-y-3 animate-fade-in" style={{ animationDuration: "0.3s" }}>
                     <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="flex items-center gap-2 text-[#e8e6e1]/85">
+                      <div className="flex items-center gap-2 text-[#f2ede2]/85">
                         <Mail className="w-3.5 h-3.5 text-gold-muted shrink-0" />
                         {p.email || "No email"}
                       </div>
-                      <div className="flex items-center gap-2 text-[#e8e6e1]/85">
+                      <div className="flex items-center gap-2 text-[#f2ede2]/85">
                         <Phone className="w-3.5 h-3.5 text-gold-muted shrink-0" />
                         {p.phone || "No phone"}
                       </div>
@@ -231,7 +231,7 @@ export default function ProspectsPage() {
                             className={`flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-full transition-colors ${
                               p.status === s.id
                                 ? "bg-gold-dark/25 text-gold-primary"
-                                : "bg-black/40 text-[#e8e6e1]/75 hover:text-[#e8e6e1]"
+                                : "bg-black/40 text-[#f2ede2]/75 hover:text-[#f2ede2]"
                             }`}
                           >
                             <s.icon className="w-3 h-3" />
@@ -250,7 +250,7 @@ export default function ProspectsPage() {
                         onChange={(e) => setNoteDrafts((prev) => ({ ...prev, [p._id]: e.target.value }))}
                         onBlur={() => handleSaveNote(p._id)}
                         placeholder="Conversation history, follow-up plans..."
-                        className="w-full bg-black border border-gold-border/30 rounded-lg p-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/50 focus:outline-none resize-y min-h-[70px]"
+                        className="w-full bg-black border border-gold-border/30 rounded-lg p-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none resize-y min-h-[70px]"
                       />
                     </div>
 
@@ -274,12 +274,12 @@ export default function ProspectsPage() {
           onClick={() => setShowAdd(false)}
         >
           <div
-            className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5 space-y-3 animate-modal-sheet"
+            className="bg-[#0f0c08] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5 space-y-3 animate-modal-sheet"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
               <h2 className="font-heading text-sm text-gold-primary">Add Prospect</h2>
-              <button onClick={() => setShowAdd(false)} className="text-[#e8e6e1]/75">
+              <button onClick={() => setShowAdd(false)} className="text-[#f2ede2]/75">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -288,34 +288,34 @@ export default function ProspectsPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Name"
-              className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/50 focus:outline-none"
+              className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none"
             />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email (optional)"
-              className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/50 focus:outline-none"
+              className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none"
             />
             <input
               type="text"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Phone (optional)"
-              className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/50 focus:outline-none"
+              className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none"
             />
             <input
               type="text"
               value={source}
               onChange={(e) => setSource(e.target.value)}
               placeholder="Source (e.g. Referral - Zac, Nextdoor)"
-              className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/50 focus:outline-none"
+              className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none"
             />
             {error && <p className="text-xs text-red-400">{error}</p>}
             <button
               onClick={handleAdd}
               disabled={adding}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-lg disabled:opacity-50"
             >
               {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               Add Prospect

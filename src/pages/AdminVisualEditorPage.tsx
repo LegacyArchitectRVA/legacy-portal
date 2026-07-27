@@ -75,12 +75,12 @@ export default function AdminVisualEditorPage() {
   const [content, setContent] = useState("");
   const [fontFamily, setFontFamily] = useState("");
   const [fontSize, setFontSize] = useState("");
-  const [textColor, setTextColor] = useState("#e8e6e1");
+  const [textColor, setTextColor] = useState("#f2ede2");
   const [textAlign, setTextAlign] = useState("");
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
-  const [iconColor, setIconColor] = useState("#e8c46a");
+  const [iconColor, setIconColor] = useState("#e8c869");
   const [boxBorderColor, setBoxBorderColor] = useState("");
   const [boxBgColor, setBoxBgColor] = useState("");
   const [imageUploading, setImageUploading] = useState(false);
@@ -108,7 +108,7 @@ export default function AdminVisualEditorPage() {
     setMissingFallback(false);
 
     if (selectedKind === "icon") {
-      setIconColor(cmsItem?.value?.trim() || "#e8c46a");
+      setIconColor(cmsItem?.value?.trim() || "#e8c869");
       try {
         const m = cmsItem?.metadata ? JSON.parse(cmsItem.metadata) : {};
         setIconShapeName(m.iconName || "");
@@ -135,7 +135,7 @@ export default function AdminVisualEditorPage() {
         const m = cmsItem.metadata ? JSON.parse(cmsItem.metadata) : {};
         setFontFamily(m.fontFamily || "");
         setFontSize(m.fontSize || "");
-        setTextColor(m.textColor || "#e8e6e1");
+        setTextColor(m.textColor || "#f2ede2");
         setTextAlign(m.textAlign || "");
         setIsBold(!!m.isBold);
         setIsItalic(!!m.isItalic);
@@ -157,7 +157,7 @@ export default function AdminVisualEditorPage() {
   const resetStyles = () => {
     setFontFamily("");
     setFontSize("");
-    setTextColor("#e8e6e1");
+    setTextColor("#f2ede2");
     setTextAlign("");
     setIsBold(false);
     setIsItalic(false);
@@ -238,7 +238,7 @@ export default function AdminVisualEditorPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <PaintBrush className="w-10 h-10 text-gold-muted" />
-        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+        <p className="text-[#f2ede2]/75">Admin access required.</p>
       </div>
     );
   }
@@ -290,7 +290,7 @@ export default function AdminVisualEditorPage() {
             className={`text-[11px] px-3 py-1.5 rounded-full font-heading shrink-0 transition-colors ${
               activePage === p.id
                 ? "bg-gold-dark/25 text-gold-primary"
-                : "bg-black/40 text-[#e8e6e1]/75 hover:text-[#e8e6e1]"
+                : "bg-black/40 text-[#f2ede2]/75 hover:text-[#f2ede2]"
             }`}
           >
             {p.label}
@@ -336,12 +336,12 @@ export default function AdminVisualEditorPage() {
           onClick={() => setSelectedKey(null)}
         >
           <div
-            className="bg-[#0a0a0a] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] overflow-y-auto p-5 space-y-4 animate-modal-sheet"
+            className="bg-[#0f0c08] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] overflow-y-auto p-5 space-y-4 animate-modal-sheet"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
               <h2 className="font-heading text-sm text-gold-primary capitalize">{niceLabel}</h2>
-              <button onClick={() => setSelectedKey(null)} className="text-[#e8e6e1]/75">
+              <button onClick={() => setSelectedKey(null)} className="text-[#f2ede2]/75">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -364,7 +364,7 @@ export default function AdminVisualEditorPage() {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={3}
-                className="w-full bg-black border border-gold-border/30 rounded-lg p-3 text-sm text-[#e8e6e1] focus:outline-none focus:border-gold-primary/40 resize-y"
+                className="w-full bg-black border border-gold-border/30 rounded-lg p-3 text-sm text-[#f2ede2] focus:outline-none focus:border-gold-primary/40 resize-y"
               />
             )}
 
@@ -384,8 +384,8 @@ export default function AdminVisualEditorPage() {
                     type="text"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder="#2d5a3d"
-                    className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
+                    placeholder="#7D6224"
+                    className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
                   />
                 </div>
               </div>
@@ -405,7 +405,7 @@ export default function AdminVisualEditorPage() {
                     className={`shrink-0 px-3 py-1.5 rounded-lg border text-xs transition-colors ${
                       fontFamily === f
                         ? "border-gold-primary bg-gold-dark/15 text-gold-primary"
-                        : "border-gold-border/20 text-[#e8e6e1]/75"
+                        : "border-gold-border/20 text-[#f2ede2]/75"
                     }`}
                     style={{ fontFamily: `'${f}', serif` }}
                   >
@@ -428,7 +428,7 @@ export default function AdminVisualEditorPage() {
                     key={s.value}
                     onClick={() => setFontSize(fontSize === s.value ? "" : s.value)}
                     className={`px-3 py-1 rounded-full text-[11px] font-heading transition-colors ${
-                      fontSize === s.value ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"
+                      fontSize === s.value ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"
                     }`}
                   >
                     {s.label}
@@ -455,7 +455,7 @@ export default function AdminVisualEditorPage() {
                   type="text"
                   value={textColor}
                   onChange={(e) => setTextColor(e.target.value)}
-                  className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
+                  className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
                 />
               </div>
             </div>
@@ -473,7 +473,7 @@ export default function AdminVisualEditorPage() {
                       key={a.value}
                       onClick={() => setTextAlign(textAlign === a.value ? "" : a.value)}
                       className={`p-2 rounded-lg transition-colors ${
-                        textAlign === a.value ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"
+                        textAlign === a.value ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"
                       }`}
                     >
                       <a.icon className="w-4 h-4" />
@@ -488,19 +488,19 @@ export default function AdminVisualEditorPage() {
                 <div className="flex gap-1">
                   <button
                     onClick={() => setIsBold(!isBold)}
-                    className={`p-2 rounded-lg ${isBold ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"}`}
+                    className={`p-2 rounded-lg ${isBold ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"}`}
                   >
                     <TextB className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setIsItalic(!isItalic)}
-                    className={`p-2 rounded-lg ${isItalic ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"}`}
+                    className={`p-2 rounded-lg ${isItalic ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"}`}
                   >
                     <TextItalic className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setIsUnderline(!isUnderline)}
-                    className={`p-2 rounded-lg ${isUnderline ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#e8e6e1]/75"}`}
+                    className={`p-2 rounded-lg ${isUnderline ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"}`}
                   >
                     <TextUnderline className="w-4 h-4" />
                   </button>
@@ -528,8 +528,8 @@ export default function AdminVisualEditorPage() {
                       type="text"
                       value={iconColor}
                       onChange={(e) => setIconColor(e.target.value)}
-                      placeholder="#e8c46a"
-                      className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
+                      placeholder="#e8c869"
+                      className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -579,7 +579,7 @@ export default function AdminVisualEditorPage() {
                       value={boxBorderColor}
                       onChange={(e) => setBoxBorderColor(e.target.value)}
                       placeholder="Leave blank for default"
-                      className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
+                      className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -599,7 +599,7 @@ export default function AdminVisualEditorPage() {
                       value={boxBgColor}
                       onChange={(e) => setBoxBgColor(e.target.value)}
                       placeholder="Leave blank for default"
-                      className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] focus:outline-none"
+                      className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -618,12 +618,12 @@ export default function AdminVisualEditorPage() {
                     className="w-full max-h-40 object-contain rounded-lg border border-gold-border/30 bg-black/40"
                   />
                 ) : (
-                  <p className="text-xs text-[#e8e6e1]/60 italic">
+                  <p className="text-xs text-[#f2ede2]/60 italic">
                     Using the default image, nothing's been uploaded for this yet.
                   </p>
                 )}
 
-                <label className="flex items-center justify-center gap-2 bg-black border border-gold-border/30 rounded-lg px-3 py-3 text-sm text-[#e8e6e1] cursor-pointer hover:border-gold-primary/40 transition-colors">
+                <label className="flex items-center justify-center gap-2 bg-black border border-gold-border/30 rounded-lg px-3 py-3 text-sm text-[#f2ede2] cursor-pointer hover:border-gold-primary/40 transition-colors">
                   {imageUploading ? (
                     <CircleNotch className="w-4 h-4 animate-spin" />
                   ) : (
@@ -645,7 +645,7 @@ export default function AdminVisualEditorPage() {
                 {imageUploadError && (
                   <p className="text-xs text-red-400">{imageUploadError}</p>
                 )}
-                <p className="text-[10px] text-[#e8e6e1]/50">
+                <p className="text-[10px] text-[#f2ede2]/50">
                   JPG, PNG, or WebP, up to 8MB. Replaces only this image, everywhere it appears.
                 </p>
               </div>
@@ -657,7 +657,7 @@ export default function AdminVisualEditorPage() {
                 <button
                   onClick={handleSave}
                   disabled={saving || (selectedKind === "text" && missingFallback && !content.trim())}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50"
+                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50"
                 >
                   {saving ? (
                     <CircleNotch className="w-4 h-4 animate-spin" />

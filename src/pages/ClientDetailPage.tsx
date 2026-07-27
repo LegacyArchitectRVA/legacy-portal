@@ -36,7 +36,7 @@ export default function ClientDetailPage() {
   if (detail === null) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-12 text-center">
-        <p className="text-sm text-[#e8e6e1]/75">Client not found.</p>
+        <p className="text-sm text-[#f2ede2]/75">Client not found.</p>
         <button onClick={() => navigate("/admin")} className="text-gold-primary text-sm mt-2">
           Back to Admin
         </button>
@@ -70,14 +70,14 @@ export default function ClientDetailPage() {
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-5">
       <button
         onClick={() => navigate("/admin")}
-        className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
+        className="flex items-center gap-2 text-sm text-[#f2ede2]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Admin
       </button>
 
       {/* Header */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 flex items-center gap-4">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 flex items-center gap-4">
         {detail.profilePicUrl ? (
           <img src={detail.profilePicUrl} alt="" className="w-14 h-14 rounded-full object-cover shrink-0" />
         ) : (
@@ -86,10 +86,10 @@ export default function ClientDetailPage() {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h1 className="font-heading text-xl text-[#e8e6e1] break-words leading-tight">
+          <h1 className="font-heading text-xl text-[#f2ede2] break-words leading-tight">
             {detail.name || "Unnamed Client"}
           </h1>
-          <p className="text-xs text-[#e8e6e1]/75 break-all">{detail.email}</p>
+          <p className="text-xs text-[#f2ede2]/75 break-all">{detail.email}</p>
           <div className="flex items-center gap-2 mt-1.5">
             {detail.isClient ? (
               <>
@@ -107,7 +107,7 @@ export default function ClientDetailPage() {
                 )}
               </>
             ) : (
-              <span className="text-[10px] text-[#e8e6e1]/75">Registered, not yet a client</span>
+              <span className="text-[10px] text-[#f2ede2]/75">Registered, not yet a client</span>
             )}
           </div>
         </div>
@@ -157,16 +157,16 @@ export default function ClientDetailPage() {
       {actionMessage && <p className="text-xs text-emerald-400">{actionMessage}</p>}
 
       {/* Contact Info */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-3">
         <h2 className="font-heading text-sm text-gold-primary flex items-center gap-2">
           <User className="w-4 h-4" /> Contact Info
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center gap-2 text-[#e8e6e1]/85">
+          <div className="flex items-center gap-2 text-[#f2ede2]/85">
             <Mail className="w-3.5 h-3.5 text-gold-muted shrink-0" />
             <span className="break-all">{detail.email}</span>
           </div>
-          <div className="flex items-center gap-2 text-[#e8e6e1]/85">
+          <div className="flex items-center gap-2 text-[#f2ede2]/85">
             <Phone className="w-3.5 h-3.5 text-gold-muted shrink-0" />
             <span>{detail.phone || "Not on file"}</span>
           </div>
@@ -175,7 +175,7 @@ export default function ClientDetailPage() {
 
       {/* Life Manual Progress */}
       {detail.isClient && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
+        <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-3">
           <h2 className="font-heading text-sm text-gold-primary flex items-center gap-2">
             <FileText className="w-4 h-4" /> Life Manual Progress
           </h2>
@@ -185,10 +185,10 @@ export default function ClientDetailPage() {
             <div className="space-y-2">
               {progress.map((p) => (
                 <div key={p.chapterId} className="text-xs">
-                  <span className="text-[#e8e6e1]/85">
+                  <span className="text-[#f2ede2]/85">
                     Ch. {p.chapterNumber} · {p.title}
                   </span>
-                  <span className="text-[#e8e6e1]/60 block">
+                  <span className="text-[#f2ede2]/60 block">
                     {p.sectionsStarted}/{p.totalSections} sections started
                   </span>
                 </div>
@@ -200,11 +200,11 @@ export default function ClientDetailPage() {
 
       {/* Annual Review */}
       {detail.isClient && detail.deliveryStatus === "delivered" && detail.reviewDueDate && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
+        <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-3">
           <h2 className="font-heading text-sm text-gold-primary flex items-center gap-2">
             <Calendar className="w-4 h-4" /> Annual Review
           </h2>
-          <p className="text-xs text-[#e8e6e1]/80">
+          <p className="text-xs text-[#f2ede2]/80">
             {detail.lastReviewedAt ? "Last reviewed" : "Delivered"}{" "}
             {new Date(detail.lastReviewedAt || detail.deliveryTimestamp || 0).toLocaleDateString("en-US", {
               year: "numeric",
@@ -229,7 +229,7 @@ export default function ClientDetailPage() {
               }
             }}
             disabled={markingReview}
-            className="flex items-center gap-2 bg-black border border-gold-border/40 text-[#e8e6e1] font-heading text-sm font-semibold px-4 py-2 rounded-lg hover:border-gold-primary/60 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-black border border-gold-border/40 text-[#f2ede2] font-heading text-sm font-semibold px-4 py-2 rounded-lg hover:border-gold-primary/60 transition-colors disabled:opacity-50"
           >
             {markingReview ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
             Mark Review Complete
@@ -239,14 +239,14 @@ export default function ClientDetailPage() {
 
       {/* Legal Documents */}
       {detail.isClient && detail.legalDocuments.length > 0 && (
-        <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-2">
+        <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-2">
           <h2 className="font-heading text-sm text-gold-primary flex items-center gap-2">
             <Scale className="w-4 h-4" /> Legal Documents
           </h2>
           {detail.legalDocuments.map((d) => (
             <div key={d.documentType} className="flex items-center justify-between text-xs">
-              <span className="text-[#e8e6e1]/85">{d.documentType}</span>
-              <span className={d.inForce ? "text-emerald-400" : "text-[#e8e6e1]/50"}>
+              <span className="text-[#f2ede2]/85">{d.documentType}</span>
+              <span className={d.inForce ? "text-emerald-400" : "text-[#f2ede2]/50"}>
                 {d.inForce ? "In Force" : "Not in force"}
               </span>
             </div>
@@ -255,7 +255,7 @@ export default function ClientDetailPage() {
       )}
 
       {/* Notes */}
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 space-y-3">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-3">
         <h2 className="font-heading text-sm text-gold-primary">Notes</h2>
         <div className="flex gap-2">
           <input
@@ -264,7 +264,7 @@ export default function ClientDetailPage() {
             onChange={(e) => setNoteText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAddNote()}
             placeholder="Add a note about this client..."
-            className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/50 focus:outline-none"
+            className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none"
           />
           <button
             onClick={handleAddNote}
@@ -278,13 +278,13 @@ export default function ClientDetailPage() {
           {notes === undefined ? (
             <Loader2 className="w-4 h-4 animate-spin text-gold-muted" />
           ) : notes.length === 0 ? (
-            <p className="text-xs text-[#e8e6e1]/75">No notes yet.</p>
+            <p className="text-xs text-[#f2ede2]/75">No notes yet.</p>
           ) : (
             notes.map((n) => (
               <div key={n._id} className="bg-black/40 rounded-lg p-3 flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-sm text-[#e8e6e1]/90">{n.content}</p>
-                  <p className="text-[10px] text-[#e8e6e1]/50 mt-1">
+                  <p className="text-sm text-[#f2ede2]/90">{n.content}</p>
+                  <p className="text-[10px] text-[#f2ede2]/50 mt-1">
                     {new Date(n.createdAt).toLocaleString("en-US", {
                       month: "short",
                       day: "numeric",
@@ -295,7 +295,7 @@ export default function ClientDetailPage() {
                 </div>
                 <button
                   onClick={() => deleteNote({ noteId: n._id })}
-                  className="text-[#e8e6e1]/40 hover:text-red-400 shrink-0"
+                  className="text-[#f2ede2]/40 hover:text-red-400 shrink-0"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

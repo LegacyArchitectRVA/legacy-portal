@@ -150,7 +150,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(217,204,160,0.04)_0%,_transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(212, 182, 97,0.04)_0%,_transparent_60%)]" />
 
       <div className="relative w-full max-w-sm space-y-8">
         {/* Logo */}
@@ -160,14 +160,14 @@ export default function LoginPage() {
             alt="Legacy Architect RVA"
             className="mx-auto w-24 h-24 object-contain"
           />
-          <h1 className="font-heading text-2xl text-[#e8e6e1] tracking-wide uppercase">
+          <h1 className="font-heading text-2xl text-[#f2ede2] tracking-wide uppercase">
             {mode === "signin" ? (
               <EditableText cmsKey="login_title" as="span" />
             ) : (
               "Reset Password"
             )}
           </h1>
-          <p className="text-sm text-[#e8e6e1]/80">
+          <p className="text-sm text-[#f2ede2]/80">
             {mode === "signin" ? (
               <EditableText cmsKey="login_subtitle" as="span" />
             ) : mode === "forgot-request" ? (
@@ -196,7 +196,7 @@ export default function LoginPage() {
                     <EditableText cmsKey="login_passkey_button" as="span" />
                   </button>
                 ) : (
-                  <p className="text-center text-[10px] text-[#e8e6e1]/40 tracking-wide">
+                  <p className="text-center text-[10px] text-[#f2ede2]/40 tracking-wide">
                     <Fingerprint className="w-3 h-3 inline mr-1 opacity-60" />
                     Face ID and fingerprint sign-in is available. Set it up in{" "}
                     <Link to="/settings" className="text-gold-muted hover:text-gold-primary underline underline-offset-2 transition-colors">
@@ -207,14 +207,14 @@ export default function LoginPage() {
                 )}
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-gold-border/30" />
-                  <span className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-widest">or</span>
+                  <span className="text-[10px] text-[#f2ede2]/80 uppercase tracking-widest">or</span>
                   <div className="flex-1 h-px bg-gold-border/30" />
                 </div>
               </>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+                <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading block mb-1">
                   <EditableText cmsKey="login_email_label" as="span" />
                 </label>
                 <EditableInput
@@ -223,13 +223,13 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+                  className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
                   placeholderCmsKey="login_email_placeholder"
                 />
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading">
+                  <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading">
                     <EditableText cmsKey="login_password_label" as="span" />
                   </label>
                   <button
@@ -251,13 +251,13 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+                    className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
                     placeholderCmsKey="login_password_placeholder"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#f2ede2]/80 hover:text-[#f2ede2]/80"
                   >
                     {showPassword ? <EyeSlash className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -271,7 +271,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
               >
                 {loading ? (
                   <CircleNotch className="w-4 h-4 animate-spin mx-auto" />
@@ -286,7 +286,7 @@ export default function LoginPage() {
                 {/* Divider */}
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-gold-border/30" />
-                  <span className="text-[10px] text-[#e8e6e1]/80 uppercase tracking-widest">or</span>
+                  <span className="text-[10px] text-[#f2ede2]/80 uppercase tracking-widest">or</span>
                   <div className="flex-1 h-px bg-gold-border/30" />
                 </div>
 
@@ -294,7 +294,7 @@ export default function LoginPage() {
                 <button
                   onClick={handleTestUser}
                   disabled={loading}
-                  className="w-full border border-gold-border/40 text-[#e8e6e1]/80 hover:text-gold-primary hover:border-gold-primary/30 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
+                  className="w-full border border-gold-border/40 text-[#f2ede2]/80 hover:text-gold-primary hover:border-gold-primary/30 font-heading text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50"
                 >
                   Continue as Test User
                 </button>
@@ -302,7 +302,7 @@ export default function LoginPage() {
             )}
 
             {/* Footer */}
-            <p className="text-center text-xs text-[#e8e6e1]/75">
+            <p className="text-center text-xs text-[#f2ede2]/75">
               <EditableText cmsKey="login_footer_prompt" as="span" />{" "}
               <Link to="/signup" className="text-gold-primary hover:text-gold-bright transition-colors">
                 <EditableText cmsKey="login_footer_link" as="span" />
@@ -314,7 +314,7 @@ export default function LoginPage() {
         {mode === "forgot-request" && (
           <form onSubmit={handleRequestReset} className="space-y-4">
             <div>
-              <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+              <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading block mb-1">
                 Email
               </label>
               <input
@@ -322,7 +322,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+                className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
                 placeholder="your@email.com"
               />
             </div>
@@ -334,7 +334,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" /> : "Send Reset Code"}
             </button>
@@ -342,7 +342,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={backToSignIn}
-              className="w-full text-center text-xs text-[#e8e6e1]/75 hover:text-[#e8e6e1] transition-colors"
+              className="w-full text-center text-xs text-[#f2ede2]/75 hover:text-[#f2ede2] transition-colors"
             >
               &larr; Back to sign in
             </button>
@@ -355,7 +355,7 @@ export default function LoginPage() {
               <p className="text-xs text-gold-primary bg-gold-primary/10 rounded-lg px-3 py-2">{info}</p>
             )}
             <div>
-              <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+              <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading block mb-1">
                 Reset Code
               </label>
               <input
@@ -363,12 +363,12 @@ export default function LoginPage() {
                 required
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none tracking-widest"
+                className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none tracking-widest"
                 placeholder="6-digit code"
               />
             </div>
             <div>
-              <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+              <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading block mb-1">
                 New Password
               </label>
               <input
@@ -376,7 +376,7 @@ export default function LoginPage() {
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+                className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
                 placeholder="At least 8 characters"
               />
             </div>
@@ -388,7 +388,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" /> : "Reset Password & Sign In"}
             </button>
@@ -396,7 +396,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={backToSignIn}
-              className="w-full text-center text-xs text-[#e8e6e1]/75 hover:text-[#e8e6e1] transition-colors"
+              className="w-full text-center text-xs text-[#f2ede2]/75 hover:text-[#f2ede2] transition-colors"
             >
               &larr; Back to sign in
             </button>

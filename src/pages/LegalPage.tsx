@@ -216,14 +216,14 @@ function Document({
     <div className="space-y-5">
       <div>
         <h2 className="font-heading text-xl text-gold-primary">{title}</h2>
-        <p className="text-[11px] text-[#e8e6e1]/75 mt-1">Effective Date: {effectiveDate}</p>
+        <p className="text-[11px] text-[#f2ede2]/75 mt-1">Effective Date: {effectiveDate}</p>
       </div>
       {sections.map((s) => (
         <div key={s.heading}>
           <h3 className="font-heading text-sm text-gold-muted uppercase tracking-wide mb-1.5">
             {s.heading}
           </h3>
-          <p className="text-sm text-[#e8e6e1]/85 leading-relaxed whitespace-pre-line">{s.body}</p>
+          <p className="text-sm text-[#f2ede2]/85 leading-relaxed whitespace-pre-line">{s.body}</p>
         </div>
       ))}
     </div>
@@ -238,7 +238,7 @@ export default function LegalPage() {
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       <button
         onClick={() => navigate("/settings")}
-        className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors"
+        className="flex items-center gap-2 text-sm text-[#f2ede2]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Settings
@@ -250,7 +250,7 @@ export default function LegalPage() {
         <button
           onClick={() => setTab("privacy")}
           className={`px-4 py-2 text-sm font-heading transition-colors ${
-            tab === "privacy" ? "text-gold-primary border-b-2 border-gold-primary" : "text-[#e8e6e1]/75"
+            tab === "privacy" ? "text-gold-primary border-b-2 border-gold-primary" : "text-[#f2ede2]/75"
           }`}
         >
           Privacy Policy
@@ -258,14 +258,14 @@ export default function LegalPage() {
         <button
           onClick={() => setTab("terms")}
           className={`px-4 py-2 text-sm font-heading transition-colors ${
-            tab === "terms" ? "text-gold-primary border-b-2 border-gold-primary" : "text-[#e8e6e1]/75"
+            tab === "terms" ? "text-gold-primary border-b-2 border-gold-primary" : "text-[#f2ede2]/75"
           }`}
         >
           Terms of Service
         </button>
       </div>
 
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 md:p-6">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 md:p-6">
         {tab === "privacy" ? (
           <Document title="Portal Privacy Policy" effectiveDate="April 25, 2026" sections={PRIVACY_SECTIONS} />
         ) : (

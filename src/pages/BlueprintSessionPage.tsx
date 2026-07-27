@@ -24,7 +24,7 @@ const STATUS_CHIP: Record<CheckStatus, string> = {
   exposed: "bg-rose-500/15 text-rose-300 border-rose-500/40",
   partial: "bg-amber-500/15 text-amber-300 border-amber-500/40",
   handled: "bg-emerald-500/15 text-emerald-300 border-emerald-500/40",
-  na: "bg-white/5 text-[#e8e6e1]/50 border-white/10",
+  na: "bg-white/5 text-[#f2ede2]/50 border-white/10",
 };
 
 export default function BlueprintSessionPage() {
@@ -61,7 +61,7 @@ export default function BlueprintSessionPage() {
   if (!isAdmin) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-        <p className="text-[#e8e6e1]/75">Admin access required.</p>
+        <p className="text-[#f2ede2]/75">Admin access required.</p>
       </div>
     );
   }
@@ -69,7 +69,7 @@ export default function BlueprintSessionPage() {
   if (session === null) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-        <p className="text-[#e8e6e1]/75">Session not found.</p>
+        <p className="text-[#f2ede2]/75">Session not found.</p>
       </div>
     );
   }
@@ -159,12 +159,12 @@ export default function BlueprintSessionPage() {
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6 animate-fade-in pb-24">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <button onClick={() => navigate("/admin/blueprint")} className="text-[#e8e6e1]/75 hover:text-gold-primary transition-colors shrink-0">
+        <button onClick={() => navigate("/admin/blueprint")} className="text-[#f2ede2]/75 hover:text-gold-primary transition-colors shrink-0">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="font-heading text-xl font-bold text-[#e8e6e1] truncate">{session.prospectName}</h1>
-          <p className="text-xs text-[#e8e6e1]/75">
+          <h1 className="font-heading text-xl font-bold text-[#f2ede2] truncate">{session.prospectName}</h1>
+          <p className="text-xs text-[#f2ede2]/75">
             {new Date(session.sessionDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
             {" · "}{totalAssessed}/{totalCheckpoints} assessed
             {" · "}<span className={totalExposed > 0 ? "text-rose-400" : "text-emerald-400"}>{totalExposed} exposed</span>
@@ -173,7 +173,7 @@ export default function BlueprintSessionPage() {
         <select
           value={session.status}
           onChange={(e) => updateMeta({ sessionId: session._id, status: e.target.value as any })}
-          className="bg-[#111111] border border-gold-border/40 rounded-lg px-2 py-1.5 text-xs text-[#e8e6e1] focus:outline-none shrink-0"
+          className="bg-[#171208] border border-gold-border/40 rounded-lg px-2 py-1.5 text-xs text-[#f2ede2] focus:outline-none shrink-0"
         >
           <option value="draft">Draft</option>
           <option value="completed">Completed</option>
@@ -184,10 +184,10 @@ export default function BlueprintSessionPage() {
       {/* Desktop: map pinned left, work column right. Mobile: stacked. */}
       <div className="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-6 lg:items-start space-y-6 lg:space-y-0">
         {/* Gap Map */}
-        <div className="bg-[#0a0a0a] border border-gold-border rounded-xl p-4 space-y-2 lg:sticky lg:top-6">
+        <div className="bg-[#0f0c08] border border-gold-border rounded-xl p-4 space-y-2 lg:sticky lg:top-6">
           <p className="font-heading text-xs text-gold-primary uppercase tracking-widest">Gap Map</p>
           <GapMapVisual ref={gapMapRef} scores={scores} readiness={readiness} />
-          <p className="text-[10px] text-[#e8e6e1]/50 text-center">
+          <p className="text-[10px] text-[#f2ede2]/50 text-center">
             Updates live as checkpoints are assessed. This map prints into the PDF deliverable.
           </p>
         </div>
@@ -199,19 +199,19 @@ export default function BlueprintSessionPage() {
           const open = openPillar === pillar.id;
           const score = scores.find((s) => s.pillarId === pillar.id)!;
           return (
-            <div key={pillar.id} className="bg-[#0a0a0a] border border-gold-border rounded-xl overflow-hidden">
+            <div key={pillar.id} className="bg-[#0f0c08] border border-gold-border rounded-xl overflow-hidden">
               <button
                 onClick={() => setOpenPillar(open ? null : pillar.id)}
                 className="w-full flex items-center justify-between gap-3 p-4 text-left"
               >
-                <span className="font-heading text-sm text-[#e8e6e1]">
+                <span className="font-heading text-sm text-[#f2ede2]">
                   <span style={{ color: pillar.color }}>{pillar.number}</span> {pillar.title}
                 </span>
                 <span className="flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] text-[#e8e6e1]/60">
+                  <span className="text-[10px] text-[#f2ede2]/60">
                     {score.assessed}/{pillar.checkpoints.length}
                   </span>
-                  <ChevronDown className={`w-4 h-4 text-[#e8e6e1]/50 transition-transform ${open ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`w-4 h-4 text-[#f2ede2]/50 transition-transform ${open ? "rotate-180" : ""}`} />
                 </span>
               </button>
               {open && (
@@ -222,11 +222,11 @@ export default function BlueprintSessionPage() {
                     return (
                       <div key={c.id} className="p-4 space-y-2">
                         <div className="flex items-start justify-between gap-3">
-                          <p className="text-sm text-[#e8e6e1] flex-1">{c.label}</p>
+                          <p className="text-sm text-[#f2ede2] flex-1">{c.label}</p>
                           <button
                             onClick={() => cycleStatus(c.id)}
                             className={`shrink-0 text-[10px] font-heading uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors ${
-                              status ? STATUS_CHIP[status] : "bg-white/5 text-[#e8e6e1]/40 border-white/10"
+                              status ? STATUS_CHIP[status] : "bg-white/5 text-[#f2ede2]/40 border-white/10"
                             }`}
                           >
                             {status ? STATUS_META[status].label : "Tap to assess"}
@@ -239,7 +239,7 @@ export default function BlueprintSessionPage() {
                             onChange={(e) => setNoteDrafts((p) => ({ ...p, [c.id]: e.target.value }))}
                             onBlur={() => saveNote(c.id)}
                             placeholder="Session note (optional)"
-                            className="w-full bg-[#111111] border border-gold-border/30 rounded-lg px-3 py-2 text-xs text-[#e8e6e1] placeholder:text-[#e8e6e1]/40 focus:border-gold-primary/50 focus:outline-none"
+                            className="w-full bg-[#171208] border border-gold-border/30 rounded-lg px-3 py-2 text-xs text-[#f2ede2] placeholder:text-[#f2ede2]/40 focus:border-gold-primary/50 focus:outline-none"
                           />
                         )}
                       </div>
@@ -253,7 +253,7 @@ export default function BlueprintSessionPage() {
       </div>
 
       {/* 72-Hour Action Plan */}
-      <div className="bg-[#0a0a0a] border border-gold-border rounded-xl p-4 space-y-4">
+      <div className="bg-[#0f0c08] border border-gold-border rounded-xl p-4 space-y-4">
         <div className="flex items-center justify-between gap-3">
           <p className="font-heading text-xs text-gold-primary uppercase tracking-widest">72-Hour Action Plan</p>
           <button
@@ -267,7 +267,7 @@ export default function BlueprintSessionPage() {
         </div>
 
         {session.actions.length === 0 ? (
-          <p className="text-xs text-[#e8e6e1]/60">
+          <p className="text-xs text-[#f2ede2]/60">
             Assess the pillars above, then generate. The plan pulls the highest-exposure items and sequences them across three days.
           </p>
         ) : (
@@ -276,17 +276,17 @@ export default function BlueprintSessionPage() {
             if (dayActions.length === 0) return null;
             return (
               <div key={day} className="space-y-2">
-                <p className="text-[10px] font-heading text-[#e8e6e1]/60 uppercase tracking-widest">Day {day}</p>
+                <p className="text-[10px] font-heading text-[#f2ede2]/60 uppercase tracking-widest">Day {day}</p>
                 {dayActions.map((a) => (
-                  <div key={a.id} className="flex items-start gap-2 bg-[#111111] rounded-lg p-3 group">
+                  <div key={a.id} className="flex items-start gap-2 bg-[#171208] rounded-lg p-3 group">
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-[#e8e6e1]">{a.title}</p>
-                      {a.detail && <p className="text-[10px] text-[#e8e6e1]/55 mt-0.5">Closes: {a.detail}</p>}
+                      <p className="text-xs text-[#f2ede2]">{a.title}</p>
+                      {a.detail && <p className="text-[10px] text-[#f2ede2]/55 mt-0.5">Closes: {a.detail}</p>}
                     </div>
                     <div className="flex items-center gap-1 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => moveAction(a.id, -1)} className="text-[#e8e6e1]/60 hover:text-gold-primary p-0.5"><Up className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => moveAction(a.id, 1)} className="text-[#e8e6e1]/60 hover:text-gold-primary p-0.5"><Down className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => removeAction(a.id)} className="text-[#e8e6e1]/60 hover:text-red-400 p-0.5"><Trash2 className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => moveAction(a.id, -1)} className="text-[#f2ede2]/60 hover:text-gold-primary p-0.5"><Up className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => moveAction(a.id, 1)} className="text-[#f2ede2]/60 hover:text-gold-primary p-0.5"><Down className="w-3.5 h-3.5" /></button>
+                      <button onClick={() => removeAction(a.id)} className="text-[#f2ede2]/60 hover:text-red-400 p-0.5"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </div>
                 ))}

@@ -43,10 +43,10 @@ const tierColors: Record<
     border: "border-[#c8c8c8]/35",
   },
   legacy: {
-    accent: "#d6a84f",
+    accent: "#d4b661",
     accentRgb: "214, 168, 79",
     label: "Gold",
-    border: "border-[#d6a84f]/40",
+    border: "border-[#d4b661]/40",
   },
 };
 
@@ -79,9 +79,9 @@ export default function UpgradePage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
       {isAdmin && !isEditingInVisualEditor && (
-        <div className="rounded-xl border border-gold-border bg-[#0a0a0a] p-4 flex items-start gap-3">
+        <div className="rounded-xl border border-gold-border bg-[#0f0c08] p-4 flex items-start gap-3">
           <Shield className="w-5 h-5 text-gold-primary mt-0.5 shrink-0" />
-          <p className="text-sm text-[#e8e6e1]/75">
+          <p className="text-sm text-[#f2ede2]/75">
             <span className="text-gold-primary font-heading">Operator preview.</span> Admin accounts
             bypass tier restrictions everywhere, so nothing here applies to you. This is the page
             exactly as a client sees it, for reviewing pricing and layout.
@@ -92,18 +92,18 @@ export default function UpgradePage() {
         <h1 className="font-heading text-3xl text-gold-gradient">
           <EditableText cmsKey="upgrade_title" as="span" />
         </h1>
-        <p className="text-[#e8e6e1]/80 mt-2 leading-relaxed max-w-2xl">
+        <p className="text-[#f2ede2]/80 mt-2 leading-relaxed max-w-2xl">
           Portal upgrades begin with The Vault and move upward. Lower editions are
           not offered once a higher edition is active.
         </p>
       </div>
 
       {isLegacy && (
-        <div className="rounded-xl border border-[#d6a84f]/35 bg-[#0a0a0a] p-5 shadow-[0_0_35px_rgba(214,168,79,0.10)]">
-          <p className="font-heading text-[#d6a84f] text-lg">
+        <div className="rounded-xl border border-[#d4b661]/35 bg-[#0f0c08] p-5 shadow-[0_0_35px_rgba(214,168,79,0.10)]">
+          <p className="font-heading text-[#d4b661] text-lg">
             Current Edition: The Legacy
           </p>
-          <p className="text-sm text-[#e8e6e1]/65 mt-2 leading-relaxed">
+          <p className="text-sm text-[#f2ede2]/65 mt-2 leading-relaxed">
             You are already on the highest Life Manual edition. No Vault or
             Archive upgrade options are available for this account.
           </p>
@@ -121,7 +121,7 @@ export default function UpgradePage() {
             <EditableBox
               key={tier.id}
               cmsKey={`upgrade_${tier.id}_card_style`}
-              className={`bg-[#0a0a0a] rounded-xl border p-5 relative overflow-hidden transition-all duration-300 flex flex-col min-h-full ${
+              className={`bg-[#0f0c08] rounded-xl border p-5 relative overflow-hidden transition-all duration-300 flex flex-col min-h-full ${
                 isCurrent
                   ? colors.border
                   : "border-gold-border hover:border-gold-border/40"
@@ -140,7 +140,7 @@ export default function UpgradePage() {
                   background: `linear-gradient(90deg, transparent, ${colors.accent}, transparent)`,
                 }}
               />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(217,204,160,0.04),_transparent_60%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(212, 182, 97,0.04),_transparent_60%)]" />
 
               <div className="relative flex flex-col flex-1 space-y-4">
                 <div className="flex justify-center min-h-[120px] items-center py-2">
@@ -169,7 +169,7 @@ export default function UpgradePage() {
 
                 <div className="text-center min-h-[90px] flex flex-col justify-start">
                   <h3
-                    className="font-heading text-2xl text-[#e8e6e1] leading-tight"
+                    className="font-heading text-2xl text-[#f2ede2] leading-tight"
                     style={{ fontVariant: "small-caps" }}
                   >
                     {tier.name}
@@ -182,7 +182,7 @@ export default function UpgradePage() {
                   </p>
                 </div>
 
-                <p className="text-xs text-[#e8e6e1]/80 leading-relaxed text-center min-h-[52px]">
+                <p className="text-xs text-[#f2ede2]/80 leading-relaxed text-center min-h-[52px]">
                   <EditableText
                     cmsKey={`upgrade_${tier.id}_desc`}
                     fallback={tier.description}
@@ -194,7 +194,7 @@ export default function UpgradePage() {
                   {tier.features.map((feature, i) => (
                     <li
                       key={feature}
-                      className="flex items-start gap-2 text-xs text-[#e8e6e1]/70"
+                      className="flex items-start gap-2 text-xs text-[#f2ede2]/70"
                     >
                       <EditableIcon
                         cmsKey={`upgrade_${tier.id}_checkmark_style`}
@@ -217,7 +217,7 @@ export default function UpgradePage() {
                   <button
                     type="button"
                     onClick={() => navigate(`/payment?tier=${tier.id}`)}
-                    className="w-full flex items-center justify-center gap-2 text-[#0a0a0a] font-heading text-sm font-semibold py-3 rounded-full hover:opacity-90 transition-all duration-300"
+                    className="w-full flex items-center justify-center gap-2 text-[#0f0c08] font-heading text-sm font-semibold py-3 rounded-full hover:opacity-90 transition-all duration-300"
                     style={{
                       background: `linear-gradient(135deg, ${colors.accent}, ${colors.accent}cc)`,
                       boxShadow: `0 0 20px rgba(${colors.accentRgb}, 0.2)`,
@@ -259,7 +259,7 @@ export default function UpgradePage() {
                         <li
                           key={ch.id}
                           className={`flex items-center gap-2 text-xs ${
-                            included ? "text-[#e8e6e1]/80" : "text-[#e8e6e1]/35"
+                            included ? "text-[#f2ede2]/80" : "text-[#f2ede2]/35"
                           }`}
                         >
                           {included ? (
@@ -272,7 +272,7 @@ export default function UpgradePage() {
                               className="w-3.5 h-3.5 shrink-0 check-glow"
                             />
                           ) : (
-                            <Lock className="w-3 h-3 text-[#e8e6e1]/30 shrink-0" />
+                            <Lock className="w-3 h-3 text-[#f2ede2]/30 shrink-0" />
                           )}
                           <span>
                             Ch. {ch.chapterNumber}: {ch.title}
@@ -288,13 +288,13 @@ export default function UpgradePage() {
         })}
       </div>
 
-      <div className="bg-[#0a0a0a] rounded-xl border border-gold-border p-5 text-center">
-        <p className="text-sm text-[#e8e6e1]/80 leading-relaxed">
+      <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 text-center">
+        <p className="text-sm text-[#f2ede2]/80 leading-relaxed">
           <EditableText cmsKey="upgrade_notice_text" as="span" />
         </p>
       </div>
 
-      <div className="text-center text-xs text-[#e8e6e1]/75 py-4">
+      <div className="text-center text-xs text-[#f2ede2]/75 py-4">
         <EditableText cmsKey="upgrade_footer_text" as="span" />
       </div>
     </div>

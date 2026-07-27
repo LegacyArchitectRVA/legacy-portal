@@ -41,7 +41,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(217,204,160,0.04)_0%,_transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(212, 182, 97,0.04)_0%,_transparent_60%)]" />
 
       <div className="relative w-full max-w-sm space-y-8">
         {/* Logo */}
@@ -51,10 +51,10 @@ export default function SignupPage() {
             alt="Legacy Architect RVA"
             className="mx-auto w-24 h-24 object-contain"
           />
-          <h1 className="font-heading text-2xl text-[#e8e6e1] tracking-wide uppercase">
+          <h1 className="font-heading text-2xl text-[#f2ede2] tracking-wide uppercase">
             <EditableText cmsKey="signup_title" as="span" />
           </h1>
-          <p className="text-sm text-[#e8e6e1]/80">
+          <p className="text-sm text-[#f2ede2]/80">
             <EditableText cmsKey="signup_subtitle" as="span" />
           </p>
         </div>
@@ -62,7 +62,7 @@ export default function SignupPage() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+            <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading block mb-1">
               <EditableText cmsKey="signup_name_label" as="span" />
             </label>
             <EditableInput
@@ -71,12 +71,12 @@ export default function SignupPage() {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+              className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
               placeholderCmsKey="signup_name_placeholder"
             />
           </div>
           <div>
-            <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+            <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading block mb-1">
               <EditableText cmsKey="signup_email_label" as="span" />
             </label>
             <EditableInput
@@ -85,12 +85,12 @@ export default function SignupPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+              className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
               placeholderCmsKey="signup_email_placeholder"
             />
           </div>
           <div>
-            <label className="text-xs text-[#e8e6e1]/75 uppercase tracking-wider font-heading block mb-1">
+            <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading block mb-1">
               <EditableText cmsKey="signup_password_label" as="span" />
             </label>
             <div className="relative">
@@ -100,18 +100,18 @@ export default function SignupPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#e8e6e1] placeholder:text-[#e8e6e1]/80 focus:border-gold-primary/50 focus:outline-none"
+                className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
                 placeholderCmsKey="signup_password_placeholder"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#f2ede2]/80 hover:text-[#f2ede2]/80"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <p className="text-[10px] text-[#e8e6e1]/80 mt-1">
+            <p className="text-[10px] text-[#f2ede2]/80 mt-1">
               <EditableText cmsKey="signup_password_hint" as="span" />
             </p>
           </div>
@@ -123,7 +123,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-[#d9cca0] to-[#b89f6b] text-[#0a0a0a] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin mx-auto" />
@@ -134,7 +134,7 @@ export default function SignupPage() {
         </form>
 
         {/* Footer */}
-        <p className="text-center text-xs text-[#e8e6e1]/75">
+        <p className="text-center text-xs text-[#f2ede2]/75">
           <EditableText cmsKey="signup_footer_prompt" as="span" />{" "}
           <Link to="/login" className="text-gold-primary hover:text-gold-bright transition-colors">
             <EditableText cmsKey="signup_footer_link" as="span" />

@@ -424,11 +424,11 @@ export default function IntroductionPage() {
 <head>
   <meta charset="utf-8">
   <title>${guide.title} - Legacy Architect RVA</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Libre Baskerville', serif;
+      font-family: 'Cormorant Garamond', Georgia, serif;
       font-size: 11.5pt;
       line-height: 1.35;
       color: #1a1a1a;
@@ -468,11 +468,11 @@ export default function IntroductionPage() {
     ul { margin: 0 0 0.1in 0.22in; }
     li { margin-bottom: 0.04in; }
     strong { color: #4a3a10; }
-    hr { border: none; border-top: 1px solid #d9cca0; margin: 0.2in 0; }
+    hr { border: none; border-top: 1px solid #d4b661; margin: 0.2in 0; }
     .footer {
       margin-top: 0.25in;
       padding-top: 0.15in;
-      border-top: 1px solid #d9cca0;
+      border-top: 1px solid #d4b661;
       text-align: center;
       font-family: 'Cinzel', serif;
       font-size: 10pt;
@@ -510,37 +510,37 @@ export default function IntroductionPage() {
     for (const line of lines) {
       if (line.startsWith("# ")) {
         if (inList) { html.push("</ul>"); inList = false; }
-        html.push(`<h1 class="font-heading text-2xl text-[#e8c46a] mt-6 mb-3">${line.slice(2)}</h1>`);
+        html.push(`<h1 class="font-heading text-2xl text-[#e8c869] mt-6 mb-3">${line.slice(2)}</h1>`);
       } else if (line.startsWith("## ")) {
         if (inList) { html.push("</ul>"); inList = false; }
-        html.push(`<h2 class="font-heading text-lg text-[#d9cca0] mt-5 mb-2">${line.slice(3)}</h2>`);
+        html.push(`<h2 class="font-heading text-lg text-[#d4b661] mt-5 mb-2">${line.slice(3)}</h2>`);
       } else if (line.startsWith("### ")) {
         if (inList) { html.push("</ul>"); inList = false; }
         html.push(`<h3 class="font-heading text-base text-[#c1b085] mt-4 mb-1.5">${line.slice(4)}</h3>`);
       } else if (line.startsWith("- [ ] ")) {
         if (!inList) { html.push('<ul class="space-y-1.5 ml-1">'); inList = true; }
-        html.push(`<li class="flex items-start gap-2 text-sm text-[#e8e6e1]/85"><span class="text-[#e8e6e1]/30 mt-0.5">☐</span>${line.slice(6)}</li>`);
+        html.push(`<li class="flex items-start gap-2 text-sm text-[#f2ede2]/85"><span class="text-[#f2ede2]/30 mt-0.5">☐</span>${line.slice(6)}</li>`);
       } else if (line.startsWith("- ")) {
         if (!inList) { html.push('<ul class="space-y-1.5 ml-1">'); inList = true; }
-        html.push(`<li class="flex items-start gap-2 text-sm text-[#e8e6e1]/85"><span class="text-[#e8c46a]/75 mt-0.5">•</span>${line.slice(2)}</li>`);
+        html.push(`<li class="flex items-start gap-2 text-sm text-[#f2ede2]/85"><span class="text-[#e8c869]/75 mt-0.5">•</span>${line.slice(2)}</li>`);
       } else if (line.startsWith("---")) {
         if (inList) { html.push("</ul>"); inList = false; }
         html.push('<hr class="border-gold-border/20 my-4" />');
       } else if (line.startsWith("*") && line.endsWith("*")) {
-        html.push(`<p class="text-xs text-[#e8e6e1]/75 italic mt-2">${line.slice(1, -1)}</p>`);
+        html.push(`<p class="text-xs text-[#f2ede2]/75 italic mt-2">${line.slice(1, -1)}</p>`);
       } else if (line.match(/^\d+\.\s/)) {
         if (inList) { html.push("</ul>"); inList = false; }
         const text = line.replace(/^\d+\.\s*/, "");
         const boldMatch = text.match(/\*\*(.+?)\*\*(.*)/);
         if (boldMatch) {
-          html.push(`<p class="text-sm text-[#e8e6e1]/85 ml-4 mb-1"><span class="text-[#d9cca0] font-medium">${boldMatch[1]}</span>${boldMatch[2]}</p>`);
+          html.push(`<p class="text-sm text-[#f2ede2]/85 ml-4 mb-1"><span class="text-[#d4b661] font-medium">${boldMatch[1]}</span>${boldMatch[2]}</p>`);
         } else {
-          html.push(`<p class="text-sm text-[#e8e6e1]/85 ml-4 mb-1">${text}</p>`);
+          html.push(`<p class="text-sm text-[#f2ede2]/85 ml-4 mb-1">${text}</p>`);
         }
       } else if (line.trim() === "") {
         if (inList) { html.push("</ul>"); inList = false; }
       } else {
-        html.push(`<p class="text-sm text-[#e8e6e1]/85 mb-2 leading-relaxed">${line}</p>`);
+        html.push(`<p class="text-sm text-[#f2ede2]/85 mb-2 leading-relaxed">${line}</p>`);
       }
     }
     if (inList) html.push("</ul>");
@@ -553,18 +553,18 @@ export default function IntroductionPage() {
         <button
           type="button"
           onClick={() => setViewingGuide(null)}
-          className="flex items-center gap-2 text-sm text-[#e8e6e1]/80 hover:text-gold-primary transition-colors font-heading"
+          className="flex items-center gap-2 text-sm text-[#f2ede2]/80 hover:text-gold-primary transition-colors font-heading"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Introduction
         </button>
-        <div className="bg-[#0a0a0a] rounded-xl p-6 md:p-8 border border-gold-border">
+        <div className="bg-[#0f0c08] rounded-xl p-6 md:p-8 border border-gold-border">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-lg bg-[#e8c46a]/10 border border-[#e8c46a]/20 flex items-center justify-center text-[#e8c46a]">
+              <div className="w-11 h-11 rounded-lg bg-[#e8c869]/10 border border-[#e8c869]/20 flex items-center justify-center text-[#e8c869]">
                 {activeGuide.icon}
               </div>
-              <h1 className="font-heading text-xl text-[#e8e6e1]">{activeGuide.title}</h1>
+              <h1 className="font-heading text-xl text-[#f2ede2]">{activeGuide.title}</h1>
             </div>
             <button
               type="button"
@@ -585,10 +585,10 @@ export default function IntroductionPage() {
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <h1 className="font-heading text-2xl font-bold text-[#e8e6e1]">
+        <h1 className="font-heading text-2xl font-bold text-[#f2ede2]">
           <EditableText cmsKey="introduction_title" as="span" />
         </h1>
-        <p className="text-sm text-[#e8e6e1]/80 mt-1">
+        <p className="text-sm text-[#f2ede2]/80 mt-1">
           <EditableText cmsKey="introduction_subtitle" as="span" />
         </p>
       </div>
@@ -596,12 +596,12 @@ export default function IntroductionPage() {
       {/* Legal Documents Notice */}
 
       {/* Welcome card */}
-      <div className="bg-[#0a0a0a] rounded-xl p-6 border border-[#e8c46a]/20 bg-gradient-to-r from-[#e8c46a]/[0.04] to-transparent">
+      <div className="bg-[#0f0c08] rounded-xl p-6 border border-[#e8c869]/20 bg-gradient-to-r from-[#e8c869]/[0.04] to-transparent">
         <div className="flex items-start gap-4">
           <img src="/logo.png" alt="Legacy Architect RVA" className="w-16 h-16 object-contain shrink-0" />
           <div>
-            <h2 className="font-heading text-lg text-[#e8c46a]">Welcome to Legacy Architect RVA</h2>
-            <p className="text-sm text-[#e8e6e1]/85 mt-2 leading-relaxed">
+            <h2 className="font-heading text-lg text-[#e8c869]">Welcome to Legacy Architect RVA</h2>
+            <p className="text-sm text-[#f2ede2]/85 mt-2 leading-relaxed">
               Your Life Manual puts every account, system, and instruction in one place so the people
               you love can act without guessing. Review the guides below to understand the process,
               then begin building your manual chapter by chapter.
@@ -613,7 +613,7 @@ export default function IntroductionPage() {
       {/* Section label */}
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-gradient-to-r from-gold-border to-transparent" />
-        <h3 className="font-heading text-[11px] tracking-[0.15em] text-[#d9cca0]/70 uppercase">
+        <h3 className="font-heading text-[11px] tracking-[0.15em] text-[#d4b661]/70 uppercase">
           Essential Guides
         </h3>
         <div className="h-px flex-1 bg-gradient-to-l from-gold-border to-transparent" />
@@ -624,16 +624,16 @@ export default function IntroductionPage() {
         {guides.map((guide, idx) => (
           <div
             key={guide.id}
-            className="bg-[#0a0a0a] rounded-xl p-5 border border-gold-border hover:border-[#e8c46a]/25 transition-all duration-300 hover:shadow-[0_0_20px_rgba(232,196,106,0.04)] flex flex-col"
+            className="bg-[#0f0c08] rounded-xl p-5 border border-gold-border hover:border-[#e8c869]/25 transition-all duration-300 hover:shadow-[0_0_20px_rgba(232, 200, 105,0.04)] flex flex-col"
             style={{ animationDelay: `${idx * 80}ms` }}
           >
             <div className="flex items-start gap-4 flex-1">
-              <div className="w-12 h-12 rounded-lg bg-[#e8c46a]/10 border border-[#e8c46a]/20 flex items-center justify-center text-[#e8c46a] shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-[#e8c869]/10 border border-[#e8c869]/20 flex items-center justify-center text-[#e8c869] shrink-0">
                 {guide.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-heading text-base text-[#e8e6e1]">{guide.title}</h3>
-                <p className="text-xs text-[#e8e6e1]/80 mt-1.5 leading-relaxed">
+                <h3 className="font-heading text-base text-[#f2ede2]">{guide.title}</h3>
+                <p className="text-xs text-[#f2ede2]/80 mt-1.5 leading-relaxed">
                   {guide.description}
                 </p>
               </div>
@@ -650,7 +650,7 @@ export default function IntroductionPage() {
               <button
                 type="button"
                 onClick={() => handleDownload(guide)}
-                className="flex items-center gap-2 text-[11px] font-heading tracking-wider uppercase text-[#e8e6e1]/80 hover:text-[#e8e6e1]/80 transition-colors px-3 py-2"
+                className="flex items-center gap-2 text-[11px] font-heading tracking-wider uppercase text-[#f2ede2]/80 hover:text-[#f2ede2]/80 transition-colors px-3 py-2"
               >
                 <Download className="w-3.5 h-3.5" />
                 Download PDF

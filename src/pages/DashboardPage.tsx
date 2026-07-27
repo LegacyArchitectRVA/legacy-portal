@@ -68,15 +68,15 @@ export default function DashboardPage() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gold-dark/10 border border-gold-border flex items-center justify-center">
             <Lock className="w-7 h-7 text-gold-primary" />
           </div>
-          <h1 className="font-heading text-3xl text-[#e8e6e1] tracking-wide uppercase">
+          <h1 className="font-heading text-3xl text-[#f2ede2] tracking-wide uppercase">
             Agreement Pending
           </h1>
-          <p className="text-[#e8e6e1]/80 leading-relaxed">
+          <p className="text-[#f2ede2]/80 leading-relaxed">
             Your account has been created, but your portal access hasn't been activated yet.
             Once your service agreement is signed and confirmed, your facilitator will unlock
             your Life Manual.
           </p>
-          <p className="text-sm text-[#e8e6e1]/80">
+          <p className="text-sm text-[#f2ede2]/80">
             Questions?{" "}
             <a href="mailto:help@legacyarchitectrva.com" className="text-gold-primary hover:text-gold-bright transition-colors font-medium">
               help@legacyarchitectrva.com
@@ -155,12 +155,12 @@ export default function DashboardPage() {
 
       {/* Tier Badge with Image */}
       {isAdmin && !onBehalfOf ? (
-        <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c46a]/20 bg-gradient-to-r from-[#e8c46a]/[0.06] to-transparent p-3 md:p-4">
-          <div className="w-14 h-14 rounded-lg bg-[#e8c46a]/[0.08] border border-[#e8c46a]/25 flex items-center justify-center shrink-0">
-            <LucideIcon name="KeyRound" size={28} className="text-[#e8c46a]" />
+        <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c869]/20 bg-gradient-to-r from-[#e8c869]/[0.06] to-transparent p-3 md:p-4">
+          <div className="w-14 h-14 rounded-lg bg-[#e8c869]/[0.08] border border-[#e8c869]/25 flex items-center justify-center shrink-0">
+            <LucideIcon name="KeyRound" size={28} className="text-[#e8c869]" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-sm text-[#e8c46a] font-heading">
+            <p className="font-semibold text-sm text-[#e8c869] font-heading">
               Administrator · Full Access
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -169,7 +169,7 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : tierInfo && (
-        <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c46a]/20 bg-gradient-to-r from-[#e8c46a]/[0.06] to-transparent p-3 md:p-4">
+        <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c869]/20 bg-gradient-to-r from-[#e8c869]/[0.06] to-transparent p-3 md:p-4">
           <EditableImage
             cmsKey={`upgrade_${tier}_emblem`}
             defaultSrc={tierImages[tier] || tierImages.vault}
@@ -177,7 +177,7 @@ export default function DashboardPage() {
             className="w-14 h-14 object-contain shrink-0"
           />
           <div className="flex-1">
-            <p className="font-semibold text-sm text-[#e8c46a] font-heading">
+            <p className="font-semibold text-sm text-[#e8c869] font-heading">
               {tierInfo.name} Edition
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -185,7 +185,7 @@ export default function DashboardPage() {
               {nextTier && (
                 <span>
                   {" · "}
-                  <Link to="/upgrade" className="text-[#e8c46a] hover:underline">
+                  <Link to="/upgrade" className="text-[#e8c869] hover:underline">
                     Upgrade to {nextTier.name}
                   </Link>
                 </span>
@@ -232,7 +232,7 @@ export default function DashboardPage() {
 
       {/* 7 Pillars - Fill-up Progress Display */}
       <div className="space-y-4">
-        <h2 className="font-heading text-lg text-[#e8e6e1]">Progress</h2>
+        <h2 className="font-heading text-lg text-[#f2ede2]">Progress</h2>
         <div className="grid grid-cols-7 gap-2 md:gap-3">
           {chapterProgress.map((ch) => {
             const accessible = isAdmin || canAccessChapter(tier, ch.chapterNumber);
@@ -274,7 +274,7 @@ export default function DashboardPage() {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span
                       className="text-[9px] md:text-[10px] font-heading font-bold drop-shadow-lg"
-                      style={{ color: ch.pct > 40 ? "#000" : "#e8e6e1" }}
+                      style={{ color: ch.pct > 40 ? "#000" : "#f2ede2" }}
                     >
                       {ch.pct}%
                     </span>
@@ -299,12 +299,12 @@ export default function DashboardPage() {
 
       {/* Schedule a Meeting - Cal.com Embed */}
       <div className="space-y-3">
-        <h2 className="font-heading text-lg text-[#e8e6e1]">Schedule a Meeting</h2>
+        <h2 className="font-heading text-lg text-[#f2ede2]">Schedule a Meeting</h2>
         <div className="rounded-lg border border-gold-border overflow-hidden relative" style={{ minHeight: 500 }}>
           {!schedulerLoaded && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black">
               <CircleNotch className="w-6 h-6 animate-spin text-gold-primary" />
-              <p className="text-xs text-[#e8e6e1]/60">Loading scheduler…</p>
+              <p className="text-xs text-[#f2ede2]/60">Loading scheduler…</p>
             </div>
           )}
           <iframe
@@ -321,7 +321,7 @@ export default function DashboardPage() {
 
       {/* Chapter Cards */}
       <div className="space-y-4">
-        <h2 className="font-heading text-lg text-[#e8e6e1]">Chapters</h2>
+        <h2 className="font-heading text-lg text-[#f2ede2]">Chapters</h2>
         <div className="grid gap-4 md:grid-cols-2">
           {chapterProgress.map((ch) => {
             const accessible = isAdmin || canAccessChapter(tier, ch.chapterNumber);
@@ -351,7 +351,7 @@ export default function DashboardPage() {
             return (
               <div
                 key={ch.id}
-                className="group rounded-lg border border-gold-border bg-[#0a0a0a] hover:border-[#e8c46a]/25 transition-all duration-300 hover:shadow-[0_0_20px_rgba(232,196,106,0.04)] overflow-hidden"
+                className="group rounded-lg border border-gold-border bg-[#0f0c08] hover:border-[#e8c869]/25 transition-all duration-300 hover:shadow-[0_0_20px_rgba(232, 200, 105,0.04)] overflow-hidden"
               >
                 <div className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
@@ -405,7 +405,7 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={() => navigate(`/chapter/${ch.id}${onBehalfOf ? `?for=${onBehalfOf}` : ""}`)}
-                    className="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-[#e8c46a]/15 hover:bg-[#e8c46a]/5 hover:border-[#e8c46a]/25 text-[#e8e6e1]/80 hover:text-[#e8e6e1] transition-all duration-300 text-[11px] font-heading tracking-[1px] uppercase group/btn"
+                    className="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-[#e8c869]/15 hover:bg-[#e8c869]/5 hover:border-[#e8c869]/25 text-[#f2ede2]/80 hover:text-[#f2ede2] transition-all duration-300 text-[11px] font-heading tracking-[1px] uppercase group/btn"
                   >
                     <span>{ch.completed > 0 ? "Continue" : "Get Started"}</span>
                     <ArrowRight className="size-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
