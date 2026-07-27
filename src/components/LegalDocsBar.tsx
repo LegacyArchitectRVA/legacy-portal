@@ -84,7 +84,7 @@ export function LegalDocsBar() {
           Legal Documents in Force
         </span>
         <span
-          className="ml-1 px-2 py-0.5 rounded-full bg-transparent border border-[#e8c46a] text-[#e8c46a] font-bold tabular-nums"
+          className="ml-1 px-2 py-0.5 rounded-full bg-transparent border border-[#e8c869] text-[#e8c869] font-bold tabular-nums"
           style={{ fontSize: "11.55px" }}
         >
           {activeCount} ACTIVE
@@ -127,7 +127,7 @@ export function LegalDocsBar() {
                           boxSize={28}
                           color="#f87171"
                         />
-                        <span className="text-sm text-[#e8e6e1] flex-1">
+                        <span className="text-sm text-[#f2ede2] flex-1">
                           {doc.documentType}
                         </span>
                         <Switch

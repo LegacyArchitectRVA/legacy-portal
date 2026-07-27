@@ -51,7 +51,7 @@ function Row({
       }`}
     >
       <span className="shrink-0">{icon}</span>
-      <span className="flex-1 text-sm text-[#e8e6e1]">{label}</span>
+      <span className="flex-1 text-sm text-[#f2ede2]">{label}</span>
       {trailing}
     </button>
   );
@@ -98,7 +98,7 @@ export function MobileMenuPage() {
             Menu
           </span>
         </div>
-        <button type="button" onClick={() => navigate(-1)} className="text-[#e8e6e1]/75 p-2">
+        <button type="button" onClick={() => navigate(-1)} className="text-[#f2ede2]/75 p-2">
           <X className="w-5 h-5" />
         </button>
       </div>
@@ -113,7 +113,7 @@ export function MobileMenuPage() {
           onClick={() => go("/messages")}
           trailing={
             unreadCount && unreadCount > 0 ? (
-              <span className="bg-gold-primary text-[#0a0a0a] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="bg-gold-primary text-[#0f0c08] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
                 {unreadCount}
               </span>
             ) : undefined
@@ -139,7 +139,7 @@ export function MobileMenuPage() {
                     {ch.tier}
                   </span>
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-[#e8e6e1]/40" />
+                  <ChevronRight className="w-4 h-4 text-[#f2ede2]/40" />
                 )
               }
             />

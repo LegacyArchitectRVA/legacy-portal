@@ -12,7 +12,7 @@ export function IconMedallion({
   icon: Icon,
   size = 16,
   boxSize = 36,
-  color = "#e8c46a",
+  color = "#e8c869",
   className = "",
 }: {
   icon: LucideIcon | ComponentType<any>;

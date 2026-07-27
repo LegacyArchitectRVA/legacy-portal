@@ -77,26 +77,26 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
             width: 72,
             height: 72,
             objectFit: "contain",
-            filter: "drop-shadow(0 0 16px rgba(232,196,106,0.4))",
+            filter: "drop-shadow(0 0 16px rgba(232, 200, 105,0.4))",
           }}
         />
 
         {/* Wordmark */}
         <div className="text-center space-y-1">
           <p
-            className="font-heading text-[13px] tracking-[0.28em] uppercase text-[#d9cca0]"
-            style={{ textShadow: "0 0 18px rgba(217,204,160,0.25)" }}
+            className="font-heading text-[13px] tracking-[0.28em] uppercase text-[#d4b661]"
+            style={{ textShadow: "0 0 18px rgba(212, 182, 97,0.25)" }}
           >
             Legacy Architect
           </p>
-          <p className="font-heading text-[10px] tracking-[0.35em] uppercase text-[rgba(217,204,160,0.5)]">
+          <p className="font-heading text-[10px] tracking-[0.35em] uppercase text-[rgba(212, 182, 97,0.5)]">
             RVA
           </p>
         </div>
 
         {/* Expanding gold rule */}
         <div
-          className="h-px bg-gradient-to-r from-transparent via-[#d9cca0] to-transparent"
+          className="h-px bg-gradient-to-r from-transparent via-[#d4b661] to-transparent"
           style={{
             width: phase === "still" ? "0px" : "140px",
             transition: phase !== "still" ? "width 350ms ease-out" : "none",

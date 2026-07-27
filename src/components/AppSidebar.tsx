@@ -147,7 +147,7 @@ export function AppSidebar() {
                   <MessageSquare className="w-4 h-4" />
                   <span>Messages</span>
                   {unreadCount && unreadCount > 0 ? (
-                    <span className="ml-auto bg-gold-bright text-[#0a0a0a] text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    <span className="ml-auto bg-gold-bright text-[#0f0c08] text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                       {unreadCount}
                     </span>
                   ) : null}

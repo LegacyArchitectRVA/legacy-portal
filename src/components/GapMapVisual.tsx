@@ -88,7 +88,7 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
             cy={CY}
             r={r}
             fill="none"
-            stroke="#d9cca0"
+            stroke="#d4b661"
             strokeOpacity={0.09}
             strokeWidth={1}
             strokeDasharray="2 5"
@@ -103,7 +103,7 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
               y1={CY + 58 * Math.sin(ang)}
               x2={CX + (RING - NODE_R - 3) * Math.cos(ang)}
               y2={CY + (RING - NODE_R - 3) * Math.sin(ang)}
-              stroke="#d9cca0"
+              stroke="#d4b661"
               strokeOpacity={0.22}
               strokeWidth={1}
             />
@@ -111,7 +111,7 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
         })}
 
         {/* Center readiness dial */}
-        <circle cx={CX} cy={CY} r={52} fill="#0b0b0b" stroke="#d9cca0" strokeOpacity={0.35} strokeWidth={1} />
+        <circle cx={CX} cy={CY} r={52} fill="#0b0b0b" stroke="#d4b661" strokeOpacity={0.35} strokeWidth={1} />
         <circle
           cx={CX}
           cy={CY}
@@ -125,7 +125,7 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
           cy={CY}
           r={44}
           fill="none"
-          stroke="#e8c46a"
+          stroke="#e8c869"
           strokeWidth={5}
           strokeLinecap="round"
           strokeDasharray={`${dialFill} ${dialCirc - dialFill}`}
@@ -137,7 +137,7 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
           textAnchor="middle"
           fontSize={26}
           fontFamily="Cinzel, Georgia, serif"
-          fill="#e8c46a"
+          fill="#e8c869"
           fontWeight={700}
         >
           {readiness}%
@@ -149,7 +149,7 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
           fontSize={8}
           letterSpacing={2.5}
           fontFamily="Georgia, serif"
-          fill="#d9cca0"
+          fill="#d4b661"
           fillOpacity={0.7}
         >
           READINESS
@@ -204,7 +204,7 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
                   textAnchor="middle"
                   fontSize={9.5}
                   fontFamily="Georgia, serif"
-                  fill="#e8e6e1"
+                  fill="#f2ede2"
                   fillOpacity={0.9}
                   letterSpacing={0.4}
                 >

@@ -12,7 +12,7 @@ export default function FloatingChatButton() {
     <button
       type="button"
       onClick={() => navigate("/messages")}
-      className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-gold-bright to-gold-dark text-[#0a0a0a] shadow-[0_0_20px_rgba(232,196,106,0.25)] hover:shadow-[0_0_30px_rgba(232,196,106,0.4)] transition-all duration-300 flex items-center justify-center"
+      className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-gold-bright to-gold-dark text-[#0f0c08] shadow-[0_0_20px_rgba(232, 200, 105,0.25)] hover:shadow-[0_0_30px_rgba(232, 200, 105,0.4)] transition-all duration-300 flex items-center justify-center"
       title="Messages"
     >
       <MessageSquare className="w-6 h-6" />

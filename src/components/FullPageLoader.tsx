@@ -12,7 +12,7 @@ export function FullPageLoader({ label }: { label?: string }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <div className="relative flex items-center justify-center">
-        <div className="absolute inset-0 rounded-full bg-[#e8c46a]/10 animate-crest-pulse scale-150" />
+        <div className="absolute inset-0 rounded-full bg-[#e8c869]/10 animate-crest-pulse scale-150" />
         <img
           src="/logo.png"
           alt=""
