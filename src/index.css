@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: "Bodoni Moda", serif;
+  --font-heading: "Crimson Pro", serif;
   --font-body: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
 
@@ -197,7 +197,7 @@
     @apply cursor-pointer;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Cinzel", serif;
+    font-family: "Crimson Pro", serif;
     letter-spacing: 0.02em;
   }
 }
@@ -244,7 +244,7 @@
 .btn-gold {
   background: #d4b661;
   color: #0f0c08;
-  font-family: "Cormorant Garamond", Georgia, serif;
+  font-family: "Cardo", Georgia, serif;
   font-weight: 600;
   letter-spacing: 0.03em;
   border: none;
@@ -263,7 +263,7 @@
 .btn-gold-outline {
   background: rgba(240, 230, 184, 0.06);
   color: #f0e6b8;
-  font-family: "Cinzel", serif;
+  font-family: "Cardo", Georgia, serif;
   font-weight: 500;
   letter-spacing: 0.05em;
   border: 1px solid rgba(240, 230, 184, 0.25);
