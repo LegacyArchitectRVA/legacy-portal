@@ -1,4 +1,12 @@
-import { RiBookOpenLine as BookOpen, RiDownloadLine as Download, RiEyeLine as Eye, RiMapLine as Map, RiClipboardLine as ClipboardCheck, RiShieldCheckLine as ShieldCheck, RiArrowLeftLine as ArrowLeft } from "@remixicon/react";
+import {
+  RiArrowLeftLine as ArrowLeft,
+  RiBookOpenLine as BookOpen,
+  RiClipboardLine as ClipboardCheck,
+  RiDownloadLine as Download,
+  RiEyeLine as Eye,
+  RiMapLine as MapIcon,
+  RiShieldCheckLine as ShieldCheck,
+} from "@remixicon/react";
 import { useState } from "react";
 import { EditableText } from "../components/EditableText";
 
@@ -14,8 +22,9 @@ const guides: Guide[] = [
   {
     id: "successor-roadmap",
     title: "Successor Roadmap",
-    description: "A step-by-step guide for your designated successor to follow when the time comes.",
-    icon: <Map className="w-6 h-6" />,
+    description:
+      "A step-by-step guide for your designated successor to follow when the time comes.",
+    icon: <MapIcon className="w-6 h-6" />,
     content: `
 # Successor Roadmap
 
@@ -52,7 +61,8 @@ This roadmap provides your designated successor with a clear, sequential path to
   {
     id: "preparation-checklist",
     title: "Preparation Checklist",
-    description: "Track your progress across all seven chapters with this comprehensive readiness checklist.",
+    description:
+      "Track your progress across all seven chapters with this comprehensive readiness checklist.",
     icon: <ClipboardCheck className="w-6 h-6" />,
     content: `
 # Preparation Checklist
@@ -110,7 +120,8 @@ Use this checklist to ensure your Life Manual is complete and your successor is 
   {
     id: "client-guidebook",
     title: "Client Guidebook",
-    description: "Everything you need to know about working with Legacy Architect RVA and building your Life Manual.",
+    description:
+      "Everything you need to know about working with Legacy Architect RVA and building your Life Manual.",
     icon: <BookOpen className="w-6 h-6" />,
     content: `
 # Client Guidebook
@@ -156,7 +167,8 @@ We never store passwords, recovery codes, or sensitive credentials. All data is 
   {
     id: "engagement-security-guide",
     title: "Engagement & Data Security Guide",
-    description: "Understand the security model, data handling, and zero-knowledge architecture behind your portal.",
+    description:
+      "Understand the security model, data handling, and zero-knowledge architecture behind your portal.",
     icon: <ShieldCheck className="w-6 h-6" />,
     content: `
 # Engagement & Data Security Guide
@@ -211,7 +223,7 @@ Legacy Architect RVA operates on a zero-knowledge principle:
 
 export default function IntroductionPage() {
   const [viewingGuide, setViewingGuide] = useState<string | null>(null);
-  const activeGuide = guides.find((g) => g.id === viewingGuide);
+  const activeGuide = guides.find(g => g.id === viewingGuide);
 
   const handleDownloadFillableChecklist = async (guide: Guide) => {
     const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
@@ -237,7 +249,9 @@ export default function IntroductionPage() {
 
     let logoImage = null;
     try {
-      const logoBytes = await fetch(`${window.location.origin}/logo.png`).then((r) => r.arrayBuffer());
+      const logoBytes = await fetch(`${window.location.origin}/logo.png`).then(
+        r => r.arrayBuffer(),
+      );
       logoImage = await pdfDoc.embedPng(logoBytes);
     } catch {
       // Logo is a nice-to-have on this PDF; proceed without it if it fails to load.
@@ -262,7 +276,12 @@ export default function IntroductionPage() {
       }
     };
 
-    const wrapText = (text: string, useFont: typeof font, size: number, maxWidth: number): string[] => {
+    const wrapText = (
+      text: string,
+      useFont: typeof font,
+      size: number,
+      maxWidth: number,
+    ): string[] => {
       const words = text.split(" ");
       const out: string[] = [];
       let line = "";
@@ -284,7 +303,12 @@ export default function IntroductionPage() {
       const logoH = 36;
       const logoW = (logoImage.width / logoImage.height) * logoH;
       ensureSpace(logoH + 10);
-      page.drawImage(logoImage, { x: (PAGE_W - logoW) / 2, y: y - logoH, width: logoW, height: logoH });
+      page.drawImage(logoImage, {
+        x: (PAGE_W - logoW) / 2,
+        y: y - logoH,
+        width: logoW,
+        height: logoH,
+      });
       y -= logoH + 14;
     }
     page.drawText(guide.title.toUpperCase(), {
@@ -296,11 +320,17 @@ export default function IntroductionPage() {
     });
     y -= 26;
 
-    const introLine = lines.find((l) => l.trim() && !l.startsWith("#"));
+    const introLine = lines.find(l => l.trim() && !l.startsWith("#"));
     if (introLine) {
       for (const wrapped of wrapText(introLine, italicFont, 10, CONTENT_W)) {
         ensureSpace(16);
-        page.drawText(wrapped, { x: MARGIN, y, size: 10, font: italicFont, color: GRAY });
+        page.drawText(wrapped, {
+          x: MARGIN,
+          y,
+          size: 10,
+          font: italicFont,
+          color: GRAY,
+        });
         y -= 14;
       }
       y -= 8;
@@ -309,7 +339,13 @@ export default function IntroductionPage() {
     for (const group of groups) {
       ensureSpace(30);
       y -= 6;
-      page.drawText(group.title.toUpperCase(), { x: MARGIN, y, size: 12, font: boldFont, color: GOLD });
+      page.drawText(group.title.toUpperCase(), {
+        x: MARGIN,
+        y,
+        size: 12,
+        font: boldFont,
+        color: GOLD,
+      });
       y -= 8;
       page.drawLine({
         start: { x: MARGIN, y },
@@ -336,7 +372,13 @@ export default function IntroductionPage() {
         });
 
         wrapped.forEach((wline, i) => {
-          page.drawText(wline, { x: textX, y: y - i * 14, size: 10.5, font, color: DARK });
+          page.drawText(wline, {
+            x: textX,
+            y: y - i * 14,
+            size: 10.5,
+            font,
+            color: DARK,
+          });
         });
         y -= wrapped.length * 14 + 6;
       }
@@ -387,32 +429,63 @@ export default function IntroductionPage() {
     let inList = false;
     for (const line of lines) {
       if (line.startsWith("# ")) {
-        if (inList) { body.push("</ul>"); inList = false; }
-        continue; // title already rendered in the document header
+        if (inList) {
+          body.push("</ul>");
+          inList = false;
+        }
       } else if (line.startsWith("## ")) {
-        if (inList) { body.push("</ul>"); inList = false; }
+        if (inList) {
+          body.push("</ul>");
+          inList = false;
+        }
         body.push(`<h2>${line.slice(3)}</h2>`);
       } else if (line.startsWith("### ")) {
-        if (inList) { body.push("</ul>"); inList = false; }
+        if (inList) {
+          body.push("</ul>");
+          inList = false;
+        }
         body.push(`<h3>${line.slice(4)}</h3>`);
       } else if (line.startsWith("- [ ] ")) {
-        if (!inList) { body.push("<ul>"); inList = true; }
+        if (!inList) {
+          body.push("<ul>");
+          inList = true;
+        }
         body.push(`<li>☐ ${line.slice(6)}</li>`);
       } else if (line.startsWith("- ")) {
-        if (!inList) { body.push("<ul>"); inList = true; }
+        if (!inList) {
+          body.push("<ul>");
+          inList = true;
+        }
         body.push(`<li>${line.slice(2)}</li>`);
       } else if (line.startsWith("---")) {
-        if (inList) { body.push("</ul>"); inList = false; }
+        if (inList) {
+          body.push("</ul>");
+          inList = false;
+        }
         body.push("<hr />");
-      } else if (line.startsWith("*") && line.endsWith("*") && line.length > 1) {
+      } else if (
+        line.startsWith("*") &&
+        line.endsWith("*") &&
+        line.length > 1
+      ) {
         body.push(`<p class="note">${line.slice(1, -1)}</p>`);
       } else if (line.match(/^\d+\.\s/)) {
-        if (inList) { body.push("</ul>"); inList = false; }
+        if (inList) {
+          body.push("</ul>");
+          inList = false;
+        }
         const text = line.replace(/^\d+\.\s*/, "");
         const boldMatch = text.match(/\*\*(.+?)\*\*(.*)/);
-        body.push(boldMatch ? `<p><strong>${boldMatch[1]}</strong>${boldMatch[2]}</p>` : `<p>${text}</p>`);
+        body.push(
+          boldMatch
+            ? `<p><strong>${boldMatch[1]}</strong>${boldMatch[2]}</p>`
+            : `<p>${text}</p>`,
+        );
       } else if (line.trim() === "") {
-        if (inList) { body.push("</ul>"); inList = false; }
+        if (inList) {
+          body.push("</ul>");
+          inList = false;
+        }
       } else {
         body.push(`<p>${line}</p>`);
       }
@@ -509,38 +582,80 @@ export default function IntroductionPage() {
 
     for (const line of lines) {
       if (line.startsWith("# ")) {
-        if (inList) { html.push("</ul>"); inList = false; }
-        html.push(`<h1 class="font-heading text-2xl text-[#e8c869] mt-6 mb-3">${line.slice(2)}</h1>`);
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
+        html.push(
+          `<h1 class="font-heading text-2xl text-[#e8c869] mt-6 mb-3">${line.slice(2)}</h1>`,
+        );
       } else if (line.startsWith("## ")) {
-        if (inList) { html.push("</ul>"); inList = false; }
-        html.push(`<h2 class="font-heading text-lg text-[#d4b661] mt-5 mb-2">${line.slice(3)}</h2>`);
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
+        html.push(
+          `<h2 class="font-heading text-lg text-[#d4b661] mt-5 mb-2">${line.slice(3)}</h2>`,
+        );
       } else if (line.startsWith("### ")) {
-        if (inList) { html.push("</ul>"); inList = false; }
-        html.push(`<h3 class="font-heading text-base text-[#c1b085] mt-4 mb-1.5">${line.slice(4)}</h3>`);
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
+        html.push(
+          `<h3 class="font-heading text-base text-[#c1b085] mt-4 mb-1.5">${line.slice(4)}</h3>`,
+        );
       } else if (line.startsWith("- [ ] ")) {
-        if (!inList) { html.push('<ul class="space-y-1.5 ml-1">'); inList = true; }
-        html.push(`<li class="flex items-start gap-2 text-sm text-[#f2ede2]/85"><span class="text-[#f2ede2]/30 mt-0.5">☐</span>${line.slice(6)}</li>`);
+        if (!inList) {
+          html.push('<ul class="space-y-1.5 ml-1">');
+          inList = true;
+        }
+        html.push(
+          `<li class="flex items-start gap-2 text-sm text-[#f2ede2]/85"><span class="text-[#f2ede2]/30 mt-0.5">☐</span>${line.slice(6)}</li>`,
+        );
       } else if (line.startsWith("- ")) {
-        if (!inList) { html.push('<ul class="space-y-1.5 ml-1">'); inList = true; }
-        html.push(`<li class="flex items-start gap-2 text-sm text-[#f2ede2]/85"><span class="text-[#e8c869]/75 mt-0.5">•</span>${line.slice(2)}</li>`);
+        if (!inList) {
+          html.push('<ul class="space-y-1.5 ml-1">');
+          inList = true;
+        }
+        html.push(
+          `<li class="flex items-start gap-2 text-sm text-[#f2ede2]/85"><span class="text-[#e8c869]/75 mt-0.5">•</span>${line.slice(2)}</li>`,
+        );
       } else if (line.startsWith("---")) {
-        if (inList) { html.push("</ul>"); inList = false; }
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
         html.push('<hr class="border-gold-border/20 my-4" />');
       } else if (line.startsWith("*") && line.endsWith("*")) {
-        html.push(`<p class="text-xs text-[#f2ede2]/75 italic mt-2">${line.slice(1, -1)}</p>`);
+        html.push(
+          `<p class="text-xs text-[#f2ede2]/75 italic mt-2">${line.slice(1, -1)}</p>`,
+        );
       } else if (line.match(/^\d+\.\s/)) {
-        if (inList) { html.push("</ul>"); inList = false; }
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
         const text = line.replace(/^\d+\.\s*/, "");
         const boldMatch = text.match(/\*\*(.+?)\*\*(.*)/);
         if (boldMatch) {
-          html.push(`<p class="text-sm text-[#f2ede2]/85 ml-4 mb-1"><span class="text-[#d4b661] font-medium">${boldMatch[1]}</span>${boldMatch[2]}</p>`);
+          html.push(
+            `<p class="text-sm text-[#f2ede2]/85 ml-4 mb-1"><span class="text-[#d4b661] font-medium">${boldMatch[1]}</span>${boldMatch[2]}</p>`,
+          );
         } else {
-          html.push(`<p class="text-sm text-[#f2ede2]/85 ml-4 mb-1">${text}</p>`);
+          html.push(
+            `<p class="text-sm text-[#f2ede2]/85 ml-4 mb-1">${text}</p>`,
+          );
         }
       } else if (line.trim() === "") {
-        if (inList) { html.push("</ul>"); inList = false; }
+        if (inList) {
+          html.push("</ul>");
+          inList = false;
+        }
       } else {
-        html.push(`<p class="text-sm text-[#f2ede2]/85 mb-2 leading-relaxed">${line}</p>`);
+        html.push(
+          `<p class="text-sm text-[#f2ede2]/85 mb-2 leading-relaxed">${line}</p>`,
+        );
       }
     }
     if (inList) html.push("</ul>");
@@ -564,7 +679,9 @@ export default function IntroductionPage() {
               <div className="w-11 h-11 rounded-lg bg-[#e8c869]/10 border border-[#e8c869]/20 flex items-center justify-center text-[#e8c869]">
                 {activeGuide.icon}
               </div>
-              <h1 className="font-heading text-xl text-[#f2ede2]">{activeGuide.title}</h1>
+              <h1 className="font-heading text-xl text-[#f2ede2]">
+                {activeGuide.title}
+              </h1>
             </div>
             <button
               type="button"
@@ -575,7 +692,11 @@ export default function IntroductionPage() {
               Download PDF
             </button>
           </div>
-          <div dangerouslySetInnerHTML={{ __html: renderMarkdown(activeGuide.content) }} />
+          <div
+            dangerouslySetInnerHTML={{
+              __html: renderMarkdown(activeGuide.content),
+            }}
+          />
         </div>
       </div>
     );
@@ -598,13 +719,20 @@ export default function IntroductionPage() {
       {/* Welcome card */}
       <div className="bg-[#0f0c08] rounded-xl p-6 border border-[#e8c869]/20 bg-gradient-to-r from-[#e8c869]/[0.04] to-transparent">
         <div className="flex items-start gap-4">
-          <img src="/logo.png" alt="Legacy Architect RVA" className="w-16 h-16 object-contain shrink-0" />
+          <img
+            src="/logo.png"
+            alt="Legacy Architect RVA"
+            className="w-16 h-16 object-contain shrink-0"
+          />
           <div>
-            <h2 className="font-heading text-lg text-[#e8c869]">Welcome to Legacy Architect RVA</h2>
+            <h2 className="font-heading text-lg text-[#e8c869]">
+              Welcome to Legacy Architect RVA
+            </h2>
             <p className="text-sm text-[#f2ede2]/85 mt-2 leading-relaxed">
-              Your Life Manual puts every account, system, and instruction in one place so the people
-              you love can act without guessing. Review the guides below to understand the process,
-              then begin building your manual chapter by chapter.
+              Your Life Manual puts every account, system, and instruction in
+              one place so the people you love can act without guessing. Review
+              the guides below to understand the process, then begin building
+              your manual chapter by chapter.
             </p>
           </div>
         </div>
@@ -632,7 +760,9 @@ export default function IntroductionPage() {
                 {guide.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-heading text-base text-[#f2ede2]">{guide.title}</h3>
+                <h3 className="font-heading text-base text-[#f2ede2]">
+                  {guide.title}
+                </h3>
                 <p className="text-xs text-[#f2ede2]/80 mt-1.5 leading-relaxed">
                   {guide.description}
                 </p>

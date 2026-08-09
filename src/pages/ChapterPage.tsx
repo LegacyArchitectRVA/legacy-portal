@@ -1,16 +1,34 @@
+import {
+  RiArrowLeftLine as ArrowLeft,
+  RiCheckLine as Check,
+  RiArrowDownSLine as ChevronDown,
+  RiLoader4Line as Loader2,
+  RiAddLine as Plus,
+  RiSaveLine as Save,
+  RiDeleteBinLine as Trash2,
+  RiCloseLine as X,
+} from "@remixicon/react";
 import { useMutation, useQuery } from "convex/react";
-import { RiArrowLeftLine as ArrowLeft, RiCheckLine as Check, RiArrowDownSLine as ChevronDown, RiLoader4Line as Loader2, RiAddLine as Plus, RiSaveLine as Save, RiDeleteBinLine as Trash2, RiCloseLine as X } from "@remixicon/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { chapters, PRIVACY_NOTE, resolveCrossRef, type SubSection } from "../data/chapters";
-import { canAccessChapter, getTierByName } from "../data/tiers";
-import { LucideIcon } from "../components/LucideIcon";
+import type { Id } from "../../convex/_generated/dataModel";
 import { ChapterIcon } from "../components/ChapterIcons";
 import { EditableText } from "../components/EditableText";
-import type { Id } from "../../convex/_generated/dataModel";
+import { LucideIcon } from "../components/LucideIcon";
+import {
+  chapters,
+  PRIVACY_NOTE,
+  resolveCrossRef,
+  type SubSection,
+} from "../data/chapters";
+import { canAccessChapter, getTierByName } from "../data/tiers";
 
-export default function ChapterPage({ chapterIdOverride }: { chapterIdOverride?: string } = {}) {
+export default function ChapterPage({
+  chapterIdOverride,
+}: {
+  chapterIdOverride?: string;
+} = {}) {
   const params = useParams<{ chapterId: string }>();
   const chapterId = chapterIdOverride ?? params.chapterId;
   const navigate = useNavigate();
@@ -22,15 +40,18 @@ export default function ChapterPage({ chapterIdOverride }: { chapterIdOverride?:
   const isAdmin = useQuery(api.admin.isAdmin);
   const editingClient = useQuery(
     api.crm.getClientDetail,
-    onBehalfOf && isAdmin ? { clientUserId: onBehalfOf } : "skip"
+    onBehalfOf && isAdmin ? { clientUserId: onBehalfOf } : "skip",
   );
-  const chapter = chapters.find((ch) => ch.id === chapterId);
+  const chapter = chapters.find(ch => ch.id === chapterId);
 
   if (!chapter) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-[#f2ede2]/75">
         <p>Chapter not found.</p>
-        <button onClick={() => navigate("/dashboard")} className="mt-4 text-gold-primary hover:text-gold-bright">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="mt-4 text-gold-primary hover:text-gold-bright"
+        >
           &larr; Dashboard
         </button>
       </div>
@@ -41,8 +62,13 @@ export default function ChapterPage({ chapterIdOverride }: { chapterIdOverride?:
     const requiredTier = getTierByName(chapter.tier);
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <p className="text-[#f2ede2]/75 mb-2">This chapter requires the {requiredTier?.name} Edition.</p>
-        <button onClick={() => navigate("/upgrade")} className="text-gold-primary hover:text-gold-bright">
+        <p className="text-[#f2ede2]/75 mb-2">
+          This chapter requires the {requiredTier?.name} Edition.
+        </p>
+        <button
+          onClick={() => navigate("/upgrade")}
+          className="text-gold-primary hover:text-gold-bright"
+        >
           View upgrade options &rarr;
         </button>
       </div>
@@ -53,7 +79,9 @@ export default function ChapterPage({ chapterIdOverride }: { chapterIdOverride?:
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       {/* Back */}
       <button
-        onClick={() => navigate(onBehalfOf ? `/admin/client/${onBehalfOf}` : "/dashboard")}
+        onClick={() =>
+          navigate(onBehalfOf ? `/admin/client/${onBehalfOf}` : "/dashboard")
+        }
         className="flex items-center gap-2 text-sm text-[#f2ede2]/80 hover:text-gold-primary transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
@@ -63,7 +91,8 @@ export default function ChapterPage({ chapterIdOverride }: { chapterIdOverride?:
       {onBehalfOf && editingClient && (
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-2.5 text-xs text-amber-300 flex items-center gap-2">
           <Save className="w-3.5 h-3.5 shrink-0" />
-          Editing {editingClient.name || editingClient.email}'s Life Manual on their behalf.
+          Editing {editingClient.name || editingClient.email}'s Life Manual on
+          their behalf.
         </div>
       )}
 
@@ -75,33 +104,40 @@ export default function ChapterPage({ chapterIdOverride }: { chapterIdOverride?:
         <div className="relative flex items-start gap-4">
           <div
             className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
-            style={{ backgroundColor: `${chapter.color}18`, border: `1px solid ${chapter.color}40` }}
+            style={{
+              backgroundColor: `${chapter.color}18`,
+              border: `1px solid ${chapter.color}40`,
+            }}
           >
-            <ChapterIcon chapterId={chapter.id} color={chapter.color} size={26} />
+            <ChapterIcon
+              chapterId={chapter.id}
+              color={chapter.color}
+              size={26}
+            />
           </div>
           <div className="min-w-0">
-          <p className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">
-            Chapter {chapter.chapterNumber}
-          </p>
-          <h1
-            className="font-heading text-2xl md:text-3xl mt-1"
-            style={{ color: chapter.color }}
-          >
-            {chapter.title}
-          </h1>
-          <p className="text-sm text-[#f2ede2]/75 mt-2 leading-relaxed">
-            {chapter.description}
-          </p>
-          <p className="text-xs text-gold-muted mt-2 leading-relaxed">
-            <EditableText cmsKey="chapter_intro" as="span" />
-          </p>
+            <p className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">
+              Chapter {chapter.chapterNumber}
+            </p>
+            <h1
+              className="font-heading text-2xl md:text-3xl mt-1"
+              style={{ color: chapter.color }}
+            >
+              {chapter.title}
+            </h1>
+            <p className="text-sm text-[#f2ede2]/75 mt-2 leading-relaxed">
+              {chapter.description}
+            </p>
+            <p className="text-xs text-gold-muted mt-2 leading-relaxed">
+              <EditableText cmsKey="chapter_intro" as="span" />
+            </p>
           </div>
         </div>
       </div>
 
       {/* Accordion Sections */}
       <div className="space-y-2">
-        {chapter.subSections.map((section) => (
+        {chapter.subSections.map(section => (
           <SectionAccordion
             key={section.id}
             section={section}
@@ -138,8 +174,16 @@ function SectionAccordion({
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const rows = useQuery(api.sections.getRows, { chapterId, sectionId: section.id, onBehalfOf });
-  const fields = useQuery(api.sections.getFields, { chapterId, sectionId: section.id, onBehalfOf });
+  const rows = useQuery(api.sections.getRows, {
+    chapterId,
+    sectionId: section.id,
+    onBehalfOf,
+  });
+  const fields = useQuery(api.sections.getFields, {
+    chapterId,
+    sectionId: section.id,
+    onBehalfOf,
+  });
   const addRow = useMutation(api.sections.addRow);
   const updateRow = useMutation(api.sections.updateRow);
   const deleteRow = useMutation(api.sections.deleteRow);
@@ -158,9 +202,12 @@ function SectionAccordion({
   const totalFieldCount = colCount + fieldDefCount;
   const rowCount = rows?.length || 0;
   const fieldsObj = fields || {};
-  const fieldsFilled = Object.keys(fieldsObj).filter((k) => (fieldsObj as Record<string, string>)[k]).length;
+  const fieldsFilled = Object.keys(fieldsObj).filter(
+    k => (fieldsObj as Record<string, string>)[k],
+  ).length;
   const completed = rowCount + fieldsFilled;
-  const pct = totalFieldCount > 0 ? Math.round((completed / totalFieldCount) * 100) : 0;
+  const pct =
+    totalFieldCount > 0 ? Math.round((completed / totalFieldCount) * 100) : 0;
 
   // If a Related Sections link (or a deep link) targets this exact section,
   // open it and scroll it into view. Runs on mount and on same-page hash changes.
@@ -168,7 +215,14 @@ function SectionAccordion({
     const checkHash = () => {
       if (window.location.hash === `#${section.id}`) {
         setOpen(true);
-        setTimeout(() => rootRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+        setTimeout(
+          () =>
+            rootRef.current?.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            }),
+          100,
+        );
       }
     };
     checkHash();
@@ -179,9 +233,11 @@ function SectionAccordion({
   // Init field drafts from server data
   useEffect(() => {
     if (fields && typeof fields === "object") {
-      setFieldDrafts((prev) => {
+      setFieldDrafts(prev => {
         const next = { ...prev };
-        for (const [key, val] of Object.entries(fields as Record<string, string>)) {
+        for (const [key, val] of Object.entries(
+          fields as Record<string, string>,
+        )) {
           if (!(key in next)) next[key] = val as string;
         }
         return next;
@@ -194,24 +250,46 @@ function SectionAccordion({
       if (!canEdit) return;
       setSavingField(fieldId);
       try {
-        await saveField({ chapterId, sectionId: section.id, fieldId, value, onBehalfOf });
+        await saveField({
+          chapterId,
+          sectionId: section.id,
+          fieldId,
+          value,
+          onBehalfOf,
+        });
       } finally {
         setSavingField(null);
       }
     },
-    [saveField, chapterId, section.id, canEdit, onBehalfOf]
+    [saveField, chapterId, section.id, canEdit, onBehalfOf],
   );
 
   const handleSaveProgress = useCallback(async () => {
     if (!canEdit) return;
     const serverFields = (fields as Record<string, string>) || {};
-    const pending = Object.entries(fieldDrafts).filter(([id, val]) => val !== (serverFields[id] || ""));
+    const pending = Object.entries(fieldDrafts).filter(
+      ([id, val]) => val !== (serverFields[id] || ""),
+    );
     for (const [fieldId, value] of pending) {
-      await saveField({ chapterId, sectionId: section.id, fieldId, value, onBehalfOf });
+      await saveField({
+        chapterId,
+        sectionId: section.id,
+        fieldId,
+        value,
+        onBehalfOf,
+      });
     }
     setSavedConfirmation(true);
     setTimeout(() => setSavedConfirmation(false), 2500);
-  }, [canEdit, fieldDrafts, fields, saveField, chapterId, section.id, onBehalfOf]);
+  }, [
+    canEdit,
+    fieldDrafts,
+    fields,
+    saveField,
+    chapterId,
+    section.id,
+    onBehalfOf,
+  ]);
 
   const handleAddRow = async () => {
     if (!canEdit) return;
@@ -244,7 +322,11 @@ function SectionAccordion({
   };
 
   return (
-    <div ref={rootRef} id={section.id} className="bg-[#0f0c08] rounded-xl border border-gold-border/50 overflow-hidden">
+    <div
+      ref={rootRef}
+      id={section.id}
+      className="bg-[#0f0c08] rounded-xl border border-gold-border/50 overflow-hidden"
+    >
       {/* Accordion Header */}
       <button
         type="button"
@@ -257,7 +339,11 @@ function SectionAccordion({
               className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
               style={{ backgroundColor: `${chapterColor}15` }}
             >
-              <LucideIcon name={section.icon} className="w-4 h-4" style={{ color: chapterColor }} />
+              <LucideIcon
+                name={section.icon}
+                className="w-4 h-4"
+                style={{ color: chapterColor }}
+              />
             </div>
           )}
           <div className="flex-1 min-w-0">
@@ -276,7 +362,8 @@ function SectionAccordion({
                   style={{
                     width: `${Math.max(pct, 2)}%`,
                     background: `linear-gradient(90deg, ${chapterColor}88, ${chapterColor})`,
-                    boxShadow: pct > 0 ? `0 0 6px ${chapterColor}40` : undefined,
+                    boxShadow:
+                      pct > 0 ? `0 0 6px ${chapterColor}40` : undefined,
                   }}
                 />
               </div>
@@ -293,7 +380,10 @@ function SectionAccordion({
 
       {/* Accordion Content */}
       {open && (
-        <div className="border-t border-gold-border/30 p-4 space-y-4 animate-fade-in" style={{ animationDuration: "0.3s" }}>
+        <div
+          className="border-t border-gold-border/30 p-4 space-y-4 animate-fade-in"
+          style={{ animationDuration: "0.3s" }}
+        >
           {!canEdit && (
             <div className="rounded-lg border border-gold-border/30 bg-black/40 px-3 py-2 text-xs text-[#f2ede2]/75">
               Chapter sections are view-only in the client portal.
@@ -312,7 +402,7 @@ function SectionAccordion({
           {/* Standalone fields (textarea, text, checkbox) */}
           {section.fields && section.fields.length > 0 && (
             <div className="space-y-3">
-              {section.fields.map((field) => (
+              {section.fields.map(field => (
                 <div key={field.id} className="space-y-1">
                   <label className="text-xs text-[#f2ede2]/75 font-medium">
                     {field.label}
@@ -321,14 +411,28 @@ function SectionAccordion({
                     <div className="relative">
                       <textarea
                         className="w-full bg-black border border-gold-border/40 rounded-lg p-3 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none resize-y min-h-[80px]"
-                        placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}...`}
+                        placeholder={
+                          field.placeholder ||
+                          `Enter ${field.label.toLowerCase()}...`
+                        }
                         value={fieldDrafts[field.id] || ""}
                         disabled={!canEdit}
                         readOnly={!canEdit}
-                        onChange={(e) => canEdit && setFieldDrafts((p) => ({ ...p, [field.id]: e.target.value }))}
+                        onChange={e =>
+                          canEdit &&
+                          setFieldDrafts(p => ({
+                            ...p,
+                            [field.id]: e.target.value,
+                          }))
+                        }
                         onBlur={() => {
                           const val = fieldDrafts[field.id];
-                          if (val !== undefined && val !== ((fields as Record<string, string>)?.[field.id] || "")) {
+                          if (
+                            val !== undefined &&
+                            val !==
+                              ((fields as Record<string, string>)?.[field.id] ||
+                                "")
+                          ) {
                             handleSaveField(field.id, val);
                           }
                         }}
@@ -342,28 +446,44 @@ function SectionAccordion({
                       <input
                         type="checkbox"
                         checked={fieldDrafts[field.id] === "true"}
-                        onChange={(e) => {
+                        onChange={e => {
                           const val = e.target.checked ? "true" : "false";
-                          setFieldDrafts((p) => ({ ...p, [field.id]: val }));
+                          setFieldDrafts(p => ({ ...p, [field.id]: val }));
                           handleSaveField(field.id, val);
                         }}
                         className="accent-[#d4b661]"
                       />
-                      <span className="text-xs text-[#f2ede2]/80">{field.placeholder || field.label}</span>
+                      <span className="text-xs text-[#f2ede2]/80">
+                        {field.placeholder || field.label}
+                      </span>
                     </label>
                   ) : (
                     <div className="relative">
                       <input
                         type="text"
                         className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
-                        placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}...`}
+                        placeholder={
+                          field.placeholder ||
+                          `Enter ${field.label.toLowerCase()}...`
+                        }
                         value={fieldDrafts[field.id] || ""}
                         disabled={!canEdit}
                         readOnly={!canEdit}
-                        onChange={(e) => canEdit && setFieldDrafts((p) => ({ ...p, [field.id]: e.target.value }))}
+                        onChange={e =>
+                          canEdit &&
+                          setFieldDrafts(p => ({
+                            ...p,
+                            [field.id]: e.target.value,
+                          }))
+                        }
                         onBlur={() => {
                           const val = fieldDrafts[field.id];
-                          if (val !== undefined && val !== ((fields as Record<string, string>)?.[field.id] || "")) {
+                          if (
+                            val !== undefined &&
+                            val !==
+                              ((fields as Record<string, string>)?.[field.id] ||
+                                "")
+                          ) {
                             handleSaveField(field.id, val);
                           }
                         }}
@@ -398,24 +518,26 @@ function SectionAccordion({
           {section.tableColumns && section.tableColumns.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">Records</h4>
+                <h4 className="text-[10px] uppercase tracking-widest text-gold-muted font-heading">
+                  Records
+                </h4>
                 {canEdit && (
-                <button
-                  onClick={() => {
-                    setAddingRow(true);
-                    setNewRowData({});
-                  }}
-                  className="flex items-center gap-1 text-xs text-gold-primary hover:text-gold-bright transition-colors"
-                >
-                  <Plus className="w-3 h-3" /> Add Entry
-                </button>
+                  <button
+                    onClick={() => {
+                      setAddingRow(true);
+                      setNewRowData({});
+                    }}
+                    className="flex items-center gap-1 text-xs text-gold-primary hover:text-gold-bright transition-colors"
+                  >
+                    <Plus className="w-3 h-3" /> Add Entry
+                  </button>
                 )}
               </div>
 
               {/* Add Row Form */}
               {canEdit && addingRow && (
                 <div className="bg-black rounded-lg border border-gold-primary/30 p-3 space-y-2">
-                  {section.tableColumns.map((col) => (
+                  {section.tableColumns.map(col => (
                     <div key={col.key}>
                       <label className="text-[10px] text-[#f2ede2]/80 uppercase tracking-wider">
                         <EditableText
@@ -429,7 +551,12 @@ function SectionAccordion({
                         className="w-full bg-[#0f0c08] border border-gold-border/30 rounded px-2 py-1.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/35 focus:border-gold-primary/50 focus:outline-none mt-0.5"
                         placeholder={col.label}
                         value={newRowData[col.key] || ""}
-                        onChange={(e) => setNewRowData((p) => ({ ...p, [col.key]: e.target.value }))}
+                        onChange={e =>
+                          setNewRowData(p => ({
+                            ...p,
+                            [col.key]: e.target.value,
+                          }))
+                        }
                       />
                     </div>
                   ))}
@@ -459,8 +586,11 @@ function SectionAccordion({
 
                     if (isEditing) {
                       return (
-                        <div key={row.rowId} className="bg-black rounded-lg border border-gold-primary/30 p-3 space-y-2">
-                          {section.tableColumns.map((col) => (
+                        <div
+                          key={row.rowId}
+                          className="bg-black rounded-lg border border-gold-primary/30 p-3 space-y-2"
+                        >
+                          {section.tableColumns.map(col => (
                             <div key={col.key}>
                               <label className="text-[10px] text-[#f2ede2]/80 uppercase tracking-wider">
                                 <EditableText
@@ -473,7 +603,12 @@ function SectionAccordion({
                                 type="text"
                                 className="w-full bg-[#0f0c08] border border-gold-border/30 rounded px-2 py-1.5 text-sm text-[#f2ede2] focus:border-gold-primary/50 focus:outline-none mt-0.5"
                                 value={editData[col.key] || ""}
-                                onChange={(e) => setEditData((p) => ({ ...p, [col.key]: e.target.value }))}
+                                onChange={e =>
+                                  setEditData(p => ({
+                                    ...p,
+                                    [col.key]: e.target.value,
+                                  }))
+                                }
                               />
                             </div>
                           ))}
@@ -501,7 +636,7 @@ function SectionAccordion({
                         className="bg-black/50 rounded-lg border border-gold-border/20 p-3 hover:border-gold-border/40 transition-colors group"
                       >
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {section.tableColumns.map((col) => (
+                          {section.tableColumns.map(col => (
                             <div key={col.key}>
                               <span className="text-[10px] text-[#f2ede2]/75 uppercase tracking-wider">
                                 <EditableText
@@ -511,29 +646,33 @@ function SectionAccordion({
                                 />
                               </span>
                               <p className="text-sm text-[#f2ede2]/80 mt-0.5">
-                                {data[col.key] || <span className="text-[#f2ede2]/35 italic">Empty</span>}
+                                {data[col.key] || (
+                                  <span className="text-[#f2ede2]/35 italic">
+                                    Empty
+                                  </span>
+                                )}
                               </p>
                             </div>
                           ))}
                         </div>
                         {canEdit && (
-                        <div className="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => {
-                              setEditingRow(row.rowId);
-                              setEditData(data);
-                            }}
-                            className="text-[10px] text-gold-primary hover:text-gold-bright"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteRow(row.rowId)}
-                            className="text-[10px] text-red-400/60 hover:text-red-400 flex items-center gap-0.5"
-                          >
-                            <Trash2 className="w-3 h-3" /> Delete
-                          </button>
-                        </div>
+                          <div className="flex gap-2 mt-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => {
+                                setEditingRow(row.rowId);
+                                setEditData(data);
+                              }}
+                              className="text-[10px] text-gold-primary hover:text-gold-bright"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteRow(row.rowId)}
+                              className="text-[10px] text-red-400/60 hover:text-red-400 flex items-center gap-0.5"
+                            >
+                              <Trash2 className="w-3 h-3" /> Delete
+                            </button>
+                          </div>
                         )}
                       </div>
                     );
@@ -556,8 +695,13 @@ function SectionAccordion({
                 Related Sections
               </h4>
               <div className="flex flex-wrap gap-2">
-                {section.crossRefs.map((refName) => (
-                  <CrossRefLink key={refName} name={refName} currentChapterId={chapterId} onBehalfOf={onBehalfOf} />
+                {section.crossRefs.map(refName => (
+                  <CrossRefLink
+                    key={refName}
+                    name={refName}
+                    currentChapterId={chapterId}
+                    onBehalfOf={onBehalfOf}
+                  />
                 ))}
               </div>
             </div>
@@ -582,7 +726,9 @@ function CrossRefLink({
 
   if (!target) {
     // No resolvable match — render as plain text rather than a dead link.
-    return <span className="text-xs text-[#f2ede2]/75 px-2.5 py-1">{name}</span>;
+    return (
+      <span className="text-xs text-[#f2ede2]/75 px-2.5 py-1">{name}</span>
+    );
   }
 
   const suffix = onBehalfOf ? `?for=${onBehalfOf}` : "";

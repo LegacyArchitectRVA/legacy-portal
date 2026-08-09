@@ -1,10 +1,19 @@
-import { useQuery, useMutation } from "convex/react";
-import { RiSendPlaneLine as Send, RiCheckDoubleLine as CheckCheck, RiDeleteBinLine as Trash2, RiArrowLeftLine as ArrowLeft, RiChat3Line as MessageSquare, RiAddLine as Plus, RiCloseLine as X, RiCalendarLine as Calendar } from "@remixicon/react";
-import { useState, useEffect, useRef } from "react";
+import {
+  RiArrowLeftLine as ArrowLeft,
+  RiCalendarLine as Calendar,
+  RiCheckDoubleLine as CheckCheck,
+  RiChat3Line as MessageSquare,
+  RiAddLine as Plus,
+  RiSendPlaneLine as Send,
+  RiDeleteBinLine as Trash2,
+  RiCloseLine as X,
+} from "@remixicon/react";
+import { useMutation, useQuery } from "convex/react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { EditableText } from "../components/EditableText";
 import type { Id } from "../../convex/_generated/dataModel";
+import { EditableText } from "../components/EditableText";
 
 function formatTime(ts: number) {
   return new Date(ts).toLocaleString("en-US", {
@@ -24,7 +33,10 @@ function formatRelative(ts: number) {
   if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d ago`;
-  return new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return new Date(ts).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function dateSeparatorLabel(ts: number): string {
@@ -33,10 +45,16 @@ function dateSeparatorLabel(ts: number): string {
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
   const isSameDay = (a: Date, b: Date) =>
-    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
   if (isSameDay(d, today)) return "Today";
   if (isSameDay(d, yesterday)) return "Yesterday";
-  return d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  return d.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
 }
 
 function DateSeparator({ ts }: { ts: number }) {
@@ -70,7 +88,7 @@ function MessageBubble({
         {canDelete && !isMe && (
           <button
             onClick={() => setConfirmDelete(true)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-[#f2ede2]/50 hover:text-red-400 mb-1 shrink-0"
+            className="opacity-60 group-hover:opacity-100 transition-opacity text-[#f2ede2]/50 hover:text-red-400 mb-1 shrink-0"
             title="Remove message"
           >
             <Trash2 className="w-3 h-3" />
@@ -81,7 +99,9 @@ function MessageBubble({
             isMe ? "bg-[#d4b661] text-[#0f0c08]" : "bg-[#1a1a1a] text-[#f2ede2]"
           }`}
         >
-          <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+          <p className="text-sm whitespace-pre-wrap break-words">
+            {msg.content}
+          </p>
           <div
             className={`flex items-center gap-1 mt-1 text-[10px] ${
               isMe ? "text-[#0f0c08]/70" : "text-[#f2ede2]/85"
@@ -94,7 +114,7 @@ function MessageBubble({
         {canDelete && isMe && (
           <button
             onClick={() => setConfirmDelete(true)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-[#f2ede2]/50 hover:text-red-400 mb-1 shrink-0"
+            className="opacity-60 group-hover:opacity-100 transition-opacity text-[#f2ede2]/50 hover:text-red-400 mb-1 shrink-0"
             title="Remove message"
           >
             <Trash2 className="w-3 h-3" />
@@ -103,12 +123,17 @@ function MessageBubble({
       </div>
 
       {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6 animate-modal-backdrop" onClick={() => setConfirmDelete(false)}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6 animate-modal-backdrop"
+          onClick={() => setConfirmDelete(false)}
+        >
           <div
             className="bg-[#0f0c08] border border-gold-border rounded-xl p-5 max-w-sm space-y-3 animate-modal-dialog"
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
-            <p className="text-sm text-[#f2ede2]">Remove this message? This can't be undone.</p>
+            <p className="text-sm text-[#f2ede2]">
+              Remove this message? This can't be undone.
+            </p>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setConfirmDelete(false)}
@@ -161,9 +186,7 @@ function Thread({
 
   // Build a list of messages with date separator markers inserted between
   // messages that fall on different calendar days.
-  type Item =
-    | { kind: "msg"; msg: any }
-    | { kind: "date"; ts: number };
+  type Item = { kind: "msg"; msg: any } | { kind: "date"; ts: number };
   const items: Item[] = [];
   let lastDay = "";
   for (const msg of messages) {
@@ -178,7 +201,10 @@ function Thread({
 
   return (
     <>
-      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-2 pr-2 pb-4">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto space-y-2 pr-2 pb-4"
+      >
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-[#f2ede2]/80 text-sm">
             No messages yet. Send a message to get started.
@@ -195,14 +221,18 @@ function Thread({
               canDelete={isAdmin || item.msg.fromUserId === myUserId}
               onDelete={onDelete}
             />
-          )
+          ),
         )}
       </div>
 
       <div className="flex items-center gap-2 pt-2">
         <button
           type="button"
-          onClick={() => onSend(`Here's a link to book a time that works for you: https://cal.com/legacyarchitectrva/60min`)}
+          onClick={() =>
+            onSend(
+              `Here's a link to book a time that works for you: https://cal.com/legacyarchitectrva/60min`,
+            )
+          }
           className="flex items-center gap-1.5 text-xs text-gold-muted hover:text-gold-primary bg-black/40 px-3 py-1.5 rounded-full transition-colors"
         >
           <Calendar className="w-3.5 h-3.5" />
@@ -214,8 +244,8 @@ function Thread({
         <input
           type="text"
           value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleSend()}
           placeholder="Type a message..."
           className="flex-1 bg-[#171208] border border-[rgba(212, 182, 97,0.1)] rounded-xl px-4 py-3 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:outline-none focus:border-[#d4b661]/30"
         />
@@ -242,16 +272,29 @@ export default function MessagesPage() {
   const isAdmin = profile?.isAdmin;
   const [searchParams] = useSearchParams();
   const deepLinkClientId = searchParams.get("with");
-  const [selectedClient, setSelectedClient] = useState<string | null>(deepLinkClientId);
+  const [selectedClient, setSelectedClient] = useState<string | null>(
+    deepLinkClientId,
+  );
   const [showNewMessage, setShowNewMessage] = useState(false);
 
-  const conversations = useQuery(api.messages.getConversations, isAdmin ? {} : "skip");
-  const messageableUsers = useQuery(api.messages.listMessageableUsers, isAdmin ? {} : "skip");
+  const conversations = useQuery(
+    api.messages.getConversations,
+    isAdmin ? {} : "skip",
+  );
+  const messageableUsers = useQuery(
+    api.messages.listMessageableUsers,
+    isAdmin ? {} : "skip",
+  );
   const adminThread = useQuery(
     api.messages.getThreadWithClient,
-    isAdmin && selectedClient ? { clientUserId: selectedClient as Id<"users"> } : "skip"
+    isAdmin && selectedClient
+      ? { clientUserId: selectedClient as Id<"users"> }
+      : "skip",
   );
-  const clientMessages = useQuery(api.messages.getMyMessages, !isAdmin ? {} : "skip");
+  const clientMessages = useQuery(
+    api.messages.getMyMessages,
+    !isAdmin ? {} : "skip",
+  );
 
   // Mark messages read on mount only -- not on every update -- to avoid
   // firing the mutation on every message arrival while the user is on a
@@ -266,7 +309,9 @@ export default function MessagesPage() {
   markThreadReadRef.current = markThreadRead;
   useEffect(() => {
     if (isAdmin && selectedClient) {
-      markThreadReadRef.current({ clientUserId: selectedClient as Id<"users"> });
+      markThreadReadRef.current({
+        clientUserId: selectedClient as Id<"users">,
+      });
     }
   }, [isAdmin, selectedClient]);
 
@@ -312,7 +357,7 @@ export default function MessagesPage() {
           </div>
         ) : (
           <div className="space-y-2">
-            {conversations.map((c) => (
+            {conversations.map(c => (
               <button
                 key={c.clientUserId}
                 onClick={() => setSelectedClient(c.clientUserId)}
@@ -332,7 +377,9 @@ export default function MessagesPage() {
                       {formatRelative(c.lastAt)}
                     </span>
                   </div>
-                  <p className="text-xs text-[#f2ede2]/75 truncate mt-0.5">{c.lastMessage}</p>
+                  <p className="text-xs text-[#f2ede2]/75 truncate mt-0.5">
+                    {c.lastMessage}
+                  </p>
                 </div>
                 {c.unread > 0 && (
                   <span className="shrink-0 bg-gold-primary text-[#0f0c08] text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
@@ -351,11 +398,16 @@ export default function MessagesPage() {
           >
             <div
               className="bg-[#0f0c08] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[70vh] flex flex-col animate-modal-sheet"
-              onClick={(e) => e.stopPropagation()}
+              onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-4 border-b border-gold-border/20">
-                <h2 className="font-heading text-sm text-gold-primary">New Message</h2>
-                <button onClick={() => setShowNewMessage(false)} className="text-[#f2ede2]/75">
+                <h2 className="font-heading text-sm text-gold-primary">
+                  New Message
+                </h2>
+                <button
+                  onClick={() => setShowNewMessage(false)}
+                  className="text-[#f2ede2]/75"
+                >
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -363,9 +415,11 @@ export default function MessagesPage() {
                 {messageableUsers === undefined ? (
                   <p className="text-sm text-[#f2ede2]/75 p-4">Loading...</p>
                 ) : messageableUsers.length === 0 ? (
-                  <p className="text-sm text-[#f2ede2]/75 p-4">No clients to message yet.</p>
+                  <p className="text-sm text-[#f2ede2]/75 p-4">
+                    No clients to message yet.
+                  </p>
                 ) : (
-                  messageableUsers.map((u) => (
+                  messageableUsers.map(u => (
                     <button
                       key={u.userId}
                       onClick={() => {
@@ -380,8 +434,14 @@ export default function MessagesPage() {
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm text-[#f2ede2] truncate">{u.name || u.email}</p>
-                        {u.name && <p className="text-xs text-[#f2ede2]/75 truncate">{u.email}</p>}
+                        <p className="text-sm text-[#f2ede2] truncate">
+                          {u.name || u.email}
+                        </p>
+                        {u.name && (
+                          <p className="text-xs text-[#f2ede2]/75 truncate">
+                            {u.email}
+                          </p>
+                        )}
                       </div>
                     </button>
                   ))
@@ -397,8 +457,8 @@ export default function MessagesPage() {
   // --- Admin: open thread with a specific client ---
   if (isAdmin && selectedClient) {
     const clientInfo =
-      conversations?.find((c) => c.clientUserId === selectedClient) ||
-      messageableUsers?.find((u) => u.userId === selectedClient);
+      conversations?.find(c => c.clientUserId === selectedClient) ||
+      messageableUsers?.find(u => u.userId === selectedClient);
     return (
       <div className="flex flex-col h-[calc(100vh-4rem)] max-w-4xl mx-auto p-6 animate-fade-in">
         <div className="mb-4 flex items-center gap-3">
@@ -412,14 +472,21 @@ export default function MessagesPage() {
             <h1 className="font-heading text-lg font-bold text-[#f2ede2] truncate">
               {clientInfo?.name || clientInfo?.email || "Conversation"}
             </h1>
-            <p className="text-xs text-[#f2ede2]/80 truncate">{clientInfo?.email}</p>
+            <p className="text-xs text-[#f2ede2]/80 truncate">
+              {clientInfo?.email}
+            </p>
           </div>
         </div>
         <Thread
           messages={adminThread || []}
           myUserId={profile?.userId}
           isAdmin={true}
-          onSend={(text) => sendMessage({ content: text, toUserId: selectedClient as Id<"users"> })}
+          onSend={text =>
+            sendMessage({
+              content: text,
+              toUserId: selectedClient as Id<"users">,
+            })
+          }
           onDelete={handleDelete}
         />
       </div>
@@ -441,10 +508,9 @@ export default function MessagesPage() {
         messages={clientMessages || []}
         myUserId={profile?.userId}
         isAdmin={false}
-        onSend={(text) => sendMessage({ content: text })}
+        onSend={text => sendMessage({ content: text })}
         onDelete={handleDelete}
       />
     </div>
   );
 }
-

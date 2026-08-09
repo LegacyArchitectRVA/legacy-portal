@@ -1,9 +1,15 @@
-import { FullPageLoader } from "../components/FullPageLoader";
-import { useQuery, useMutation } from "convex/react";
-import { RiUserLine as User, RiSaveLine as Save, RiCheckLine as Check, RiCameraLine as Camera, RiVipCrownLine as Crown } from "@remixicon/react";
-import { useState, useEffect, useRef } from "react";
+import {
+  RiCameraLine as Camera,
+  RiCheckLine as Check,
+  RiVipCrownLine as Crown,
+  RiSaveLine as Save,
+  RiUserLine as User,
+} from "@remixicon/react";
+import { useMutation, useQuery } from "convex/react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { EditableText } from "../components/EditableText";
+import { FullPageLoader } from "../components/FullPageLoader";
 
 function formatPhoneNumber(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 10);
@@ -20,7 +26,9 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
+  const [profilePicPreview, setProfilePicPreview] = useState<string | null>(
+    null,
+  );
   const [crestPreview, setCrestPreview] = useState<string | null>(null);
   const profilePicRef = useRef<HTMLInputElement>(null);
   const crestRef = useRef<HTMLInputElement>(null);
@@ -34,7 +42,10 @@ export default function ProfilePage() {
     }
   }, [profile]);
 
-  const handleImageUpload = async (file: File, type: "profilePic" | "crest") => {
+  const handleImageUpload = async (
+    file: File,
+    type: "profilePic" | "crest",
+  ) => {
     try {
       const uploadUrl = await generateUploadUrl();
       const result = await fetch(uploadUrl, {
@@ -43,7 +54,7 @@ export default function ProfilePage() {
         body: file,
       });
       const { storageId } = await result.json();
-      
+
       if (type === "profilePic") {
         await updateProfile({ profilePicId: storageId });
         setProfilePicPreview(URL.createObjectURL(file));
@@ -67,12 +78,12 @@ export default function ProfilePage() {
   const tierLabel = profile?.tier
     ? profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1)
     : "Vault";
-  const accessLabel = profile?.isAdmin ? "Administrator" : `${tierLabel} Edition`;
+  const accessLabel = profile?.isAdmin
+    ? "Administrator"
+    : `${tierLabel} Edition`;
 
   if (profile === undefined) {
-    return (
-<FullPageLoader />
-    );
+    return <FullPageLoader />;
   }
 
   return (
@@ -93,7 +104,11 @@ export default function ProfilePage() {
           <div className="relative group shrink-0">
             <div className="w-24 h-24 rounded-full bg-[#111] flex items-center justify-center border-2 border-[rgba(212, 182, 97,0.15)] overflow-hidden shadow-[0_0_15px_rgba(212, 182, 97,0.06)]">
               {profilePicPreview ? (
-                <img src={profilePicPreview} alt="Profile" className="w-full h-full object-cover" />
+                <img
+                  src={profilePicPreview}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <User className="w-12 h-12 text-[#d4b661]/75" />
               )}
@@ -101,7 +116,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => profilePicRef.current?.click()}
-              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center text-black shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center text-black shadow-lg opacity-60 group-hover:opacity-100 transition-opacity"
             >
               <Camera className="w-4 h-4" />
             </button>
@@ -110,7 +125,7 @@ export default function ProfilePage() {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => {
+              onChange={e => {
                 const f = e.target.files?.[0];
                 if (f) handleImageUpload(f, "profilePic");
               }}
@@ -132,18 +147,24 @@ export default function ProfilePage() {
           <div className="relative group shrink-0 w-full sm:w-auto">
             <div className="w-24 h-24 rounded-xl bg-[#111] flex flex-col items-center justify-center border-2 border-[rgba(212, 182, 97,0.15)] overflow-hidden gap-1 shadow-[0_0_15px_rgba(212, 182, 97,0.06)] mx-auto">
               {crestPreview ? (
-                <img src={crestPreview} alt="Family Crest" className="w-full h-full object-contain p-2" />
+                <img
+                  src={crestPreview}
+                  alt="Family Crest"
+                  className="w-full h-full object-contain p-2"
+                />
               ) : (
                 <>
                   <Crown className="w-8 h-8 text-[#d4b661]/70" />
-                  <span className="text-[9px] text-[#d4b661]/70 font-heading uppercase tracking-wider">Crest</span>
+                  <span className="text-[9px] text-[#d4b661]/70 font-heading uppercase tracking-wider">
+                    Crest
+                  </span>
                 </>
               )}
             </div>
             <button
               type="button"
               onClick={() => crestRef.current?.click()}
-              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center text-black shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center text-black shadow-lg opacity-60 group-hover:opacity-100 transition-opacity"
             >
               <Camera className="w-4 h-4" />
             </button>
@@ -152,12 +173,14 @@ export default function ProfilePage() {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => {
+              onChange={e => {
                 const f = e.target.files?.[0];
                 if (f) handleImageUpload(f, "crest");
               }}
             />
-            <p className="text-[9px] text-[#f2ede2]/75 mt-1.5 text-center font-heading tracking-wide">Family Crest</p>
+            <p className="text-[9px] text-[#f2ede2]/75 mt-1.5 text-center font-heading tracking-wide">
+              Family Crest
+            </p>
           </div>
         </div>
 
@@ -170,7 +193,7 @@ export default function ProfilePage() {
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={e => setName(e.target.value)}
               className="w-full bg-black border border-[rgba(212, 182, 97,0.15)] rounded-lg px-4 py-3 text-sm text-[#f2ede2] focus:outline-none focus:border-[#d4b661]/40 transition-colors"
             />
           </div>
@@ -194,7 +217,7 @@ export default function ProfilePage() {
             <input
               type="tel"
               value={phone}
-              onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+              onChange={e => setPhone(formatPhoneNumber(e.target.value))}
               placeholder="(555) 123-4567"
               className="w-full bg-black border border-[rgba(212, 182, 97,0.15)] rounded-lg px-4 py-3 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/35 focus:outline-none focus:border-[#d4b661]/40 transition-colors"
             />
