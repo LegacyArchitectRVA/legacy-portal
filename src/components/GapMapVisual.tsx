@@ -42,13 +42,13 @@ function statusWord(s: PillarScore): string {
  * there on the main site) and legal -> Emergency & Successor Access (will/POA/
  * succession overlap with that pillar's "who steps in" framing). */
 const PILLAR_ICON_SRC: Record<string, string> = {
-  digital: "/pillars/g_digital-e.webp",
-  financial: "/pillars/g_financial-e.webp",
-  household: "/pillars/g_household-e.webp",
-  health: "/pillars/g_vital-e.webp",
-  legal: "/pillars/g_emergency-e.webp",
-  business: "/pillars/g_business-e.webp",
-  legacy: "/pillars/g_legacy-e.webp",
+  digital: "/g_digital-e.webp",
+  financial: "/g_financial-e.webp",
+  household: "/g_household-e.webp",
+  health: "/g_vital-e.webp",
+  legal: "/g_emergency-e.webp",
+  business: "/g_business-e.webp",
+  legacy: "/g_legacy-e.webp",
 };
 
 /** Two-line label splitting for the longer pillar titles. */
