@@ -34,15 +34,21 @@ function statusWord(s: PillarScore): string {
   return "Strong";
 }
 
-/** Minimal geometric icon paths (24x24 grid), matching the portal icon set. */
-const PILLAR_ICON_PATHS: Record<string, string> = {
-  digital: `<path d="M18 10h-1.3A7 7 0 1 0 8 17h10a4 4 0 0 0 0-8z"/>`,
-  financial: `<line x1="4" y1="20" x2="20" y2="20"/><line x1="6" y1="12" x2="6" y2="20"/><line x1="12" y1="12" x2="12" y2="20"/><line x1="18" y1="12" x2="18" y2="20"/><polyline points="4,12 12,5 20,12"/>`,
-  household: `<path d="M3 11 L12 4 L21 11"/><path d="M5 10 V20 H19 V10"/><path d="M10 20 V14 H14 V20"/>`,
-  health: `<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/>`,
-  legal: `<line x1="12" y1="3" x2="12" y2="21"/><path d="M5 8l7-5 7 5"/><path d="M5 8l-3 7a4 4 0 0 0 6 0z"/><path d="M19 8l3 7a4 4 0 0 1-6 0z"/>`,
-  business: `<rect x="4" y="3" width="16" height="18"/><rect x="10" y="15" width="4" height="6"/><line x1="8" y1="7.5" x2="16" y2="7.5"/><line x1="8" y1="11.5" x2="16" y2="11.5"/>`,
-  legacy: `<path d="M12 3.5l2 5 5.4.2-4.3 3.3 1.6 5.2L12 14l-4.7 3.2 1.6-5.2L4.6 8.7 10 8.5z"/>`,
+/** Pillar icon images, the same glowing gold icon set used on the main site's
+ * homepage pillar walk (legacyarchitectrva.com). The Gap Map's seven pillar
+ * IDs come from the Readiness Check taxonomy, which doesn't name-for-name
+ * match the main site's Life Manual chapter names, so each is mapped to the
+ * closest conceptual match: health -> Vital Records (medical directives live
+ * there on the main site) and legal -> Emergency & Successor Access (will/POA/
+ * succession overlap with that pillar's "who steps in" framing). */
+const PILLAR_ICON_SRC: Record<string, string> = {
+  digital: "/pillars/g_digital-e.webp",
+  financial: "/pillars/g_financial-e.webp",
+  household: "/pillars/g_household-e.webp",
+  health: "/pillars/g_vital-e.webp",
+  legal: "/pillars/g_emergency-e.webp",
+  business: "/pillars/g_business-e.webp",
+  legacy: "/pillars/g_legacy-e.webp",
 };
 
 /** Two-line label splitting for the longer pillar titles. */
@@ -74,11 +80,11 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
         ref={ref}
         viewBox="0 0 460 460"
         width="100%"
-        style={{ display: "block", maxWidth: 520, margin: "0 auto" }}
+        style={{ display: "block", maxWidth: 680, margin: "0 auto" }}
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Canvas */}
-        <rect x="0" y="0" width="460" height="460" fill="#070707" rx="14" />
+        {/* Transparent canvas -- no background rect, the Gap Map sits directly
+            on whatever it's placed against, in-app or in the PDF. */}
 
         {/* Radar rings and spokes */}
         {[64, 108, RING].map((r) => (
@@ -176,19 +182,14 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
               <circle cx={x} cy={y} r={NODE_R + 8} fill={color} fillOpacity={0.13} />
               {/* Node */}
               <circle cx={x} cy={y} r={NODE_R} fill="#0d0d0d" stroke={color} strokeWidth={1.8} />
-              {/* Icon */}
-              <svg
-                x={x - 13}
-                y={y - 13}
-                width={26}
-                height={26}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke={color}
-                strokeWidth={1.7}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                dangerouslySetInnerHTML={{ __html: PILLAR_ICON_PATHS[s.pillarId] || "" }}
+              {/* Icon, same glowing icon set as the main site's pillar walk */}
+              <image
+                x={x - 15}
+                y={y - 15}
+                width={30}
+                height={30}
+                href={PILLAR_ICON_SRC[s.pillarId] || ""}
+                preserveAspectRatio="xMidYMid meet"
               />
               {/* Number chip, hub side */}
               <circle cx={chipX} cy={chipY} r={8} fill="#0d0d0d" stroke={color} strokeWidth={1.2} />
