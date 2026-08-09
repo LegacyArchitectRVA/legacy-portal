@@ -4,8 +4,10 @@
  * Seven pillars in the locked Readiness Check order (this is the QUIZ
  * pillar system, NOT the Life Manual chapter order; the two must never
  * be conflated): Digital Life, Financial & Assets, Household & Property,
- * Health & Medical, Legal & Estate, Business Continuity (06),
- * Legacy & Wishes (07).
+ * Health & Medical, Legal & Estate, Legacy & Wishes (06),
+ * Business Continuity (07). (Pillars 6 and 7 transposed from the original
+ * Readiness Check quiz order, per Craig, for the Gap Map and Blueprint
+ * Session specifically.)
  *
  * Each checkpoint carries a `fix`: the concrete step that moves that item
  * from exposed to handled. Fixes are written in the brand's plain-spoken
@@ -244,8 +246,37 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
     ],
   },
   {
-    id: "business",
+    id: "legacy",
     number: "06",
+    title: "Legacy & Wishes",
+    color: "#A855F7",
+    checkpoints: [
+      {
+        id: "lw_final_wishes",
+        label: "Service and remembrance preferences are written down",
+        impact: "Grieving people guess at big decisions and pay rush prices.",
+        fix: "Write one page of preferences: service style, remembrance, anything already arranged.",
+        effort: "quick",
+      },
+      {
+        id: "lw_messages",
+        label: "Personal messages or letters exist for the people who matter",
+        impact: "The words that mattered most never get said.",
+        fix: "Note whether letters exist and where they're kept. Writing them can wait; the pointer can't.",
+        effort: "quick",
+      },
+      {
+        id: "lw_items",
+        label: "Sentimental items have named recipients",
+        impact: "The watch and the ring become the family argument.",
+        fix: "List the items that carry meaning and who each is meant for.",
+        effort: "quick",
+      },
+    ],
+  },
+  {
+    id: "business",
+    number: "07",
     title: "Business Continuity",
     color: "#F59E0B",
     checkpoints: [
@@ -276,35 +307,6 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
         impact: "The successor improvises in front of employees and clients.",
         fix: "Write the ordered first moves: who to call, what to hold steady, what to pause.",
         effort: "moderate",
-      },
-    ],
-  },
-  {
-    id: "legacy",
-    number: "07",
-    title: "Legacy & Wishes",
-    color: "#A855F7",
-    checkpoints: [
-      {
-        id: "lw_final_wishes",
-        label: "Service and remembrance preferences are written down",
-        impact: "Grieving people guess at big decisions and pay rush prices.",
-        fix: "Write one page of preferences: service style, remembrance, anything already arranged.",
-        effort: "quick",
-      },
-      {
-        id: "lw_messages",
-        label: "Personal messages or letters exist for the people who matter",
-        impact: "The words that mattered most never get said.",
-        fix: "Note whether letters exist and where they're kept. Writing them can wait; the pointer can't.",
-        effort: "quick",
-      },
-      {
-        id: "lw_items",
-        label: "Sentimental items have named recipients",
-        impact: "The watch and the ring become the family argument.",
-        fix: "List the items that carry meaning and who each is meant for.",
-        effort: "quick",
       },
     ],
   },
