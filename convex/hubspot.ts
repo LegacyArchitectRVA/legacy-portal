@@ -1,22 +1,31 @@
 import { v } from "convex/values";
-import { action, internalAction, internalMutation, internalQuery } from "./_generated/server";
-import { internal } from "./_generated/api";
-import { requireAdminInAction } from "./admin";
+import { api, internal } from "./_generated/api";
+import {
+  action,
+  internalAction,
+  internalMutation,
+  internalQuery,
+  mutation,
+} from "./_generated/server";
+import { requireAdmin, requireAdminInAction } from "./admin";
 
 const HUBSPOT_BASE = "https://api.hubapi.com";
 
 export const getApiKeyInternal = internalQuery({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const setting = await ctx.db
       .query("settings")
-      .withIndex("by_key", (q) => q.eq("key", "hubspot_api_key"))
+      .withIndex("by_key", q => q.eq("key", "hubspot_api_key"))
       .unique();
     return setting?.value || null;
   },
 });
 
-function splitName(name: string | undefined): { firstname: string; lastname: string } {
+function splitName(name: string | undefined): {
+  firstname: string;
+  lastname: string;
+} {
   if (!name) return { firstname: "", lastname: "" };
   const parts = name.trim().split(/\s+/);
   return {
@@ -31,7 +40,7 @@ export const getClientInfoInternal = internalQuery({
     const user = await ctx.db.get(clientUserId);
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
     return {
       email: user?.email || "",
@@ -46,7 +55,7 @@ export const recordSyncInternal = internalMutation({
   handler: async (ctx, { clientUserId, hubspotId }) => {
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
     if (client) {
       await ctx.db.patch(client._id, {
@@ -70,10 +79,14 @@ async function fetchAllHubSpotContacts(apiKey: string): Promise<any[]> {
     url.searchParams.set("properties", "email,firstname,lastname,phone");
     if (after) url.searchParams.set("after", after);
 
-    const res = await fetch(url.toString(), { headers: { Authorization: `Bearer ${apiKey}` } });
+    const res = await fetch(url.toString(), {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
     if (!res.ok) {
       const body = await res.text();
-      throw new Error(`HubSpot contacts list failed (${res.status}): ${body.slice(0, 300)}`);
+      throw new Error(
+        `HubSpot contacts list failed (${res.status}): ${body.slice(0, 300)}`,
+      );
     }
     const data = await res.json();
     all.push(...(data.results || []));
@@ -85,15 +98,29 @@ async function fetchAllHubSpotContacts(apiKey: string): Promise<any[]> {
 }
 
 /** Core sync logic, shared by the manual button and the scheduled cron. */
-async function runProspectSync(ctx: any): Promise<{ created: number; updated: number; linked: number; skipped: number }> {
-  const apiKey: string | null = await ctx.runQuery(internal.hubspot.getApiKeyInternal, {});
+async function runProspectSync(ctx: any): Promise<{
+  created: number;
+  updated: number;
+  linked: number;
+  skipped: number;
+}> {
+  const apiKey: string | null = await ctx.runQuery(
+    internal.hubspot.getApiKeyInternal,
+    {},
+  );
   if (!apiKey) throw new Error("HubSpot Private App Token not configured.");
 
   const contacts = await fetchAllHubSpotContacts(apiKey);
-  const clientEmails: string[] = await ctx.runQuery(internal.prospects.getAllClientEmailsInternal, {});
+  const clientEmails: string[] = await ctx.runQuery(
+    internal.prospects.getAllClientEmailsInternal,
+    {},
+  );
   const clientEmailSet = new Set(clientEmails.filter(Boolean));
 
-  let created = 0, updated = 0, linked = 0, skipped = 0;
+  let created = 0,
+    updated = 0,
+    linked = 0,
+    skipped = 0;
 
   for (const contact of contacts) {
     const email = (contact.properties?.email || "").toLowerCase();
@@ -103,14 +130,18 @@ async function runProspectSync(ctx: any): Promise<{ created: number; updated: nu
     }
     const firstname = contact.properties?.firstname || "";
     const lastname = contact.properties?.lastname || "";
-    const name = `${firstname} ${lastname}`.trim() || email || "Unnamed Contact";
+    const name =
+      `${firstname} ${lastname}`.trim() || email || "Unnamed Contact";
 
-    const result = await ctx.runMutation(internal.prospects.upsertProspectFromHubSpot, {
-      hubspotId: contact.id,
-      name,
-      email: contact.properties?.email || undefined,
-      phone: contact.properties?.phone || undefined,
-    });
+    const result = await ctx.runMutation(
+      internal.prospects.upsertProspectFromHubSpot,
+      {
+        hubspotId: contact.id,
+        name,
+        email: contact.properties?.email || undefined,
+        phone: contact.properties?.phone || undefined,
+      },
+    );
     if (result.action === "created") created++;
     else if (result.action === "linked") linked++;
     else updated++;
@@ -122,7 +153,14 @@ async function runProspectSync(ctx: any): Promise<{ created: number; updated: nu
 /** Manual "Sync Now" button — admin only. */
 export const syncProspectsFromHubSpot = action({
   args: {},
-  handler: async (ctx): Promise<{ created: number; updated: number; linked: number; skipped: number }> => {
+  handler: async (
+    ctx,
+  ): Promise<{
+    created: number;
+    updated: number;
+    linked: number;
+    skipped: number;
+  }> => {
     await requireAdminInAction(ctx);
     return await runProspectSync(ctx);
   },
@@ -131,7 +169,7 @@ export const syncProspectsFromHubSpot = action({
 /** Scheduled automatic sync — no user context, runs as the system. */
 export const scheduledProspectSync = internalAction({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     try {
       await runProspectSync(ctx);
     } catch (err) {
@@ -144,10 +182,16 @@ export const scheduledProspectSync = internalAction({
 
 export const testConnection = action({
   args: {},
-  handler: async (ctx): Promise<{ connected: boolean; message: string; portalId?: number }> => {
+  handler: async (
+    ctx,
+  ): Promise<{ connected: boolean; message: string; portalId?: number }> => {
     await requireAdminInAction(ctx);
-    const apiKey: string | null = await ctx.runQuery(internal.hubspot.getApiKeyInternal, {});
-    if (!apiKey) return { connected: false, message: "No HubSpot Service Key saved yet." };
+    const apiKey: string | null = await ctx.runQuery(
+      internal.hubspot.getApiKeyInternal,
+      {},
+    );
+    if (!apiKey)
+      return { connected: false, message: "No HubSpot Service Key saved yet." };
 
     const res = await fetch(`${HUBSPOT_BASE}/account-info/v3/details`, {
       headers: { Authorization: `Bearer ${apiKey}` },
@@ -174,42 +218,54 @@ export const pushClientToHubSpot = action({
   args: { clientUserId: v.id("users") },
   handler: async (
     ctx,
-    { clientUserId }
+    { clientUserId },
   ): Promise<{ success: boolean; message: string; hubspotId?: string }> => {
     await requireAdminInAction(ctx);
-    const apiKey: string | null = await ctx.runQuery(internal.hubspot.getApiKeyInternal, {});
+    const apiKey: string | null = await ctx.runQuery(
+      internal.hubspot.getApiKeyInternal,
+      {},
+    );
     if (!apiKey) throw new Error("HubSpot Service Key not configured.");
 
-    const info: any = await ctx.runQuery(internal.hubspot.getClientInfoInternal, { clientUserId });
-    if (!info?.email) throw new Error("This client has no email on file to sync with.");
+    const info: any = await ctx.runQuery(
+      internal.hubspot.getClientInfoInternal,
+      { clientUserId },
+    );
+    if (!info?.email)
+      throw new Error("This client has no email on file to sync with.");
 
     const { firstname, lastname } = splitName(info.name);
 
-    const res = await fetch(`${HUBSPOT_BASE}/crm/v3/objects/contacts/batch/upsert`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        inputs: [
-          {
-            idProperty: "email",
-            id: info.email,
-            properties: {
-              email: info.email,
-              firstname,
-              lastname,
-              phone: info.phone || "",
+    const res = await fetch(
+      `${HUBSPOT_BASE}/crm/v3/objects/contacts/batch/upsert`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          inputs: [
+            {
+              idProperty: "email",
+              id: info.email,
+              properties: {
+                email: info.email,
+                firstname,
+                lastname,
+                phone: info.phone || "",
+              },
             },
-          },
-        ],
-      }),
-    });
+          ],
+        }),
+      },
+    );
 
     if (!res.ok) {
       const body = await res.text();
-      throw new Error(`HubSpot sync failed (${res.status}): ${body.slice(0, 300)}`);
+      throw new Error(
+        `HubSpot sync failed (${res.status}): ${body.slice(0, 300)}`,
+      );
     }
 
     const data = await res.json();
@@ -229,10 +285,17 @@ export const pullContactFromHubSpot = action({
   args: { email: v.string() },
   handler: async (
     ctx,
-    { email }
-  ): Promise<{ found: boolean; properties?: Record<string, string | null>; message?: string }> => {
+    { email },
+  ): Promise<{
+    found: boolean;
+    properties?: Record<string, string | null>;
+    message?: string;
+  }> => {
     await requireAdminInAction(ctx);
-    const apiKey: string | null = await ctx.runQuery(internal.hubspot.getApiKeyInternal, {});
+    const apiKey: string | null = await ctx.runQuery(
+      internal.hubspot.getApiKeyInternal,
+      {},
+    );
     if (!apiKey) throw new Error("HubSpot Service Key not configured.");
 
     const res = await fetch(`${HUBSPOT_BASE}/crm/v3/objects/contacts/search`, {
@@ -243,7 +306,9 @@ export const pullContactFromHubSpot = action({
       },
       body: JSON.stringify({
         filterGroups: [
-          { filters: [{ propertyName: "email", operator: "EQ", value: email }] },
+          {
+            filters: [{ propertyName: "email", operator: "EQ", value: email }],
+          },
         ],
         properties: [
           "email",
@@ -261,15 +326,172 @@ export const pullContactFromHubSpot = action({
 
     if (!res.ok) {
       const body = await res.text();
-      throw new Error(`HubSpot search failed (${res.status}): ${body.slice(0, 300)}`);
+      throw new Error(
+        `HubSpot search failed (${res.status}): ${body.slice(0, 300)}`,
+      );
     }
 
     const data = await res.json();
     const contact = data?.results?.[0];
     if (!contact) {
-      return { found: false, message: `No HubSpot contact found for ${email}.` };
+      return {
+        found: false,
+        message: `No HubSpot contact found for ${email}.`,
+      };
     }
 
     return { found: true, properties: contact.properties };
+  },
+});
+
+/** Generates a short-lived upload URL for a note attachment. The client
+ * uploads the file directly to this URL (bypassing the action's own request
+ * size limits) and gets back a storageId to pass to addNoteToHubSpot. */
+export const generateNoteAttachmentUploadUrl = mutation({
+  args: {},
+  handler: async ctx => {
+    await requireAdmin(ctx);
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+/** Looks up a client's HubSpot contact id, pushing them to HubSpot first
+ * if they haven't been synced yet, so this never fails just because nobody
+ * pressed "sync" first. */
+async function ensureHubSpotId(
+  ctx: any,
+  clientUserId: string,
+): Promise<string> {
+  const existing: any = await ctx.runQuery(
+    internal.hubspot.getClientRecordInternal,
+    { clientUserId },
+  );
+  if (existing?.hubspotId) return existing.hubspotId;
+
+  const pushResult: { success: boolean; message: string; hubspotId?: string } =
+    await ctx.runAction(api.hubspot.pushClientToHubSpot, { clientUserId });
+  if (!pushResult.hubspotId) {
+    throw new Error(
+      pushResult.message || "Couldn't find or create this client in HubSpot.",
+    );
+  }
+  return pushResult.hubspotId;
+}
+
+/** Creates a note on a client's HubSpot contact timeline, with an optional
+ * file attachment. Mirrors the two-step approach HubSpot's own Notes API
+ * requires: upload the file to HubSpot's Files API first, then reference
+ * the returned file id on the note itself via hs_attachment_ids. */
+export const addNoteToHubSpot = action({
+  args: {
+    clientUserId: v.id("users"),
+    note: v.string(),
+    attachmentStorageId: v.optional(v.id("_storage")),
+    attachmentName: v.optional(v.string()),
+  },
+  handler: async (
+    ctx,
+    { clientUserId, note, attachmentStorageId, attachmentName },
+  ): Promise<{
+    success: boolean;
+    message: string;
+    hubspotNoteUrl?: string;
+  }> => {
+    await requireAdminInAction(ctx);
+    const apiKey: string | null = await ctx.runQuery(
+      internal.hubspot.getApiKeyInternal,
+      {},
+    );
+    if (!apiKey) throw new Error("HubSpot Service Key not configured.");
+    if (!note.trim() && !attachmentStorageId)
+      throw new Error("Add note text or a file, at least one.");
+
+    const hubspotId = await ensureHubSpotId(ctx, clientUserId);
+
+    let attachmentFileId: string | undefined;
+    if (attachmentStorageId) {
+      const fileBlob = await ctx.storage.get(attachmentStorageId);
+      if (!fileBlob)
+        throw new Error(
+          "That attachment couldn't be found, try uploading it again.",
+        );
+
+      const form = new FormData();
+      form.append("file", fileBlob, attachmentName || "attachment");
+      form.append(
+        "options",
+        JSON.stringify({ access: "PRIVATE", ttl: "P3M", overwrite: false }),
+      );
+
+      const uploadRes = await fetch(`${HUBSPOT_BASE}/files/v3/files`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}` },
+        body: form,
+      });
+      if (!uploadRes.ok) {
+        const body = await uploadRes.text();
+        throw new Error(
+          `HubSpot file upload failed (${uploadRes.status}): ${body.slice(0, 300)}`,
+        );
+      }
+      const uploadData = await uploadRes.json();
+      attachmentFileId = uploadData?.id;
+    }
+
+    const noteRes = await fetch(`${HUBSPOT_BASE}/crm/v3/objects/notes`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        properties: {
+          hs_note_body: note.trim() || `Attached: ${attachmentName}`,
+          hs_timestamp: Date.now(),
+          ...(attachmentFileId ? { hs_attachment_ids: attachmentFileId } : {}),
+        },
+        associations: [
+          {
+            to: { id: hubspotId },
+            // Default HubSpot association type for note -> contact.
+            types: [
+              {
+                associationCategory: "HUBSPOT_DEFINED",
+                associationTypeId: 202,
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    if (!noteRes.ok) {
+      const body = await noteRes.text();
+      throw new Error(
+        `HubSpot note creation failed (${noteRes.status}): ${body.slice(0, 300)}`,
+      );
+    }
+
+    const noteData = await noteRes.json();
+    return {
+      success: true,
+      message: attachmentFileId
+        ? "Note and file added to HubSpot."
+        : "Note added to HubSpot.",
+      hubspotNoteUrl: noteData?.id
+        ? `https://app.hubspot.com/contacts/0/contact/${hubspotId}`
+        : undefined,
+    };
+  },
+});
+
+export const getClientRecordInternal = internalQuery({
+  args: { clientUserId: v.id("users") },
+  handler: async (ctx, { clientUserId }) => {
+    const client = await ctx.db
+      .query("clients")
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
+      .unique();
+    return client ? { hubspotId: client.hubspotId } : null;
   },
 });
