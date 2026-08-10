@@ -1,5 +1,8 @@
-import { RiErrorWarningLine as AlertTriangle, RiArrowGoBackLine as RotateCcw } from "@remixicon/react";
-import { Component, type ReactNode } from "react";
+import {
+  RiErrorWarningLine as AlertTriangle,
+  RiArrowGoBackLine as RotateCcw,
+} from "@remixicon/react";
+import { Component, type ErrorInfo, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -21,23 +24,28 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Full technical detail goes to the console, not the screen, so it's
+    // still there for whoever opens dev tools to debug, it just isn't
+    // shown to a client who hits a crash mid-session.
+    console.error("ErrorBoundary caught:", error, errorInfo);
+  }
+
   render() {
     if (this.state.hasError) {
       return (
         <div className="flex items-center justify-center min-h-screen p-8 bg-background">
-          <div className="flex flex-col items-center w-full max-w-2xl p-8">
+          <div className="flex flex-col items-center w-full max-w-md p-8 text-center">
             <AlertTriangle
               size={48}
               className="text-destructive mb-6 flex-shrink-0"
             />
 
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
-
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                {this.state.error?.stack}
-              </pre>
-            </div>
+            <h2 className="text-xl mb-2">Something went wrong.</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Try reloading the page. If it keeps happening, reach out and we'll
+              sort it out.
+            </p>
 
             <button
               onClick={() => window.location.reload()}
