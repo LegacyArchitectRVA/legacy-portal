@@ -1,12 +1,32 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { startRegistration, browserSupportsWebAuthn } from "@simplewebauthn/browser";
+import {
+  RiErrorWarningLine as AlertTriangle,
+  RiNotification3Line as Bell,
+  RiCheckLine as Check,
+  RiArrowRightSLine as ChevronRight,
+  RiEyeLine as Eye,
+  RiEyeOffLine as EyeOff,
+  RiFileTextLine as FileText,
+  RiFingerprintLine as Fingerprint,
+  RiKeyLine as KeyRound,
+  RiLoader4Line as Loader2,
+  RiLogoutBoxRLine as LogOut,
+  RiSmartphoneLine as MonitorSmartphone,
+  RiShieldLine as Shield,
+  RiShieldCheckLine as ShieldCheck,
+  RiSunLine as Sun,
+  RiDeleteBinLine as Trash2,
+} from "@remixicon/react";
+import {
+  browserSupportsWebAuthn,
+  startRegistration,
+} from "@simplewebauthn/browser";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { RiErrorWarningLine as AlertTriangle, RiNotification3Line as Bell, RiCheckLine as Check, RiArrowRightSLine as ChevronRight, RiEyeLine as Eye, RiEyeOffLine as EyeOff, RiFingerprintLine as Fingerprint, RiFileTextLine as FileText, RiKeyLine as KeyRound, RiLoader4Line as Loader2, RiLogoutBoxRLine as LogOut, RiSmartphoneLine as MonitorSmartphone, RiShieldLine as Shield, RiShieldCheckLine as ShieldCheck, RiDeleteBinLine as Trash2, RiSunLine as Sun } from "@remixicon/react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { Switch } from "../components/ui/switch";
 import { EditableText } from "../components/EditableText";
+import { Switch } from "../components/ui/switch";
 import { useTheme } from "../contexts/ThemeContext";
 
 function timeAgo(ms: number): string {
@@ -21,17 +41,25 @@ function timeAgo(ms: number): string {
 }
 
 export default function SettingsPage() {
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const profile = useQuery(api.profile.getMyProfile);
   const sessions = useQuery(api.security.getMySessions);
   const purgeAllData = useMutation(api.sections.purgeAllMyData);
-  const updateNotificationPreference = useMutation(api.profile.updateNotificationPreference);
+  const deleteAccount = useMutation(api.users.deleteAccount);
+  const updateNotificationPreference = useMutation(
+    api.profile.updateNotificationPreference,
+  );
   const signOutOtherSessions = useAction(api.security.signOutOtherSessions);
-  const { signIn } = useAuthActions();
+  const { signIn, signOut } = useAuthActions();
 
   const [showPurge, setShowPurge] = useState(false);
   const [purging, setPurging] = useState(false);
   const [purgeResult, setPurgeResult] = useState<string | null>(null);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const [notifSaving, setNotifSaving] = useState(false);
   const [signingOutOthers, setSigningOutOthers] = useState(false);
@@ -51,7 +79,9 @@ export default function SettingsPage() {
   const [passkeySuccess, setPasskeySuccess] = useState("");
   const passkeys = useQuery(api.webauthn.listMyCredentials);
   const deletePasskey = useMutation(api.webauthn.deleteCredential);
-  const getRegistrationOptions = useAction(api.webauthnNode.getRegistrationOptions);
+  const getRegistrationOptions = useAction(
+    api.webauthnNode.getRegistrationOptions,
+  );
   const verifyRegistration = useAction(api.webauthnNode.verifyRegistration);
 
   useEffect(() => {
@@ -66,7 +96,9 @@ export default function SettingsPage() {
       const { options, token } = await getRegistrationOptions({});
       const response = await startRegistration(options as any);
       await verifyRegistration({ token, response });
-      setPasskeySuccess("Passkey added. You can now sign in with Face ID or your fingerprint.");
+      setPasskeySuccess(
+        "Passkey added. You can now sign in with Face ID or your fingerprint.",
+      );
     } catch (err: any) {
       if (err?.name === "InvalidStateError") {
         setPasskeyError("This device already has a passkey for this account.");
@@ -156,7 +188,9 @@ export default function SettingsPage() {
     setPurging(true);
     try {
       const result = await purgeAllData();
-      setPurgeResult(`All data purged successfully. ${result.deleted} item(s) cleared.`);
+      setPurgeResult(
+        `All data purged successfully. ${result.deleted} item(s) cleared.`,
+      );
       setTimeout(() => {
         setShowPurge(false);
         setPurgeResult(null);
@@ -165,6 +199,22 @@ export default function SettingsPage() {
       setPurgeResult("Error purging data. Please try again.");
     } finally {
       setPurging(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "DELETE") return;
+    setDeletingAccount(true);
+    setDeleteError(null);
+    try {
+      await deleteAccount({});
+      await signOut();
+      navigate("/login", { replace: true });
+    } catch {
+      setDeleteError(
+        "Something went wrong deleting your account. Nothing was changed, try again or reach out directly.",
+      );
+      setDeletingAccount(false);
     }
   };
 
@@ -179,15 +229,23 @@ export default function SettingsPage() {
         <h2 className="font-heading text-sm text-gold-primary">Account</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <p className="text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">Name</p>
-            <p className="text-sm text-[#f2ede2]">{profile?.name || "Not set"}</p>
+            <p className="text-[11.5px] sm:text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">
+              Name
+            </p>
+            <p className="text-sm text-[#f2ede2]">
+              {profile?.name || "Not set"}
+            </p>
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">Email</p>
-            <p className="text-sm text-[#f2ede2] break-all">{profile?.email || "Not set"}</p>
+            <p className="text-[11.5px] sm:text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">
+              Email
+            </p>
+            <p className="text-sm text-[#f2ede2] break-all">
+              {profile?.email || "Not set"}
+            </p>
           </div>
           <div>
-            <p className="text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">
+            <p className="text-[11.5px] sm:text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">
               {profile?.isAdmin ? "Access" : "Tier"}
             </p>
             <p className="text-sm text-[#f2ede2] capitalize">
@@ -195,8 +253,12 @@ export default function SettingsPage() {
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">Status</p>
-            <p className="text-sm text-[#f2ede2]">{profile?.isActivated ? "Active" : "Pending"}</p>
+            <p className="text-[11.5px] sm:text-[10px] text-[#f2ede2]/75 uppercase tracking-widest">
+              Status
+            </p>
+            <p className="text-sm text-[#f2ede2]">
+              {profile?.isActivated ? "Active" : "Pending"}
+            </p>
           </div>
         </div>
       </div>
@@ -229,13 +291,18 @@ export default function SettingsPage() {
       <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-4">
         <div className="flex items-center gap-2">
           <Bell className="w-4 h-4 text-gold-primary" />
-          <h2 className="font-heading text-sm text-gold-primary">Notifications</h2>
+          <h2 className="font-heading text-sm text-gold-primary">
+            Notifications
+          </h2>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex-1 pr-4">
-            <p className="text-sm text-[#f2ede2]">Email me about new messages</p>
+            <p className="text-sm text-[#f2ede2]">
+              Email me about new messages
+            </p>
             <p className="text-xs text-[#f2ede2]/75 mt-0.5">
-              We'll only email you when you have an unread message in your portal.
+              We'll only email you when you have an unread message in your
+              portal.
             </p>
           </div>
           {profile === undefined ? (
@@ -254,7 +321,9 @@ export default function SettingsPage() {
       <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-4">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-gold-primary" />
-          <h2 className="font-heading text-sm text-gold-primary">Security Center</h2>
+          <h2 className="font-heading text-sm text-gold-primary">
+            Security Center
+          </h2>
         </div>
 
         {/* Sessions */}
@@ -268,10 +337,11 @@ export default function SettingsPage() {
           ) : (
             <>
               <p className="text-xs text-[#f2ede2]/75">
-                Signed in on {sessions.length} device{sessions.length === 1 ? "" : "s"}.
+                Signed in on {sessions.length} device
+                {sessions.length === 1 ? "" : "s"}.
               </p>
               <div className="space-y-1.5">
-                {sessions.slice(0, 5).map((s) => (
+                {sessions.slice(0, 5).map(s => (
                   <div
                     key={s._id}
                     className="flex items-center justify-between text-xs bg-black/40 rounded-lg px-3 py-2"
@@ -279,7 +349,9 @@ export default function SettingsPage() {
                     <span className="text-[#f2ede2]/85">
                       {s.isCurrent ? "This device" : "Another device"}
                     </span>
-                    <span className="text-[#f2ede2]/75">{timeAgo(s.createdAt)}</span>
+                    <span className="text-[#f2ede2]/75">
+                      {timeAgo(s.createdAt)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -297,7 +369,9 @@ export default function SettingsPage() {
                   Sign Out of Other Devices
                 </button>
               )}
-              {signOutResult && <p className="text-xs text-emerald-400">{signOutResult}</p>}
+              {signOutResult && (
+                <p className="text-xs text-emerald-400">{signOutResult}</p>
+              )}
             </>
           )}
         </div>
@@ -314,18 +388,25 @@ export default function SettingsPage() {
             {pwMode === "idle" ? (
               <>
                 <p className="text-xs text-[#f2ede2]/75">
-                  We'll send a one-time code to your email to confirm any change.
+                  We'll send a one-time code to your email to confirm any
+                  change.
                 </p>
                 {pwInfo && <p className="text-xs text-emerald-400">{pwInfo}</p>}
                 {pwError && (
-                  <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{pwError}</p>
+                  <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">
+                    {pwError}
+                  </p>
                 )}
                 <button
                   onClick={handleSendCode}
                   disabled={pwLoading}
                   className="flex items-center gap-2 text-xs bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {pwLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <KeyRound className="w-3.5 h-3.5" />}
+                  {pwLoading ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <KeyRound className="w-3.5 h-3.5" />
+                  )}
                   Change Password
                 </button>
               </>
@@ -333,20 +414,20 @@ export default function SettingsPage() {
               <form onSubmit={handleChangePassword} className="space-y-3">
                 {pwInfo && <p className="text-xs text-emerald-400">{pwInfo}</p>}
                 <div>
-                  <label className="block text-[10px] text-[#f2ede2]/75 uppercase tracking-widest mb-1">
+                  <label className="block text-[11.5px] sm:text-[10px] text-[#f2ede2]/75 uppercase tracking-widest mb-1">
                     Code
                   </label>
                   <input
                     type="text"
                     required
                     value={code}
-                    onChange={(e) => setCode(e.target.value)}
+                    onChange={e => setCode(e.target.value)}
                     className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 text-sm text-[#f2ede2] tracking-widest focus:outline-none focus:border-gold-primary/50"
                     placeholder="6-digit code"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-[#f2ede2]/75 uppercase tracking-widest mb-1">
+                  <label className="block text-[11.5px] sm:text-[10px] text-[#f2ede2]/75 uppercase tracking-widest mb-1">
                     New Password
                   </label>
                   <div className="relative">
@@ -354,7 +435,7 @@ export default function SettingsPage() {
                       type={showNewPassword ? "text" : "password"}
                       required
                       value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
+                      onChange={e => setNewPassword(e.target.value)}
                       className="w-full bg-black border border-gold-border/40 rounded-lg px-3 py-2 pr-9 text-sm text-[#f2ede2] focus:outline-none focus:border-gold-primary/50"
                       placeholder="At least 8 characters"
                     />
@@ -363,12 +444,18 @@ export default function SettingsPage() {
                       onClick={() => setShowNewPassword(!showNewPassword)}
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#f2ede2]/75"
                     >
-                      {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      {showNewPassword ? (
+                        <EyeOff className="w-3.5 h-3.5" />
+                      ) : (
+                        <Eye className="w-3.5 h-3.5" />
+                      )}
                     </button>
                   </div>
                 </div>
                 {pwError && (
-                  <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{pwError}</p>
+                  <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">
+                    {pwError}
+                  </p>
                 )}
                 <div className="flex gap-2">
                   <button
@@ -376,7 +463,11 @@ export default function SettingsPage() {
                     disabled={pwLoading}
                     className="flex items-center gap-2 text-xs bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
                   >
-                    {pwLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                    {pwLoading ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5" />
+                    )}
                     Update Password
                   </button>
                   <button
@@ -413,15 +504,15 @@ export default function SettingsPage() {
           ) : (
             <>
               <p className="text-xs text-[#f2ede2]/75">
-                Add a passkey to sign in with Face ID, fingerprint, or your device PIN,
-                no email or password needed.
+                Add a passkey to sign in with Face ID, fingerprint, or your
+                device PIN, no email or password needed.
               </p>
 
               {passkeys === undefined ? (
                 <Loader2 className="w-4 h-4 animate-spin text-gold-muted" />
               ) : passkeys.length > 0 ? (
                 <div className="space-y-1.5">
-                  {passkeys.map((p) => (
+                  {passkeys.map(p => (
                     <div
                       key={p._id}
                       className="flex items-center justify-between text-xs bg-black/40 rounded-lg px-3 py-2"
@@ -444,7 +535,9 @@ export default function SettingsPage() {
                   {passkeyError}
                 </p>
               )}
-              {passkeySuccess && <p className="text-xs text-emerald-400">{passkeySuccess}</p>}
+              {passkeySuccess && (
+                <p className="text-xs text-emerald-400">{passkeySuccess}</p>
+              )}
 
               <button
                 onClick={handleAddPasskey}
@@ -470,7 +563,9 @@ export default function SettingsPage() {
       >
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-gold-primary" />
-          <span className="font-heading text-sm text-gold-primary">Privacy Policy & Terms of Service</span>
+          <span className="font-heading text-sm text-gold-primary">
+            Privacy Policy & Terms of Service
+          </span>
         </div>
         <ChevronRight className="w-4 h-4 text-[#f2ede2]/50" />
       </Link>
@@ -479,11 +574,14 @@ export default function SettingsPage() {
       <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-3">
         <div className="flex items-center gap-2">
           <Shield className="w-4 h-4 text-gold-primary" />
-          <h2 className="font-heading text-sm text-gold-primary">Zero-Knowledge Standard</h2>
+          <h2 className="font-heading text-sm text-gold-primary">
+            Zero-Knowledge Standard
+          </h2>
         </div>
         <p className="text-xs text-[#f2ede2]/80 leading-relaxed">
-          Legacy Architect RVA does not store or retain your credentials. All data is accessible
-          only to you and can be purged at any time from this page.
+          Legacy Architect RVA does not store or retain your credentials. All
+          data is accessible only to you and can be purged at any time from this
+          page.
         </p>
       </div>
 
@@ -494,8 +592,8 @@ export default function SettingsPage() {
           <h2 className="font-heading text-sm text-red-400">Danger Zone</h2>
         </div>
         <p className="text-xs text-[#f2ede2]/80 leading-relaxed">
-          All data across all 7 chapters will be permanently deleted.
-          This action cannot be undone.
+          All data across all 7 chapters will be permanently deleted. This
+          action cannot be undone.
         </p>
 
         {!showPurge ? (
@@ -508,7 +606,8 @@ export default function SettingsPage() {
         ) : (
           <div className="space-y-3 bg-red-500/5 rounded-lg p-4 border border-red-500/20">
             <p className="text-sm text-red-400 font-medium">
-              Are you sure? This will permanently delete all your Life Manual data.
+              Are you sure? This will permanently delete all your Life Manual
+              data.
             </p>
             <div className="flex gap-2">
               <button
@@ -516,7 +615,11 @@ export default function SettingsPage() {
                 disabled={purging}
                 className="flex items-center gap-2 text-xs bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
               >
-                {purging ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                {purging ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3 h-3" />
+                )}
                 {purging ? "Purging..." : "Yes, Purge Everything"}
               </button>
               <button
@@ -528,6 +631,68 @@ export default function SettingsPage() {
             </div>
             {purgeResult && (
               <p className="text-xs text-emerald-400">{purgeResult}</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Delete Account */}
+      <div className="bg-[#0f0c08] rounded-xl border border-red-500/20 p-5 space-y-3">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 text-red-400" />
+          <h2 className="font-heading text-sm text-red-400">Delete Account</h2>
+        </div>
+        <p className="text-xs text-[#f2ede2]/80 leading-relaxed">
+          Permanently deletes your login and account itself, not just your Life
+          Manual data. You won't be able to sign back in. This cannot be undone.
+        </p>
+
+        {!showDeleteAccount ? (
+          <button
+            onClick={() => setShowDeleteAccount(true)}
+            className="flex items-center gap-2 text-xs bg-red-500/10 text-red-400 hover:bg-red-500/20 px-4 py-2 rounded-lg transition-colors"
+          >
+            <Trash2 className="w-3.5 h-3.5" /> Delete My Account
+          </button>
+        ) : (
+          <div className="space-y-3 bg-red-500/5 rounded-lg p-4 border border-red-500/20">
+            <p className="text-sm text-red-400 font-medium">
+              This is permanent. Type DELETE below to confirm.
+            </p>
+            <input
+              type="text"
+              value={deleteConfirmText}
+              onChange={e => setDeleteConfirmText(e.target.value)}
+              placeholder="Type DELETE to confirm"
+              className="w-full bg-black border border-red-500/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/40 focus:outline-none"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount || deleteConfirmText !== "DELETE"}
+                className="flex items-center gap-2 text-xs bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                {deletingAccount ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3 h-3" />
+                )}
+                {deletingAccount ? "Deleting..." : "Permanently Delete Account"}
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteAccount(false);
+                  setDeleteConfirmText("");
+                  setDeleteError(null);
+                }}
+                disabled={deletingAccount}
+                className="text-xs text-[#f2ede2]/80 hover:text-[#f2ede2]/80 px-4 py-2"
+              >
+                Cancel
+              </button>
+            </div>
+            {deleteError && (
+              <p className="text-xs text-red-400">{deleteError}</p>
             )}
           </div>
         )}
