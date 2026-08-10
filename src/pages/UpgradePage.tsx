@@ -1,15 +1,20 @@
-import { FullPageLoader } from "../components/FullPageLoader";
+import {
+  RiArrowRightLine as ArrowRight,
+  RiCheckLine as Check,
+  RiLockLine as Lock,
+  RiShieldLine as Shield,
+} from "@remixicon/react";
 import { useQuery } from "convex/react";
-import { RiArrowRightLine as ArrowRight, RiCheckLine as Check, RiLockLine as Lock, RiShieldLine as Shield } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
+import { EditableBox } from "../components/EditableBox";
+import { EditableIcon } from "../components/EditableIcon";
+import { EditableImage } from "../components/EditableImage";
+import { EditableText } from "../components/EditableText";
+import { FullPageLoader } from "../components/FullPageLoader";
+import { useEditMode } from "../contexts/EditModeContext";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, tiers } from "../data/tiers";
-import { EditableText } from "../components/EditableText";
-import { EditableIcon } from "../components/EditableIcon";
-import { EditableBox } from "../components/EditableBox";
-import { EditableImage } from "../components/EditableImage";
-import { useEditMode } from "../contexts/EditModeContext";
 
 const tierImages: Record<string, string> = {
   vault:
@@ -60,12 +65,8 @@ export default function UpgradePage() {
   const isAdmin = useQuery(api.admin.isAdmin);
   const { active: isEditingInVisualEditor } = useEditMode();
 
-
-
   if (profile === undefined || isAdmin === undefined) {
-    return (
-<FullPageLoader />
-    );
+    return <FullPageLoader />;
   }
 
   const currentTier = normalizeTier(profile?.tier ?? undefined);
@@ -73,8 +74,8 @@ export default function UpgradePage() {
   const isLegacy = currentTier === "legacy";
 
   const visibleTiers = isLegacy
-    ? tiers.filter((tier) => tier.id === "legacy")
-    : tiers.filter((tier) => tierRank[tier.id] >= currentRank);
+    ? tiers.filter(tier => tier.id === "legacy")
+    : tiers.filter(tier => tierRank[tier.id] >= currentRank);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
@@ -82,9 +83,12 @@ export default function UpgradePage() {
         <div className="rounded-xl border border-gold-border bg-[#0f0c08] p-4 flex items-start gap-3">
           <Shield className="w-5 h-5 text-gold-primary mt-0.5 shrink-0" />
           <p className="text-sm text-[#f2ede2]/75">
-            <span className="text-gold-primary font-heading">Operator preview.</span> Admin accounts
-            bypass tier restrictions everywhere, so nothing here applies to you. This is the page
-            exactly as a client sees it, for reviewing pricing and layout.
+            <span className="text-gold-primary font-heading">
+              Operator preview.
+            </span>{" "}
+            Admin accounts bypass tier restrictions everywhere, so nothing here
+            applies to you. This is the page exactly as a client sees it, for
+            reviewing pricing and layout.
           </p>
         </div>
       )}
@@ -93,9 +97,24 @@ export default function UpgradePage() {
           <EditableText cmsKey="upgrade_title" as="span" />
         </h1>
         <p className="text-[#f2ede2]/80 mt-2 leading-relaxed max-w-2xl">
-          Portal upgrades begin with The Vault and move upward. Lower editions are
-          not offered once a higher edition is active.
+          Portal upgrades begin with The Vault and move upward. Lower editions
+          are not offered once a higher edition is active.
         </p>
+      </div>
+
+      {/* Intro video */}
+      <div className="max-w-3xl mx-auto">
+        <div className="relative rounded-xl overflow-hidden border border-[#e8c869]/15 shadow-[0_0_40px_rgba(212,175,55,0.06)]">
+          <video
+            controls
+            playsInline
+            preload="metadata"
+            poster="/videos/intro-poster.jpg"
+            className="w-full aspect-video bg-black"
+          >
+            <source src="/videos/intro.mp4" type="video/mp4" />
+          </video>
+        </div>
       </div>
 
       {isLegacy && (
@@ -111,7 +130,7 @@ export default function UpgradePage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
-        {visibleTiers.map((tier) => {
+        {visibleTiers.map(tier => {
           const isCurrent = tier.id === currentTier;
           const isUpgrade = tierRank[tier.id] > currentRank;
           const tierImage = tierImages[tier.id];
@@ -155,7 +174,7 @@ export default function UpgradePage() {
                 {isCurrent && (
                   <div className="flex justify-center">
                     <span
-                      className="inline-block text-[10px] font-heading uppercase tracking-widest px-3 py-1 rounded-full border"
+                      className="inline-block text-[11.5px] sm:text-[10px] font-heading uppercase tracking-widest px-3 py-1 rounded-full border"
                       style={{
                         backgroundColor: `rgba(${colors.accentRgb}, 0.1)`,
                         color: colors.accent,
@@ -223,7 +242,8 @@ export default function UpgradePage() {
                       boxShadow: `0 0 20px rgba(${colors.accentRgb}, 0.2)`,
                     }}
                   >
-                    <EditableText cmsKey="upgrade_cta_prefix" as="span" /> {tier.name}
+                    <EditableText cmsKey="upgrade_cta_prefix" as="span" />{" "}
+                    {tier.name}
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 )}
@@ -237,19 +257,23 @@ export default function UpgradePage() {
                       borderColor: `rgba(${colors.accentRgb}, 0.2)`,
                     }}
                   >
-                    <Shield className="w-4 h-4" /> <EditableText cmsKey="upgrade_active_badge" as="span" />
+                    <Shield className="w-4 h-4" />{" "}
+                    <EditableText cmsKey="upgrade_active_badge" as="span" />
                   </div>
                 )}
 
                 <div className="border-t border-gold-border/30 pt-3 space-y-2">
                   <h4
-                    className="font-heading text-[10px] tracking-widest uppercase"
+                    className="font-heading text-[11.5px] sm:text-[10px] tracking-widest uppercase"
                     style={{ color: `rgba(${colors.accentRgb}, 0.6)` }}
                   >
-                    <EditableText cmsKey="upgrade_chapters_included_label" as="span" />
+                    <EditableText
+                      cmsKey="upgrade_chapters_included_label"
+                      as="span"
+                    />
                   </h4>
                   <ul className="space-y-1.5">
-                    {chapters.map((ch) => {
+                    {chapters.map(ch => {
                       const included = canAccessChapter(
                         tier.id,
                         ch.chapterNumber,
