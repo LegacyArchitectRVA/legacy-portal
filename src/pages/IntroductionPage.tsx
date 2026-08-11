@@ -722,6 +722,8 @@ export default function IntroductionPage() {
           <img
             src="/logo.png"
             alt="Legacy Architect RVA"
+            width={70}
+            height={70}
             className="w-16 h-16 object-contain shrink-0"
           />
           <div>
@@ -741,7 +743,7 @@ export default function IntroductionPage() {
       {/* Section label */}
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-gradient-to-r from-gold-border to-transparent" />
-        <h3 className="font-heading text-[11px] tracking-[0.15em] text-[#d4b661]/70 uppercase">
+        <h3 className="font-heading text-[12.6px] sm:text-[11px] tracking-[0.15em] text-[#d4b661]/70 uppercase">
           Essential Guides
         </h3>
         <div className="h-px flex-1 bg-gradient-to-l from-gold-border to-transparent" />
@@ -772,7 +774,7 @@ export default function IntroductionPage() {
               <button
                 type="button"
                 onClick={() => setViewingGuide(guide.id)}
-                className="flex items-center gap-2 btn-gold-outline px-4 py-2 text-[11px] tracking-wider uppercase flex-1 justify-center"
+                className="flex items-center gap-2 btn-gold-outline px-4 py-2 text-[12.6px] sm:text-[11px] tracking-wider uppercase flex-1 justify-center"
               >
                 <Eye className="w-3.5 h-3.5" />
                 View on Site
@@ -780,7 +782,7 @@ export default function IntroductionPage() {
               <button
                 type="button"
                 onClick={() => handleDownload(guide)}
-                className="flex items-center gap-2 text-[11px] font-heading tracking-wider uppercase text-[#f2ede2]/80 hover:text-[#f2ede2]/80 transition-colors px-3 py-2"
+                className="flex items-center gap-2 text-[12.6px] sm:text-[11px] font-heading tracking-wider uppercase text-[#f2ede2]/80 hover:text-[#f2ede2]/80 transition-colors px-3 py-2"
               >
                 <Download className="w-3.5 h-3.5" />
                 Download PDF

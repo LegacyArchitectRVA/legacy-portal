@@ -1,10 +1,14 @@
 import { useAuthActions } from "@convex-dev/auth/react";
+import {
+  RiEyeLine as Eye,
+  RiEyeOffLine as EyeOff,
+  RiLoader4Line as Loader2,
+} from "@remixicon/react";
 import { ConvexError } from "convex/values";
-import { RiEyeLine as Eye, RiEyeOffLine as EyeOff, RiLoader4Line as Loader2 } from "@remixicon/react";
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { EditableText } from "../components/EditableText";
+import { Link, useNavigate } from "react-router-dom";
 import { EditableInput } from "../components/EditableInput";
+import { EditableText } from "../components/EditableText";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -49,6 +53,8 @@ export default function SignupPage() {
           <img
             src="/logo.png"
             alt="Legacy Architect RVA"
+            width={106}
+            height={106}
             className="mx-auto w-24 h-24 object-contain"
           />
           <h1 className="font-heading text-2xl text-[#f2ede2] tracking-wide uppercase">
@@ -70,7 +76,7 @@ export default function SignupPage() {
               name="name"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={e => setName(e.target.value)}
               className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
               placeholderCmsKey="signup_name_placeholder"
             />
@@ -84,7 +90,7 @@ export default function SignupPage() {
               name="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
               placeholderCmsKey="signup_email_placeholder"
             />
@@ -99,7 +105,7 @@ export default function SignupPage() {
                 name="password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
                 placeholderCmsKey="signup_password_placeholder"
               />
@@ -108,16 +114,22 @@ export default function SignupPage() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#f2ede2]/80 hover:text-[#f2ede2]/80"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
-            <p className="text-[10px] text-[#f2ede2]/80 mt-1">
+            <p className="text-[11.5px] sm:text-[10px] text-[#f2ede2]/80 mt-1">
               <EditableText cmsKey="signup_password_hint" as="span" />
             </p>
           </div>
 
           {error && (
-            <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
+            <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">
+              {error}
+            </p>
           )}
 
           <button
@@ -136,7 +148,10 @@ export default function SignupPage() {
         {/* Footer */}
         <p className="text-center text-xs text-[#f2ede2]/75">
           <EditableText cmsKey="signup_footer_prompt" as="span" />{" "}
-          <Link to="/login" className="text-gold-primary hover:text-gold-bright transition-colors">
+          <Link
+            to="/login"
+            className="text-gold-primary hover:text-gold-bright transition-colors"
+          >
             <EditableText cmsKey="signup_footer_link" as="span" />
           </Link>
         </p>

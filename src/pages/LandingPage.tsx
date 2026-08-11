@@ -23,6 +23,8 @@ export default function LandingPage() {
             <img
               src="/logo.png"
               alt="Legacy Architect RVA"
+              width={62}
+              height={62}
               className="w-14 h-14 rounded-lg object-contain"
             />
             <span className="text-sm font-heading tracking-wider text-gold-primary hidden sm:block">
@@ -96,6 +98,8 @@ export default function LandingPage() {
               <img
                 src="/logo.png"
                 alt="Legacy Architect RVA"
+                width={110}
+                height={110}
                 className="relative h-[110px] md:h-[142px] w-auto"
                 onError={e => {
                   // Fallback if logo.png not found

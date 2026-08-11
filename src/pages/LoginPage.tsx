@@ -1,13 +1,21 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { startAuthentication, browserSupportsWebAuthn } from "@simplewebauthn/browser";
+import {
+  RiLoader4Line as CircleNotch,
+  RiEyeLine as Eye,
+  RiEyeOffLine as EyeSlash,
+  RiFingerprintLine as Fingerprint,
+} from "@remixicon/react";
+import {
+  browserSupportsWebAuthn,
+  startAuthentication,
+} from "@simplewebauthn/browser";
 import { useAction, useQuery } from "convex/react";
 import { ConvexError } from "convex/values";
-import { RiEyeLine as Eye, RiEyeOffLine as EyeSlash, RiFingerprintLine as Fingerprint, RiLoader4Line as CircleNotch } from "@remixicon/react";
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { EditableText } from "../components/EditableText";
 import { EditableInput } from "../components/EditableInput";
+import { EditableText } from "../components/EditableText";
 
 function getProvider(email: string): string {
   return email.endsWith("@test.local") ? "test" : "password";
@@ -18,7 +26,9 @@ type Mode = "signin" | "forgot-request" | "forgot-verify";
 export default function LoginPage() {
   const navigate = useNavigate();
   const { signIn } = useAuthActions();
-  const getAuthenticationOptions = useAction(api.webauthnNode.getAuthenticationOptions);
+  const getAuthenticationOptions = useAction(
+    api.webauthnNode.getAuthenticationOptions,
+  );
   const verifyAuthentication = useAction(api.webauthnNode.verifyAuthentication);
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
@@ -32,7 +42,8 @@ export default function LoginPage() {
   const [passkeySupported, setPasskeySupported] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const registeredPasskeys = useQuery(api.webauthn.listMyCredentials);
-  const hasPasskeys = registeredPasskeys !== undefined && registeredPasskeys.length > 0;
+  const hasPasskeys =
+    registeredPasskeys !== undefined && registeredPasskeys.length > 0;
 
   useEffect(() => {
     setPasskeySupported(browserSupportsWebAuthn());
@@ -51,7 +62,9 @@ export default function LoginPage() {
       if (err?.name === "NotAllowedError") {
         // user cancelled, no error needed
       } else {
-        setError("Could not sign in with a passkey. Try your email and password instead.");
+        setError(
+          "Could not sign in with a passkey. Try your email and password instead.",
+        );
       }
     } finally {
       setPasskeyLoading(false);
@@ -158,6 +171,8 @@ export default function LoginPage() {
           <img
             src="/logo.png"
             alt="Legacy Architect RVA"
+            width={106}
+            height={106}
             className="mx-auto w-24 h-24 object-contain"
           />
           <h1 className="font-heading text-2xl text-[#f2ede2] tracking-wide uppercase">
@@ -196,10 +211,13 @@ export default function LoginPage() {
                     <EditableText cmsKey="login_passkey_button" as="span" />
                   </button>
                 ) : (
-                  <p className="text-center text-[10px] text-[#f2ede2]/40 tracking-wide">
+                  <p className="text-center text-[11.5px] sm:text-[10px] text-[#f2ede2]/40 tracking-wide">
                     <Fingerprint className="w-3 h-3 inline mr-1 opacity-60" />
                     Face ID and fingerprint sign-in is available. Set it up in{" "}
-                    <Link to="/settings" className="text-gold-muted hover:text-gold-primary underline underline-offset-2 transition-colors">
+                    <Link
+                      to="/settings"
+                      className="text-gold-muted hover:text-gold-primary underline underline-offset-2 transition-colors"
+                    >
                       Settings
                     </Link>{" "}
                     after signing in.
@@ -207,7 +225,9 @@ export default function LoginPage() {
                 )}
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-gold-border/30" />
-                  <span className="text-[10px] text-[#f2ede2]/80 uppercase tracking-widest">or</span>
+                  <span className="text-[11.5px] sm:text-[10px] text-[#f2ede2]/80 uppercase tracking-widest">
+                    or
+                  </span>
                   <div className="flex-1 h-px bg-gold-border/30" />
                 </div>
               </>
@@ -222,7 +242,7 @@ export default function LoginPage() {
                   name="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={e => setEmail(e.target.value)}
                   className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
                   placeholderCmsKey="login_email_placeholder"
                 />
@@ -239,7 +259,7 @@ export default function LoginPage() {
                       setError("");
                       setInfo("");
                     }}
-                    className="text-[11px] text-gold-primary hover:text-gold-bright transition-colors"
+                    className="text-[12.6px] sm:text-[11px] text-gold-primary hover:text-gold-bright transition-colors"
                   >
                     <EditableText cmsKey="login_forgot_password" as="span" />
                   </button>
@@ -250,7 +270,7 @@ export default function LoginPage() {
                     name="password"
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={e => setPassword(e.target.value)}
                     className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
                     placeholderCmsKey="login_password_placeholder"
                   />
@@ -259,13 +279,19 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#f2ede2]/80 hover:text-[#f2ede2]/80"
                   >
-                    {showPassword ? <EyeSlash className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeSlash className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
 
               {error && (
-                <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
+                <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">
+                  {error}
+                </p>
               )}
 
               <button
@@ -286,7 +312,9 @@ export default function LoginPage() {
                 {/* Divider */}
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-gold-border/30" />
-                  <span className="text-[10px] text-[#f2ede2]/80 uppercase tracking-widest">or</span>
+                  <span className="text-[11.5px] sm:text-[10px] text-[#f2ede2]/80 uppercase tracking-widest">
+                    or
+                  </span>
                   <div className="flex-1 h-px bg-gold-border/30" />
                 </div>
 
@@ -304,7 +332,10 @@ export default function LoginPage() {
             {/* Footer */}
             <p className="text-center text-xs text-[#f2ede2]/75">
               <EditableText cmsKey="login_footer_prompt" as="span" />{" "}
-              <Link to="/signup" className="text-gold-primary hover:text-gold-bright transition-colors">
+              <Link
+                to="/signup"
+                className="text-gold-primary hover:text-gold-bright transition-colors"
+              >
                 <EditableText cmsKey="login_footer_link" as="span" />
               </Link>
             </p>
@@ -321,14 +352,16 @@ export default function LoginPage() {
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
                 placeholder="your@email.com"
               />
             </div>
 
             {error && (
-              <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
+              <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">
+                {error}
+              </p>
             )}
 
             <button
@@ -336,7 +369,11 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" /> : "Send Reset Code"}
+              {loading ? (
+                <CircleNotch className="w-4 h-4 animate-spin mx-auto" />
+              ) : (
+                "Send Reset Code"
+              )}
             </button>
 
             <button
@@ -352,7 +389,9 @@ export default function LoginPage() {
         {mode === "forgot-verify" && (
           <form onSubmit={handleCompleteReset} className="space-y-4">
             {info && (
-              <p className="text-xs text-gold-primary bg-gold-primary/10 rounded-lg px-3 py-2">{info}</p>
+              <p className="text-xs text-gold-primary bg-gold-primary/10 rounded-lg px-3 py-2">
+                {info}
+              </p>
             )}
             <div>
               <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading block mb-1">
@@ -362,7 +401,7 @@ export default function LoginPage() {
                 type="text"
                 required
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={e => setCode(e.target.value)}
                 className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none tracking-widest"
                 placeholder="6-digit code"
               />
@@ -375,14 +414,16 @@ export default function LoginPage() {
                 type={showPassword ? "text" : "password"}
                 required
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={e => setNewPassword(e.target.value)}
                 className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:border-gold-primary/50 focus:outline-none"
                 placeholder="At least 8 characters"
               />
             </div>
 
             {error && (
-              <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">{error}</p>
+              <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">
+                {error}
+              </p>
             )}
 
             <button
@@ -390,7 +431,11 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
             >
-              {loading ? <CircleNotch className="w-4 h-4 animate-spin mx-auto" /> : "Reset Password & Sign In"}
+              {loading ? (
+                <CircleNotch className="w-4 h-4 animate-spin mx-auto" />
+              ) : (
+                "Reset Password & Sign In"
+              )}
             </button>
 
             <button
