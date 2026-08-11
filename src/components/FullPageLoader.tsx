@@ -17,10 +17,14 @@ export function FullPageLoader({ label }: { label?: string }) {
           src="/logo.png"
           alt=""
           aria-hidden="true"
+          width={62}
+          height={62}
           className="relative w-14 h-14 object-contain animate-crest-breathe"
         />
       </div>
-      {label && <p className="text-xs text-gold-muted tracking-wide">{label}</p>}
+      {label && (
+        <p className="text-xs text-gold-muted tracking-wide">{label}</p>
+      )}
     </div>
   );
 }

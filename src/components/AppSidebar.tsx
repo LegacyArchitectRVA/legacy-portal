@@ -1,13 +1,28 @@
-import { ChapterIcon } from "./ChapterIcons";
 import { useAuthActions } from "@convex-dev/auth/react";
+import {
+  RiBookOpenLine as BookOpen,
+  RiArrowUpSLine as ChevronUp,
+  RiFileLine as File,
+  RiLayoutGridLine as LayoutDashboard,
+  RiLogoutBoxRLine as LogOut,
+  RiChat3Line as MessageSquare,
+  RiPaintBrushLine as PaintBrush,
+  RiPlugLine as PlugsConnected,
+  RiSettings3Line as Settings,
+  RiShieldCheckLine as ShieldCheck,
+  RiLineChartLine as TrendingUp,
+  RiUserLine as User,
+  RiUserSettingsLine as UserCog,
+  RiTeamLine as Users,
+} from "@remixicon/react";
 import { useQuery } from "convex/react";
-import { RiArrowUpSLine as ChevronUp, RiLayoutGridLine as LayoutDashboard, RiLogoutBoxRLine as LogOut, RiChat3Line as MessageSquare, RiSettings3Line as Settings, RiShieldCheckLine as ShieldCheck, RiBookOpenLine as BookOpen, RiLineChartLine as TrendingUp, RiUserLine as User, RiTeamLine as Users, RiUserSettingsLine as UserCog, RiFileLine as File, RiPaintBrushLine as PaintBrush, RiPlugLine as PlugsConnected } from "@remixicon/react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter } from "../data/tiers";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { ChapterIcon } from "./ChapterIcons";
 import { ThemeToggleButton } from "./ThemeToggleButton";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,13 +47,13 @@ import {
 
 // Chapter dot colors matching the original portal
 const chapterDotColors: Record<string, string> = {
-  digital: "#3B82F6",    // blue
-  emergency: "#F43F5E",  // rose
-  financial: "#D4AF37",  // gold
-  household: "#10B981",  // emerald
-  vitals: "#FFFFFF",     // white
-  context: "#A855F7",    // purple
-  business: "#94A3B8",   // silver
+  digital: "#3B82F6", // blue
+  emergency: "#F43F5E", // rose
+  financial: "#D4AF37", // gold
+  household: "#10B981", // emerald
+  vitals: "#FFFFFF", // white
+  context: "#A855F7", // purple
+  business: "#94A3B8", // silver
 };
 
 // Short names matching original sidebar
@@ -93,16 +108,18 @@ export function AppSidebar() {
             <img
               src="/logo.png"
               alt="Legacy Architect RVA"
+              width={48}
+              height={48}
               className="w-11 h-11 rounded-lg object-contain flex-shrink-0"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
+              onError={e => {
+                (e.target as HTMLImageElement).style.display = "none";
               }}
             />
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-heading font-semibold text-gold-primary tracking-wide uppercase leading-tight">
                 Legacy Architect RVA
               </span>
-              <span className="text-[10px] text-muted-foreground tracking-[0.15em] uppercase">
+              <span className="text-[11.5px] sm:text-[10px] text-muted-foreground tracking-[0.15em] uppercase">
                 Client Portal
               </span>
             </div>
@@ -116,7 +133,7 @@ export function AppSidebar() {
       <SidebarContent>
         {/* OVERVIEW Section */}
         <SidebarGroup>
-          <SidebarGroupLabel className="font-heading text-[10px] tracking-widest text-gold-muted uppercase">
+          <SidebarGroupLabel className="font-heading text-[11.5px] sm:text-[10px] tracking-widest text-gold-muted uppercase">
             Overview
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -147,7 +164,7 @@ export function AppSidebar() {
                   <MessageSquare className="w-4 h-4" />
                   <span>Messages</span>
                   {unreadCount && unreadCount > 0 ? (
-                    <span className="ml-auto bg-gold-bright text-[#0f0c08] text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    <span className="ml-auto bg-gold-bright text-[#0f0c08] text-[11.5px] sm:text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                       {unreadCount}
                     </span>
                   ) : null}
@@ -161,7 +178,7 @@ export function AppSidebar() {
 
         {/* LIFE MANUAL Section - with colored dots */}
         <SidebarGroup>
-          <SidebarGroupLabel className="font-heading text-[10px] tracking-widest text-gold-muted uppercase">
+          <SidebarGroupLabel className="font-heading text-[11.5px] sm:text-[10px] tracking-widest text-gold-muted uppercase">
             Life Manual
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -176,9 +193,11 @@ export function AppSidebar() {
                   <span className="text-xs">Introduction</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              {chapters.map((ch) => {
-                const accessible = isAdmin || canAccessChapter(tier, ch.chapterNumber);
-                const isActive = location.pathname === `/chapter/${ch.id}` ||
+              {chapters.map(ch => {
+                const accessible =
+                  isAdmin || canAccessChapter(tier, ch.chapterNumber);
+                const isActive =
+                  location.pathname === `/chapter/${ch.id}` ||
                   location.pathname.startsWith(`/chapter/${ch.id}/`);
                 const dotColor = chapterDotColors[ch.id] || "#94A3B8";
                 const shortName = chapterShortNames[ch.id] || ch.shortTitle;
@@ -187,7 +206,9 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       isActive={isActive}
                       onClick={() => accessible && navTo(`/chapter/${ch.id}`)}
-                      className={!accessible ? "opacity-40 cursor-not-allowed" : ""}
+                      className={
+                        !accessible ? "opacity-40 cursor-not-allowed" : ""
+                      }
                     >
                       {/* Chapter icon */}
                       <ChapterIcon
@@ -199,7 +220,7 @@ export function AppSidebar() {
                         Ch. {ch.chapterNumber} · {shortName}
                       </span>
                       {!accessible && (
-                        <span className="ml-auto text-[9px] bg-gold-dark/20 text-gold-muted px-1.5 py-0.5 rounded-full">
+                        <span className="ml-auto text-[10.3px] sm:text-[9px] bg-gold-dark/20 text-gold-muted px-1.5 py-0.5 rounded-full">
                           {ch.tier}
                         </span>
                       )}
@@ -225,7 +246,9 @@ export function AppSidebar() {
                   className="my-1"
                 >
                   <TrendingUp className="w-4 h-4 text-gold-bright" />
-                  <span className="text-xs font-heading tracking-wide">Upgrade Plan</span>
+                  <span className="text-xs font-heading tracking-wide">
+                    Upgrade Plan
+                  </span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -237,85 +260,85 @@ export function AppSidebar() {
         {/* ADMIN Section — always mounted, visibility toggled by class so isAdmin
             resolving never inserts/removes DOM nodes mid-animation */}
         <SidebarGroup className={!isAdmin ? "hidden" : ""}>
-          <SidebarGroupLabel className="font-heading text-[10px] tracking-widest text-gold-muted uppercase">
+          <SidebarGroupLabel className="font-heading text-[11.5px] sm:text-[10px] tracking-widest text-gold-muted uppercase">
             Admin
           </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname === "/admin"}
-                    onClick={() => navTo("/admin")}
-                  >
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Dashboard</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname === "/admin/users"}
-                    onClick={() => navTo("/admin/users")}
-                  >
-                    <UserCog className="w-4 h-4" />
-                    <span>User Access</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname === "/admin/prospects"}
-                    onClick={() => navTo("/admin/prospects")}
-                  >
-                    <Users className="w-4 h-4" />
-                    <span>Prospects</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname.startsWith("/admin/blueprint")}
-                    onClick={() => navTo("/admin/blueprint")}
-                  >
-                    <TrendingUp className="w-4 h-4" />
-                    <span>Blueprint Sessions</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname.startsWith("/generate")}
-                    onClick={() => navTo("/generate")}
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    <span>Generate Manual</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname === "/convert"}
-                    onClick={() => navTo("/convert")}
-                  >
-                    <File className="w-4 h-4" />
-                    <span>Document Conversion</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname === "/admin/visual-editor"}
-                    onClick={() => navTo("/admin/visual-editor")}
-                  >
-                    <PaintBrush className="w-4 h-4" />
-                    <span>Visual Editor</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    isActive={location.pathname === "/admin/hubspot"}
-                    onClick={() => navTo("/admin/hubspot")}
-                  >
-                    <PlugsConnected className="w-4 h-4" />
-                    <span>HubSpot Settings</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location.pathname === "/admin"}
+                  onClick={() => navTo("/admin")}
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location.pathname === "/admin/users"}
+                  onClick={() => navTo("/admin/users")}
+                >
+                  <UserCog className="w-4 h-4" />
+                  <span>User Access</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location.pathname === "/admin/prospects"}
+                  onClick={() => navTo("/admin/prospects")}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Prospects</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location.pathname.startsWith("/admin/blueprint")}
+                  onClick={() => navTo("/admin/blueprint")}
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <span>Blueprint Sessions</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location.pathname.startsWith("/generate")}
+                  onClick={() => navTo("/generate")}
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>Generate Manual</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location.pathname === "/convert"}
+                  onClick={() => navTo("/convert")}
+                >
+                  <File className="w-4 h-4" />
+                  <span>Document Conversion</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location.pathname === "/admin/visual-editor"}
+                  onClick={() => navTo("/admin/visual-editor")}
+                >
+                  <PaintBrush className="w-4 h-4" />
+                  <span>Visual Editor</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location.pathname === "/admin/hubspot"}
+                  onClick={() => navTo("/admin/hubspot")}
+                >
+                  <PlugsConnected className="w-4 h-4" />
+                  <span>HubSpot Settings</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
@@ -335,11 +358,11 @@ export function AppSidebar() {
                       {profile?.email || "Loading..."}
                     </span>
                     {isAdmin ? (
-                      <span className="text-[10px] text-gold-bright">
+                      <span className="text-[11.5px] sm:text-[10px] text-gold-bright">
                         Administrator · Full Access
                       </span>
                     ) : profile?.tier ? (
-                      <span className="text-[10px] text-gold-muted capitalize">
+                      <span className="text-[11.5px] sm:text-[10px] text-gold-muted capitalize">
                         {profile.tier} Edition
                       </span>
                     ) : null}

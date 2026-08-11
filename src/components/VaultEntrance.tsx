@@ -17,7 +17,9 @@ const SESSION_KEY = "lrva_vault_opened";
  * navigation to /dashboard within the same session.
  */
 export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
-  const [phase, setPhase] = useState<"still" | "line" | "split" | "fade" | "done">("still");
+  const [phase, setPhase] = useState<
+    "still" | "line" | "split" | "fade" | "done"
+  >("still");
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase("line"), 600);
@@ -28,7 +30,12 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
       sessionStorage.setItem(SESSION_KEY, "1");
       onComplete();
     }, 1950);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+    };
   }, [onComplete]);
 
   if (phase === "done") return null;
@@ -40,14 +47,19 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
     <div
       className="fixed inset-0 z-[200] overflow-hidden pointer-events-none"
       aria-hidden="true"
-      style={{ opacity: fading ? 0 : 1, transition: fading ? "opacity 350ms ease-in 0ms" : "none" }}
+      style={{
+        opacity: fading ? 0 : 1,
+        transition: fading ? "opacity 350ms ease-in 0ms" : "none",
+      }}
     >
       {/* Left panel */}
       <div
         className="absolute inset-y-0 left-0 w-1/2 bg-[#060606]"
         style={{
           transform: splitting ? "translateX(-100%)" : "translateX(0)",
-          transition: splitting ? "transform 650ms cubic-bezier(0.76, 0, 0.24, 1)" : "none",
+          transition: splitting
+            ? "transform 650ms cubic-bezier(0.76, 0, 0.24, 1)"
+            : "none",
         }}
       />
 
@@ -56,7 +68,9 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
         className="absolute inset-y-0 right-0 w-1/2 bg-[#060606]"
         style={{
           transform: splitting ? "translateX(100%)" : "translateX(0)",
-          transition: splitting ? "transform 650ms cubic-bezier(0.76, 0, 0.24, 1)" : "none",
+          transition: splitting
+            ? "transform 650ms cubic-bezier(0.76, 0, 0.24, 1)"
+            : "none",
         }}
       />
 
@@ -73,6 +87,8 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
           src="/logo.png"
           alt=""
           aria-hidden="true"
+          width={72}
+          height={72}
           style={{
             width: 72,
             height: 72,
@@ -84,12 +100,12 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
         {/* Wordmark */}
         <div className="text-center space-y-1">
           <p
-            className="font-heading text-[13px] tracking-[0.28em] uppercase text-[#d4b661]"
+            className="font-heading text-[14.9px] sm:text-[13px] tracking-[0.28em] uppercase text-[#d4b661]"
             style={{ textShadow: "0 0 18px rgba(212, 182, 97,0.25)" }}
           >
             Legacy Architect
           </p>
-          <p className="font-heading text-[10px] tracking-[0.35em] uppercase text-[rgba(212, 182, 97,0.5)]">
+          <p className="font-heading text-[11.5px] sm:text-[10px] tracking-[0.35em] uppercase text-[rgba(212, 182, 97,0.5)]">
             RVA
           </p>
         </div>

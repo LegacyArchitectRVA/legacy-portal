@@ -25,6 +25,8 @@ export function AppLayout() {
             <img
               src="/logo.png"
               alt="Legacy Architect RVA"
+              width={48}
+              height={48}
               className="w-11 h-11 rounded object-contain"
             />
             <span className="text-sm font-heading font-semibold text-gold-primary tracking-wide uppercase truncate">
