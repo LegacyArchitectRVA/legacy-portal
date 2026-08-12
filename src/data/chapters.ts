@@ -92,7 +92,8 @@ const ch01: Chapter = {
       id: "devices_os",
       title: "Devices & Operating Systems",
       icon: "Laptop",
-      description: "This section outlines primary devices and the access they may hold.",
+      description:
+        "This section outlines primary devices and the access they may hold.",
       howToUse:
         "Use this page to identify device categories, associated access, and retention guidance.",
       tableColumns: [
@@ -158,7 +159,8 @@ const ch01: Chapter = {
       id: "subscriptions_renewals",
       title: "Subscriptions & Renewals",
       icon: "RefreshCw",
-      description: "This section outlines recurring digital services and renewal structures.",
+      description:
+        "This section outlines recurring digital services and renewal structures.",
       howToUse:
         "Use this page to identify renewal status, billing source, continuity impact, and recommended action.",
       tableColumns: [
@@ -174,7 +176,8 @@ const ch01: Chapter = {
       id: "twofa_recovery",
       title: "2FA & Recovery Codes",
       icon: "ShieldCheck",
-      description: "This section outlines protection methods and recovery structure.",
+      description:
+        "This section outlines protection methods and recovery structure.",
       howToUse:
         "Use this page to identify protection methods, recovery material locations, and escalation timing.",
       tableColumns: [
@@ -237,13 +240,16 @@ const ch02: Chapter = {
         { key: "trigger", label: "Trigger for Involvement", width: "22%" },
         { key: "documents", label: "Where Documents Live", width: "25%" },
       ],
-      structuralRules: ["Confirm authority before disclosing sensitive information."],
+      structuralRules: [
+        "Confirm authority before disclosing sensitive information.",
+      ],
     },
     {
       id: "first_48_hours",
       title: "First 48-Hours Plan",
       icon: "Clock",
-      description: "Immediate stabilization and priority decisions for the first 48 hours.",
+      description:
+        "Immediate stabilization and priority decisions for the first 48 hours.",
       howToUse:
         "Follow the stabilization steps in order before making changes to accounts or systems.",
       tableColumns: [
@@ -262,7 +268,8 @@ const ch02: Chapter = {
           id: "crisis_step2",
           label: "Step 2: Access the Life Manual",
           type: "textarea",
-          placeholder: "Confirm access to the Life Manual and related documents...",
+          placeholder:
+            "Confirm access to the Life Manual and related documents...",
         },
         {
           id: "crisis_step3",
@@ -274,13 +281,15 @@ const ch02: Chapter = {
           id: "crisis_step4",
           label: "Step 4: Secure Financial Systems",
           type: "textarea",
-          placeholder: "Preserve accounts, do not close or transfer without review...",
+          placeholder:
+            "Preserve accounts, do not close or transfer without review...",
         },
         {
           id: "crisis_step5",
           label: "Step 5: Review Legal Documents",
           type: "textarea",
-          placeholder: "Locate will, POA, trust documents, advance directives...",
+          placeholder:
+            "Locate will, POA, trust documents, advance directives...",
         },
       ],
       crossRefs: [
@@ -459,7 +468,8 @@ const ch04: Chapter = {
       icon: "PawPrint",
       description:
         "This section documents pet care needs, veterinary information, and care instructions.",
-      howToUse: "Use this section to understand immediate and ongoing pet care needs.",
+      howToUse:
+        "Use this section to understand immediate and ongoing pet care needs.",
       tableColumns: [],
       fields: [
         {
@@ -472,7 +482,8 @@ const ch04: Chapter = {
           id: "medications",
           label: "Medications",
           type: "textarea",
-          placeholder: "Current medications, dosage and timing, storage location...",
+          placeholder:
+            "Current medications, dosage and timing, storage location...",
         },
         {
           id: "vet_info",
@@ -492,7 +503,8 @@ const ch04: Chapter = {
           id: "feeding",
           label: "Feeding Schedule & Diet",
           type: "textarea",
-          placeholder: "Food type, portion size, feeding times, dietary restrictions...",
+          placeholder:
+            "Food type, portion size, feeding times, dietary restrictions...",
         },
       ],
     },
@@ -502,7 +514,8 @@ const ch04: Chapter = {
       icon: "Car",
       description:
         "Identifies vehicles owned and where key documents and access details are located.",
-      howToUse: "Use this section to locate vehicle documents and access information.",
+      howToUse:
+        "Use this section to locate vehicle documents and access information.",
       tableColumns: [
         { key: "vehicle", label: "Vehicle (Make/Model/Year)", width: "20%" },
         { key: "vin", label: "VIN", width: "16%" },
@@ -549,7 +562,8 @@ const ch05: Chapter = {
       id: "identification_documents",
       title: "Identification Documents",
       icon: "Fingerprint",
-      description: "Overview of critical identification documents and storage locations.",
+      description:
+        "Overview of critical identification documents and storage locations.",
       howToUse:
         "Use this page to locate identification documents when verification is required.",
       tableColumns: [
@@ -579,7 +593,8 @@ const ch05: Chapter = {
       id: "medical_providers",
       title: "Active Medical Providers",
       icon: "Hospital",
-      description: "Active medical provider relationships and coordination guidance.",
+      description:
+        "Active medical provider relationships and coordination guidance.",
       howToUse:
         "Use this section to identify active providers, contact coordination guidance, and records locations.",
       tableColumns: [
@@ -635,7 +650,8 @@ const ch06: Chapter = {
           id: "personal_messages",
           label: "Personal Messages",
           type: "textarea",
-          placeholder: "Letters, reflections, or notes intended for loved ones...",
+          placeholder:
+            "Letters, reflections, or notes intended for loved ones...",
         },
         {
           id: "sentimental_items",
@@ -649,7 +665,11 @@ const ch06: Chapter = {
         "High-level intent, not legal detail.",
         "These reflections are not legal instructions and are not a replacement for formal documents.",
       ],
-      crossRefs: ["Identification Documents", "Medical Information", "Insurance Policies"],
+      crossRefs: [
+        "Identification Documents",
+        "Medical Information",
+        "Insurance Policies",
+      ],
     },
     {
       id: "digital_narrative_control",
@@ -795,7 +815,11 @@ const ch07: Chapter = {
         "No credentials are stored in this Manual.",
         "This section records authority, location, and governance structure only.",
       ],
-      crossRefs: ["Financial & Assets", "Contracts & Obligations", "Legal & Governance Structure"],
+      crossRefs: [
+        "Financial & Assets",
+        "Contracts & Obligations",
+        "Legal & Governance Structure",
+      ],
     },
     {
       id: "stabilization_protocol",
@@ -803,32 +827,37 @@ const ch07: Chapter = {
       icon: "Activity",
       description:
         "Structured sequence for stabilizing the business following incapacity or death.",
-      howToUse: "Follow these steps in order. Do not skip steps or take action without completing previous steps.",
+      howToUse:
+        "Follow these steps in order. Do not skip steps or take action without completing previous steps.",
       tableColumns: [],
       fields: [
         {
           id: "step1",
           label: "Phase 1: Immediate Stabilization (0-48 hours)",
           type: "textarea",
-          placeholder: "Secure premises, notify key personnel, preserve financial systems...",
+          placeholder:
+            "Secure premises, notify key personnel, preserve financial systems...",
         },
         {
           id: "step2",
           label: "Phase 2: Authority Confirmation (48-72 hours)",
           type: "textarea",
-          placeholder: "Confirm legal authority, notify advisors, review governance documents...",
+          placeholder:
+            "Confirm legal authority, notify advisors, review governance documents...",
         },
         {
           id: "step3",
           label: "Phase 3: Operational Continuity (Week 1-2)",
           type: "textarea",
-          placeholder: "Client communication, vendor continuity, payroll and cash flow...",
+          placeholder:
+            "Client communication, vendor continuity, payroll and cash flow...",
         },
         {
           id: "step4",
           label: "Phase 4: Strategic Assessment (Week 2-4)",
           type: "textarea",
-          placeholder: "Business valuation, continuation vs. wind-down decision...",
+          placeholder:
+            "Business valuation, continuation vs. wind-down decision...",
         },
       ],
     },
@@ -836,8 +865,10 @@ const ch07: Chapter = {
       id: "business_insurance",
       title: "Business Insurance & Risk Coverage",
       icon: "ShieldAlert",
-      description: "Active business insurance policies and risk transfer coverage.",
-      howToUse: "Use this section to confirm active coverage and claim procedures.",
+      description:
+        "Active business insurance policies and risk transfer coverage.",
+      howToUse:
+        "Use this section to confirm active coverage and claim procedures.",
       tableColumns: [
         { key: "policy", label: "Policy Type", width: "16%" },
         { key: "carrier", label: "Carrier", width: "14%" },
@@ -888,7 +919,8 @@ const ch07: Chapter = {
       id: "vendor_agreements",
       title: "Vendor & Service Agreements",
       icon: "ClipboardList",
-      description: "Active vendor and service agreements critical to operations.",
+      description:
+        "Active vendor and service agreements critical to operations.",
       howToUse:
         "Use this section to identify ongoing vendor commitments, terms, and transition requirements.",
       tableColumns: [
@@ -920,7 +952,8 @@ const ch07: Chapter = {
       id: "internal_leadership",
       title: "Internal Leadership",
       icon: "Crown",
-      description: "Internal leadership roles and their authority during transition (if applicable).",
+      description:
+        "Internal leadership roles and their authority during transition (if applicable).",
       howToUse:
         "Use this section to identify decision-making authority and operational leadership.",
       tableColumns: [
@@ -960,7 +993,7 @@ export const chapters: Chapter[] = [ch01, ch02, ch03, ch04, ch05, ch06, ch07];
 export const PRIVACY_NOTE = PRIVACY_DISCLAIMER;
 
 export function getChapter(id: string): Chapter | undefined {
-  return chapters.find((c) => c.id === id);
+  return chapters.find(c => c.id === id);
 }
 
 export function getSubSection(
@@ -968,7 +1001,7 @@ export function getSubSection(
   sectionId: string,
 ): SubSection | undefined {
   const ch = getChapter(chapterId);
-  return ch?.subSections.find((s) => s.id === sectionId);
+  return ch?.subSections.find(s => s.id === sectionId);
 }
 
 // Resolves a crossRefs entry (a human-readable title) to where it actually
@@ -988,7 +1021,10 @@ export function resolveCrossRef(
     }
   }
   for (const ch of chapters) {
-    if (ch.shortTitle.toLowerCase() === normalized || ch.title.toLowerCase() === normalized) {
+    if (
+      ch.shortTitle.toLowerCase() === normalized ||
+      ch.title.toLowerCase() === normalized
+    ) {
       return { chapterId: ch.id };
     }
   }

@@ -1,4 +1,4 @@
-import { RiSunLine as Sun, RiMoonLine as Moon } from "@remixicon/react";
+import { RiMoonLine as Moon, RiSunLine as Sun } from "@remixicon/react";
 import { useTheme } from "../contexts/ThemeContext";
 
 /**
@@ -9,7 +9,11 @@ import { useTheme } from "../contexts/ThemeContext";
  * mode you'd switch TO, a common convention for this kind of toggle.
  * Renders nothing if the app's theme isn't switchable at all.
  */
-export function ThemeToggleButton({ size = "default" }: { size?: "default" | "sm" }) {
+export function ThemeToggleButton({
+  size = "default",
+}: {
+  size?: "default" | "sm";
+}) {
   const { theme, toggleTheme, switchable } = useTheme();
   if (!switchable || !toggleTheme) return null;
 
@@ -20,10 +24,16 @@ export function ThemeToggleButton({ size = "default" }: { size?: "default" | "sm
     <button
       type="button"
       onClick={toggleTheme}
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={
+        theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+      }
       className={`flex items-center justify-center ${dimensions} rounded-full border border-gold-border/30 text-gold-primary hover:bg-gold-dark/10 transition-colors shrink-0`}
     >
-      {theme === "dark" ? <Sun className={iconSize} /> : <Moon className={iconSize} />}
+      {theme === "dark" ? (
+        <Sun className={iconSize} />
+      ) : (
+        <Moon className={iconSize} />
+      )}
     </button>
   );
 }

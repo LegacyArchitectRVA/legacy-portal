@@ -1,7 +1,15 @@
-import { action, query, internalQuery, internalMutation } from "./_generated/server";
-import { internal } from "./_generated/api";
+import {
+  invalidateSessions,
+  modifyAccountCredentials,
+} from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { modifyAccountCredentials, invalidateSessions } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
+import {
+  action,
+  internalMutation,
+  internalQuery,
+  query,
+} from "./_generated/server";
 import { requireAdmin, requireAdminInAction } from "./admin";
 import { APP_NAME } from "./constants";
 
@@ -13,14 +21,14 @@ import { APP_NAME } from "./constants";
  */
 export const listUsersWithAccess = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     await requireAdmin(ctx);
     const users = await ctx.db.query("users").collect();
     const result = [];
     for (const user of users) {
       const client = await ctx.db
         .query("clients")
-        .withIndex("by_userId", (q) => q.eq("userId", user._id))
+        .withIndex("by_userId", q => q.eq("userId", user._id))
         .unique();
       result.push({
         userId: user._id,
@@ -62,11 +70,19 @@ function generateTemporaryPassword(): string {
  */
 export const setTemporaryPassword = action({
   args: { targetUserId: v.id("users") },
-  handler: async (ctx, { targetUserId }): Promise<{ temporaryPassword: string }> => {
+  handler: async (
+    ctx,
+    { targetUserId },
+  ): Promise<{ temporaryPassword: string }> => {
     await requireAdminInAction(ctx);
-    const user: any = await ctx.runQuery(internal.admin.getUserInternal, { userId: targetUserId });
+    const user: any = await ctx.runQuery(internal.admin.getUserInternal, {
+      userId: targetUserId,
+    });
     if (!user) throw new Error("User not found");
-    if (!user.email) throw new Error("This user has no email on file to attach a password account to.");
+    if (!user.email)
+      throw new Error(
+        "This user has no email on file to attach a password account to.",
+      );
 
     const temporaryPassword = generateTemporaryPassword();
     await modifyAccountCredentials(ctx as any, {
@@ -100,9 +116,14 @@ export const setTemporaryPassword = action({
  */
 export const sendPasswordResetEmail = action({
   args: { targetUserId: v.id("users") },
-  handler: async (ctx, { targetUserId }): Promise<{ sent: boolean; email: string }> => {
+  handler: async (
+    ctx,
+    { targetUserId },
+  ): Promise<{ sent: boolean; email: string }> => {
     await requireAdminInAction(ctx);
-    const user: any = await ctx.runQuery(internal.admin.getUserInternal, { userId: targetUserId });
+    const user: any = await ctx.runQuery(internal.admin.getUserInternal, {
+      userId: targetUserId,
+    });
     if (!user) throw new Error("User not found");
     if (!user.email) throw new Error("This user has no email on file.");
 
@@ -113,12 +134,16 @@ export const sendPasswordResetEmail = action({
     });
 
     const apiKey = process.env.AUTH_RESEND_KEY;
-    if (!apiKey) throw new Error("AUTH_RESEND_KEY environment variable not configured.");
+    if (!apiKey)
+      throw new Error("AUTH_RESEND_KEY environment variable not configured.");
     const greetingName = user.name ? String(user.name).split(" ")[0] : "there";
     const loginUrl = "https://portal.legacyarchitectrva.com/login";
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         from: `${APP_NAME} <noreply@legacyarchitectrva.com>`,
         to: [user.email],
@@ -156,7 +181,7 @@ export const getClientRecordInternal = internalQuery({
   handler: async (ctx, { userId }) => {
     return await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .unique();
   },
 });
@@ -180,15 +205,26 @@ export const setActivatedInternal = internalMutation({
  */
 export const unlockAccount = action({
   args: { targetUserId: v.id("users") },
-  handler: async (ctx, { targetUserId }): Promise<{ reactivated: boolean; sessionsCleared: boolean }> => {
+  handler: async (
+    ctx,
+    { targetUserId },
+  ): Promise<{ reactivated: boolean; sessionsCleared: boolean }> => {
     await requireAdminInAction(ctx);
-    const user: any = await ctx.runQuery(internal.admin.getUserInternal, { userId: targetUserId });
+    const user: any = await ctx.runQuery(internal.admin.getUserInternal, {
+      userId: targetUserId,
+    });
     if (!user) throw new Error("User not found");
 
     let reactivated = false;
-    const client: any = await ctx.runQuery(internal.userAdmin.getClientRecordInternal, { userId: targetUserId });
+    const client: any = await ctx.runQuery(
+      internal.userAdmin.getClientRecordInternal,
+      { userId: targetUserId },
+    );
     if (client && !client.isActivated) {
-      await ctx.runMutation(internal.userAdmin.setActivatedInternal, { clientId: client._id, isActivated: true });
+      await ctx.runMutation(internal.userAdmin.setActivatedInternal, {
+        clientId: client._id,
+        isActivated: true,
+      });
       reactivated = true;
     }
 

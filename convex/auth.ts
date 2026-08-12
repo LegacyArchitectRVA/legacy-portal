@@ -1,12 +1,9 @@
 import { Password } from "@convex-dev/auth/providers/Password";
 import { convexAuth, getAuthUserId } from "@convex-dev/auth/server";
 import { query } from "./_generated/server";
-import { TestCredentials } from "./testAuth";
 import { PasskeyCredentials } from "./passkeyAuth";
-import {
-  ResendVerificationEmail,
-  ResendPasswordReset,
-} from "./ResendEmail";
+import { ResendPasswordReset, ResendVerificationEmail } from "./ResendEmail";
+import { TestCredentials } from "./testAuth";
 
 declare const process: { env: Record<string, string | undefined> };
 

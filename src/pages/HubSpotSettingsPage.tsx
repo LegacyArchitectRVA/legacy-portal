@@ -1,8 +1,18 @@
+import {
+  RiArrowLeftLine as ArrowLeft,
+  RiCheckboxCircleLine as CheckCircle2,
+  RiFileCopyLine as Copy,
+  RiEyeLine as Eye,
+  RiKeyLine as Key,
+  RiLoader4Line as Loader2,
+  RiSaveLine as Save,
+  RiSettings3Line as Settings,
+  RiCloseCircleLine as XCircle,
+} from "@remixicon/react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { RiArrowLeftLine as ArrowLeft, RiCheckboxCircleLine as CheckCircle2, RiFileCopyLine as Copy, RiEyeLine as Eye, RiKeyLine as Key, RiLoader4Line as Loader2, RiSaveLine as Save, RiSettings3Line as Settings, RiCloseCircleLine as XCircle } from "@remixicon/react";
 
 export default function HubSpotSettingsPage() {
   const navigate = useNavigate();
@@ -17,40 +27,43 @@ export default function HubSpotSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState<boolean>(false);
   const [testing, setTesting] = useState(false);
-  const [testResult, setTestResult] = useState<{ connected: boolean; message: string } | null>(null);
-  
+  const [testResult, setTestResult] = useState<{
+    connected: boolean;
+    message: string;
+  } | null>(null);
+
   // Load existing API key
   useEffect(() => {
     if (hubSpotConfig) {
       setApiKey(hubSpotConfig);
     }
   }, [hubSpotConfig]);
-  
+
   const handleSave = async () => {
     if (!apiKey.trim()) {
       setError("API key is required");
       return;
     }
-    
+
     setSaving(true);
     setError(null);
     try {
       await setHubSpotConfig({ apiKey: apiKey.trim() });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
+    } catch (_err) {
       setError("Failed to save API key. Please try again.");
     } finally {
       setSaving(false);
     }
   };
-  
+
   const handleCopy = () => {
     if (apiKey) {
       navigator.clipboard.writeText(apiKey);
     }
   };
-  
+
   const handleTestConnection = async () => {
     setTesting(true);
     setTestResult(null);
@@ -58,12 +71,15 @@ export default function HubSpotSettingsPage() {
       const result = await testConnectionAction({});
       setTestResult(result);
     } catch (err: any) {
-      setTestResult({ connected: false, message: err?.message || "Test failed." });
+      setTestResult({
+        connected: false,
+        message: err?.message || "Test failed.",
+      });
     } finally {
       setTesting(false);
     }
   };
-  
+
   if (!isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -72,7 +88,7 @@ export default function HubSpotSettingsPage() {
       </div>
     );
   }
-  
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
@@ -82,8 +98,8 @@ export default function HubSpotSettingsPage() {
             HubSpot Settings
           </h1>
           <p className="text-[#f2ede2]/75 mt-1">
-            Connect your HubSpot account to push client records, pull contact data,
-            and link straight to each client's CRM profile
+            Connect your HubSpot account to push client records, pull contact
+            data, and link straight to each client's CRM profile
           </p>
         </div>
         <button
@@ -98,35 +114,41 @@ export default function HubSpotSettingsPage() {
       {/* What This Enables */}
       <div className="bg-[#0f0c08] rounded-xl border border-gold-border overflow-hidden">
         <div className="p-4 border-b border-gold-border/30">
-          <h2 className="font-heading text-sm text-gold-primary">What This Enables</h2>
+          <h2 className="font-heading text-sm text-gold-primary">
+            What This Enables
+          </h2>
         </div>
         <div className="p-6 space-y-3 text-sm text-[#f2ede2]/80">
           <div className="flex gap-3">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              <strong className="text-[#f2ede2]">Push to HubSpot</strong>: from any client's row in
-              Client Management, send their name, email, and phone to HubSpot as a contact.
+              <strong className="text-[#f2ede2]">Push to HubSpot</strong>: from
+              any client's row in Client Management, send their name, email, and
+              phone to HubSpot as a contact.
             </span>
           </div>
           <div className="flex gap-3">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              <strong className="text-[#f2ede2]">Pull from HubSpot</strong>: look up a client's
-              current HubSpot contact record right next to their portal data.
+              <strong className="text-[#f2ede2]">Pull from HubSpot</strong>:
+              look up a client's current HubSpot contact record right next to
+              their portal data.
             </span>
           </div>
           <div className="flex gap-3">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              <strong className="text-[#f2ede2]">Go to Portal Profile</strong>: after a successful
-              sync, jump straight from HubSpot context to that client's full CRM profile in the portal.
+              <strong className="text-[#f2ede2]">Go to Portal Profile</strong>:
+              after a successful sync, jump straight from HubSpot context to
+              that client's full CRM profile in the portal.
             </span>
           </div>
           <div className="flex gap-3">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              <strong className="text-[#f2ede2]">View in HubSpot</strong>: once synced, a client's
-              profile page links directly back to their HubSpot contact record.
+              <strong className="text-[#f2ede2]">View in HubSpot</strong>: once
+              synced, a client's profile page links directly back to their
+              HubSpot contact record.
             </span>
           </div>
         </div>
@@ -140,7 +162,7 @@ export default function HubSpotSettingsPage() {
             API Configuration
           </h2>
         </div>
-        
+
         <div className="p-6 space-y-6">
           {/* API Key Input */}
           <div>
@@ -148,16 +170,20 @@ export default function HubSpotSettingsPage() {
               HubSpot Private App Token
             </label>
             <p className="text-[10px] text-[#f2ede2]/50 mb-3">
-              Enter your HubSpot Private App Token to enable client data synchronization.
-              This key will be used to authenticate requests to the HubSpot API.
-              <br/>
-              <span className="text-gold-muted/70">Recommended scopes: crm.objects.contacts.* and crm.schemas.contacts.*</span>
+              Enter your HubSpot Private App Token to enable client data
+              synchronization. This key will be used to authenticate requests to
+              the HubSpot API.
+              <br />
+              <span className="text-gold-muted/70">
+                Recommended scopes: crm.objects.contacts.* and
+                crm.schemas.contacts.*
+              </span>
             </p>
             <div className="relative">
               <input
                 type={showApiKey ? "text" : "password"}
                 value={apiKey}
-                onChange={(e) => {
+                onChange={e => {
                   setApiKey(e.target.value);
                   setSaved(false);
                 }}
@@ -185,7 +211,7 @@ export default function HubSpotSettingsPage() {
               </button>
             )}
           </div>
-          
+
           {/* Save Button */}
           <div className="flex items-center gap-3">
             <button
@@ -205,19 +231,17 @@ export default function HubSpotSettingsPage() {
                 </>
               )}
             </button>
-            
+
             {saved && (
               <span className="flex items-center gap-1 text-emerald-400 text-sm">
                 <CheckCircle2 className="w-4 h-4" />
                 Saved
               </span>
             )}
-            
-            {error && (
-              <span className="text-red-400 text-sm">{error}</span>
-            )}
+
+            {error && <span className="text-red-400 text-sm">{error}</span>}
           </div>
-          
+
           {/* Test Connection */}
           {apiKey && (
             <div className="pt-4 border-t border-gold-border/10 space-y-2">
@@ -226,11 +250,17 @@ export default function HubSpotSettingsPage() {
                 disabled={testing}
                 className="flex items-center gap-2 text-sm text-gold-muted hover:text-gold-primary transition-colors disabled:opacity-50"
               >
-                {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Settings className="w-4 h-4" />}
+                {testing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Settings className="w-4 h-4" />
+                )}
                 Test Connection
               </button>
               {testResult && (
-                <p className={`text-xs ${testResult.connected ? "text-emerald-400" : "text-red-400"}`}>
+                <p
+                  className={`text-xs ${testResult.connected ? "text-emerald-400" : "text-red-400"}`}
+                >
                   {testResult.message}
                 </p>
               )}
@@ -238,7 +268,7 @@ export default function HubSpotSettingsPage() {
           )}
         </div>
       </div>
-      
+
       {/* Instructions */}
       <div className="bg-[#0f0c08] rounded-xl border border-gold-border overflow-hidden">
         <div className="p-4 border-b border-gold-border/30">
@@ -276,7 +306,9 @@ export default function HubSpotSettingsPage() {
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
                 5
               </span>
-              <span>Click "Create a private app" and select the scopes below</span>
+              <span>
+                Click "Create a private app" and select the scopes below
+              </span>
             </li>
             <li className="flex gap-3">
               <span className="w-6 h-6 rounded-full bg-gold-primary/20 text-gold-primary flex items-center justify-center text-xs font-bold shrink-0">
@@ -285,24 +317,42 @@ export default function HubSpotSettingsPage() {
               <span>Copy the access token (starts with "pat-")</span>
             </li>
           </ol>
-          
+
           <div className="mt-6 p-4 bg-black rounded-lg border border-gold-border/20">
             <p className="text-[10px] text-[#f2ede2]/50 break-words">
-              <strong className="text-gold-muted">Note:</strong> Keep this token secure. 
-              Anyone with access to this key can make API requests on behalf of your HubSpot account.
-              <br/>
-              <strong className="text-gold-muted">Recommended scopes:</strong> 
-              <code className="text-gold-muted/70">crm.objects.contacts.highly_sensitive.read</code>, 
-              <code className="text-gold-muted/70">crm.objects.contacts.read</code>, 
-              <code className="text-gold-muted/70">crm.objects.contacts.sensitive.read</code>, 
-              <code className="text-gold-muted/70">crm.objects.contacts.write</code>, 
-              <code className="text-gold-muted/70">crm.schemas.contacts.read</code>, 
-              <code className="text-gold-muted/70">crm.schemas.contacts.write</code>
+              <strong className="text-gold-muted">Note:</strong> Keep this token
+              secure. Anyone with access to this key can make API requests on
+              behalf of your HubSpot account.
+              <br />
+              <strong className="text-gold-muted">Recommended scopes:</strong>
+              <code className="text-gold-muted/70">
+                crm.objects.contacts.highly_sensitive.read
+              </code>
+              ,
+              <code className="text-gold-muted/70">
+                crm.objects.contacts.read
+              </code>
+              ,
+              <code className="text-gold-muted/70">
+                crm.objects.contacts.sensitive.read
+              </code>
+              ,
+              <code className="text-gold-muted/70">
+                crm.objects.contacts.write
+              </code>
+              ,
+              <code className="text-gold-muted/70">
+                crm.schemas.contacts.read
+              </code>
+              ,
+              <code className="text-gold-muted/70">
+                crm.schemas.contacts.write
+              </code>
             </p>
           </div>
         </div>
       </div>
-      
+
       {/* Sync Status */}
       <div className="bg-[#0f0c08] rounded-xl border border-gold-border overflow-hidden">
         <div className="p-4 border-b border-gold-border/30">
@@ -321,18 +371,25 @@ export default function HubSpotSettingsPage() {
               )}
               <div>
                 <p className="text-sm text-[#f2ede2]">
-                  {testResult.connected ? "Connected to HubSpot" : "Not connected"}
+                  {testResult.connected
+                    ? "Connected to HubSpot"
+                    : "Not connected"}
                 </p>
-                <p className="text-[10px] text-[#f2ede2]/50">{testResult.message}</p>
+                <p className="text-[10px] text-[#f2ede2]/50">
+                  {testResult.message}
+                </p>
               </div>
             </div>
           ) : hubSpotConfig ? (
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               <div>
-                <p className="text-sm text-[#f2ede2]">HubSpot integration is configured</p>
+                <p className="text-sm text-[#f2ede2]">
+                  HubSpot integration is configured
+                </p>
                 <p className="text-[10px] text-[#f2ede2]/50">
-                  A key is saved. Use Test Connection above to verify it actually works.
+                  A key is saved. Use Test Connection above to verify it
+                  actually works.
                 </p>
               </div>
             </div>
@@ -340,7 +397,9 @@ export default function HubSpotSettingsPage() {
             <div className="flex items-center gap-3">
               <XCircle className="w-5 h-5 text-amber-400" />
               <div>
-                <p className="text-sm text-[#f2ede2]">HubSpot integration not configured</p>
+                <p className="text-sm text-[#f2ede2]">
+                  HubSpot integration not configured
+                </p>
                 <p className="text-[10px] text-[#f2ede2]/50">
                   Add your API key to enable client synchronization
                 </p>

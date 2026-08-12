@@ -1,4 +1,8 @@
-import { getAuthSessionId, getAuthUserId, invalidateSessions } from "@convex-dev/auth/server";
+import {
+  getAuthSessionId,
+  getAuthUserId,
+  invalidateSessions,
+} from "@convex-dev/auth/server";
 import { action, query } from "./_generated/server";
 
 /**
@@ -7,18 +11,18 @@ import { action, query } from "./_generated/server";
  */
 export const getMySessions = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return [];
     const currentSessionId = await getAuthSessionId(ctx);
 
     const sessions = await ctx.db
       .query("authSessions")
-      .filter((q) => q.eq(q.field("userId"), userId))
+      .filter(q => q.eq(q.field("userId"), userId))
       .collect();
 
     return sessions
-      .map((s) => ({
+      .map(s => ({
         _id: s._id,
         createdAt: s._creationTime,
         expirationTime: (s as any).expirationTime as number | undefined,
@@ -33,7 +37,7 @@ export const getMySessions = query({
  */
 export const signOutOtherSessions = action({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
     const currentSessionId = await getAuthSessionId(ctx);

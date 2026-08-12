@@ -1,18 +1,18 @@
-import { useMutation, useQuery } from "convex/react";
 import {
-  RiArrowDownSLine as ChevronDown,
-  RiScalesLine as Scale,
-  RiFileTextLine as WillIcon,
-  RiSafeLine as TrustIcon,
-  RiMoneyDollarCircleLine as FinancialPoaIcon,
-  RiHeartPulseLine as HealthcarePoaIcon,
-  RiFileShieldLine as LivingWillIcon,
-  RiLockUnlockLine as HipaaIcon,
-  RiParentLine as GuardianshipIcon,
   RiGiftLine as BeneficiaryIcon,
-  RiQuillPenLine as LetterIcon,
   RiSuitcaseLine as BusinessIcon,
+  RiArrowDownSLine as ChevronDown,
+  RiMoneyDollarCircleLine as FinancialPoaIcon,
+  RiParentLine as GuardianshipIcon,
+  RiHeartPulseLine as HealthcarePoaIcon,
+  RiLockUnlockLine as HipaaIcon,
+  RiQuillPenLine as LetterIcon,
+  RiFileShieldLine as LivingWillIcon,
+  RiScalesLine as Scale,
+  RiSafeLine as TrustIcon,
+  RiFileTextLine as WillIcon,
 } from "@remixicon/react";
+import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { IconMedallion } from "./TrustIcons";
@@ -60,15 +60,15 @@ export function LegalDocsBar() {
 
   if (documents === undefined) return null;
 
-  const activeCount = documents.filter((d) => d.inForce).length;
+  const activeCount = documents.filter(d => d.inForce).length;
 
   const handleToggle = (documentType: string, inForce: boolean) => {
-    const current = documents.find((d) => d.documentType === documentType);
+    const current = documents.find(d => d.documentType === documentType);
     upsert({ documentType, inForce, notes: current?.notes || "" });
   };
 
   const handleNotesChange = (documentType: string, notes: string) => {
-    const current = documents.find((d) => d.documentType === documentType);
+    const current = documents.find(d => d.documentType === documentType);
     upsert({ documentType, inForce: current?.inForce || false, notes });
   };
 
@@ -76,7 +76,7 @@ export function LegalDocsBar() {
     <div className="sticky top-14 md:top-0 z-20 border-b border-red-900/40 bg-[#1a0606]">
       <button
         type="button"
-        onClick={() => setExpanded((v) => !v)}
+        onClick={() => setExpanded(v => !v)}
         className="w-full flex items-center gap-3 px-4 py-2.5 text-left"
       >
         <Scale className="w-4 h-4 text-red-400 shrink-0" />
@@ -100,13 +100,13 @@ export function LegalDocsBar() {
         <div className="px-4 pb-4 space-y-4 border-t border-red-900/30 pt-3 max-h-[60vh] overflow-y-auto">
           <p className="text-[11px] text-red-200/70 leading-relaxed">
             If you have active legal documents, those documents take legal
-            precedence over anything recorded in your Life Manual. This
-            portal is for organizational reference only and does not
-            constitute legal advice.
+            precedence over anything recorded in your Life Manual. This portal
+            is for organizational reference only and does not constitute legal
+            advice.
           </p>
-          {DOCUMENT_GROUPS.map((group) => {
+          {DOCUMENT_GROUPS.map(group => {
             const groupDocs = group.types
-              .map((type) => documents.find((d) => d.documentType === type))
+              .map(type => documents.find(d => d.documentType === type))
               .filter((d): d is NonNullable<typeof d> => !!d);
             if (groupDocs.length === 0) return null;
             return (
@@ -115,7 +115,7 @@ export function LegalDocsBar() {
                   {group.label}
                 </p>
                 <div className="space-y-2">
-                  {groupDocs.map((doc) => (
+                  {groupDocs.map(doc => (
                     <div
                       key={doc.documentType}
                       className="rounded-lg bg-black/30 border border-red-900/30 p-3 space-y-2"
@@ -132,7 +132,7 @@ export function LegalDocsBar() {
                         </span>
                         <Switch
                           checked={doc.inForce}
-                          onCheckedChange={(checked) =>
+                          onCheckedChange={checked =>
                             handleToggle(doc.documentType, checked)
                           }
                         />
@@ -141,7 +141,7 @@ export function LegalDocsBar() {
                         <Textarea
                           placeholder="Optional notes (where it's held, date executed, etc.)"
                           defaultValue={doc.notes || ""}
-                          onBlur={(e) =>
+                          onBlur={e =>
                             handleNotesChange(doc.documentType, e.target.value)
                           }
                           className="text-xs bg-black/40 border-red-900/30 resize-none"

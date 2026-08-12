@@ -1,8 +1,12 @@
 import { createAccount, retrieveAccount } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { Scrypt } from "lucia";
-import { internalAction, internalMutation, internalQuery } from "./_generated/server";
 import { internal } from "./_generated/api";
+import {
+  internalAction,
+  internalMutation,
+  internalQuery,
+} from "./_generated/server";
 
 const TEST_USER = {
   email: "agent@test.local",
@@ -68,7 +72,7 @@ const VERIFY_USER = {
  */
 export const seedVerifyTestUser = internalAction({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     try {
       await retrieveAccount(ctx, {
         provider: "password",
@@ -98,22 +102,27 @@ export const seedVerifyTestUser = internalAction({
     // email-verification flow instead of completing — confirmed by reading
     // node_modules/@convex-dev/auth's Password.js source after a real
     // login attempt against this account failed with no visible error.
-    await ctx.runMutation(internal.seedTestUser.markVerifyAccountEmailVerified, {});
+    await ctx.runMutation(
+      internal.seedTestUser.markVerifyAccountEmailVerified,
+      {},
+    );
     return { success: true, message: "Verify test user created" };
   },
 });
 
 export const markVerifyAccountEmailVerified = internalMutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const user = await ctx.db
       .query("users")
-      .withIndex("email", (q) => q.eq("email", VERIFY_USER.email))
+      .withIndex("email", q => q.eq("email", VERIFY_USER.email))
       .unique();
     if (!user) return { patched: false };
     const account = await ctx.db
       .query("authAccounts")
-      .withIndex("userIdAndProvider", (q) => q.eq("userId", user._id).eq("provider", "password"))
+      .withIndex("userIdAndProvider", q =>
+        q.eq("userId", user._id).eq("provider", "password"),
+      )
       .unique();
     if (!account) return { patched: false };
     await ctx.db.patch(account._id, { emailVerified: VERIFY_USER.email });
@@ -123,19 +132,23 @@ export const markVerifyAccountEmailVerified = internalMutation({
 
 export const debugVerifyTestUser = internalQuery({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const user = await ctx.db
       .query("users")
-      .withIndex("email", (q) => q.eq("email", VERIFY_USER.email))
+      .withIndex("email", q => q.eq("email", VERIFY_USER.email))
       .unique();
     if (!user) return { user: null };
     const accounts = await ctx.db
       .query("authAccounts")
-      .withIndex("userIdAndProvider", (q) => q.eq("userId", user._id))
+      .withIndex("userIdAndProvider", q => q.eq("userId", user._id))
       .collect();
     return {
-      user: { id: user._id, email: user.email, emailVerificationTime: user.emailVerificationTime },
-      accounts: accounts.map((a) => ({
+      user: {
+        id: user._id,
+        email: user.email,
+        emailVerificationTime: user.emailVerificationTime,
+      },
+      accounts: accounts.map(a => ({
         provider: a.provider,
         providerAccountId: a.providerAccountId,
         hasSecret: !!a.secret,
@@ -148,20 +161,20 @@ export const debugVerifyTestUser = internalQuery({
 
 export const deleteVerifyTestUser = internalMutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const user = await ctx.db
       .query("users")
-      .withIndex("email", (q) => q.eq("email", VERIFY_USER.email))
+      .withIndex("email", q => q.eq("email", VERIFY_USER.email))
       .unique();
     if (!user) return { deleted: false };
     const accounts = await ctx.db
       .query("authAccounts")
-      .withIndex("userIdAndProvider", (q) => q.eq("userId", user._id))
+      .withIndex("userIdAndProvider", q => q.eq("userId", user._id))
       .collect();
     for (const a of accounts) await ctx.db.delete(a._id);
     const sessions = await ctx.db
       .query("authSessions")
-      .withIndex("userId", (q) => q.eq("userId", user._id))
+      .withIndex("userId", q => q.eq("userId", user._id))
       .collect();
     for (const s of sessions) await ctx.db.delete(s._id);
     await ctx.db.delete(user._id);
@@ -177,10 +190,10 @@ export const deleteVerifyTestUser = internalMutation({
  */
 export const getTestUserId = internalQuery({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const user = await ctx.db
       .query("users")
-      .withIndex("email", (q) => q.eq("email", TEST_USER.email))
+      .withIndex("email", q => q.eq("email", TEST_USER.email))
       .unique();
     return user?._id ?? null;
   },
@@ -198,9 +211,10 @@ export const setTestUserAdminStatus = internalMutation({
   handler: async (ctx, { isAdmin }) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("email", (q) => q.eq("email", TEST_USER.email))
+      .withIndex("email", q => q.eq("email", TEST_USER.email))
       .unique();
-    if (!user) throw new Error("Test user doesn't exist yet — run seedTestUser first.");
+    if (!user)
+      throw new Error("Test user doesn't exist yet — run seedTestUser first.");
     await ctx.db.patch(user._id, { isAdmin });
     return { isAdmin };
   },
@@ -215,20 +229,24 @@ export const setTestUserAdminStatus = internalMutation({
  */
 export const seedTestClientSampleRow = internalMutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const user = await ctx.db
       .query("users")
-      .withIndex("email", (q) => q.eq("email", TEST_USER.email))
+      .withIndex("email", q => q.eq("email", TEST_USER.email))
       .unique();
-    if (!user) throw new Error("Test user doesn't exist yet — run seedTestUser first.");
+    if (!user)
+      throw new Error("Test user doesn't exist yet — run seedTestUser first.");
 
     const rowId = "test_seed_row_cloud_storage";
     const existing = await ctx.db
       .query("sectionRows")
-      .withIndex("by_user_section", (q) =>
-        q.eq("userId", user._id).eq("chapterId", "digital").eq("sectionId", "cloud_storage"),
+      .withIndex("by_user_section", q =>
+        q
+          .eq("userId", user._id)
+          .eq("chapterId", "digital")
+          .eq("sectionId", "cloud_storage"),
       )
-      .filter((q) => q.eq(q.field("rowId"), rowId))
+      .filter(q => q.eq(q.field("rowId"), rowId))
       .unique();
 
     const data = JSON.stringify({
@@ -236,7 +254,8 @@ export const seedTestClientSampleRow = internalMutation({
       impact: "Primary storage for personal documents and shared family files",
       authority: "Managed under primary Google account",
       records: "Organized by category — Financial, Medical, Property",
-      transition: "Maintain existing folder structure; do not delete until fully reviewed",
+      transition:
+        "Maintain existing folder structure; do not delete until fully reviewed",
     });
 
     if (existing) {
@@ -266,17 +285,24 @@ export const seedTestClientSampleRow = internalMutation({
  * Internal, so it's never reachable as a public mutation regardless.
  */
 export const activateTestClient = internalMutation({
-  args: { tier: v.union(v.literal("vault"), v.literal("archive"), v.literal("legacy")) },
+  args: {
+    tier: v.union(
+      v.literal("vault"),
+      v.literal("archive"),
+      v.literal("legacy"),
+    ),
+  },
   handler: async (ctx, { tier }) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("email", (q) => q.eq("email", TEST_USER.email))
+      .withIndex("email", q => q.eq("email", TEST_USER.email))
       .unique();
-    if (!user) throw new Error("Test user doesn't exist yet — run seedTestUser first.");
+    if (!user)
+      throw new Error("Test user doesn't exist yet — run seedTestUser first.");
 
     const existing = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", q => q.eq("userId", user._id))
       .unique();
 
     if (existing) {

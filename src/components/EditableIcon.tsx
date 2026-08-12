@@ -1,8 +1,8 @@
 import { useQuery } from "convex/react";
+import type { ComponentType } from "react";
 import { api } from "../../convex/_generated/api";
 import { useEditMode } from "../contexts/EditModeContext";
 import { getSwappableIcon } from "../lib/swappableIcons";
-import type { ComponentType } from "react";
 
 interface EditableIconProps {
   /** CMS key controlling this icon's color/shape override. */
@@ -59,7 +59,7 @@ export function EditableIcon({
       className={`inline-flex ${editClasses}`.trim()}
       onClick={
         active
-          ? (e) => {
+          ? e => {
               e.preventDefault();
               e.stopPropagation();
               select(cmsKey, "icon", shapeSwappable);

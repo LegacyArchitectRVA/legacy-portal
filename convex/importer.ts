@@ -22,14 +22,14 @@ export const importManualContent = mutation({
         sectionId: v.string(),
         fieldId: v.string(),
         value: v.string(),
-      })
+      }),
     ),
     rows: v.array(
       v.object({
         chapterId: v.string(),
         sectionId: v.string(),
         data: v.string(), // JSON object keyed by the section's column keys
-      })
+      }),
     ),
   },
   handler: async (ctx, args) => {
@@ -42,12 +42,12 @@ export const importManualContent = mutation({
     {
       const oldFields = await ctx.db
         .query("sectionFields")
-        .withIndex("by_user_section", (q) => q.eq("userId", args.clientUserId))
+        .withIndex("by_user_section", q => q.eq("userId", args.clientUserId))
         .collect();
       for (const f of oldFields) await ctx.db.delete(f._id);
       const oldRows = await ctx.db
         .query("sectionRows")
-        .withIndex("by_user_section", (q) => q.eq("userId", args.clientUserId))
+        .withIndex("by_user_section", q => q.eq("userId", args.clientUserId))
         .collect();
       for (const r of oldRows) await ctx.db.delete(r._id);
     }
@@ -55,10 +55,13 @@ export const importManualContent = mutation({
     for (const f of args.fields) {
       const existing = await ctx.db
         .query("sectionFields")
-        .withIndex("by_user_section", (q) =>
-          q.eq("userId", args.clientUserId).eq("chapterId", f.chapterId).eq("sectionId", f.sectionId)
+        .withIndex("by_user_section", q =>
+          q
+            .eq("userId", args.clientUserId)
+            .eq("chapterId", f.chapterId)
+            .eq("sectionId", f.sectionId),
         )
-        .filter((q) => q.eq(q.field("fieldId"), f.fieldId))
+        .filter(q => q.eq(q.field("fieldId"), f.fieldId))
         .first();
       if (existing) {
         await ctx.db.patch(existing._id, { value: f.value, updatedAt: now });
@@ -81,11 +84,17 @@ export const importManualContent = mutation({
       if (!maxOrder.has(key)) {
         const existing = await ctx.db
           .query("sectionRows")
-          .withIndex("by_user_section", (q) =>
-            q.eq("userId", args.clientUserId).eq("chapterId", r.chapterId).eq("sectionId", r.sectionId)
+          .withIndex("by_user_section", q =>
+            q
+              .eq("userId", args.clientUserId)
+              .eq("chapterId", r.chapterId)
+              .eq("sectionId", r.sectionId),
           )
           .collect();
-        maxOrder.set(key, existing.reduce((m, x) => Math.max(m, x.sortOrder), 0));
+        maxOrder.set(
+          key,
+          existing.reduce((m, x) => Math.max(m, x.sortOrder), 0),
+        );
       }
       const order = (maxOrder.get(key) || 0) + 1;
       maxOrder.set(key, order);

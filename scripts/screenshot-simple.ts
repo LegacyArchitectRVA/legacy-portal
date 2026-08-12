@@ -5,9 +5,11 @@ const OUT = "tmp";
 
 async function main() {
   const browser = await chromium.launch({ args: ["--no-sandbox"] });
-  
+
   // Desktop
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const ctx = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+  });
   const page = await ctx.newPage();
 
   console.log("📸 Landing...");
@@ -64,7 +66,9 @@ async function main() {
 
   // Mobile
   console.log("📱 Mobile landing...");
-  const mctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const mctx = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+  });
   const mp = await mctx.newPage();
   await mp.goto(BASE);
   await mp.waitForTimeout(2000);
@@ -87,4 +91,7 @@ async function main() {
   console.log("\n✅ Done! Screenshots in tmp/");
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch(e => {
+  console.error(e);
+  process.exit(1);
+});

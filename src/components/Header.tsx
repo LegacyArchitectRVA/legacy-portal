@@ -1,5 +1,5 @@
-import { useConvexAuth } from "convex/react";
 import { RiArrowRightLine as ArrowRight } from "@remixicon/react";
+import { useConvexAuth } from "convex/react";
 import { Link, useLocation } from "react-router-dom";
 import { APP_NAME } from "@/lib/constants";
 import { Button } from "./ui/button";

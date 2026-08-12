@@ -42,7 +42,13 @@ const PATHS: Record<string, string> = {
   business: `<line x1="5" y1="20" x2="19" y2="20"/><line x1="6.5" y1="20" x2="6.5" y2="6.5"/><line x1="17.5" y1="20" x2="17.5" y2="6.5"/><line x1="5" y1="6.5" x2="19" y2="6.5"/><line x1="12" y1="6.5" x2="12" y2="4"/>`,
 };
 
-export function ChapterIcon({ chapterId, color, size = 18, className = "", style }: ChapterIconProps) {
+export function ChapterIcon({
+  chapterId,
+  color,
+  size = 18,
+  className = "",
+  style,
+}: ChapterIconProps) {
   const path = PATHS[chapterId];
   if (!path) return null;
   return (

@@ -18,7 +18,12 @@ interface EditableImageProps {
  * in the editor's floating panel (selectedKind "image"), not inline here,
  * matching the same click-to-select pattern as every other Editable*.
  */
-export function EditableImage({ cmsKey, defaultSrc, alt, className = "" }: EditableImageProps) {
+export function EditableImage({
+  cmsKey,
+  defaultSrc,
+  alt,
+  className = "",
+}: EditableImageProps) {
   const customUrl = useQuery(api.admin.getCMSImageUrl, { key: cmsKey });
   const src = customUrl || defaultSrc;
   const { active, selectedKey, selectedKind, select } = useEditMode();
@@ -37,7 +42,7 @@ export function EditableImage({ cmsKey, defaultSrc, alt, className = "" }: Edita
       className={`${className} ${editClasses}`.trim()}
       onClick={
         active
-          ? (e) => {
+          ? e => {
               e.preventDefault();
               e.stopPropagation();
               select(cmsKey, "image");

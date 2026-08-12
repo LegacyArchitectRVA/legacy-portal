@@ -1,9 +1,14 @@
-import { FullPageLoader } from "../components/FullPageLoader";
+import {
+  RiArrowLeftLine as ArrowLeft,
+  RiBankCardLine as CreditCard,
+  RiShieldLine as Shield,
+  RiSplitCellsHorizontal as SquareSplitVertical,
+} from "@remixicon/react";
 import { useQuery } from "convex/react";
-import { RiArrowLeftLine as ArrowLeft, RiBankCardLine as CreditCard, RiShieldLine as Shield, RiSplitCellsHorizontal as SquareSplitVertical } from "@remixicon/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { stripeLinks, getTierByName } from "../data/tiers";
+import { FullPageLoader } from "../components/FullPageLoader";
+import { getTierByName, stripeLinks } from "../data/tiers";
 
 export default function PaymentPage() {
   const navigate = useNavigate();
@@ -12,9 +17,7 @@ export default function PaymentPage() {
   const profile = useQuery(api.profile.getMyProfile);
 
   if (profile === undefined) {
-    return (
-<FullPageLoader />
-    );
+    return <FullPageLoader />;
   }
 
   const currentTier = profile?.tier || "vault";
@@ -25,7 +28,10 @@ export default function PaymentPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <p className="text-[#f2ede2]/75">Invalid tier selected.</p>
-        <button onClick={() => navigate("/upgrade")} className="mt-4 text-gold-primary hover:text-gold-bright">
+        <button
+          onClick={() => navigate("/upgrade")}
+          className="mt-4 text-gold-primary hover:text-gold-bright"
+        >
           &larr; Back to Upgrade
         </button>
       </div>
@@ -61,8 +67,12 @@ export default function PaymentPage() {
 
       {/* Price Summary */}
       <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 text-center">
-        <p className="text-xs text-gold-muted uppercase tracking-widest font-heading mb-2">Upgrade Price</p>
-        <p className="font-heading text-4xl text-gold-bright">${priceDiff.toLocaleString()}</p>
+        <p className="text-xs text-gold-muted uppercase tracking-widest font-heading mb-2">
+          Upgrade Price
+        </p>
+        <p className="font-heading text-4xl text-gold-bright">
+          ${priceDiff.toLocaleString()}
+        </p>
         <p className="text-xs text-[#f2ede2]/75 mt-1">
           {currentTierInfo?.name} &rarr; {targetTier.name}
         </p>
@@ -86,7 +96,8 @@ export default function PaymentPage() {
                 Pay in Full
               </h3>
               <p className="text-sm text-[#f2ede2]/80 mt-1">
-                One-time payment of ${priceDiff.toLocaleString()}. Immediate full access to {targetTier.name}.
+                One-time payment of ${priceDiff.toLocaleString()}. Immediate
+                full access to {targetTier.name}.
               </p>
             </div>
             <span className="font-heading text-lg text-gold-primary shrink-0 mt-1">
@@ -111,7 +122,8 @@ export default function PaymentPage() {
                 50/50 Split
               </h3>
               <p className="text-sm text-[#f2ede2]/80 mt-1">
-                Two payments of ${Math.round(priceDiff / 2).toLocaleString()}. Access begins after first payment.
+                Two payments of ${Math.round(priceDiff / 2).toLocaleString()}.
+                Access begins after first payment.
               </p>
             </div>
             <span className="font-heading text-lg text-gold-muted shrink-0 mt-1">
@@ -123,13 +135,15 @@ export default function PaymentPage() {
 
       {/* Info */}
       <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-3">
-        <h3 className="font-heading text-sm text-gold-primary">What's Included</h3>
+        <h3 className="font-heading text-sm text-gold-primary">
+          What's Included
+        </h3>
         <p className="text-xs text-[#f2ede2]/80 leading-relaxed">
-          All Life Manuals include: Secure Client Portal access, premium branded PDF,
-          and 72-hour data self-destruct after delivery.
+          All Life Manuals include: Secure Client Portal access, premium branded
+          PDF, and 72-hour data self-destruct after delivery.
         </p>
         <ul className="text-xs text-[#f2ede2]/75 space-y-1.5">
-          {targetTier.features.map((f) => (
+          {targetTier.features.map(f => (
             <li key={f} className="flex items-center gap-2">
               <span className="w-1 h-1 rounded-full bg-gold-primary" />
               {f}
@@ -141,7 +155,10 @@ export default function PaymentPage() {
       {/* Security */}
       <div className="flex items-center justify-center gap-2 text-[10px] text-[#f2ede2]/75">
         <Shield className="w-3 h-3" />
-        <span>Secure payment processed by Stripe. Legacy Architect RVA never stores card data.</span>
+        <span>
+          Secure payment processed by Stripe. Legacy Architect RVA never stores
+          card data.
+        </span>
       </div>
     </div>
   );

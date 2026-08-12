@@ -70,25 +70,19 @@ export const tierAccess: Record<string, number[]> = {
 };
 
 export const stripeLinks: Record<string, string> = {
-  vault_archive_full:
-    "https://buy.stripe.com/eVqcMYbTAd1p3l66xo1Nu05",
-  vault_legacy_full:
-    "https://buy.stripe.com/4gMbIUaPw9PddZKg7Y1Nu06",
-  archive_legacy_full:
-    "https://buy.stripe.com/cNibIUaPwe5tcVGcVM1Nu07",
-  vault_archive_half:
-    "https://buy.stripe.com/eVqfZa6zgbXlf3O8Fw1Nu0c",
-  vault_legacy_half:
-    "https://buy.stripe.com/cNi8wI3n46D1g7Sf3U1Nu0d",
-  archive_legacy_half:
-    "https://buy.stripe.com/00w4gs1eW1iH6xibRI1Nu0b",
+  vault_archive_full: "https://buy.stripe.com/eVqcMYbTAd1p3l66xo1Nu05",
+  vault_legacy_full: "https://buy.stripe.com/4gMbIUaPw9PddZKg7Y1Nu06",
+  archive_legacy_full: "https://buy.stripe.com/cNibIUaPwe5tcVGcVM1Nu07",
+  vault_archive_half: "https://buy.stripe.com/eVqfZa6zgbXlf3O8Fw1Nu0c",
+  vault_legacy_half: "https://buy.stripe.com/cNi8wI3n46D1g7Sf3U1Nu0d",
+  archive_legacy_half: "https://buy.stripe.com/00w4gs1eW1iH6xibRI1Nu0b",
   review_vault: "https://buy.stripe.com/4gMeV64r80eD1cY1d41Nu08",
   review_archive: "https://buy.stripe.com/dRmdR27Dke5t1cY7Bs1Nu09",
   review_legacy: "https://buy.stripe.com/fZucMY6zg4uT3l66xo1Nu0a",
 };
 
 export function getTierByName(name: string): Tier | undefined {
-  return tiers.find((t) => t.id === name);
+  return tiers.find(t => t.id === name);
 }
 
 export function canAccessChapter(tier: string, chapterNumber: number): boolean {

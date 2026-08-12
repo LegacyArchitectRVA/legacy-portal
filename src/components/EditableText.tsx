@@ -1,7 +1,7 @@
-import { useCmsValue, useCmsStyle, cmsStyleToCss } from "../hooks/useCms";
+import type { CSSProperties, ElementType } from "react";
 import { useEditMode } from "../contexts/EditModeContext";
+import { cmsStyleToCss, useCmsStyle, useCmsValue } from "../hooks/useCms";
 import { getEditableDefault } from "../lib/editableContentRegistry";
-import type { ElementType, CSSProperties } from "react";
 
 interface EditableTextProps {
   cmsKey: string;

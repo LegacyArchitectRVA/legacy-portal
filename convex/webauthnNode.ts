@@ -1,15 +1,15 @@
 "use node";
 
+import { getAuthUserId } from "@convex-dev/auth/server";
 import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
   verifyAuthenticationResponse,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { action } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { action } from "./_generated/server";
 
 declare const process: { env: Record<string, string | undefined> };
 
@@ -64,11 +64,14 @@ export const getRegistrationOptions = action({
       })),
     });
 
-    const token: string = await ctx.runMutation(internal.webauthn.saveChallenge, {
-      challenge: options.challenge,
-      purpose: "registration",
-      userId,
-    });
+    const token: string = await ctx.runMutation(
+      internal.webauthn.saveChallenge,
+      {
+        challenge: options.challenge,
+        purpose: "registration",
+        userId,
+      },
+    );
 
     return { options, token };
   },
@@ -88,8 +91,12 @@ export const verifyRegistration = action({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
-    const stored: any = await ctx.runMutation(internal.webauthn.consumeChallenge, { token });
-    if (!stored) throw new Error("That registration attempt expired. Try again.");
+    const stored: any = await ctx.runMutation(
+      internal.webauthn.consumeChallenge,
+      { token },
+    );
+    if (!stored)
+      throw new Error("That registration attempt expired. Try again.");
 
     const verification = await verifyRegistrationResponse({
       response,
@@ -102,8 +109,13 @@ export const verifyRegistration = action({
       throw new Error("Could not verify passkey registration.");
     }
 
-    const { credentialID, credentialPublicKey, counter, credentialDeviceType, credentialBackedUp } =
-      verification.registrationInfo;
+    const {
+      credentialID,
+      credentialPublicKey,
+      counter,
+      credentialDeviceType,
+      credentialBackedUp,
+    } = verification.registrationInfo;
 
     await ctx.runMutation(internal.webauthn.saveCredential, {
       userId,
@@ -130,10 +142,13 @@ export const getAuthenticationOptions = action({
       userVerification: "preferred",
     });
 
-    const token: string = await ctx.runMutation(internal.webauthn.saveChallenge, {
-      challenge: options.challenge,
-      purpose: "authentication",
-    });
+    const token: string = await ctx.runMutation(
+      internal.webauthn.saveChallenge,
+      {
+        challenge: options.challenge,
+        purpose: "authentication",
+      },
+    );
 
     return { options, token };
   },
@@ -147,13 +162,19 @@ export const getAuthenticationOptions = action({
 export const verifyAuthentication = action({
   args: { token: v.string(), response: v.any() },
   handler: async (ctx, { token, response }): Promise<{ ticket: string }> => {
-    const stored: any = await ctx.runMutation(internal.webauthn.consumeChallenge, { token });
+    const stored: any = await ctx.runMutation(
+      internal.webauthn.consumeChallenge,
+      { token },
+    );
     if (!stored) throw new Error("That sign-in attempt expired. Try again.");
 
     const credentialId = response.id as string;
-    const credential: any = await ctx.runQuery(internal.webauthn.getCredentialByCredentialId, {
-      credentialId,
-    });
+    const credential: any = await ctx.runQuery(
+      internal.webauthn.getCredentialByCredentialId,
+      {
+        credentialId,
+      },
+    );
     if (!credential) throw new Error("Passkey not recognized.");
 
     const verification = await verifyAuthenticationResponse({
@@ -177,9 +198,12 @@ export const verifyAuthentication = action({
       counter: verification.authenticationInfo.newCounter,
     });
 
-    const ticket: string = await ctx.runMutation(internal.webauthn.issueTicket, {
-      userId: credential.userId,
-    });
+    const ticket: string = await ctx.runMutation(
+      internal.webauthn.issueTicket,
+      {
+        userId: credential.userId,
+      },
+    );
 
     return { ticket };
   },

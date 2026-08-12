@@ -1,22 +1,35 @@
+import {
+  RiErrorWarningLine as AlertTriangle,
+  RiArrowLeftLine as ArrowLeft,
+  RiBookOpenLine as BookOpen,
+  RiDownloadLine as Download,
+  RiFileTextLine as FileText,
+  RiLoader4Line as Loader2,
+} from "@remixicon/react";
 import { useQuery } from "convex/react";
-import { RiErrorWarningLine as AlertTriangle, RiArrowLeftLine as ArrowLeft, RiBookOpenLine as BookOpen, RiDownloadLine as Download, RiFileTextLine as FileText, RiLoader4Line as Loader2 } from "@remixicon/react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 import { LOGO_DATA_URI, QR_CODE_DATA_URI } from "../lib/brandAssets";
-// @ts-ignore - Vite raw-text import, used to embed the Paged.js polyfill so
+import {
+  BRAND_BLACK,
+  BRAND_CREAM,
+  BRAND_FONT_BODY,
+  BRAND_FONT_HEAD,
+  BRAND_GOLD,
+  BRAND_GOLD_LIGHT,
+  BRAND_GREEN_PRINT,
+  BRAND_OFFWHITE,
+  GOOGLE_FONTS_LINK,
+} from "../lib/brandTokens";
 // the print-accurate preview works fully offline rather than depending on a
 // CDN at preview time.
 import PAGEDJS_POLYFILL from "../lib/pagedPolyfill.txt?raw";
-import { BRAND_FONT_HEAD, BRAND_FONT_BODY, GOOGLE_FONTS_LINK, BRAND_BLACK, BRAND_OFFWHITE, BRAND_GOLD, BRAND_GOLD_LIGHT, BRAND_CREAM, BRAND_GREEN_PRINT } from "../lib/brandTokens";
 
 function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function escapeRegExp(s: string): string {
@@ -31,41 +44,384 @@ function escapeRegExp(s: string): string {
 // label directly rather than being resolved from chapter data, since a few
 // terms point at special top-level sections (Legal Documents in Force) that
 // aren't part of the regular chapter/section structure.
-const INDEX_TERMS: { term: string; refs: { anchor: string; label: string; chapterId?: string }[] }[] = [
-  { term: "Accounts, financial", refs: [{ anchor: "financial-accounts_institutions", label: "Accounts & Institutions", chapterId: "financial" }, { anchor: "digital-digital_financial", label: "Digital Financial Accounts", chapterId: "digital" }] },
-  { term: "Attorney", refs: [{ anchor: "emergency-emergency_contacts", label: "Emergency Contacts", chapterId: "emergency" }, { anchor: "legal-documents", label: "Legal Documents in Force" }] },
-  { term: "Bank, banking", refs: [{ anchor: "financial-accounts_institutions", label: "Accounts & Institutions", chapterId: "financial" }, { anchor: "digital-digital_financial", label: "Digital Financial Accounts", chapterId: "digital" }] },
-  { term: "Beneficiaries", refs: [{ anchor: "financial-beneficiaries", label: "Beneficiaries Overview", chapterId: "financial" }] },
-  { term: "Business assets", refs: [{ anchor: "business-business_assets", label: "Business Assets & Property", chapterId: "business" }] },
-  { term: "Car, vehicle", refs: [{ anchor: "household-vehicle_info", label: "Vehicle Information", chapterId: "household" }] },
-  { term: "Children, dependents", refs: [{ anchor: "emergency-child_care_dependents", label: "Child Care & Dependents", chapterId: "emergency" }] },
-  { term: "Cloud storage", refs: [{ anchor: "digital-cloud_storage", label: "Cloud Storage", chapterId: "digital" }] },
-  { term: "Contracts", refs: [{ anchor: "business-contracts_obligations", label: "Contracts & Obligations", chapterId: "business" }] },
-  { term: "Credit, loans", refs: [{ anchor: "business-loan_credit", label: "Loan & Credit Agreements", chapterId: "business" }] },
-  { term: "Devices, computers, phones", refs: [{ anchor: "digital-devices_os", label: "Devices & Operating Systems", chapterId: "digital" }] },
-  { term: "Doctor, physician", refs: [{ anchor: "vitals-medical_providers", label: "Active Medical Providers", chapterId: "vitals" }] },
-  { term: "Email", refs: [{ anchor: "digital-primary_email", label: "Primary E-Mail", chapterId: "digital" }] },
-  { term: "Emergency contacts", refs: [{ anchor: "emergency-emergency_contacts", label: "Emergency Contacts", chapterId: "emergency" }] },
-  { term: "Employees, staff", refs: [{ anchor: "business-internal_leadership", label: "Internal Leadership", chapterId: "business" }] },
-  { term: "Final wishes, funeral", refs: [{ anchor: "context-final_wishes", label: "Final Wishes", chapterId: "context" }] },
-  { term: "Guardian", refs: [{ anchor: "emergency-child_care_dependents", label: "Child Care & Dependents", chapterId: "emergency" }] },
-  { term: "Home, house", refs: [{ anchor: "household-home_systems", label: "Home Systems & Shut-offs", chapterId: "household" }] },
-  { term: "Identification documents", refs: [{ anchor: "vitals-identification_documents", label: "Identification Documents", chapterId: "vitals" }] },
-  { term: "Insurance", refs: [{ anchor: "financial-insurance_policies", label: "Insurance Policies", chapterId: "financial" }, { anchor: "business-business_insurance", label: "Business Insurance & Risk Coverage", chapterId: "business" }] },
-  { term: "Key relationships", refs: [{ anchor: "business-key_relationships", label: "Key Relationships", chapterId: "business" }] },
-  { term: "Locks, alarms, security", refs: [{ anchor: "household-security_access", label: "Security & Access", chapterId: "household" }] },
-  { term: "Medical information, medications", refs: [{ anchor: "vitals-medical_information", label: "Medical Information", chapterId: "vitals" }] },
-  { term: "Passwords", refs: [{ anchor: "digital-password_manager", label: "Password Manager", chapterId: "digital" }, { anchor: "digital-twofa_recovery", label: "2FA & Recovery Codes", chapterId: "digital" }] },
-  { term: "Personal values, legacy", refs: [{ anchor: "context-personal_values", label: "Personal Values & Context", chapterId: "context" }] },
-  { term: "Pets", refs: [{ anchor: "household-petcare", label: "Petcare", chapterId: "household" }] },
-  { term: "Photos, memories, social media", refs: [{ anchor: "digital-online_presence", label: "Online Presence", chapterId: "digital" }, { anchor: "context-digital_narrative_control", label: "Digital & Narrative Control", chapterId: "context" }] },
-  { term: "Property, real estate", refs: [{ anchor: "financial-titles_ownership", label: "Titles & Ownership", chapterId: "financial" }, { anchor: "business-business_assets", label: "Business Assets & Property", chapterId: "business" }] },
-  { term: "Subscriptions, renewals", refs: [{ anchor: "digital-subscriptions_renewals", label: "Subscriptions & Renewals", chapterId: "digital" }] },
-  { term: "Successor, who's in charge", refs: [{ anchor: "emergency-emergency_contacts", label: "Emergency Contacts", chapterId: "emergency" }, { anchor: "business-internal_leadership", label: "Internal Leadership", chapterId: "business" }, { anchor: "successor-roadmap", label: "Successor Roadmap" }] },
-  { term: "Two-factor authentication, recovery codes", refs: [{ anchor: "digital-twofa_recovery", label: "2FA & Recovery Codes", chapterId: "digital" }] },
-  { term: "Utilities", refs: [{ anchor: "household-home_systems", label: "Home Systems & Shut-offs", chapterId: "household" }] },
-  { term: "Vendors, service providers", refs: [{ anchor: "business-vendor_agreements", label: "Vendor & Service Agreements", chapterId: "business" }] },
-  { term: "Will, power of attorney", refs: [{ anchor: "legal-documents", label: "Legal Documents in Force" }, { anchor: "context-final_wishes", label: "Final Wishes", chapterId: "context" }] },
+const INDEX_TERMS: {
+  term: string;
+  refs: { anchor: string; label: string; chapterId?: string }[];
+}[] = [
+  {
+    term: "Accounts, financial",
+    refs: [
+      {
+        anchor: "financial-accounts_institutions",
+        label: "Accounts & Institutions",
+        chapterId: "financial",
+      },
+      {
+        anchor: "digital-digital_financial",
+        label: "Digital Financial Accounts",
+        chapterId: "digital",
+      },
+    ],
+  },
+  {
+    term: "Attorney",
+    refs: [
+      {
+        anchor: "emergency-emergency_contacts",
+        label: "Emergency Contacts",
+        chapterId: "emergency",
+      },
+      { anchor: "legal-documents", label: "Legal Documents in Force" },
+    ],
+  },
+  {
+    term: "Bank, banking",
+    refs: [
+      {
+        anchor: "financial-accounts_institutions",
+        label: "Accounts & Institutions",
+        chapterId: "financial",
+      },
+      {
+        anchor: "digital-digital_financial",
+        label: "Digital Financial Accounts",
+        chapterId: "digital",
+      },
+    ],
+  },
+  {
+    term: "Beneficiaries",
+    refs: [
+      {
+        anchor: "financial-beneficiaries",
+        label: "Beneficiaries Overview",
+        chapterId: "financial",
+      },
+    ],
+  },
+  {
+    term: "Business assets",
+    refs: [
+      {
+        anchor: "business-business_assets",
+        label: "Business Assets & Property",
+        chapterId: "business",
+      },
+    ],
+  },
+  {
+    term: "Car, vehicle",
+    refs: [
+      {
+        anchor: "household-vehicle_info",
+        label: "Vehicle Information",
+        chapterId: "household",
+      },
+    ],
+  },
+  {
+    term: "Children, dependents",
+    refs: [
+      {
+        anchor: "emergency-child_care_dependents",
+        label: "Child Care & Dependents",
+        chapterId: "emergency",
+      },
+    ],
+  },
+  {
+    term: "Cloud storage",
+    refs: [
+      {
+        anchor: "digital-cloud_storage",
+        label: "Cloud Storage",
+        chapterId: "digital",
+      },
+    ],
+  },
+  {
+    term: "Contracts",
+    refs: [
+      {
+        anchor: "business-contracts_obligations",
+        label: "Contracts & Obligations",
+        chapterId: "business",
+      },
+    ],
+  },
+  {
+    term: "Credit, loans",
+    refs: [
+      {
+        anchor: "business-loan_credit",
+        label: "Loan & Credit Agreements",
+        chapterId: "business",
+      },
+    ],
+  },
+  {
+    term: "Devices, computers, phones",
+    refs: [
+      {
+        anchor: "digital-devices_os",
+        label: "Devices & Operating Systems",
+        chapterId: "digital",
+      },
+    ],
+  },
+  {
+    term: "Doctor, physician",
+    refs: [
+      {
+        anchor: "vitals-medical_providers",
+        label: "Active Medical Providers",
+        chapterId: "vitals",
+      },
+    ],
+  },
+  {
+    term: "Email",
+    refs: [
+      {
+        anchor: "digital-primary_email",
+        label: "Primary E-Mail",
+        chapterId: "digital",
+      },
+    ],
+  },
+  {
+    term: "Emergency contacts",
+    refs: [
+      {
+        anchor: "emergency-emergency_contacts",
+        label: "Emergency Contacts",
+        chapterId: "emergency",
+      },
+    ],
+  },
+  {
+    term: "Employees, staff",
+    refs: [
+      {
+        anchor: "business-internal_leadership",
+        label: "Internal Leadership",
+        chapterId: "business",
+      },
+    ],
+  },
+  {
+    term: "Final wishes, funeral",
+    refs: [
+      {
+        anchor: "context-final_wishes",
+        label: "Final Wishes",
+        chapterId: "context",
+      },
+    ],
+  },
+  {
+    term: "Guardian",
+    refs: [
+      {
+        anchor: "emergency-child_care_dependents",
+        label: "Child Care & Dependents",
+        chapterId: "emergency",
+      },
+    ],
+  },
+  {
+    term: "Home, house",
+    refs: [
+      {
+        anchor: "household-home_systems",
+        label: "Home Systems & Shut-offs",
+        chapterId: "household",
+      },
+    ],
+  },
+  {
+    term: "Identification documents",
+    refs: [
+      {
+        anchor: "vitals-identification_documents",
+        label: "Identification Documents",
+        chapterId: "vitals",
+      },
+    ],
+  },
+  {
+    term: "Insurance",
+    refs: [
+      {
+        anchor: "financial-insurance_policies",
+        label: "Insurance Policies",
+        chapterId: "financial",
+      },
+      {
+        anchor: "business-business_insurance",
+        label: "Business Insurance & Risk Coverage",
+        chapterId: "business",
+      },
+    ],
+  },
+  {
+    term: "Key relationships",
+    refs: [
+      {
+        anchor: "business-key_relationships",
+        label: "Key Relationships",
+        chapterId: "business",
+      },
+    ],
+  },
+  {
+    term: "Locks, alarms, security",
+    refs: [
+      {
+        anchor: "household-security_access",
+        label: "Security & Access",
+        chapterId: "household",
+      },
+    ],
+  },
+  {
+    term: "Medical information, medications",
+    refs: [
+      {
+        anchor: "vitals-medical_information",
+        label: "Medical Information",
+        chapterId: "vitals",
+      },
+    ],
+  },
+  {
+    term: "Passwords",
+    refs: [
+      {
+        anchor: "digital-password_manager",
+        label: "Password Manager",
+        chapterId: "digital",
+      },
+      {
+        anchor: "digital-twofa_recovery",
+        label: "2FA & Recovery Codes",
+        chapterId: "digital",
+      },
+    ],
+  },
+  {
+    term: "Personal values, legacy",
+    refs: [
+      {
+        anchor: "context-personal_values",
+        label: "Personal Values & Context",
+        chapterId: "context",
+      },
+    ],
+  },
+  {
+    term: "Pets",
+    refs: [
+      { anchor: "household-petcare", label: "Petcare", chapterId: "household" },
+    ],
+  },
+  {
+    term: "Photos, memories, social media",
+    refs: [
+      {
+        anchor: "digital-online_presence",
+        label: "Online Presence",
+        chapterId: "digital",
+      },
+      {
+        anchor: "context-digital_narrative_control",
+        label: "Digital & Narrative Control",
+        chapterId: "context",
+      },
+    ],
+  },
+  {
+    term: "Property, real estate",
+    refs: [
+      {
+        anchor: "financial-titles_ownership",
+        label: "Titles & Ownership",
+        chapterId: "financial",
+      },
+      {
+        anchor: "business-business_assets",
+        label: "Business Assets & Property",
+        chapterId: "business",
+      },
+    ],
+  },
+  {
+    term: "Subscriptions, renewals",
+    refs: [
+      {
+        anchor: "digital-subscriptions_renewals",
+        label: "Subscriptions & Renewals",
+        chapterId: "digital",
+      },
+    ],
+  },
+  {
+    term: "Successor, who's in charge",
+    refs: [
+      {
+        anchor: "emergency-emergency_contacts",
+        label: "Emergency Contacts",
+        chapterId: "emergency",
+      },
+      {
+        anchor: "business-internal_leadership",
+        label: "Internal Leadership",
+        chapterId: "business",
+      },
+      { anchor: "successor-roadmap", label: "Successor Roadmap" },
+    ],
+  },
+  {
+    term: "Two-factor authentication, recovery codes",
+    refs: [
+      {
+        anchor: "digital-twofa_recovery",
+        label: "2FA & Recovery Codes",
+        chapterId: "digital",
+      },
+    ],
+  },
+  {
+    term: "Utilities",
+    refs: [
+      {
+        anchor: "household-home_systems",
+        label: "Home Systems & Shut-offs",
+        chapterId: "household",
+      },
+    ],
+  },
+  {
+    term: "Vendors, service providers",
+    refs: [
+      {
+        anchor: "business-vendor_agreements",
+        label: "Vendor & Service Agreements",
+        chapterId: "business",
+      },
+    ],
+  },
+  {
+    term: "Will, power of attorney",
+    refs: [
+      { anchor: "legal-documents", label: "Legal Documents in Force" },
+      {
+        anchor: "context-final_wishes",
+        label: "Final Wishes",
+        chapterId: "context",
+      },
+    ],
+  },
 ];
 
 // Builds a single regex that matches any known chapter/subsection title
@@ -86,8 +442,8 @@ function buildRefIndex(allChapters: typeof chapters) {
     entries.push({ title: ch.title, href: `#${ch.id}` });
   }
   entries.sort((a, b) => b.title.length - a.title.length);
-  const map = new Map(entries.map((e) => [e.title, e.href]));
-  const pattern = entries.map((e) => escapeRegExp(e.title)).join("|");
+  const map = new Map(entries.map(e => [e.title, e.href]));
+  const pattern = entries.map(e => escapeRegExp(e.title)).join("|");
   const regex = pattern ? new RegExp(`(${pattern})`, "g") : null;
   return { regex, map };
 }
@@ -157,24 +513,41 @@ This roadmap provides your designated successor with a clear, sequential path to
 // Minimal markdown -> HTML for the static export (mirrors the Introduction
 // page's in-app renderer, simplified for ##/-/---/*caption* only since
 // that's all the roadmap content actually uses).
-function renderRoadmapMarkdown(md: string, refIndex: { regex: RegExp | null; map: Map<string, string> }): string {
+function renderRoadmapMarkdown(
+  md: string,
+  refIndex: { regex: RegExp | null; map: Map<string, string> },
+): string {
   const lines = md.split("\n");
   const out: string[] = [];
   let inList = false;
   for (const line of lines) {
     if (line.startsWith("## ")) {
-      if (inList) { out.push("</ul>"); inList = false; }
+      if (inList) {
+        out.push("</ul>");
+        inList = false;
+      }
       out.push(`<h3>${escapeHtml(line.slice(3))}</h3>`);
     } else if (line.startsWith("- ")) {
-      if (!inList) { out.push('<ul class="roadmap-list">'); inList = true; }
+      if (!inList) {
+        out.push('<ul class="roadmap-list">');
+        inList = true;
+      }
       out.push(`<li>${linkify(line.slice(2), refIndex)}</li>`);
     } else if (line.startsWith("---")) {
-      if (inList) { out.push("</ul>"); inList = false; }
+      if (inList) {
+        out.push("</ul>");
+        inList = false;
+      }
       out.push("<hr/>");
     } else if (line.startsWith("*") && line.endsWith("*")) {
-      out.push(`<p class="roadmap-caption">${escapeHtml(line.slice(1, -1))}</p>`);
+      out.push(
+        `<p class="roadmap-caption">${escapeHtml(line.slice(1, -1))}</p>`,
+      );
     } else if (line.trim() === "") {
-      if (inList) { out.push("</ul>"); inList = false; }
+      if (inList) {
+        out.push("</ul>");
+        inList = false;
+      }
     } else {
       out.push(`<p>${linkify(line, refIndex)}</p>`);
     }
@@ -195,7 +568,7 @@ export default function GeneratePage() {
   const client = clients?.find((c: any) => c._id === selectedClient);
   const manualData = useQuery(
     api.crm.getClientManualData,
-    client?.userId ? { clientUserId: client.userId } : "skip"
+    client?.userId ? { clientUserId: client.userId } : "skip",
   );
 
   if (!isAdmin) {
@@ -214,26 +587,32 @@ export default function GeneratePage() {
     try {
       const tier = client?.tier || "vault";
       const tierInfo = getTierByName(tier);
-      const accessibleChapters = chapters.filter((ch) =>
-        canAccessChapter(tier, ch.chapterNumber)
+      const accessibleChapters = chapters.filter(ch =>
+        canAccessChapter(tier, ch.chapterNumber),
       );
       const refIndex = buildRefIndex(accessibleChapters);
 
       // Quick Reference data — pulled from existing entries (Emergency
       // Contacts, Legal Documents, First 48-Hours Plan) rather than a new
       // form; needed both for the TOC entry and the section itself.
-      const qrPrimaryContact = (manualData?.rowsBySection["emergency:emergency_contacts"] || [])[0];
-      const qrWill = (manualData?.legalDocuments || []).find((d: any) => d.documentType === "Will" && d.inForce);
-      const qrFirstStep = manualData?.fieldsBySection["emergency:first_48_hours"]?.["crisis_step1"];
+      const qrPrimaryContact = (manualData?.rowsBySection[
+        "emergency:emergency_contacts"
+      ] || [])[0];
+      const qrWill = (manualData?.legalDocuments || []).find(
+        (d: any) => d.documentType === "Will" && d.inForce,
+      );
+      const qrFirstStep =
+        manualData?.fieldsBySection["emergency:first_48_hours"]?.crisis_step1;
       const showQuickReference = !!(qrPrimaryContact || qrWill || qrFirstStep);
 
-      const accessibleChapterIds = new Set(accessibleChapters.map((c) => c.id));
-      const visibleIndexTerms = INDEX_TERMS
-        .map((entry) => ({
-          term: entry.term,
-          refs: entry.refs.filter((r) => !r.chapterId || accessibleChapterIds.has(r.chapterId)),
-        }))
-        .filter((entry) => entry.refs.length > 0)
+      const accessibleChapterIds = new Set(accessibleChapters.map(c => c.id));
+      const visibleIndexTerms = INDEX_TERMS.map(entry => ({
+        term: entry.term,
+        refs: entry.refs.filter(
+          r => !r.chapterId || accessibleChapterIds.has(r.chapterId),
+        ),
+      }))
+        .filter(entry => entry.refs.length > 0)
         .sort((a, b) => a.term.localeCompare(b.term));
 
       let html = `
@@ -818,8 +1197,11 @@ export default function GeneratePage() {
       }
 
       // ── Introduction ──
-      const introWelcome = manualData?.fieldsBySection["introduction:welcome_purpose"]?.["content"];
-      const introLifeLove = manualData?.fieldsBySection["introduction:life_love_statement"]?.["content"];
+      const introWelcome =
+        manualData?.fieldsBySection["introduction:welcome_purpose"]?.content;
+      const introLifeLove =
+        manualData?.fieldsBySection["introduction:life_love_statement"]
+          ?.content;
       html += `
   <div class="chapter" id="introduction">
     <a class="back-to-toc" href="#toc">&uarr; Table of Contents</a>
@@ -827,8 +1209,29 @@ export default function GeneratePage() {
     <p class="intro-text intro-lead">${linkify(`This Life Manual brings together the accounts, systems, contacts, and instructions identified by the Client into a single, organized reference to help a designated survivor manage important affairs with confidence and clarity.`, refIndex, "#introduction")}</p>
     <p class="intro-text">${linkify(`This manual is intended to be read in the following order: this Introduction, Legal Documents in Force, the Successor Roadmap, and then each chapter in sequence.`, refIndex, "#introduction")}</p>
     <p class="intro-text">Nothing in this document replaces formal legal, financial, tax, or professional advice. Where a chapter references a legal document, attorney, financial advisor, or other professional, that source should be considered the authoritative reference.</p>
-    ${introWelcome ? introWelcome.split(/\n{2,}/).map((p: string) => `<p class="intro-text">${escapeHtml(p.trim()).replace(/\n/g, "<br/>")}</p>`).join("\n    ") : ""}
-    ${introLifeLove ? `<h3 class="intro-subhead">Life &amp; Love Statement</h3>\n    ` + introLifeLove.split(/\n{2,}/).map((p: string) => `<p class="intro-text" style="font-style: italic;">${escapeHtml(p.trim()).replace(/\n/g, "<br/>")}</p>`).join("\n    ") : ""}
+    ${
+      introWelcome
+        ? introWelcome
+            .split(/\n{2,}/)
+            .map(
+              (p: string) =>
+                `<p class="intro-text">${escapeHtml(p.trim()).replace(/\n/g, "<br/>")}</p>`,
+            )
+            .join("\n    ")
+        : ""
+    }
+    ${
+      introLifeLove
+        ? `<h3 class="intro-subhead">Life &amp; Love Statement</h3>\n    ` +
+          introLifeLove
+            .split(/\n{2,}/)
+            .map(
+              (p: string) =>
+                `<p class="intro-text" style="font-style: italic;">${escapeHtml(p.trim()).replace(/\n/g, "<br/>")}</p>`,
+            )
+            .join("\n    ")
+        : ""
+    }
     <h3 class="intro-subhead">Confidentiality &amp; Privacy Notice</h3>
     <p class="privacy-note">This Life Manual contains confidential information provided by the Client and is intended solely for the Client and their designated survivor. Legacy Architect RVA has organized this information into a comprehensive reference for the Client's benefit but does not claim ownership of the information contained herein. To protect the Client's privacy, Legacy Architect RVA does not retain copies of the completed Life Manual or the personal information used to create it following its delivery. The contents of this manual should not be disclosed or distributed without the Client's permission.</p>
     <p class="privacy-note">This Life Manual provides high-level orientation and location guidance throughout. It does not contain passwords, security codes, recovery keys, full account numbers, or other sensitive credentials. Nothing in this manual replaces formal legal or professional advice. Refer to original records and trusted advisors as appropriate.</p>
@@ -836,7 +1239,7 @@ export default function GeneratePage() {
   </div>
 `;
 
-  html += `
+      html += `
   <div class="toc" id="toc">
     <h2>Table of Contents</h2>
     ${showQuickReference ? `<div class="toc-chapter"><a href="#quick-reference">Quick Reference</a></div>` : ""}
@@ -916,7 +1319,11 @@ export default function GeneratePage() {
 
           html += `    <div class="section" id="${ch.id}-${sec.id}"><h3>${sec.title}<button class="copy-ref-btn" data-copy-ref="${escapeHtml(`Chapter ${ch.chapterNumber}: ${ch.title} \u2192 ${sec.title}`)}">Copy Reference</button></h3>`;
 
-          const tableAlreadyShowedEmpty = !!(sec.tableColumns && sec.tableColumns.length > 0 && !hasTableData);
+          const tableAlreadyShowedEmpty = !!(
+            sec.tableColumns &&
+            sec.tableColumns.length > 0 &&
+            !hasTableData
+          );
 
           if (sec.tableColumns && sec.tableColumns.length > 0) {
             if (hasTableData) {
@@ -1296,7 +1703,10 @@ export default function GeneratePage() {
   const buildPrintAccurateVariant = (sourceHtml: string): string => {
     const bodyMatch = sourceHtml.match(/<body>([\s\S]*)<\/body>/);
     let body = bodyMatch ? bodyMatch[1] : "";
-    body = body.replace(/<div class="screen-page-indicator"[\s\S]*?<\/div>\s*<\/div>/, "");
+    body = body.replace(
+      /<div class="screen-page-indicator"[\s\S]*?<\/div>\s*<\/div>/,
+      "",
+    );
     body = body.replace(/<script>[\s\S]*?<\/script>/, "");
 
     const styleMatch = sourceHtml.match(/<style>([\s\S]*)<\/style>/);
@@ -1304,7 +1714,7 @@ export default function GeneratePage() {
     // This view's whole purpose is to preview the printed/PDF output, so the
     // print-only rules apply unconditionally rather than staying gated behind
     // @media print.
-    css = css.replace(/@media print\s*{([\s\S]*?)\n    }/, "$1");
+    css = css.replace(/@media print\s*{([\s\S]*?)\n {4}}/, "$1");
     css += `
     .chapter h2, .toc h2 { string-set: chaptername content(); }
     @page {
@@ -1364,28 +1774,32 @@ ${PAGEDJS_POLYFILL}
       </button>
 
       <div>
-        <h1 className="font-heading text-3xl text-gold-gradient">Generate Life Manual</h1>
+        <h1 className="font-heading text-3xl text-gold-gradient">
+          Generate Life Manual
+        </h1>
         <p className="text-[#f2ede2]/75 mt-2">
-          Generate a formatted Life Manual for a client. The manual includes all completed data
-          from their portal organized by chapter. If a client's manual only exists as an old PDF,
-          use{" "}
+          Generate a formatted Life Manual for a client. The manual includes all
+          completed data from their portal organized by chapter. If a client's
+          manual only exists as an old PDF, use{" "}
           <button
             onClick={() => navigate("/admin/import")}
             className="underline text-gold-primary hover:opacity-80 transition-opacity"
           >
             Import to Life Manual
-          </button>
-          {" "}first to bring that content into their portal chapters.
+          </button>{" "}
+          first to bring that content into their portal chapters.
         </p>
       </div>
 
       {/* Client Selection */}
       <div className="bg-[#0f0c08] rounded-xl border border-gold-border p-5 space-y-4">
         <div>
-          <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading">Select Client</label>
+          <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading">
+            Select Client
+          </label>
           <select
             value={selectedClient}
-            onChange={(e) => {
+            onChange={e => {
               setSelectedClient(e.target.value);
               setGeneratedHtml(null);
             }}
@@ -1394,7 +1808,8 @@ ${PAGEDJS_POLYFILL}
             <option value="">Choose a client...</option>
             {clients?.map((c: any) => (
               <option key={c._id} value={c._id}>
-                {c.userName || c.userEmail} - {getTierByName(c.tier)?.name ?? c.tier}
+                {c.userName || c.userEmail} -{" "}
+                {getTierByName(c.tier)?.name ?? c.tier}
               </option>
             ))}
           </select>
@@ -1411,7 +1826,11 @@ ${PAGEDJS_POLYFILL}
             ) : (
               <BookOpen className="w-4 h-4" />
             )}
-            {generating ? "Generating..." : manualData === undefined ? "Loading client data..." : "Generate Manual"}
+            {generating
+              ? "Generating..."
+              : manualData === undefined
+                ? "Loading client data..."
+                : "Generate Manual"}
           </button>
         )}
       </div>
@@ -1424,15 +1843,16 @@ ${PAGEDJS_POLYFILL}
             <h3 className="font-heading text-lg">Manual Generated</h3>
           </div>
           <p className="text-sm text-[#f2ede2]/75">
-            Life Manual for {client?.userName} has been generated. Download the HTML file below,
-            or use the{" "}
+            Life Manual for {client?.userName} has been generated. Download the
+            HTML file below, or use the{" "}
             <button
               onClick={() => navigate("/convert")}
               className="underline text-gold-primary hover:opacity-80 transition-opacity"
             >
               Document Converter
-            </button>
-            {" "}to export it as a branded PDF with real, selectable text (choose <strong>PDF</strong> as the output format).
+            </button>{" "}
+            to export it as a branded PDF with real, selectable text (choose{" "}
+            <strong>PDF</strong> as the output format).
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <button
@@ -1450,15 +1870,17 @@ ${PAGEDJS_POLYFILL}
             </button>
           </div>
           <p className="text-xs text-[#f2ede2]/60">
-            Print-Accurate Preview opens a separate page-numbered rendering for double-checking exact page
-            references (e.g. before a call with a client's attorney). The downloaded HTML is the actual
-            deliverable; this preview is for verification only.
+            Print-Accurate Preview opens a separate page-numbered rendering for
+            double-checking exact page references (e.g. before a call with a
+            client's attorney). The downloaded HTML is the actual deliverable;
+            this preview is for verification only.
           </p>
 
           <div className="bg-black rounded-lg border border-gold-border/20 p-3 flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
             <p className="text-xs text-[#f2ede2]/80">
-              After delivery, all files and access are purged. Your information stays with you.
+              After delivery, all files and access are purged. Your information
+              stays with you.
             </p>
           </div>
         </div>

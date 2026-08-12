@@ -1,8 +1,13 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { mutation, query, internalQuery, internalMutation } from "./_generated/server";
-import { internal } from "./_generated/api";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
+import {
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "./_generated/server";
 
 // Helper to verify admin status (for queries/mutations, where ctx.db exists directly)
 export async function requireAdmin(ctx: any) {
@@ -33,7 +38,7 @@ export const getUserInternal = internalQuery({
 
 export const isAdmin = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return false;
     const user = await ctx.db.get(userId);
@@ -43,7 +48,7 @@ export const isAdmin = query({
 
 export const listClients = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     await requireAdmin(ctx);
     const clients = await ctx.db.query("clients").collect();
     const result = [];
@@ -53,11 +58,11 @@ export const listClients = query({
       // Count completed sections
       const rows = await ctx.db
         .query("sectionRows")
-        .withIndex("by_userId", (q) => q.eq("userId", client.userId))
+        .withIndex("by_userId", q => q.eq("userId", client.userId))
         .collect();
       const fields = await ctx.db
         .query("sectionFields")
-        .withIndex("by_userId", (q) => q.eq("userId", client.userId))
+        .withIndex("by_userId", q => q.eq("userId", client.userId))
         .collect();
       result.push({
         ...client,
@@ -65,7 +70,8 @@ export const listClients = query({
         hasRealName: !!user.name,
         userEmail: user.email,
         totalRows: rows.length,
-        totalFields: fields.filter((f) => f.value && f.value.trim() !== "").length,
+        totalFields: fields.filter(f => f.value && f.value.trim() !== "")
+          .length,
       });
     }
     return result;
@@ -78,7 +84,7 @@ export const setClientActivation = mutation({
     await requireAdmin(ctx);
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
     if (!client) throw new Error("Client not found");
     await ctx.db.patch(client._id, { isActivated });
@@ -88,13 +94,17 @@ export const setClientActivation = mutation({
 export const setClientTier = mutation({
   args: {
     clientUserId: v.id("users"),
-    tier: v.union(v.literal("vault"), v.literal("archive"), v.literal("legacy")),
+    tier: v.union(
+      v.literal("vault"),
+      v.literal("archive"),
+      v.literal("legacy"),
+    ),
   },
   handler: async (ctx, { clientUserId, tier }) => {
     await requireAdmin(ctx);
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
     if (!client) throw new Error("Client not found");
     await ctx.db.patch(client._id, { tier });
@@ -107,7 +117,7 @@ export const markDelivered = mutation({
     await requireAdmin(ctx);
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
     if (!client) throw new Error("Client not found");
     await ctx.db.patch(client._id, {
@@ -123,7 +133,7 @@ export const markReviewComplete = mutation({
     await requireAdmin(ctx);
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
     if (!client) throw new Error("Client not found");
     await ctx.db.patch(client._id, {
@@ -139,7 +149,7 @@ export const cancelDelivery = mutation({
     await requireAdmin(ctx);
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
     if (!client) throw new Error("Client not found");
     await ctx.db.patch(client._id, {
@@ -156,7 +166,7 @@ export const purgeClient = mutation({
     // Delete all section rows
     const rows = await ctx.db
       .query("sectionRows")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .collect();
     for (const row of rows) {
       await ctx.db.delete(row._id);
@@ -164,7 +174,7 @@ export const purgeClient = mutation({
     // Delete all section fields
     const fields = await ctx.db
       .query("sectionFields")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .collect();
     for (const field of fields) {
       await ctx.db.delete(field._id);
@@ -172,7 +182,7 @@ export const purgeClient = mutation({
     // Update client status
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
     if (client) {
       await ctx.db.patch(client._id, { deliveryStatus: "purged" });
@@ -182,26 +192,40 @@ export const purgeClient = mutation({
 
 // Get a specific client's section data (for admin Life Manual view)
 export const getClientSectionRows = query({
-  args: { clientUserId: v.id("users"), chapterId: v.string(), sectionId: v.string() },
+  args: {
+    clientUserId: v.id("users"),
+    chapterId: v.string(),
+    sectionId: v.string(),
+  },
   handler: async (ctx, { clientUserId, chapterId, sectionId }) => {
     await requireAdmin(ctx);
     return await ctx.db
       .query("sectionRows")
-      .withIndex("by_user_section", (q) =>
-        q.eq("userId", clientUserId).eq("chapterId", chapterId).eq("sectionId", sectionId),
+      .withIndex("by_user_section", q =>
+        q
+          .eq("userId", clientUserId)
+          .eq("chapterId", chapterId)
+          .eq("sectionId", sectionId),
       )
       .collect();
   },
 });
 
 export const getClientSectionFields = query({
-  args: { clientUserId: v.id("users"), chapterId: v.string(), sectionId: v.string() },
+  args: {
+    clientUserId: v.id("users"),
+    chapterId: v.string(),
+    sectionId: v.string(),
+  },
   handler: async (ctx, { clientUserId, chapterId, sectionId }) => {
     await requireAdmin(ctx);
     return await ctx.db
       .query("sectionFields")
-      .withIndex("by_user_section", (q) =>
-        q.eq("userId", clientUserId).eq("chapterId", chapterId).eq("sectionId", sectionId),
+      .withIndex("by_user_section", q =>
+        q
+          .eq("userId", clientUserId)
+          .eq("chapterId", chapterId)
+          .eq("sectionId", sectionId),
       )
       .collect();
   },
@@ -216,12 +240,14 @@ export const makeAdmin = mutation({
     // Only allow if no admins exist yet, or caller is already admin
     const user = await ctx.db.get(userId);
     const allUsers = await ctx.db.query("users").collect();
-    const hasAdmin = allUsers.some((u) => u.isAdmin === true);
+    const hasAdmin = allUsers.some(u => u.isAdmin === true);
     if (hasAdmin && !user?.isAdmin) {
-      throw new Error("Admins already exist. Only an admin can create new admins.");
+      throw new Error(
+        "Admins already exist. Only an admin can create new admins.",
+      );
     }
     // Find user by email
-    const target = allUsers.find((u) => u.email === email);
+    const target = allUsers.find(u => u.email === email);
     if (!target) throw new Error("User not found with that email");
     await ctx.db.patch(target._id, { isAdmin: true });
     return { success: true };
@@ -232,14 +258,20 @@ export const makeAdmin = mutation({
 /** Admin only: registered users who don't have a clients record yet, for the Add Client picker. */
 export const listAddableUsers = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     await requireAdmin(ctx);
     const allUsers = await ctx.db.query("users").collect();
     const allClients = await ctx.db.query("clients").collect();
-    const existingClientUserIds = new Set(allClients.map((c) => c.userId.toString()));
+    const existingClientUserIds = new Set(
+      allClients.map(c => c.userId.toString()),
+    );
     return allUsers
-      .filter((u) => !u.isAdmin && !existingClientUserIds.has(u._id.toString()))
-      .map((u) => ({ userId: u._id, name: u.name || "", email: u.email || "Unknown" }));
+      .filter(u => !u.isAdmin && !existingClientUserIds.has(u._id.toString()))
+      .map(u => ({
+        userId: u._id,
+        name: u.name || "",
+        email: u.email || "Unknown",
+      }));
   },
 });
 
@@ -247,7 +279,11 @@ export const listAddableUsers = query({
 export const addClient = mutation({
   args: {
     userId: v.id("users"),
-    tier: v.union(v.literal("vault"), v.literal("archive"), v.literal("legacy")),
+    tier: v.union(
+      v.literal("vault"),
+      v.literal("archive"),
+      v.literal("legacy"),
+    ),
   },
   handler: async (ctx, { userId, tier }) => {
     await requireAdmin(ctx);
@@ -255,7 +291,7 @@ export const addClient = mutation({
     if (!user) throw new Error("User not found");
     const existing = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .unique();
     if (existing) throw new Error("This person is already a client.");
     const clientId = await ctx.db.insert("clients", {
@@ -290,7 +326,7 @@ export const activateClient = mutation({
 // CMS Content Management
 export const listCMS = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     await requireAdmin(ctx);
     return await ctx.db.query("cmsContent").collect();
   },
@@ -301,7 +337,7 @@ export const getCMS = query({
   handler: async (ctx, { key }) => {
     const cms = await ctx.db
       .query("cmsContent")
-      .withIndex("by_key", (q) => q.eq("key", key))
+      .withIndex("by_key", q => q.eq("key", key))
       .unique();
     return cms;
   },
@@ -317,7 +353,7 @@ export const updateCMS = mutation({
     await requireAdmin(ctx);
     const existing = await ctx.db
       .query("cmsContent")
-      .withIndex("by_key", (q) => q.eq("key", key))
+      .withIndex("by_key", q => q.eq("key", key))
       .unique();
     if (existing) {
       await ctx.db.patch(existing._id, { value, metadata });
@@ -333,7 +369,7 @@ export const deleteCMS = mutation({
     await requireAdmin(ctx);
     const existing = await ctx.db
       .query("cmsContent")
-      .withIndex("by_key", (q) => q.eq("key", key))
+      .withIndex("by_key", q => q.eq("key", key))
       .unique();
     if (existing) {
       // Image entries store a storage id as their value — deleting just
@@ -356,7 +392,7 @@ export const deleteCMS = mutation({
 /** Admin-only: generates a short-lived URL the browser can POST a file to directly. */
 export const generateImageUploadUrl = mutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     await requireAdmin(ctx);
     return await ctx.storage.generateUploadUrl();
   },
@@ -369,7 +405,7 @@ export const updateCMSImage = mutation({
     await requireAdmin(ctx);
     const existing = await ctx.db
       .query("cmsContent")
-      .withIndex("by_key", (q) => q.eq("key", key))
+      .withIndex("by_key", q => q.eq("key", key))
       .unique();
     // Clean up the previous file, if any, so replacing an image doesn't
     // leave orphaned storage blobs behind.
@@ -382,7 +418,11 @@ export const updateCMSImage = mutation({
       }
       await ctx.db.patch(existing._id, { value: storageId, metadata: "image" });
     } else {
-      await ctx.db.insert("cmsContent", { key, value: storageId, metadata: "image" });
+      await ctx.db.insert("cmsContent", {
+        key,
+        value: storageId,
+        metadata: "image",
+      });
     }
   },
 });
@@ -393,9 +433,9 @@ export const getCMSImageUrl = query({
   handler: async (ctx, { key }) => {
     const cms = await ctx.db
       .query("cmsContent")
-      .withIndex("by_key", (q) => q.eq("key", key))
+      .withIndex("by_key", q => q.eq("key", key))
       .unique();
-    if (!cms || cms.metadata !== "image") return null;
+    if (cms?.metadata !== "image") return null;
     return await ctx.storage.getUrl(cms.value as Id<"_storage">);
   },
 });
@@ -403,11 +443,11 @@ export const getCMSImageUrl = query({
 // HubSpot Integration (placeholder for API key)
 export const getHubSpotConfig = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     await requireAdmin(ctx);
     const settings = await ctx.db
       .query("settings")
-      .withIndex("by_key", (q) => q.eq("key", "hubspot_api_key"))
+      .withIndex("by_key", q => q.eq("key", "hubspot_api_key"))
       .unique();
     return settings?.value || null;
   },
@@ -419,12 +459,15 @@ export const setHubSpotConfig = mutation({
     await requireAdmin(ctx);
     const existing = await ctx.db
       .query("settings")
-      .withIndex("by_key", (q) => q.eq("key", "hubspot_api_key"))
+      .withIndex("by_key", q => q.eq("key", "hubspot_api_key"))
       .unique();
     if (existing) {
       await ctx.db.patch(existing._id, { value: apiKey });
     } else {
-      await ctx.db.insert("settings", { key: "hubspot_api_key", value: apiKey });
+      await ctx.db.insert("settings", {
+        key: "hubspot_api_key",
+        value: apiKey,
+      });
     }
   },
 });
@@ -440,7 +483,7 @@ export const setAdminByEmail = internalMutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("email"), args.email))
+      .filter(q => q.eq(q.field("email"), args.email))
       .first();
     if (!user) throw new Error("No user with that email");
     await ctx.db.patch(user._id, { isAdmin: args.isAdmin });

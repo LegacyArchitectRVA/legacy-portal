@@ -1,9 +1,10 @@
-import { useCmsValue } from "../hooks/useCms";
-import { useEditMode } from "../contexts/EditModeContext";
-import { getEditableDefault } from "../lib/editableContentRegistry";
 import type { InputHTMLAttributes } from "react";
+import { useEditMode } from "../contexts/EditModeContext";
+import { useCmsValue } from "../hooks/useCms";
+import { getEditableDefault } from "../lib/editableContentRegistry";
 
-interface EditableInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "placeholder"> {
+interface EditableInputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "placeholder"> {
   /** CMS key controlling this field's placeholder text. */
   placeholderCmsKey: string;
   className?: string;
@@ -17,7 +18,11 @@ interface EditableInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>,
  * disables real typing so an admin tapping a field to edit its
  * placeholder doesn't accidentally start filling out the live form.
  */
-export function EditableInput({ placeholderCmsKey, className = "", ...inputProps }: EditableInputProps) {
+export function EditableInput({
+  placeholderCmsKey,
+  className = "",
+  ...inputProps
+}: EditableInputProps) {
   const resolvedFallback = getEditableDefault(placeholderCmsKey);
   const placeholder = useCmsValue(placeholderCmsKey, resolvedFallback);
   const { active, selectedKey, select } = useEditMode();
@@ -40,7 +45,7 @@ export function EditableInput({ placeholderCmsKey, className = "", ...inputProps
       {active && (
         <button
           type="button"
-          onClick={(e) => {
+          onClick={e => {
             e.preventDefault();
             e.stopPropagation();
             select(placeholderCmsKey);

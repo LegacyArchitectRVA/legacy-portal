@@ -176,7 +176,7 @@ function Thread({
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [messages]);
+  }, []);
 
   const handleSend = () => {
     if (!text.trim()) return;

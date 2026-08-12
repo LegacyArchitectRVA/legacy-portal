@@ -1,37 +1,49 @@
-import { FullPageLoader } from "../components/FullPageLoader";
-import { useAction, useQuery } from "convex/react";
 import {
-  RiTeamLine as Users,
-  RiKeyLine as KeyRound,
-  RiMailSendLine as MailSend,
-  RiLockUnlockLine as Unlock,
-  RiLoader4Line as Loader2,
-  RiShieldCheckLine as ShieldCheck,
-  RiCheckLine as Check,
   RiErrorWarningLine as AlertTriangle,
+  RiCheckLine as Check,
+  RiKeyLine as KeyRound,
+  RiLoader4Line as Loader2,
+  RiMailSendLine as MailSend,
+  RiShieldCheckLine as ShieldCheck,
+  RiLockUnlockLine as Unlock,
+  RiTeamLine as Users,
   RiCloseLine as X,
 } from "@remixicon/react";
+import { useAction, useQuery } from "convex/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
+import { FullPageLoader } from "../components/FullPageLoader";
 
 export default function UserAccessPage() {
   const navigate = useNavigate();
   const isAdmin = useQuery(api.admin.isAdmin);
-  const users = useQuery(api.userAdmin.listUsersWithAccess, isAdmin ? {} : "skip");
+  const users = useQuery(
+    api.userAdmin.listUsersWithAccess,
+    isAdmin ? {} : "skip",
+  );
   const setTemporaryPassword = useAction(api.userAdmin.setTemporaryPassword);
-  const sendPasswordResetEmail = useAction(api.userAdmin.sendPasswordResetEmail);
+  const sendPasswordResetEmail = useAction(
+    api.userAdmin.sendPasswordResetEmail,
+  );
   const unlockAccount = useAction(api.userAdmin.unlockAccount);
 
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
-  const [busyAction, setBusyAction] = useState<"" | "temp" | "reset" | "unlock">("");
-  const [tempPasswordResult, setTempPasswordResult] = useState<{ userId: string; password: string } | null>(null);
-  const [resultMessage, setResultMessage] = useState<{ userId: string; text: string; isError: boolean } | null>(null);
+  const [busyAction, setBusyAction] = useState<
+    "" | "temp" | "reset" | "unlock"
+  >("");
+  const [tempPasswordResult, setTempPasswordResult] = useState<{
+    userId: string;
+    password: string;
+  } | null>(null);
+  const [resultMessage, setResultMessage] = useState<{
+    userId: string;
+    text: string;
+    isError: boolean;
+  } | null>(null);
 
   if (isAdmin === undefined) {
-    return (
-      <FullPageLoader />
-    );
+    return <FullPageLoader />;
   }
 
   if (!isAdmin) {
@@ -49,10 +61,16 @@ export default function UserAccessPage() {
     setTempPasswordResult(null);
     setResultMessage(null);
     try {
-      const { temporaryPassword } = await setTemporaryPassword({ targetUserId: userId as any });
+      const { temporaryPassword } = await setTemporaryPassword({
+        targetUserId: userId as any,
+      });
       setTempPasswordResult({ userId, password: temporaryPassword });
     } catch (err: any) {
-      setResultMessage({ userId, text: err?.message || "Could not set a temporary password.", isError: true });
+      setResultMessage({
+        userId,
+        text: err?.message || "Could not set a temporary password.",
+        isError: true,
+      });
     } finally {
       setBusyUserId(null);
       setBusyAction("");
@@ -61,7 +79,11 @@ export default function UserAccessPage() {
 
   const handleSendResetEmail = async (userId: string, email: string) => {
     if (!email) {
-      setResultMessage({ userId, text: "This user has no email on file.", isError: true });
+      setResultMessage({
+        userId,
+        text: "This user has no email on file.",
+        isError: true,
+      });
       return;
     }
     setBusyUserId(userId);
@@ -69,9 +91,17 @@ export default function UserAccessPage() {
     setResultMessage(null);
     try {
       await sendPasswordResetEmail({ targetUserId: userId as any });
-      setResultMessage({ userId, text: `New password emailed to ${email}.`, isError: false });
+      setResultMessage({
+        userId,
+        text: `New password emailed to ${email}.`,
+        isError: false,
+      });
     } catch (err: any) {
-      setResultMessage({ userId, text: err?.message || "Could not send the reset email.", isError: true });
+      setResultMessage({
+        userId,
+        text: err?.message || "Could not send the reset email.",
+        isError: true,
+      });
     } finally {
       setBusyUserId(null);
       setBusyAction("");
@@ -83,7 +113,9 @@ export default function UserAccessPage() {
     setBusyAction("unlock");
     setResultMessage(null);
     try {
-      const { reactivated } = await unlockAccount({ targetUserId: userId as any });
+      const { reactivated } = await unlockAccount({
+        targetUserId: userId as any,
+      });
       setResultMessage({
         userId,
         text: reactivated
@@ -92,7 +124,11 @@ export default function UserAccessPage() {
         isError: false,
       });
     } catch (err: any) {
-      setResultMessage({ userId, text: err?.message || "Could not unlock this account.", isError: true });
+      setResultMessage({
+        userId,
+        text: err?.message || "Could not unlock this account.",
+        isError: true,
+      });
     } finally {
       setBusyUserId(null);
       setBusyAction("");
@@ -103,12 +139,18 @@ export default function UserAccessPage() {
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="font-heading text-3xl text-gold-gradient">User Access</h1>
+          <h1 className="font-heading text-3xl text-gold-gradient">
+            User Access
+          </h1>
           <p className="text-[#f2ede2]/75 mt-1">
-            Everyone with portal access. Set a temporary password, send a reset email, or unlock an account.
+            Everyone with portal access. Set a temporary password, send a reset
+            email, or unlock an account.
           </p>
         </div>
-        <button onClick={() => navigate("/admin")} className="text-gold-primary hover:text-gold-bright text-sm">
+        <button
+          onClick={() => navigate("/admin")}
+          className="text-gold-primary hover:text-gold-bright text-sm"
+        >
           Back to Admin Dashboard
         </button>
       </div>
@@ -119,7 +161,7 @@ export default function UserAccessPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {users.map((u) => {
+          {users.map(u => {
             const isBusy = busyUserId === u.userId;
             return (
               <div
@@ -129,7 +171,9 @@ export default function UserAccessPage() {
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm text-[#f2ede2] font-medium truncate">{u.name || "(no name)"}</p>
+                      <p className="text-sm text-[#f2ede2] font-medium truncate">
+                        {u.name || "(no name)"}
+                      </p>
                       {u.isAdmin && (
                         <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-gold-primary bg-gold-dark/15 px-2 py-0.5 rounded-full">
                           <ShieldCheck className="w-3 h-3" /> Admin
@@ -141,7 +185,9 @@ export default function UserAccessPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#f2ede2]/75 truncate">{u.email || "(no email)"}</p>
+                    <p className="text-xs text-[#f2ede2]/75 truncate">
+                      {u.email || "(no email)"}
+                    </p>
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap">
@@ -190,7 +236,9 @@ export default function UserAccessPage() {
                       <p className="text-[10px] uppercase tracking-widest text-gold-muted">
                         Temporary password (shown once)
                       </p>
-                      <p className="text-sm text-[#f2ede2] font-mono tracking-wide">{tempPasswordResult.password}</p>
+                      <p className="text-sm text-[#f2ede2] font-mono tracking-wide">
+                        {tempPasswordResult.password}
+                      </p>
                     </div>
                     <button
                       onClick={() => setTempPasswordResult(null)}
@@ -209,7 +257,11 @@ export default function UserAccessPage() {
                         : "bg-emerald-950/30 text-emerald-300 border border-emerald-900/40"
                     }`}
                   >
-                    {resultMessage.isError ? <AlertTriangle className="w-3.5 h-3.5" /> : <Check className="w-3.5 h-3.5" />}
+                    {resultMessage.isError ? (
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5" />
+                    )}
                     {resultMessage.text}
                   </div>
                 )}

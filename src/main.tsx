@@ -28,16 +28,18 @@ window.addEventListener("vite:preloadError", () => {
 //      `vite build` (without the inject step) can never black-screen the
 //      portal. This is the real production Convex deployment for this app.
 const PRODUCTION_CONVEX_URL = "https://usable-hornet-255.convex.cloud";
-// @ts-ignore - Cloudflare injects CONVEX_URL as a global
-const convexUrl = typeof window !== 'undefined' && window.CONVEX_URL
-  ? window.CONVEX_URL
-  : import.meta.env.VITE_CONVEX_URL
-  ? import.meta.env.VITE_CONVEX_URL
-  : PRODUCTION_CONVEX_URL;
+const convexUrl =
+  typeof window !== "undefined" && window.CONVEX_URL
+    ? window.CONVEX_URL
+    : import.meta.env.VITE_CONVEX_URL
+      ? import.meta.env.VITE_CONVEX_URL
+      : PRODUCTION_CONVEX_URL;
 
 // Check if we're in production without a Convex URL
 if (!convexUrl) {
-  console.error("Convex URL not configured. Please set VITE_CONVEX_URL in Cloudflare Pages environment variables.");
+  console.error(
+    "Convex URL not configured. Please set VITE_CONVEX_URL in Cloudflare Pages environment variables.",
+  );
 }
 
 const convex = new ConvexReactClient(convexUrl);

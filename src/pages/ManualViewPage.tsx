@@ -1,13 +1,17 @@
+import {
+  RiArrowLeftLine as ArrowLeft,
+  RiBookOpenLine as BookOpen,
+  RiFileTextLine as FileText,
+} from "@remixicon/react";
 import { useQuery } from "convex/react";
-import { RiArrowLeftLine as ArrowLeft, RiBookOpenLine as BookOpen, RiFileTextLine as FileText } from "@remixicon/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { EditableText } from "../components/EditableText";
+import { LucideIcon } from "../components/LucideIcon";
+import { useTheme } from "../contexts/ThemeContext";
 import { chapters, PRIVACY_NOTE } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
-import { LucideIcon } from "../components/LucideIcon";
-import { EditableText } from "../components/EditableText";
-import { useTheme } from "../contexts/ThemeContext";
 
 function SectionView({
   clientUserId,
@@ -20,7 +24,7 @@ function SectionView({
   sectionId: string;
   chapter: (typeof chapters)[0];
 }) {
-  const section = chapter.subSections.find((s) => s.id === sectionId);
+  const section = chapter.subSections.find(s => s.id === sectionId);
   const { theme } = useTheme();
   const rows = useQuery(api.admin.getClientSectionRows, {
     clientUserId,
@@ -37,7 +41,7 @@ function SectionView({
 
   const hasData =
     (rows && rows.length > 0) ||
-    (fields && fields.some((f) => f.value && f.value.trim() !== ""));
+    fields?.some(f => f.value && f.value.trim() !== "");
   if (!hasData) return null;
 
   return (
@@ -46,7 +50,14 @@ function SectionView({
         <LucideIcon
           name={section.icon}
           className="w-4 h-4"
-          style={{ color: chapter.color === "#FFFFFF" ? (theme === "light" ? "#181410" : "#f2ede2") : chapter.color }}
+          style={{
+            color:
+              chapter.color === "#FFFFFF"
+                ? theme === "light"
+                  ? "#181410"
+                  : "#f2ede2"
+                : chapter.color,
+          }}
         />
         <h3 className="font-heading text-base font-semibold text-[#f2ede2]">
           {section.title}
@@ -59,7 +70,7 @@ function SectionView({
           <table className="w-full text-xs border-collapse">
             <thead>
               <tr>
-                {section.tableColumns.map((col) => (
+                {section.tableColumns.map(col => (
                   <th
                     key={col.key}
                     className="text-left px-3 py-2 font-heading text-[10px] uppercase tracking-wider text-[#d4b661]/70 bg-[#141009] border-b border-[rgba(212, 182, 97,0.08)]"
@@ -70,13 +81,20 @@ function SectionView({
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
+              {rows.map(row => {
                 const data = (() => {
-                  try { return JSON.parse(row.data); } catch { return {}; }
+                  try {
+                    return JSON.parse(row.data);
+                  } catch {
+                    return {};
+                  }
                 })();
                 return (
-                  <tr key={row._id} className="border-b border-[rgba(212, 182, 97,0.04)]">
-                    {section.tableColumns.map((col) => (
+                  <tr
+                    key={row._id}
+                    className="border-b border-[rgba(212, 182, 97,0.04)]"
+                  >
+                    {section.tableColumns.map(col => (
                       <td key={col.key} className="px-3 py-2 text-[#f2ede2]/70">
                         {data[col.key] || "-"}
                       </td>
@@ -92,9 +110,9 @@ function SectionView({
       {/* Fields */}
       {section.fields &&
         fields &&
-        section.fields.map((fieldDef) => {
-          const f = fields.find((x) => x.fieldId === fieldDef.id);
-          if (!f || !f.value || !f.value.trim()) return null;
+        section.fields.map(fieldDef => {
+          const f = fields.find(x => x.fieldId === fieldDef.id);
+          if (!f?.value?.trim()) return null;
           return (
             <div key={fieldDef.id} className="mb-3">
               <p className="text-xs font-heading text-[#d4b661]/70 mb-1">
@@ -110,7 +128,11 @@ function SectionView({
   );
 }
 
-export default function ManualViewPage({ clientUserIdOverride }: { clientUserIdOverride?: string } = {}) {
+export default function ManualViewPage({
+  clientUserIdOverride,
+}: {
+  clientUserIdOverride?: string;
+} = {}) {
   const params = useParams<{ clientUserId: string }>();
   const clientUserId = clientUserIdOverride ?? params.clientUserId;
   const navigate = useNavigate();
@@ -119,7 +141,7 @@ export default function ManualViewPage({ clientUserIdOverride }: { clientUserIdO
   const clients = useQuery(api.admin.listClients);
   const manualData = useQuery(
     api.crm.getClientManualData,
-    clientUserId ? { clientUserId: clientUserId as Id<"users"> } : "skip"
+    clientUserId ? { clientUserId: clientUserId as Id<"users"> } : "skip",
   );
 
   if (!isAdmin) {
@@ -130,9 +152,7 @@ export default function ManualViewPage({ clientUserIdOverride }: { clientUserIdO
     );
   }
 
-  const client = clients?.find(
-    (c) => c.userId === clientUserId,
-  );
+  const client = clients?.find(c => c.userId === clientUserId);
   const tier = client?.tier || "vault";
 
   function escapeHtml(s: string): string {
@@ -143,7 +163,9 @@ export default function ManualViewPage({ clientUserIdOverride }: { clientUserIdO
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
-    const accessibleChapters = chapters.filter((ch) => canAccessChapter(tier, ch.chapterNumber));
+    const accessibleChapters = chapters.filter(ch =>
+      canAccessChapter(tier, ch.chapterNumber),
+    );
     let body = "";
     for (const ch of accessibleChapters) {
       let chapterHtml = "";
@@ -158,11 +180,13 @@ export default function ManualViewPage({ clientUserIdOverride }: { clientUserIdO
         let sectionHtml = `<h3>${escapeHtml(sec.title)}</h3>`;
         if (hasTableData && sec.tableColumns.length > 0) {
           sectionHtml += `<table><thead><tr>`;
-          for (const col of sec.tableColumns) sectionHtml += `<th>${escapeHtml(col.label)}</th>`;
+          for (const col of sec.tableColumns)
+            sectionHtml += `<th>${escapeHtml(col.label)}</th>`;
           sectionHtml += `</tr></thead><tbody>`;
           for (const row of realRows) {
             sectionHtml += `<tr>`;
-            for (const col of sec.tableColumns) sectionHtml += `<td>${escapeHtml(row[col.key] || "")}</td>`;
+            for (const col of sec.tableColumns)
+              sectionHtml += `<td>${escapeHtml(row[col.key] || "")}</td>`;
             sectionHtml += `</tr>`;
           }
           sectionHtml += `</tbody></table>`;
@@ -251,19 +275,31 @@ ${body || '<p style="text-align:center;color:#888;font-style:italic;">No informa
           <span className="capitalize">{tier}</span> Edition
         </p>
         <p className="text-xs text-[#f2ede2]/80 mt-2">
-          Generated {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+          Generated{" "}
+          {new Date().toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
         </p>
       </div>
 
       {/* Chapters */}
       {chapters
-        .filter((ch) => canAccessChapter(tier, ch.chapterNumber))
-        .map((ch) => (
+        .filter(ch => canAccessChapter(tier, ch.chapterNumber))
+        .map(ch => (
           <div key={ch.id} className="space-y-4">
             <div className="pt-6 pb-2 border-b border-[rgba(212, 182, 97,0.08)]">
               <span
                 className="font-heading text-xs uppercase tracking-widest whitespace-nowrap"
-                style={{ color: ch.color === "#FFFFFF" ? (theme === "light" ? "#181410" : "#f2ede2") : ch.color }}
+                style={{
+                  color:
+                    ch.color === "#FFFFFF"
+                      ? theme === "light"
+                        ? "#181410"
+                        : "#f2ede2"
+                      : ch.color,
+                }}
               >
                 Chapter {ch.chapterNumber}
               </span>
@@ -272,7 +308,7 @@ ${body || '<p style="text-align:center;color:#888;font-style:italic;">No informa
               </span>
             </div>
 
-            {ch.subSections.map((section) => (
+            {ch.subSections.map(section => (
               <SectionView
                 key={section.id}
                 clientUserId={clientUserId as Id<"users">}

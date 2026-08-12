@@ -1,6 +1,6 @@
 import { runTest } from "./auth";
 
-runTest("Portal E2E Test", async (helper) => {
+runTest("Portal E2E Test", async helper => {
   const { page } = helper;
 
   // Test Landing Page
@@ -8,8 +8,11 @@ runTest("Portal E2E Test", async (helper) => {
   await helper.goto("/");
   await page.waitForTimeout(3000);
   await helper.screenshot("test-landing");
-  
-  const heroText = await page.locator("text=Legacy Architect").first().isVisible();
+
+  const heroText = await page
+    .locator("text=Legacy Architect")
+    .first()
+    .isVisible();
   console.log("  Hero text visible:", heroText);
   if (!heroText) {
     await helper.printDebugInfo();
@@ -46,7 +49,7 @@ runTest("Portal E2E Test", async (helper) => {
   console.log("✅ Upgrade page OK");
 
   console.log("✅ All tests passed");
-}).catch((e) => {
+}).catch(e => {
   console.error("Test error:", e);
   process.exit(1);
 });

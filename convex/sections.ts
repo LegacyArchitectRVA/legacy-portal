@@ -1,19 +1,24 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
 
 async function requireAdmin(ctx: any, onBehalfOf?: any) {
   const userId = await getAuthUserId(ctx);
   if (!userId) throw new Error("Not authenticated");
   const user = await ctx.db.get(userId);
-  if (!user?.isAdmin) throw new Error("Chapter sections are view-only for clients");
+  if (!user?.isAdmin)
+    throw new Error("Chapter sections are view-only for clients");
   return onBehalfOf || userId;
 }
 
 // ── Row CRUD (for structured tables) ──
 
 export const getRows = query({
-  args: { chapterId: v.string(), sectionId: v.string(), onBehalfOf: v.optional(v.id("users")) },
+  args: {
+    chapterId: v.string(),
+    sectionId: v.string(),
+    onBehalfOf: v.optional(v.id("users")),
+  },
   handler: async (ctx, { chapterId, sectionId, onBehalfOf }) => {
     const authUserId = await getAuthUserId(ctx);
     if (!authUserId) return [];
@@ -25,8 +30,11 @@ export const getRows = query({
     }
     const rows = await ctx.db
       .query("sectionRows")
-      .withIndex("by_user_section", (q) =>
-        q.eq("userId", userId).eq("chapterId", chapterId).eq("sectionId", sectionId),
+      .withIndex("by_user_section", q =>
+        q
+          .eq("userId", userId)
+          .eq("chapterId", chapterId)
+          .eq("sectionId", sectionId),
       )
       .collect();
     return rows.sort((a, b) => a.sortOrder - b.sortOrder);
@@ -47,11 +55,15 @@ export const addRow = mutation({
     // Get max sort order
     const existing = await ctx.db
       .query("sectionRows")
-      .withIndex("by_user_section", (q) =>
-        q.eq("userId", userId).eq("chapterId", args.chapterId).eq("sectionId", args.sectionId),
+      .withIndex("by_user_section", q =>
+        q
+          .eq("userId", userId)
+          .eq("chapterId", args.chapterId)
+          .eq("sectionId", args.sectionId),
       )
       .collect();
-    const maxSort = existing.length > 0 ? Math.max(...existing.map((r) => r.sortOrder)) : 0;
+    const maxSort =
+      existing.length > 0 ? Math.max(...existing.map(r => r.sortOrder)) : 0;
     return await ctx.db.insert("sectionRows", {
       userId,
       chapterId: args.chapterId,
@@ -76,10 +88,13 @@ export const updateRow = mutation({
     const userId = await requireAdmin(ctx, args.onBehalfOf);
     const row = await ctx.db
       .query("sectionRows")
-      .withIndex("by_user_section", (q) =>
-        q.eq("userId", userId).eq("chapterId", args.chapterId).eq("sectionId", args.sectionId),
+      .withIndex("by_user_section", q =>
+        q
+          .eq("userId", userId)
+          .eq("chapterId", args.chapterId)
+          .eq("sectionId", args.sectionId),
       )
-      .filter((q) => q.eq(q.field("rowId"), args.rowId))
+      .filter(q => q.eq(q.field("rowId"), args.rowId))
       .unique();
     if (!row) throw new Error("Row not found");
     await ctx.db.patch(row._id, { data: args.data, updatedAt: Date.now() });
@@ -97,10 +112,13 @@ export const deleteRow = mutation({
     const userId = await requireAdmin(ctx, args.onBehalfOf);
     const row = await ctx.db
       .query("sectionRows")
-      .withIndex("by_user_section", (q) =>
-        q.eq("userId", userId).eq("chapterId", args.chapterId).eq("sectionId", args.sectionId),
+      .withIndex("by_user_section", q =>
+        q
+          .eq("userId", userId)
+          .eq("chapterId", args.chapterId)
+          .eq("sectionId", args.sectionId),
       )
-      .filter((q) => q.eq(q.field("rowId"), args.rowId))
+      .filter(q => q.eq(q.field("rowId"), args.rowId))
       .unique();
     if (!row) throw new Error("Row not found");
     await ctx.db.delete(row._id);
@@ -110,7 +128,11 @@ export const deleteRow = mutation({
 // ── Field CRUD (for textarea/checkbox fields) ──
 
 export const getFields = query({
-  args: { chapterId: v.string(), sectionId: v.string(), onBehalfOf: v.optional(v.id("users")) },
+  args: {
+    chapterId: v.string(),
+    sectionId: v.string(),
+    onBehalfOf: v.optional(v.id("users")),
+  },
   handler: async (ctx, { chapterId, sectionId, onBehalfOf }) => {
     const authUserId = await getAuthUserId(ctx);
     if (!authUserId) return {};
@@ -122,8 +144,11 @@ export const getFields = query({
     }
     const fields = await ctx.db
       .query("sectionFields")
-      .withIndex("by_user_section", (q) =>
-        q.eq("userId", userId).eq("chapterId", chapterId).eq("sectionId", sectionId),
+      .withIndex("by_user_section", q =>
+        q
+          .eq("userId", userId)
+          .eq("chapterId", chapterId)
+          .eq("sectionId", sectionId),
       )
       .collect();
     // Return as key-value map
@@ -148,13 +173,19 @@ export const saveField = mutation({
     // Upsert
     const existing = await ctx.db
       .query("sectionFields")
-      .withIndex("by_user_section", (q) =>
-        q.eq("userId", userId).eq("chapterId", args.chapterId).eq("sectionId", args.sectionId),
+      .withIndex("by_user_section", q =>
+        q
+          .eq("userId", userId)
+          .eq("chapterId", args.chapterId)
+          .eq("sectionId", args.sectionId),
       )
-      .filter((q) => q.eq(q.field("fieldId"), args.fieldId))
+      .filter(q => q.eq(q.field("fieldId"), args.fieldId))
       .unique();
     if (existing) {
-      await ctx.db.patch(existing._id, { value: args.value, updatedAt: Date.now() });
+      await ctx.db.patch(existing._id, {
+        value: args.value,
+        updatedAt: Date.now(),
+      });
     } else {
       await ctx.db.insert("sectionFields", {
         userId,
@@ -172,19 +203,22 @@ export const saveField = mutation({
 
 export const getProgress = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return {};
     const rows = await ctx.db
       .query("sectionRows")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .collect();
     const fields = await ctx.db
       .query("sectionFields")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .collect();
     // Group by chapter
-    const progress: Record<string, { rows: number; fields: number; sections: Set<string> }> = {};
+    const progress: Record<
+      string,
+      { rows: number; fields: number; sections: Set<string> }
+    > = {};
     for (const row of rows) {
       if (!progress[row.chapterId]) {
         progress[row.chapterId] = { rows: 0, fields: 0, sections: new Set() };
@@ -195,16 +229,27 @@ export const getProgress = query({
     for (const field of fields) {
       if (field.value && field.value.trim() !== "") {
         if (!progress[field.chapterId]) {
-          progress[field.chapterId] = { rows: 0, fields: 0, sections: new Set() };
+          progress[field.chapterId] = {
+            rows: 0,
+            fields: 0,
+            sections: new Set(),
+          };
         }
         progress[field.chapterId].fields++;
         progress[field.chapterId].sections.add(field.sectionId);
       }
     }
     // Convert to serializable
-    const result: Record<string, { rows: number; fields: number; sectionsStarted: number }> = {};
+    const result: Record<
+      string,
+      { rows: number; fields: number; sectionsStarted: number }
+    > = {};
     for (const [key, val] of Object.entries(progress)) {
-      result[key] = { rows: val.rows, fields: val.fields, sectionsStarted: val.sections.size };
+      result[key] = {
+        rows: val.rows,
+        fields: val.fields,
+        sectionsStarted: val.sections.size,
+      };
     }
     return result;
   },
@@ -214,19 +259,19 @@ export const getProgress = query({
 
 export const purgeAllMyData = mutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
     const rows = await ctx.db
       .query("sectionRows")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .collect();
     for (const row of rows) {
       await ctx.db.delete(row._id);
     }
     const fields = await ctx.db
       .query("sectionFields")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .collect();
     for (const field of fields) {
       await ctx.db.delete(field._id);

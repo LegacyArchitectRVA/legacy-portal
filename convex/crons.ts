@@ -10,7 +10,7 @@ crons.interval(
   "sync prospects from HubSpot",
   { hours: 6 },
   internal.hubspot.scheduledProspectSync,
-  {}
+  {},
 );
 
 // Checks daily for clients whose annual review is due (or within 30 days of
@@ -19,7 +19,7 @@ crons.interval(
   "send annual review reminders",
   { hours: 24 },
   internal.reviewReminders.sendDueReminders,
-  {}
+  {},
 );
 
 export default crons;

@@ -1,6 +1,11 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
+import {
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "./_generated/server";
 
 const CHALLENGE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const TICKET_TTL_MS = 30 * 1000; // 30 seconds
@@ -8,7 +13,7 @@ const TICKET_TTL_MS = 30 * 1000; // 30 seconds
 function randomToken(): string {
   const bytes = new Uint8Array(24);
   crypto.getRandomValues(bytes);
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
 }
 
 export const saveChallenge = internalMutation({
@@ -35,7 +40,7 @@ export const consumeChallenge = internalMutation({
   handler: async (ctx, { token }) => {
     const row = await ctx.db
       .query("webauthnChallenges")
-      .withIndex("by_token", (q) => q.eq("token", token))
+      .withIndex("by_token", q => q.eq("token", token))
       .unique();
     if (!row) return null;
     await ctx.db.delete(row._id);
@@ -49,7 +54,7 @@ export const getCredentialByCredentialId = internalQuery({
   handler: async (ctx, { credentialId }) => {
     return await ctx.db
       .query("webauthnCredentials")
-      .withIndex("by_credentialId", (q) => q.eq("credentialId", credentialId))
+      .withIndex("by_credentialId", q => q.eq("credentialId", credentialId))
       .unique();
   },
 });
@@ -59,9 +64,9 @@ export const getCredentialIdsForUser = internalQuery({
   handler: async (ctx, { userId }) => {
     const creds = await ctx.db
       .query("webauthnCredentials")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .collect();
-    return creds.map((c) => ({ credentialId: c.credentialId }));
+    return creds.map(c => ({ credentialId: c.credentialId }));
   },
 });
 
@@ -108,7 +113,7 @@ export const consumeTicket = internalMutation({
   handler: async (ctx, { ticket }) => {
     const row = await ctx.db
       .query("passkeyTickets")
-      .withIndex("by_ticket", (q) => q.eq("ticket", ticket))
+      .withIndex("by_ticket", q => q.eq("ticket", ticket))
       .unique();
     if (!row || row.used || row.expiresAt < Date.now()) return null;
     await ctx.db.patch(row._id, { used: true });
@@ -119,14 +124,14 @@ export const consumeTicket = internalMutation({
 /** Lists the current user's registered passkeys (no public key material exposed). */
 export const listMyCredentials = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return [];
     const creds = await ctx.db
       .query("webauthnCredentials")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .collect();
-    return creds.map((c) => ({
+    return creds.map(c => ({
       _id: c._id,
       name: c.name || "Passkey",
       deviceType: c.deviceType,

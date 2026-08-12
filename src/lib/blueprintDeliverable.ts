@@ -1,8 +1,8 @@
 import {
   BLUEPRINT_PILLARS,
-  STATUS_META,
   type BlueprintCheckpoint,
   type CheckStatus,
+  STATUS_META,
 } from "../data/blueprintPillars";
 import type { Block, ParsedDocument } from "./documentConverter";
 
@@ -36,15 +36,23 @@ export interface PillarScore {
   partialItems: { checkpoint: BlueprintCheckpoint; note?: string }[];
 }
 
-const byId = new Map<string, { checkpoint: BlueprintCheckpoint; pillarId: string }>();
+const byId = new Map<
+  string,
+  { checkpoint: BlueprintCheckpoint; pillarId: string }
+>();
 for (const p of BLUEPRINT_PILLARS) {
-  for (const c of p.checkpoints) byId.set(c.id, { checkpoint: c, pillarId: p.id });
+  for (const c of p.checkpoints)
+    byId.set(c.id, { checkpoint: c, pillarId: p.id });
 }
 
 export function scorePillars(assessments: SessionAssessment[]): PillarScore[] {
-  const amap = new Map(assessments.map((a) => [a.checkpointId, a]));
-  return BLUEPRINT_PILLARS.map((p) => {
-    let handled = 0, partial = 0, exposed = 0, risk = 0, assessed = 0;
+  const amap = new Map(assessments.map(a => [a.checkpointId, a]));
+  return BLUEPRINT_PILLARS.map(p => {
+    let handled = 0,
+      partial = 0,
+      exposed = 0,
+      risk = 0,
+      assessed = 0;
     const exposedItems: PillarScore["exposedItems"] = [];
     const partialItems: PillarScore["partialItems"] = [];
     for (const c of p.checkpoints) {
@@ -53,15 +61,23 @@ export function scorePillars(assessments: SessionAssessment[]): PillarScore[] {
       assessed++;
       risk += STATUS_META[a.status].risk;
       if (a.status === "handled") handled++;
-      else if (a.status === "partial") { partial++; partialItems.push({ checkpoint: c, note: a.note }); }
-      else if (a.status === "exposed") { exposed++; exposedItems.push({ checkpoint: c, note: a.note }); }
+      else if (a.status === "partial") {
+        partial++;
+        partialItems.push({ checkpoint: c, note: a.note });
+      } else if (a.status === "exposed") {
+        exposed++;
+        exposedItems.push({ checkpoint: c, note: a.note });
+      }
     }
     return {
       pillarId: p.id,
       title: p.title,
       number: p.number,
       color: p.color,
-      handled, partial, exposed, assessed,
+      handled,
+      partial,
+      exposed,
+      assessed,
       riskPct: assessed === 0 ? 0 : Math.round((risk / (assessed * 2)) * 100),
       exposedItems,
       partialItems,
@@ -76,20 +92,34 @@ export function scorePillars(assessments: SessionAssessment[]): PillarScore[] {
  * Day 1 so the plan opens with visible momentum; involved items land on
  * Day 2 and 3 where there's room to work. Craig edits from there.
  */
-export function generatePlan(assessments: SessionAssessment[]): SessionAction[] {
+export function generatePlan(
+  assessments: SessionAssessment[],
+): SessionAction[] {
   const scores = scorePillars(assessments);
   const ranked = [...scores].sort((a, b) => b.riskPct - a.riskPct);
 
-  type Candidate = { checkpoint: BlueprintCheckpoint; pillarId: string; weight: number };
+  type Candidate = {
+    checkpoint: BlueprintCheckpoint;
+    pillarId: string;
+    weight: number;
+  };
   const candidates: Candidate[] = [];
   ranked.forEach((s, pillarRank) => {
     for (const item of s.exposedItems) {
-      candidates.push({ checkpoint: item.checkpoint, pillarId: s.pillarId, weight: 100 - pillarRank * 10 });
+      candidates.push({
+        checkpoint: item.checkpoint,
+        pillarId: s.pillarId,
+        weight: 100 - pillarRank * 10,
+      });
     }
   });
   ranked.forEach((s, pillarRank) => {
     for (const item of s.partialItems) {
-      candidates.push({ checkpoint: item.checkpoint, pillarId: s.pillarId, weight: 40 - pillarRank * 4 });
+      candidates.push({
+        checkpoint: item.checkpoint,
+        pillarId: s.pillarId,
+        weight: 40 - pillarRank * 4,
+      });
     }
   });
 
@@ -115,7 +145,7 @@ export function generatePlan(assessments: SessionAssessment[]): SessionAction[] 
 }
 
 function pillarTitle(pillarId: string): string {
-  return BLUEPRINT_PILLARS.find((p) => p.id === pillarId)?.title ?? pillarId;
+  return BLUEPRINT_PILLARS.find(p => p.id === pillarId)?.title ?? pillarId;
 }
 
 /** Overall readiness: 100 minus exposure, weighted by how much of each pillar was assessed. */
@@ -138,12 +168,12 @@ export function overallReadiness(scores: PillarScore[]): number {
  */
 function buildWhatThisMeans(scores: PillarScore[]): Block[] {
   const blocks: Block[] = [];
-  const assessed = scores.filter((s) => s.assessed > 0);
+  const assessed = scores.filter(s => s.assessed > 0);
   if (assessed.length === 0) return blocks;
 
   const readiness = overallReadiness(scores);
   const ranked = [...assessed].sort((a, b) => b.riskPct - a.riskPct);
-  const worst = ranked.filter((s) => s.riskPct >= 30).slice(0, 3);
+  const worst = ranked.filter(s => s.riskPct >= 30).slice(0, 3);
   const strongest = ranked[ranked.length - 1];
 
   blocks.push({ type: "heading", level: 1, text: "What This Means" });
@@ -169,9 +199,7 @@ function buildWhatThisMeans(scores: PillarScore[]): Block[] {
   worst.forEach((s, wi) => {
     const items = [...s.exposedItems, ...s.partialItems].slice(0, 3);
     if (items.length === 0) return;
-    const consequence = items
-      .map((i) => i.checkpoint.impact)
-      .join(" ");
+    const consequence = items.map(i => i.checkpoint.impact).join(" ");
     blocks.push({
       type: "paragraph",
       text: `${s.title} is the ${wi === 0 ? "widest" : "next"} gap at ${s.riskPct}% exposure. In practical terms: ${consequence} ${closers[wi % closers.length]}`,
@@ -204,25 +232,33 @@ export function buildDeliverable(
   sessionDate: number,
   assessments: SessionAssessment[],
   actions: SessionAction[],
-  gapMapImage?: { src: string; width: number; height: number }
+  gapMapImage?: { src: string; width: number; height: number },
 ): ParsedDocument {
   const scores = scorePillars(assessments);
   // Pillar order is locked. The table and findings walk 01 through 07 in
   // sequence; severity ordering belongs only to What This Means and the plan.
   // The table carries all seven rows so the numbering never skips: an
   // unassessed pillar reads "Not assessed" rather than silently vanishing.
-  const inOrder = scores.filter((s) => s.assessed > 0);
+  const inOrder = scores.filter(s => s.assessed > 0);
   const blocks: Block[] = [];
 
   const dateStr = new Date(sessionDate).toLocaleDateString("en-US", {
-    year: "numeric", month: "long", day: "numeric",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
-  blocks.push({ type: "paragraph", text: `Prepared for ${prospectName} following the Blueprint Session on ${dateStr}. This document maps where things stand today and lays out the seventy-two hours that follow. It organizes information and next steps; it is not legal, financial, or medical advice.` });
+  blocks.push({
+    type: "paragraph",
+    text: `Prepared for ${prospectName} following the Blueprint Session on ${dateStr}. This document maps where things stand today and lays out the seventy-two hours that follow. It organizes information and next steps; it is not legal, financial, or medical advice.`,
+  });
 
   // ---- Part 1: Gap Map ----
   blocks.push({ type: "heading", level: 1, text: "The Gap Map" });
-  blocks.push({ type: "paragraph", text: "Seven areas, assessed together, one sitting. Handled means a successor could act on it today. Partial means the information exists but is scattered or stale. Exposed means it lives in one person's head." });
+  blocks.push({
+    type: "paragraph",
+    text: "Seven areas, assessed together, one sitting. Handled means a successor could act on it today. Partial means the information exists but is scattered or stale. Exposed means it lives in one person's head.",
+  });
 
   if (gapMapImage) {
     blocks.push({
@@ -237,7 +273,7 @@ export function buildDeliverable(
   blocks.push({
     type: "table",
     headers: ["Area", "Handled", "Partial", "Exposed", "Exposure"],
-    rows: scores.map((s) => [
+    rows: scores.map(s => [
       `${s.number} ${s.title}`,
       s.assessed === 0 ? "-" : String(s.handled),
       s.assessed === 0 ? "-" : String(s.partial),
@@ -250,10 +286,16 @@ export function buildDeliverable(
     if (s.exposedItems.length === 0 && s.partialItems.length === 0) continue;
     blocks.push({ type: "heading", level: 2, text: `${s.number} ${s.title}` });
     for (const item of s.exposedItems) {
-      blocks.push({ type: "paragraph", text: `EXPOSED: ${item.checkpoint.label}. ${item.checkpoint.impact}${item.note ? ` Session note: ${item.note}` : ""}` });
+      blocks.push({
+        type: "paragraph",
+        text: `EXPOSED: ${item.checkpoint.label}. ${item.checkpoint.impact}${item.note ? ` Session note: ${item.note}` : ""}`,
+      });
     }
     for (const item of s.partialItems) {
-      blocks.push({ type: "paragraph", text: `PARTIAL: ${item.checkpoint.label}.${item.note ? ` Session note: ${item.note}` : ""}` });
+      blocks.push({
+        type: "paragraph",
+        text: `PARTIAL: ${item.checkpoint.label}.${item.note ? ` Session note: ${item.note}` : ""}`,
+      });
     }
   }
 
@@ -264,21 +306,30 @@ export function buildDeliverable(
   // ---- Part 3: 72-Hour Action Plan ----
   blocks.push({ type: "hr" });
   blocks.push({ type: "heading", level: 1, text: "The 72-Hour Action Plan" });
-  blocks.push({ type: "paragraph", text: "The highest-exposure items from the Gap Map, sequenced across three days. Each step is small on purpose. The goal isn't perfection in a weekend; it's moving the worst risks from exposed to handled while the momentum is fresh." });
+  blocks.push({
+    type: "paragraph",
+    text: "The highest-exposure items from the Gap Map, sequenced across three days. Each step is small on purpose. The goal isn't perfection in a weekend; it's moving the worst risks from exposed to handled while the momentum is fresh.",
+  });
 
   for (const day of [1, 2, 3] as const) {
-    const dayActions = actions.filter((a) => a.day === day);
+    const dayActions = actions.filter(a => a.day === day);
     if (dayActions.length === 0) continue;
     blocks.push({ type: "heading", level: 2, text: `Day ${day}` });
     blocks.push({
       type: "list",
       ordered: true,
-      items: dayActions.map((a) => `${a.title} (${pillarTitle(a.pillarId)})${a.detail ? `. Closes: ${a.detail}` : ""}`),
+      items: dayActions.map(
+        a =>
+          `${a.title} (${pillarTitle(a.pillarId)})${a.detail ? `. Closes: ${a.detail}` : ""}`,
+      ),
     });
   }
 
   blocks.push({ type: "hr" });
-  blocks.push({ type: "paragraph", text: "When you're ready to move from a plan to a finished Life Manual, the $249 from this session comes right off the top of any edition. Order in Your Absence." });
+  blocks.push({
+    type: "paragraph",
+    text: "When you're ready to move from a plan to a finished Life Manual, the $249 from this session comes right off the top of any edition. Order in Your Absence.",
+  });
 
   return { title: `Blueprint Session: ${prospectName}`, blocks };
 }

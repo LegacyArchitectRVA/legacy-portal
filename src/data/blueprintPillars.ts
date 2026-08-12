@@ -53,7 +53,8 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
       {
         id: "dg_primary_email",
         label: "Primary email recovery is documented",
-        impact: "Email is the master key to everything else. Lose it and resets stop working.",
+        impact:
+          "Email is the master key to everything else. Lose it and resets stop working.",
         fix: "Write down where primary email recovery lives and confirm the recovery phone and backup codes are current.",
         effort: "quick",
       },
@@ -74,14 +75,16 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
       {
         id: "dg_subscriptions",
         label: "Recurring subscriptions and renewals are inventoried",
-        impact: "Money keeps leaving the account for services nobody knows exist.",
+        impact:
+          "Money keeps leaving the account for services nobody knows exist.",
         fix: "Pull the last three months of statements and list every recurring charge in one table.",
         effort: "moderate",
       },
       {
         id: "dg_online_presence",
         label: "Social and online accounts have a handling plan",
-        impact: "Profiles linger with no one authorized to close or memorialize them.",
+        impact:
+          "Profiles linger with no one authorized to close or memorialize them.",
         fix: "List active profiles and note the preferred outcome for each: close, memorialize, or transfer.",
         effort: "quick",
       },
@@ -103,21 +106,24 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
       {
         id: "fn_beneficiaries",
         label: "Beneficiary designations are current and verified",
-        impact: "Money flows to an ex-spouse or an estate fight instead of the intended people.",
+        impact:
+          "Money flows to an ex-spouse or an estate fight instead of the intended people.",
         fix: "Pull each account's beneficiary page and confirm names match current intent.",
         effort: "involved",
       },
       {
         id: "fn_bills",
         label: "Bills and obligations are documented with due dates",
-        impact: "Mortgage, insurance, and utilities lapse during the worst possible window.",
+        impact:
+          "Mortgage, insurance, and utilities lapse during the worst possible window.",
         fix: "List recurring obligations, amounts, due dates, and how each is paid.",
         effort: "moderate",
       },
       {
         id: "fn_ownership",
         label: "Titles and ownership structures are documented",
-        impact: "Nobody can establish authority over the house, vehicles, or accounts.",
+        impact:
+          "Nobody can establish authority over the house, vehicles, or accounts.",
         fix: "Record how each major asset is titled and where the title documents physically live.",
         effort: "involved",
       },
@@ -139,7 +145,8 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
       {
         id: "hh_shutoffs",
         label: "Utility shut-offs and home systems are documented",
-        impact: "A burst pipe or gas issue becomes a crisis because nobody knows where the valves are.",
+        impact:
+          "A burst pipe or gas issue becomes a crisis because nobody knows where the valves are.",
         fix: "Photograph and note the locations of water, gas, and electrical shut-offs.",
         effort: "quick",
       },
@@ -153,7 +160,8 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
       {
         id: "hh_vendors",
         label: "Service providers and maintenance schedule are listed",
-        impact: "The lawn guy, HVAC contract, and pest service all go dark or keep billing.",
+        impact:
+          "The lawn guy, HVAC contract, and pest service all go dark or keep billing.",
         fix: "List active vendors, what they do, how they're paid, and renewal dates.",
         effort: "moderate",
       },
@@ -167,7 +175,8 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
       {
         id: "hh_pets",
         label: "Pet care has a named short-term plan",
-        impact: "The animals nobody planned for become an emergency of their own.",
+        impact:
+          "The animals nobody planned for become an emergency of their own.",
         fix: "Name the short-term caretaker and write one page of feeding, vet, and routine notes.",
         effort: "quick",
       },
@@ -182,7 +191,8 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
       {
         id: "hm_directives",
         label: "Healthcare directive and medical POA exist and are findable",
-        impact: "Care decisions land on a hospital committee instead of the chosen person.",
+        impact:
+          "Care decisions land on a hospital committee instead of the chosen person.",
         fix: "Confirm the documents exist, are signed, and their physical location is written down.",
         effort: "involved",
       },
@@ -225,7 +235,8 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
       {
         id: "lg_poa",
         label: "Financial power of attorney is in force and findable",
-        impact: "Bills can't be paid and accounts can't be touched during incapacity.",
+        impact:
+          "Bills can't be paid and accounts can't be touched during incapacity.",
         fix: "Confirm the POA is signed and current, and document its location.",
         effort: "involved",
       },
@@ -312,7 +323,10 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
   },
 ];
 
-export const STATUS_META: Record<CheckStatus, { label: string; short: string; risk: number }> = {
+export const STATUS_META: Record<
+  CheckStatus,
+  { label: string; short: string; risk: number }
+> = {
   handled: { label: "Handled", short: "H", risk: 0 },
   partial: { label: "Partial", short: "P", risk: 1 },
   exposed: { label: "Exposed", short: "E", risk: 2 },
@@ -320,4 +334,9 @@ export const STATUS_META: Record<CheckStatus, { label: string; short: string; ri
 };
 
 /** Cycle order when tapping a status chip during the live session. */
-export const STATUS_CYCLE: CheckStatus[] = ["exposed", "partial", "handled", "na"];
+export const STATUS_CYCLE: CheckStatus[] = [
+  "exposed",
+  "partial",
+  "handled",
+  "na",
+];

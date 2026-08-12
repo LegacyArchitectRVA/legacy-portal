@@ -1,5 +1,5 @@
-import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
 import { requireAdmin } from "./admin";
 
 /**
@@ -17,7 +17,7 @@ const assessmentValidator = v.object({
     v.literal("handled"),
     v.literal("partial"),
     v.literal("exposed"),
-    v.literal("na")
+    v.literal("na"),
   ),
   note: v.optional(v.string()),
 });
@@ -33,22 +33,22 @@ const actionValidator = v.object({
 
 export const listSessions = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     await requireAdmin(ctx);
     const sessions = await ctx.db
       .query("blueprintSessions")
       .withIndex("by_updatedAt")
       .order("desc")
       .collect();
-    return sessions.map((s) => ({
+    return sessions.map(s => ({
       _id: s._id,
       prospectName: s.prospectName,
       prospectEmail: s.prospectEmail,
       sessionDate: s.sessionDate,
       status: s.status,
       updatedAt: s.updatedAt,
-      exposedCount: s.assessments.filter((a) => a.status === "exposed").length,
-      assessedCount: s.assessments.filter((a) => a.status !== "na").length,
+      exposedCount: s.assessments.filter(a => a.status === "exposed").length,
+      assessedCount: s.assessments.filter(a => a.status !== "na").length,
       actionCount: s.actions.length,
     }));
   },
@@ -92,7 +92,11 @@ export const updateSessionMeta = mutation({
     prospectEmail: v.optional(v.string()),
     sessionDate: v.optional(v.number()),
     status: v.optional(
-      v.union(v.literal("draft"), v.literal("completed"), v.literal("delivered"))
+      v.union(
+        v.literal("draft"),
+        v.literal("completed"),
+        v.literal("delivered"),
+      ),
     ),
     notes: v.optional(v.string()),
   },
@@ -117,7 +121,7 @@ export const setAssessment = mutation({
     const session = await ctx.db.get(sessionId);
     if (!session) throw new Error("Session not found");
     const rest = session.assessments.filter(
-      (a) => a.checkpointId !== assessment.checkpointId
+      a => a.checkpointId !== assessment.checkpointId,
     );
     await ctx.db.patch(sessionId, {
       assessments: [...rest, assessment],

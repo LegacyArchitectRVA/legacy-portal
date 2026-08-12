@@ -1,5 +1,19 @@
+import {
+  RiArrowLeftLine as ArrowLeft,
+  RiCheckboxCircleLine as ConvertedIcon,
+  RiTimeLine as FollowUpIcon,
+  RiPauseCircleLine as InactiveIcon,
+  RiLoader4Line as Loader2,
+  RiMailLine as Mail,
+  RiAddCircleLine as NewIcon,
+  RiPhoneLine as Phone,
+  RiAddLine as Plus,
+  RiRefreshLine as RefreshCw,
+  RiDeleteBinLine as Trash2,
+  RiUserLine as User,
+  RiCloseLine as X,
+} from "@remixicon/react";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { RiArrowLeftLine as ArrowLeft, RiLoader4Line as Loader2, RiMailLine as Mail, RiPhoneLine as Phone, RiAddLine as Plus, RiRefreshLine as RefreshCw, RiDeleteBinLine as Trash2, RiUserLine as User, RiCloseLine as X, RiAddCircleLine as NewIcon, RiTimeLine as FollowUpIcon, RiCheckboxCircleLine as ConvertedIcon, RiPauseCircleLine as InactiveIcon } from "@remixicon/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
@@ -8,19 +22,37 @@ import type { Id } from "../../convex/_generated/dataModel";
 const STATUSES = [
   { id: "new", label: "New", color: "text-sky-400", icon: NewIcon },
   { id: "contacted", label: "Contacted", color: "text-amber-400", icon: Phone },
-  { id: "follow_up", label: "Follow Up", color: "text-purple-400", icon: FollowUpIcon },
-  { id: "converted", label: "Converted", color: "text-emerald-400", icon: ConvertedIcon },
-  { id: "inactive", label: "Inactive", color: "text-[#f2ede2]/50", icon: InactiveIcon },
+  {
+    id: "follow_up",
+    label: "Follow Up",
+    color: "text-purple-400",
+    icon: FollowUpIcon,
+  },
+  {
+    id: "converted",
+    label: "Converted",
+    color: "text-emerald-400",
+    icon: ConvertedIcon,
+  },
+  {
+    id: "inactive",
+    label: "Inactive",
+    color: "text-[#f2ede2]/50",
+    icon: InactiveIcon,
+  },
 ] as const;
 
 function statusMeta(id: string) {
-  return STATUSES.find((s) => s.id === id) || STATUSES[0];
+  return STATUSES.find(s => s.id === id) || STATUSES[0];
 }
 
 export default function ProspectsPage() {
   const navigate = useNavigate();
   const isAdmin = useQuery(api.admin.isAdmin);
-  const prospects = useQuery(api.prospects.listProspects, isAdmin ? {} : "skip");
+  const prospects = useQuery(
+    api.prospects.listProspects,
+    isAdmin ? {} : "skip",
+  );
   const addProspect = useMutation(api.prospects.addProspect);
   const updateProspect = useMutation(api.prospects.updateProspect);
   const deleteProspect = useMutation(api.prospects.deleteProspect);
@@ -37,9 +69,14 @@ export default function ProspectsPage() {
       if (result.created) parts.push(`${result.created} new`);
       if (result.updated) parts.push(`${result.updated} updated`);
       if (result.linked) parts.push(`${result.linked} linked`);
-      setSyncResult(parts.length ? `Synced: ${parts.join(", ")}.` : "Synced. No changes.");
+      setSyncResult(
+        parts.length ? `Synced: ${parts.join(", ")}.` : "Synced. No changes.",
+      );
     } catch (err: any) {
-      setSyncResult(err?.message || "Sync failed. Check your HubSpot connection in Settings.");
+      setSyncResult(
+        err?.message ||
+          "Sync failed. Check your HubSpot connection in Settings.",
+      );
     } finally {
       setSyncing(false);
     }
@@ -57,7 +94,7 @@ export default function ProspectsPage() {
   const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
 
   const filtered = (prospects || []).filter(
-    (p) => statusFilter === "all" || p.status === statusFilter
+    p => statusFilter === "all" || p.status === statusFilter,
   );
 
   const handleAdd = async () => {
@@ -87,7 +124,10 @@ export default function ProspectsPage() {
   };
 
   const handleStatusChange = (prospectId: string, status: string) => {
-    updateProspect({ prospectId: prospectId as Id<"prospects">, status: status as any });
+    updateProspect({
+      prospectId: prospectId as Id<"prospects">,
+      status: status as any,
+    });
   };
 
   const handleSaveNote = (prospectId: string) => {
@@ -119,12 +159,15 @@ export default function ProspectsPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="font-heading text-3xl text-gold-gradient">Prospects</h1>
+          <h1 className="font-heading text-3xl text-gold-gradient">
+            Prospects
+          </h1>
           <p className="text-[#f2ede2]/75 mt-1 text-sm">
             Referral leads and contacts, before they're clients
           </p>
           <p className="text-[#f2ede2]/50 text-[10px] mt-0.5">
-            Synced automatically from HubSpot every 6 hours, or tap Sync for now.
+            Synced automatically from HubSpot every 6 hours, or tap Sync for
+            now.
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -133,7 +176,11 @@ export default function ProspectsPage() {
             disabled={syncing}
             className="flex items-center gap-1.5 bg-gold-dark/15 text-gold-primary hover:bg-gold-dark/25 text-xs font-heading px-3 py-2 rounded-lg transition-colors disabled:opacity-50"
           >
-            {syncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+            {syncing ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="w-3.5 h-3.5" />
+            )}
             Sync
           </button>
           <button
@@ -152,17 +199,21 @@ export default function ProspectsPage() {
         <button
           onClick={() => setStatusFilter("all")}
           className={`text-[10px] px-3 py-1.5 rounded-full font-heading transition-colors ${
-            statusFilter === "all" ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"
+            statusFilter === "all"
+              ? "bg-gold-dark/25 text-gold-primary"
+              : "bg-black/40 text-[#f2ede2]/75"
           }`}
         >
           All
         </button>
-        {STATUSES.map((s) => (
+        {STATUSES.map(s => (
           <button
             key={s.id}
             onClick={() => setStatusFilter(s.id)}
             className={`flex items-center gap-1 text-[10px] px-3 py-1.5 rounded-full font-heading transition-colors ${
-              statusFilter === s.id ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"
+              statusFilter === s.id
+                ? "bg-gold-dark/25 text-gold-primary"
+                : "bg-black/40 text-[#f2ede2]/75"
             }`}
           >
             <s.icon className="w-3 h-3" />
@@ -176,15 +227,24 @@ export default function ProspectsPage() {
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-16 text-[#f2ede2]/75">
           <User className="w-8 h-8 opacity-40" />
-          <p className="text-sm">No prospects {statusFilter !== "all" ? `in "${statusMeta(statusFilter).label}"` : "yet"}.</p>
+          <p className="text-sm">
+            No prospects{" "}
+            {statusFilter !== "all"
+              ? `in "${statusMeta(statusFilter).label}"`
+              : "yet"}
+            .
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map((p) => {
+          {filtered.map(p => {
             const meta = statusMeta(p.status);
             const isOpen = expandedId === p._id;
             return (
-              <div key={p._id} className="bg-[#0f0c08] border border-gold-border rounded-xl overflow-hidden">
+              <div
+                key={p._id}
+                className="bg-[#0f0c08] border border-gold-border rounded-xl overflow-hidden"
+              >
                 <button
                   onClick={() => setExpandedId(isOpen ? null : p._id)}
                   className="w-full flex items-center gap-3 p-4 text-left"
@@ -195,19 +255,26 @@ export default function ProspectsPage() {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[#f2ede2] font-medium truncate">{p.name}</p>
+                    <p className="text-sm text-[#f2ede2] font-medium truncate">
+                      {p.name}
+                    </p>
                     <p className="text-xs text-[#f2ede2]/75 truncate">
                       {p.source || p.email || p.phone || "No details yet"}
                     </p>
                   </div>
-                  <span className={`flex items-center gap-1 text-[10px] font-heading shrink-0 ${meta.color}`}>
+                  <span
+                    className={`flex items-center gap-1 text-[10px] font-heading shrink-0 ${meta.color}`}
+                  >
                     <meta.icon className="w-3 h-3" />
                     {meta.label}
                   </span>
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-gold-border/20 p-4 space-y-3 animate-fade-in" style={{ animationDuration: "0.3s" }}>
+                  <div
+                    className="border-t border-gold-border/20 p-4 space-y-3 animate-fade-in"
+                    style={{ animationDuration: "0.3s" }}
+                  >
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="flex items-center gap-2 text-[#f2ede2]/85">
                         <Mail className="w-3.5 h-3.5 text-gold-muted shrink-0" />
@@ -224,7 +291,7 @@ export default function ProspectsPage() {
                         Status
                       </label>
                       <div className="flex flex-wrap gap-1.5">
-                        {STATUSES.map((s) => (
+                        {STATUSES.map(s => (
                           <button
                             key={s.id}
                             onClick={() => handleStatusChange(p._id, s.id)}
@@ -247,7 +314,12 @@ export default function ProspectsPage() {
                       </label>
                       <textarea
                         defaultValue={p.notes || ""}
-                        onChange={(e) => setNoteDrafts((prev) => ({ ...prev, [p._id]: e.target.value }))}
+                        onChange={e =>
+                          setNoteDrafts(prev => ({
+                            ...prev,
+                            [p._id]: e.target.value,
+                          }))
+                        }
                         onBlur={() => handleSaveNote(p._id)}
                         placeholder="Conversation history, follow-up plans..."
                         className="w-full bg-black border border-gold-border/30 rounded-lg p-2.5 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none resize-y min-h-[70px]"
@@ -275,39 +347,44 @@ export default function ProspectsPage() {
         >
           <div
             className="bg-[#0f0c08] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5 space-y-3 animate-modal-sheet"
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-heading text-sm text-gold-primary">Add Prospect</h2>
-              <button onClick={() => setShowAdd(false)} className="text-[#f2ede2]/75">
+              <h2 className="font-heading text-sm text-gold-primary">
+                Add Prospect
+              </h2>
+              <button
+                onClick={() => setShowAdd(false)}
+                className="text-[#f2ede2]/75"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={e => setName(e.target.value)}
               placeholder="Name"
               className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none"
             />
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               placeholder="Email (optional)"
               className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none"
             />
             <input
               type="text"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={e => setPhone(e.target.value)}
               placeholder="Phone (optional)"
               className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none"
             />
             <input
               type="text"
               value={source}
-              onChange={(e) => setSource(e.target.value)}
+              onChange={e => setSource(e.target.value)}
               placeholder="Source (e.g. Referral - Zac, Nextdoor)"
               className="w-full bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/50 focus:outline-none"
             />
@@ -317,7 +394,11 @@ export default function ProspectsPage() {
               disabled={adding}
               className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-lg disabled:opacity-50"
             >
-              {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              {adding ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Plus className="w-4 h-4" />
+              )}
               Add Prospect
             </button>
           </div>

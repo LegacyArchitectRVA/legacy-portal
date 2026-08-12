@@ -1,7 +1,7 @@
 import { useQuery } from "convex/react";
+import type { CSSProperties, ReactNode } from "react";
 import { api } from "../../convex/_generated/api";
 import { useEditMode } from "../contexts/EditModeContext";
-import type { ReactNode, CSSProperties } from "react";
 
 interface EditableBoxProps {
   /** CMS key controlling this box's border/background color override. */
@@ -61,7 +61,7 @@ export function EditableBox({
       }}
       onClick={
         active
-          ? (e) => {
+          ? e => {
               e.preventDefault();
               e.stopPropagation();
               select(cmsKey, "box");

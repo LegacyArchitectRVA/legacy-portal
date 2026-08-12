@@ -1,7 +1,17 @@
-import { marked } from "marked";
 import JSZip from "jszip";
+import { marked } from "marked";
 import { LOGO_DATA_URI } from "./brandAssets";
-import { BRAND_FONT_HEAD, BRAND_FONT_BODY, GOOGLE_FONTS_LINK, BRAND_BLACK, BRAND_OFFWHITE, BRAND_GOLD, BRAND_GOLD_LIGHT, BRAND_CREAM, TAGLINE } from "./brandTokens";
+import {
+  BRAND_BLACK,
+  BRAND_CREAM,
+  BRAND_FONT_BODY,
+  BRAND_FONT_HEAD,
+  BRAND_GOLD,
+  BRAND_GOLD_LIGHT,
+  BRAND_OFFWHITE,
+  GOOGLE_FONTS_LINK,
+  TAGLINE,
+} from "./brandTokens";
 
 // ─────────────────────────────────────────────────────────────
 // Common intermediate representation
@@ -12,7 +22,13 @@ export type Block =
   | { type: "paragraph"; text: string }
   | { type: "list"; ordered: boolean; items: string[] }
   | { type: "table"; headers: string[]; rows: string[][] }
-  | { type: "image"; src: string; alt?: string; width?: number; height?: number }
+  | {
+      type: "image";
+      src: string;
+      alt?: string;
+      width?: number;
+      height?: number;
+    }
   | { type: "hr" };
 
 export interface ParsedDocument {
@@ -21,7 +37,6 @@ export interface ParsedDocument {
   /** Non-fatal notes about the parse (e.g. OCR fallback was used) to surface to the user. */
   warnings?: string[];
 }
-
 
 function stripTags(html: string): string {
   return html.replace(/<[^>]+>/g, "").trim();
@@ -41,14 +56,14 @@ function slugify(text: string): string {
 }
 
 function guessTitle(blocks: Block[], fallback: string): string {
-  const firstHeading = blocks.find((b) => b.type === "heading");
+  const firstHeading = blocks.find(b => b.type === "heading");
   if (firstHeading && firstHeading.type === "heading") return firstHeading.text;
   return fallback;
 }
 
 /** Drops the first heading block if it duplicates the document's own title, since renderers print the title separately. */
 function dedupeTitleBlock(doc: ParsedDocument): Block[] {
-  const idx = doc.blocks.findIndex((b) => b.type === "heading");
+  const idx = doc.blocks.findIndex(b => b.type === "heading");
   if (idx === -1) return doc.blocks;
   const first = doc.blocks[idx];
   if (first.type === "heading" && first.text === doc.title && idx === 0) {
@@ -68,7 +83,11 @@ export async function parseMarkdown(file: File): Promise<ParsedDocument> {
 
   for (const token of tokens) {
     if (token.type === "heading") {
-      blocks.push({ type: "heading", level: token.depth as any, text: stripTags(token.text) });
+      blocks.push({
+        type: "heading",
+        level: token.depth as any,
+        text: stripTags(token.text),
+      });
     } else if (token.type === "paragraph") {
       blocks.push({ type: "paragraph", text: stripTags(token.text) });
     } else if (token.type === "list") {
@@ -86,10 +105,16 @@ export async function parseMarkdown(file: File): Promise<ParsedDocument> {
     }
   }
 
-  return { title: guessTitle(blocks, file.name.replace(/\.[^.]+$/, "")), blocks };
+  return {
+    title: guessTitle(blocks, file.name.replace(/\.[^.]+$/, "")),
+    blocks,
+  };
 }
 
-export function parseHtmlString(html: string, fallbackTitle: string): ParsedDocument {
+export function parseHtmlString(
+  html: string,
+  fallbackTitle: string,
+): ParsedDocument {
   const doc = new DOMParser().parseFromString(html, "text/html");
   const root = doc.body || doc.documentElement;
   const blocks: Block[] = [];
@@ -98,7 +123,11 @@ export function parseHtmlString(html: string, fallbackTitle: string): ParsedDocu
     for (const child of Array.from(node.children)) {
       const tag = child.tagName.toLowerCase();
       if (/^h[1-6]$/.test(tag)) {
-        blocks.push({ type: "heading", level: Number(tag[1]) as any, text: child.textContent?.trim() || "" });
+        blocks.push({
+          type: "heading",
+          level: Number(tag[1]) as any,
+          text: child.textContent?.trim() || "",
+        });
       } else if (tag === "p") {
         const imgEls = Array.from(child.querySelectorAll("img"));
         const t = child.textContent?.trim() || "";
@@ -107,7 +136,11 @@ export function parseHtmlString(html: string, fallbackTitle: string): ParsedDocu
           // style titles as bold <p> instead of <h1>) is promoted so the
           // cleaner can find and reorder sections.
           if (isKnownSectionTitle(t)) {
-            blocks.push({ type: "heading", level: 1, text: t.replace(/[:.]+$/, "").trim() });
+            blocks.push({
+              type: "heading",
+              level: 1,
+              text: t.replace(/[:.]+$/, "").trim(),
+            });
           } else {
             blocks.push({ type: "paragraph", text: t });
           }
@@ -117,11 +150,20 @@ export function parseHtmlString(html: string, fallbackTitle: string): ParsedDocu
           if (!src) continue;
           const w = Number(imgEl.getAttribute("width")) || undefined;
           const h = Number(imgEl.getAttribute("height")) || undefined;
-          blocks.push({ type: "image", src, alt: imgEl.getAttribute("alt") || undefined, width: w, height: h });
+          blocks.push({
+            type: "image",
+            src,
+            alt: imgEl.getAttribute("alt") || undefined,
+            width: w,
+            height: h,
+          });
         }
       } else if (tag === "ul" || tag === "ol") {
-        const items = Array.from(child.querySelectorAll("li")).map((li) => li.textContent?.trim() || "");
-        if (items.length) blocks.push({ type: "list", ordered: tag === "ol", items });
+        const items = Array.from(child.querySelectorAll("li")).map(
+          li => li.textContent?.trim() || "",
+        );
+        if (items.length)
+          blocks.push({ type: "list", ordered: tag === "ol", items });
       } else if (tag === "hr") {
         blocks.push({ type: "hr" });
       } else if (tag === "img") {
@@ -129,21 +171,38 @@ export function parseHtmlString(html: string, fallbackTitle: string): ParsedDocu
         if (src) {
           const w = Number(child.getAttribute("width")) || undefined;
           const h = Number(child.getAttribute("height")) || undefined;
-          blocks.push({ type: "image", src, alt: child.getAttribute("alt") || undefined, width: w, height: h });
+          blocks.push({
+            type: "image",
+            src,
+            alt: child.getAttribute("alt") || undefined,
+            width: w,
+            height: h,
+          });
         }
       } else if (tag === "table") {
         const rowEls = Array.from(child.querySelectorAll("tr"));
         if (rowEls.length > 0) {
           const cellsOf = (row: Element) =>
-            Array.from(row.querySelectorAll("th,td")).map((c) => c.textContent?.trim() || "");
+            Array.from(row.querySelectorAll("th,td")).map(
+              c => c.textContent?.trim() || "",
+            );
           const firstRowIsHeader = rowEls[0].querySelector("th") !== null;
-          const headers = firstRowIsHeader ? cellsOf(rowEls[0]) : cellsOf(rowEls[0]).map(() => "");
-          const dataRows = (firstRowIsHeader ? rowEls.slice(1) : rowEls).map(cellsOf).filter((r) => r.some((c) => c));
-          if (dataRows.length > 0 || headers.some((h) => h)) {
+          const headers = firstRowIsHeader
+            ? cellsOf(rowEls[0])
+            : cellsOf(rowEls[0]).map(() => "");
+          const dataRows = (firstRowIsHeader ? rowEls.slice(1) : rowEls)
+            .map(cellsOf)
+            .filter(r => r.some(c => c));
+          if (dataRows.length > 0 || headers.some(h => h)) {
             blocks.push({ type: "table", headers, rows: dataRows });
           }
         }
-      } else if (tag === "div" || tag === "section" || tag === "article" || tag === "body") {
+      } else if (
+        tag === "div" ||
+        tag === "section" ||
+        tag === "article" ||
+        tag === "body"
+      ) {
         walk(child);
       } else {
         const t = child.textContent?.trim();
@@ -182,7 +241,8 @@ export async function parseAffine(file: File): Promise<ParsedDocument> {
   const buffer = await file.arrayBuffer();
   const bytes = new Uint8Array(buffer);
   const isSqlite =
-    bytes.length > 16 && new TextDecoder().decode(bytes.slice(0, 16)) === "SQLite format 3\0";
+    bytes.length > 16 &&
+    new TextDecoder().decode(bytes.slice(0, 16)) === "SQLite format 3\0";
   if (isSqlite) return parseAffineSqlite(bytes, file.name);
   return parseAffineLegacyJson(file);
 }
@@ -202,7 +262,10 @@ export async function parseAffine(file: File): Promise<ParsedDocument> {
  * publicly documented, so this was built by decoding real exported
  * .affine files directly rather than guessing.
  */
-async function parseAffineSqlite(bytes: Uint8Array, fileName: string): Promise<ParsedDocument> {
+async function parseAffineSqlite(
+  bytes: Uint8Array,
+  fileName: string,
+): Promise<ParsedDocument> {
   const initSqlJs = (await import("sql.js")).default;
   const Y = await import("yjs");
   const SQL = await initSqlJs({ locateFile: (f: string) => `/${f}` });
@@ -226,7 +289,10 @@ async function parseAffineSqlite(bytes: Uint8Array, fileName: string): Promise<P
   for (const [docId, data] of snapshotRows) {
     const ydoc = new Y.Doc();
     try {
-      Y.applyUpdate(ydoc, data instanceof Uint8Array ? data : new Uint8Array(data));
+      Y.applyUpdate(
+        ydoc,
+        data instanceof Uint8Array ? data : new Uint8Array(data),
+      );
     } catch {
       continue; // Corrupt or unreadable snapshot — skip rather than fail the whole file.
     }
@@ -237,7 +303,7 @@ async function parseAffineSqlite(bytes: Uint8Array, fileName: string): Promise<P
       const pagesArr = meta.get("pages") as any;
       if (pagesArr) {
         pageRegistry = (pagesArr.toArray?.() || []).map((p: any) =>
-          p && typeof p.toJSON === "function" ? p.toJSON() : p
+          p && typeof p.toJSON === "function" ? p.toJSON() : p,
         );
       }
     } else if (ydoc.share.has("blocks")) {
@@ -263,8 +329,12 @@ async function parseAffineSqlite(bytes: Uint8Array, fileName: string): Promise<P
   const orderedIds =
     pageRegistry.length > 0
       ? [
-          ...pageRegistry.filter((p) => !p.trash && pageDocs.has(p.id)).map((p) => p.id),
-          ...[...pageDocs.keys()].filter((id) => !pageRegistry.some((p) => p.id === id)),
+          ...pageRegistry
+            .filter(p => !p.trash && pageDocs.has(p.id))
+            .map(p => p.id),
+          ...[...pageDocs.keys()].filter(
+            id => !pageRegistry.some(p => p.id === id),
+          ),
         ]
       : [...pageDocs.keys()];
 
@@ -283,9 +353,19 @@ async function parseAffineSqlite(bytes: Uint8Array, fileName: string): Promise<P
     const rawTitle = (titleByPageId.get(pageId) || "").trim();
     if (isJunkPage(rawTitle, ydoc.getMap("blocks"))) continue;
     const groupBlocks: Block[] = [];
-    walkAffinePage(ydoc.getMap("blocks"), groupBlocks, slugByPageId, slugByTitle, titleByPageId, Y);
+    walkAffinePage(
+      ydoc.getMap("blocks"),
+      groupBlocks,
+      slugByPageId,
+      slugByTitle,
+      titleByPageId,
+      Y,
+    );
     if (groupBlocks.length > 0) {
-      pageGroups.push({ title: rawTitle || guessTitle(groupBlocks, "Section"), blocks: groupBlocks });
+      pageGroups.push({
+        title: rawTitle || guessTitle(groupBlocks, "Section"),
+        blocks: groupBlocks,
+      });
     }
   }
 
@@ -304,11 +384,12 @@ async function parseAffineSqlite(bytes: Uint8Array, fileName: string): Promise<P
 function affineTextOf(
   ytext: any,
   slugByPageId: Map<string, string>,
-  titleByPageId?: Map<string, string>
+  titleByPageId?: Map<string, string>,
 ): string {
   if (!ytext) return "";
   const delta = typeof ytext.toDelta === "function" ? ytext.toDelta() : null;
-  if (!delta) return typeof ytext === "string" ? ytext : ytext.toString?.() || "";
+  if (!delta)
+    return typeof ytext === "string" ? ytext : ytext.toString?.() || "";
   return delta
     .map((d: any) => {
       const ref = d?.attributes?.reference;
@@ -322,7 +403,8 @@ function affineTextOf(
           ref.title ||
           (typeof d?.insert === "string" ? d.insert.trim() : "");
         if (!label) return "";
-        const slug = (ref.pageId && slugByPageId.get(ref.pageId)) || slugify(label);
+        const slug =
+          (ref.pageId && slugByPageId.get(ref.pageId)) || slugify(label);
         return slug ? `[${label}](#${slug})` : label;
       }
       return d?.insert ?? "";
@@ -343,57 +425,106 @@ function affineTextOf(
 const CANONICAL_SECTIONS: { section: string; titles: string[] }[] = [
   {
     section: "Introduction",
-    titles: ["welcome & purpose", "welcome and purpose", "privacy & data handling", "privacy and data handling", "purpose"],
+    titles: [
+      "welcome & purpose",
+      "welcome and purpose",
+      "privacy & data handling",
+      "privacy and data handling",
+      "purpose",
+    ],
   },
   {
     section: "Digital Life",
     titles: [
-      "01: digital life - overview", "digital life", "cloud storage", "communication & messaging",
-      "devices & operating systems", "digital financial accounts", "primary e-mail", "primary email",
-      "password manager", "subscriptions & renewals", "2fa & recovery codes", "online presence",
+      "01: digital life - overview",
+      "digital life",
+      "cloud storage",
+      "communication & messaging",
+      "devices & operating systems",
+      "digital financial accounts",
+      "primary e-mail",
+      "primary email",
+      "password manager",
+      "subscriptions & renewals",
+      "2fa & recovery codes",
+      "online presence",
     ],
   },
   {
     section: "Emergency & Successor Access",
     titles: [
-      "02: emergency & successor access - overview", "emergency & successor access", "emergency contacts",
-      "successor access guide", "first 48-hours plan", "first 48 hours plan", "handoff instructions",
+      "02: emergency & successor access - overview",
+      "emergency & successor access",
+      "emergency contacts",
+      "successor access guide",
+      "first 48-hours plan",
+      "first 48 hours plan",
+      "handoff instructions",
     ],
   },
   {
     section: "Financial & Assets",
     titles: [
-      "03: financial & assets - overview", "financial & assets", "accounts & institutions",
-      "titles & ownership", "beneficiaries overview", "savings", "checking", "retirement",
-      "brokerage & investments", "credit cards",
+      "03: financial & assets - overview",
+      "financial & assets",
+      "accounts & institutions",
+      "titles & ownership",
+      "beneficiaries overview",
+      "savings",
+      "checking",
+      "retirement",
+      "brokerage & investments",
+      "credit cards",
     ],
   },
   {
     section: "Household Operations",
     titles: [
-      "04: household operations - overview", "household operations", "maintenance schedules",
-      "security & access", "child care & dependents", "utilities & vendors", "water", "electricity",
-      "internet", "trash/recycling", "pet care",
+      "04: household operations - overview",
+      "household operations",
+      "maintenance schedules",
+      "security & access",
+      "child care & dependents",
+      "utilities & vendors",
+      "water",
+      "electricity",
+      "internet",
+      "trash/recycling",
+      "pet care",
     ],
   },
   {
     section: "Vital Records",
     titles: [
-      "05: vital records - overview", "vital records", "overview", "identification documents",
-      "insurance policies", "medical information",
+      "05: vital records - overview",
+      "vital records",
+      "overview",
+      "identification documents",
+      "insurance policies",
+      "medical information",
     ],
   },
   {
     section: "Legacy & Wishes",
     titles: [
-      "06: optional sections - overview", "06: optional sections – overview", "optional sections",
-      "final wishes", "personal notes and legacy messages", "digital & narrative control",
-      "intellectual property", "personal legacy elements",
+      "06: optional sections - overview",
+      "06: optional sections – overview",
+      "optional sections",
+      "final wishes",
+      "personal notes and legacy messages",
+      "digital & narrative control",
+      "intellectual property",
+      "personal legacy elements",
     ],
   },
   {
     section: "Business Continuity",
-    titles: ["business continuity", "business-specific continuity", "business platform", "business platforms"],
+    titles: [
+      "business continuity",
+      "business-specific continuity",
+      "business platform",
+      "business platforms",
+    ],
   },
 ];
 
@@ -406,18 +537,46 @@ const KNOWN_SECTION_TITLES: Set<string> = (() => {
   for (const sec of CANONICAL_SECTIONS) for (const t of sec.titles) s.add(t);
   // Common Life Manual sub-page titles not already in the canonical routing.
   const extra = [
-    "emergency contacts", "final wishes", "successor access guide",
-    "first 48-hours plan", "first 48 hours plan", "handoff instructions",
-    "accounts & institutions", "titles & ownership", "beneficiaries overview",
-    "savings", "checking", "retirement", "brokerage & investments", "credit cards",
-    "maintenance schedules", "security & access", "child care & dependents",
-    "utilities & vendors", "pet care", "water", "electricity", "internet",
-    "trash/recycling", "identification documents", "insurance policies",
-    "medical information", "cloud storage", "communication & messaging",
-    "devices & operating systems", "digital financial accounts", "primary e-mail",
-    "primary email", "password manager", "subscriptions & renewals",
-    "2fa & recovery codes", "online presence", "personal notes and legacy messages",
-    "digital & narrative control", "intellectual property", "welcome & purpose",
+    "emergency contacts",
+    "final wishes",
+    "successor access guide",
+    "first 48-hours plan",
+    "first 48 hours plan",
+    "handoff instructions",
+    "accounts & institutions",
+    "titles & ownership",
+    "beneficiaries overview",
+    "savings",
+    "checking",
+    "retirement",
+    "brokerage & investments",
+    "credit cards",
+    "maintenance schedules",
+    "security & access",
+    "child care & dependents",
+    "utilities & vendors",
+    "pet care",
+    "water",
+    "electricity",
+    "internet",
+    "trash/recycling",
+    "identification documents",
+    "insurance policies",
+    "medical information",
+    "cloud storage",
+    "communication & messaging",
+    "devices & operating systems",
+    "digital financial accounts",
+    "primary e-mail",
+    "primary email",
+    "password manager",
+    "subscriptions & renewals",
+    "2fa & recovery codes",
+    "online presence",
+    "personal notes and legacy messages",
+    "digital & narrative control",
+    "intellectual property",
+    "welcome & purpose",
     "privacy & data handling",
   ];
   for (const t of extra) s.add(t);
@@ -438,14 +597,18 @@ function isKnownSectionTitle(text: string): boolean {
   // Also accept the "0X: NAME - OVERVIEW" forms mapped in CANONICAL_SECTIONS.
   for (const sec of CANONICAL_SECTIONS) {
     for (const known of sec.titles) {
-      const k = known.replace(/^\d{1,2}:\s*/, "").replace(/\s*-\s*overview$/, "");
+      const k = known
+        .replace(/^\d{1,2}:\s*/, "")
+        .replace(/\s*-\s*overview$/, "");
       if (t === k) return true;
     }
   }
   return false;
 }
 
-function orderByCanonicalSection(pageGroups: { title: string; blocks: Block[] }[]): Block[] {
+function orderByCanonicalSection(
+  pageGroups: { title: string; blocks: Block[] }[],
+): Block[] {
   // Build a lookup from normalized title -> section index.
   const sectionOfTitle = new Map<string, number>();
   CANONICAL_SECTIONS.forEach((s, i) => {
@@ -453,7 +616,8 @@ function orderByCanonicalSection(pageGroups: { title: string; blocks: Block[] }[
   });
 
   const norm = (s: string) => s.toLowerCase().trim().replace(/\s+/g, " ");
-  const buckets: { title: string; blocks: Block[] }[][] = CANONICAL_SECTIONS.map(() => []);
+  const buckets: { title: string; blocks: Block[] }[][] =
+    CANONICAL_SECTIONS.map(() => []);
   const unmatched: { title: string; blocks: Block[] }[] = [];
 
   for (const group of pageGroups) {
@@ -473,7 +637,7 @@ function orderByCanonicalSection(pageGroups: { title: string; blocks: Block[] }[
   }
 
   const out: Block[] = [];
-  buckets.forEach((groups) => {
+  buckets.forEach(groups => {
     // Within a section, the "0X: ... OVERVIEW" page should lead, since it's
     // the section's intro. Registry order otherwise can place it after its
     // own subpages.
@@ -507,7 +671,7 @@ function isJunkPage(title: string, blockMap: any): boolean {
     "emoji-optimized",
     "sidebar titles",
   ];
-  if (internalMarkers.some((m) => t.includes(m))) return true;
+  if (internalMarkers.some(m => t.includes(m))) return true;
 
   // Empty template starter pages: titled "Template - X" or "Template X".
   if (/^template\s*[-–]?\s/.test(t)) return true;
@@ -558,14 +722,20 @@ function isJunkPage(title: string, blockMap: any): boolean {
  * where no "Attorney" page survived). Links to real, surviving pages are
  * left intact. Runs after linkKnownTitles so resolved links are kept.
  */
-function stripDeadLinks(blocks: Block[], slugByTitle: Map<string, string>): void {
+function stripDeadLinks(
+  blocks: Block[],
+  slugByTitle: Map<string, string>,
+): void {
   const liveSlugs = new Set(slugByTitle.values());
   const clean = (s: string): string =>
-    s.replace(/\[([^\]]+)\]\((#[\w-]+)\)/g, (_m, label: string, anchor: string) => {
-      const slug = anchor.slice(1);
-      // Keep links that resolve to a real page; otherwise drop to plain text.
-      return liveSlugs.has(slug) ? `[${label}](${anchor})` : label;
-    });
+    s.replace(
+      /\[([^\]]+)\]\((#[\w-]+)\)/g,
+      (_m, label: string, anchor: string) => {
+        const slug = anchor.slice(1);
+        // Keep links that resolve to a real page; otherwise drop to plain text.
+        return liveSlugs.has(slug) ? `[${label}](${anchor})` : label;
+      },
+    );
 
   for (const b of blocks) {
     if (b.type === "paragraph") b.text = clean(b.text);
@@ -573,7 +743,7 @@ function stripDeadLinks(blocks: Block[], slugByTitle: Map<string, string>): void
     else if (b.type === "list") b.items = b.items.map(clean);
     else if (b.type === "table") {
       b.headers = b.headers.map(clean);
-      b.rows = b.rows.map((r) => r.map(clean));
+      b.rows = b.rows.map(r => r.map(clean));
     }
   }
 }
@@ -584,7 +754,7 @@ function walkAffinePage(
   slugByPageId: Map<string, string>,
   slugByTitle: Map<string, string>,
   titleByPageId: Map<string, string>,
-  Y: any
+  Y: any,
 ) {
   let pageBlock: any = null;
   for (const block of blockMap.values()) {
@@ -595,12 +765,15 @@ function walkAffinePage(
   }
   if (!pageBlock) return;
 
-  const pageTitle = affineTextOf(pageBlock.get("prop:title"), slugByPageId, titleByPageId) || "Untitled";
+  const pageTitle =
+    affineTextOf(pageBlock.get("prop:title"), slugByPageId, titleByPageId) ||
+    "Untitled";
   const slug = slugify(pageTitle);
   slugByTitle.set(pageTitle.trim().toLowerCase(), slug);
   out.push({ type: "heading", level: 1, text: pageTitle, id: slug });
 
-  const childIds: string[] = (pageBlock.get("sys:children")?.toArray?.() || []) as string[];
+  const childIds: string[] = (pageBlock.get("sys:children")?.toArray?.() ||
+    []) as string[];
   for (const childId of childIds) {
     const child = blockMap.get(childId);
     const flavour = child?.get?.("sys:flavour");
@@ -614,7 +787,7 @@ function walkAffinePage(
         slugByPageId,
         slugByTitle,
         titleByPageId,
-        Y
+        Y,
       );
     }
   }
@@ -628,11 +801,12 @@ function walkAffineChildren(
   slugByPageId: Map<string, string>,
   slugByTitle: Map<string, string>,
   titleByPageId: Map<string, string>,
-  Y: any
+  Y: any,
 ) {
   let pendingList: { ordered: boolean; items: string[] } | null = null;
   const flushList = () => {
-    if (pendingList && pendingList.items.length > 0) out.push({ type: "list", ...pendingList });
+    if (pendingList && pendingList.items.length > 0)
+      out.push({ type: "list", ...pendingList });
     pendingList = null;
   };
 
@@ -643,7 +817,11 @@ function walkAffineChildren(
     const grandchildren = block.get("sys:children")?.toArray?.() || [];
 
     if (flavour === "affine:list") {
-      const text = affineTextOf(block.get("prop:text"), slugByPageId, titleByPageId);
+      const text = affineTextOf(
+        block.get("prop:text"),
+        slugByPageId,
+        titleByPageId,
+      );
       const ordered = block.get("prop:type") === "numbered";
       if (!pendingList || pendingList.ordered !== ordered) {
         flushList();
@@ -654,41 +832,78 @@ function walkAffineChildren(
       // flattened into the same list rather than dropped, since a
       // slightly-flattened list beats losing the content entirely.
       if (grandchildren.length) {
-        walkAffineChildren(blockMap, grandchildren, out, slugByPageId, slugByTitle, titleByPageId, Y);
+        walkAffineChildren(
+          blockMap,
+          grandchildren,
+          out,
+          slugByPageId,
+          slugByTitle,
+          titleByPageId,
+          Y,
+        );
       }
       continue;
     }
     flushList();
 
     if (flavour === "affine:paragraph" || flavour === "affine:edgeless-text") {
-      const text = affineTextOf(block.get("prop:text"), slugByPageId, titleByPageId);
+      const text = affineTextOf(
+        block.get("prop:text"),
+        slugByPageId,
+        titleByPageId,
+      );
       const headingType = block.get("prop:type");
-      const headingMatch = typeof headingType === "string" && headingType.match(/^h([1-6])$/);
+      const headingMatch =
+        typeof headingType === "string" && headingType.match(/^h([1-6])$/);
       if (headingMatch) {
-        if (text) out.push({ type: "heading", level: Math.min(Number(headingMatch[1]) + 1, 6) as any, text });
+        if (text)
+          out.push({
+            type: "heading",
+            level: Math.min(Number(headingMatch[1]) + 1, 6) as any,
+            text,
+          });
       } else if (text) {
         out.push({ type: "paragraph", text });
       }
     } else if (flavour === "affine:divider") {
       out.push({ type: "hr" });
     } else if (flavour === "affine:callout") {
-      const text = affineTextOf(block.get("prop:text"), slugByPageId, titleByPageId);
+      const text = affineTextOf(
+        block.get("prop:text"),
+        slugByPageId,
+        titleByPageId,
+      );
       if (text) out.push({ type: "paragraph", text });
     } else if (flavour === "affine:table") {
       const table = extractAffineTableBlock(block);
       if (table) out.push({ type: "table", ...table });
     } else if (flavour === "affine:database") {
-      const table = extractAffineDatabaseBlock(block, blockMap, slugByPageId, Y);
+      const table = extractAffineDatabaseBlock(
+        block,
+        blockMap,
+        slugByPageId,
+        Y,
+      );
       if (table) out.push({ type: "table", ...table });
-    } else if (flavour === "affine:embed-linked-doc" || flavour === "affine:embed-synced-doc") {
+    } else if (
+      flavour === "affine:embed-linked-doc" ||
+      flavour === "affine:embed-synced-doc"
+    ) {
       const pageId = block.get("prop:pageId");
       const slug = pageId && slugByPageId.get(pageId);
       const label = (pageId && titleByPageId.get(pageId)) || "Linked page";
       if (slug) out.push({ type: "paragraph", text: `[${label}](#${slug})` });
-    } else if (flavour === "affine:bookmark" || flavour?.startsWith("affine:embed-")) {
+    } else if (
+      flavour === "affine:bookmark" ||
+      flavour?.startsWith("affine:embed-")
+    ) {
       const title = block.get("prop:title");
       const url = block.get("prop:url");
-      if (url) out.push({ type: "paragraph", text: title ? `[${title}](${url})` : String(url) });
+      if (url)
+        out.push({
+          type: "paragraph",
+          text: title ? `[${title}](${url})` : String(url),
+        });
     } else if (flavour === "affine:image") {
       const caption = block.get("prop:caption");
       if (caption) out.push({ type: "paragraph", text: `[Image: ${caption}]` });
@@ -707,7 +922,15 @@ function walkAffineChildren(
     }
 
     if (grandchildren.length && flavour !== "affine:list") {
-      walkAffineChildren(blockMap, grandchildren, out, slugByPageId, slugByTitle, titleByPageId, Y);
+      walkAffineChildren(
+        blockMap,
+        grandchildren,
+        out,
+        slugByPageId,
+        slugByTitle,
+        titleByPageId,
+        Y,
+      );
     }
   }
   flushList();
@@ -728,7 +951,9 @@ function walkAffineChildren(
  * with how affine:database stores its columns/cells as real nested
  * structures, but it's what real exports actually contain.
  */
-function extractAffineTableBlock(block: any): { headers: string[]; rows: string[][] } | null {
+function extractAffineTableBlock(
+  block: any,
+): { headers: string[]; rows: string[][] } | null {
   const rowOrder = new Map<string, string>();
   const colOrder = new Map<string, string>();
   const cellText = new Map<string, any>();
@@ -747,18 +972,22 @@ function extractAffineTableBlock(block: any): { headers: string[]; rows: string[
     m = key.match(/^prop:cells\.([^.:]+):([^.]+)\.text$/);
     if (m) {
       cellText.set(`${m[1]}:${m[2]}`, block.get(key));
-      continue;
     }
   }
 
-  const rowIds = [...rowOrder.entries()].sort((a, b) => (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0)).map((r) => r[0]);
-  const colIds = [...colOrder.entries()].sort((a, b) => (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0)).map((c) => c[0]);
+  const rowIds = [...rowOrder.entries()]
+    .sort((a, b) => (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0))
+    .map(r => r[0]);
+  const colIds = [...colOrder.entries()]
+    .sort((a, b) => (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0))
+    .map(c => c[0]);
   if (rowIds.length === 0 || colIds.length === 0) return null;
 
-  const textAt = (rowId: string, colId: string): string => cellText.get(`${rowId}:${colId}`)?.toString?.() ?? "";
+  const textAt = (rowId: string, colId: string): string =>
+    cellText.get(`${rowId}:${colId}`)?.toString?.() ?? "";
   const [headerRowId, ...dataRowIds] = rowIds;
-  const headers = colIds.map((c) => textAt(headerRowId, c));
-  const rows = dataRowIds.map((r) => colIds.map((c) => textAt(r, c)));
+  const headers = colIds.map(c => textAt(headerRowId, c));
+  const rows = dataRowIds.map(r => colIds.map(c => textAt(r, c)));
   return { headers, rows };
 }
 
@@ -773,23 +1002,28 @@ function extractAffineDatabaseBlock(
   block: any,
   blockMap: any,
   slugByPageId: Map<string, string>,
-  _Y: any
+  _Y: any,
 ): { headers: string[]; rows: string[][] } | null {
   const columns = block.get("prop:columns")?.toArray?.() || [];
-  const columnDefs = columns.map((c: any) => (c && typeof c.toJSON === "function" ? c.toJSON() : c));
+  const columnDefs = columns.map((c: any) =>
+    c && typeof c.toJSON === "function" ? c.toJSON() : c,
+  );
   const rowIds: string[] = block.get("sys:children")?.toArray?.() || [];
   if (rowIds.length === 0) return null;
 
   const cellsMap = block.get("prop:cells");
   const resolveCell = (rowId: string, col: any): string => {
-    const raw = cellsMap?.get?.(rowId)?.[col.id] ?? cellsMap?.get?.(rowId)?.get?.(col.id);
+    const raw =
+      cellsMap?.get?.(rowId)?.[col.id] ?? cellsMap?.get?.(rowId)?.get?.(col.id);
     const value = raw?.value ?? raw?.get?.("value");
     if (value == null) return "";
     if (col.type === "select" && typeof value === "string") {
       return col.data?.options?.find((o: any) => o.id === value)?.value ?? "";
     }
     if (col.type === "multi-select" && Array.isArray(value)) {
-      return value.map((v) => col.data?.options?.find((o: any) => o.id === v)?.value ?? "").join(", ");
+      return value
+        .map(v => col.data?.options?.find((o: any) => o.id === v)?.value ?? "")
+        .join(", ");
     }
     if (Array.isArray(value)) return ""; // e.g. member lists — not meaningful as flat text
     if (typeof value === "object") return ""; // e.g. a single member reference — same reasoning
@@ -797,9 +1031,11 @@ function extractAffineDatabaseBlock(
   };
 
   const headers = ["", ...columnDefs.map((c: any) => c.name || "")];
-  const rows = rowIds.map((rowId) => {
+  const rows = rowIds.map(rowId => {
     const titleBlock = blockMap.get(rowId);
-    const title = titleBlock?.get ? affineTextOf(titleBlock.get("prop:text"), slugByPageId) : "";
+    const title = titleBlock?.get
+      ? affineTextOf(titleBlock.get("prop:text"), slugByPageId)
+      : "";
     return [title, ...columnDefs.map((c: any) => resolveCell(rowId, c))];
   });
   return { headers, rows };
@@ -819,7 +1055,7 @@ async function parseAffineLegacyJson(file: File): Promise<ParsedDocument> {
     affineData = JSON.parse(text);
   } catch {
     throw new Error(
-      "This doesn't look like an AFFiNE export — it's neither a SQLite workspace file nor valid JSON."
+      "This doesn't look like an AFFiNE export — it's neither a SQLite workspace file nor valid JSON.",
     );
   }
   const blocks: Block[] = [];
@@ -852,7 +1088,10 @@ async function parseAffineLegacyJson(file: File): Promise<ParsedDocument> {
     slugByTitle.set(title.trim().toLowerCase(), slug);
   };
   for (const page of pages) {
-    registerPage(page.id ?? page.pageId ?? page.meta?.id, page.title ?? page.meta?.title);
+    registerPage(
+      page.id ?? page.pageId ?? page.meta?.id,
+      page.title ?? page.meta?.title,
+    );
   }
 
   // Pull plain text out of AFFiNE's "Delta" rich-text format
@@ -868,7 +1107,9 @@ async function parseAffineLegacyJson(file: File): Promise<ParsedDocument> {
       .map((d: any) => {
         const ref = d?.attributes?.reference;
         if (ref) {
-          const slug = (ref.pageId && slugByPageId.get(ref.pageId)) || (ref.title && slugify(ref.title));
+          const slug =
+            (ref.pageId && slugByPageId.get(ref.pageId)) ||
+            (ref.title && slugify(ref.title));
           const label = ref.title || d?.insert?.trim() || "linked section";
           if (slug) return `[${label}](#${slug})`;
         }
@@ -882,9 +1123,13 @@ async function parseAffineLegacyJson(file: File): Promise<ParsedDocument> {
   // rows (rows reference cells by column id), so this defensively
   // checks a few plausible shapes rather than assuming one exact
   // schema, since the format isn't publicly documented.
-  const extractTable = (block: any): { headers: string[]; rows: string[][] } | null => {
+  const extractTable = (
+    block: any,
+  ): { headers: string[]; rows: string[][] } | null => {
     const columns = block.props?.columns || block.columns || [];
-    const headers = columns.map((c: any) => textOf(c.name ?? c.title ?? c.label) || "");
+    const headers = columns.map(
+      (c: any) => textOf(c.name ?? c.title ?? c.label) || "",
+    );
     const rawRows = block.props?.rows || block.rows || block.children || [];
     const rows: string[][] = [];
     for (const row of rawRows) {
@@ -895,9 +1140,12 @@ async function parseAffineLegacyJson(file: File): Promise<ParsedDocument> {
         } else {
           // Cells keyed by column id — order by the columns list when
           // possible, otherwise just take whatever values exist.
-          const byColumn = columns.length > 0
-            ? columns.map((c: any) => textOf(cells[c.id]?.value ?? cells[c.id]))
-            : Object.values(cells).map((v: any) => textOf(v?.value ?? v));
+          const byColumn =
+            columns.length > 0
+              ? columns.map((c: any) =>
+                  textOf(cells[c.id]?.value ?? cells[c.id]),
+                )
+              : Object.values(cells).map((v: any) => textOf(v?.value ?? v));
           rows.push(byColumn);
         }
       }
@@ -930,23 +1178,44 @@ async function parseAffineLegacyJson(file: File): Promise<ParsedDocument> {
             firstHeadingSeenInPage = true;
             slugByTitle.set(headingText.trim().toLowerCase(), id);
           }
-          blocks.push({ type: "heading", level: Math.min(level, 6) as any, text: headingText, id });
-        } else if (kind === "paragraph" || kind === "text" || block.type === "paragraph" || block.type === "text") {
+          blocks.push({
+            type: "heading",
+            level: Math.min(level, 6) as any,
+            text: headingText,
+            id,
+          });
+        } else if (
+          kind === "paragraph" ||
+          kind === "text" ||
+          block.type === "paragraph" ||
+          block.type === "text"
+        ) {
           const t = textOf(rawText);
           if (t) blocks.push({ type: "paragraph", text: t });
         } else if (kind === "list" || block.type === "list") {
           const items = (block.items || block.children || [])
             .map((i: any) => textOf(i.text ?? i.props?.text))
             .filter(Boolean);
-          if (items.length) blocks.push({ type: "list", ordered: !!(block.ordered ?? block.props?.type === "numbered"), items });
-        } else if (kind === "divider" || kind === "hr" || block.type === "divider" || block.type === "hr") {
+          if (items.length)
+            blocks.push({
+              type: "list",
+              ordered: !!(block.ordered ?? block.props?.type === "numbered"),
+              items,
+            });
+        } else if (
+          kind === "divider" ||
+          kind === "hr" ||
+          block.type === "divider" ||
+          block.type === "hr"
+        ) {
           blocks.push({ type: "hr" });
         } else {
           // Unknown block kind (callout, bookmark, embed, todo, etc.) —
           // rather than silently dropping it, capture whatever readable
           // text it carries so nothing vanishes without a trace.
           const fallbackText = textOf(rawText) || textOf(block.title);
-          if (fallbackText) blocks.push({ type: "paragraph", text: fallbackText });
+          if (fallbackText)
+            blocks.push({ type: "paragraph", text: fallbackText });
         }
 
         if (block.children) walkBlocks(block.children);
@@ -955,7 +1224,8 @@ async function parseAffineLegacyJson(file: File): Promise<ParsedDocument> {
     walkBlocks(page.blocks || page.children || []);
   }
 
-  if (blocks.length === 0) throw new Error("No recognizable content found in this AFFiNE file.");
+  if (blocks.length === 0)
+    throw new Error("No recognizable content found in this AFFiNE file.");
 
   // Second pass: not every cross-reference necessarily arrives as a
   // proper Delta reference attribute — this workspace's own screenshots
@@ -966,7 +1236,11 @@ async function parseAffineLegacyJson(file: File): Promise<ParsedDocument> {
   // happen to be represented in the source.
   linkKnownTitles(blocks, slugByTitle);
 
-  return { title: affineData.title || guessTitle(blocks, file.name.replace(/\.[^.]+$/, "")), blocks };
+  return {
+    title:
+      affineData.title || guessTitle(blocks, file.name.replace(/\.[^.]+$/, "")),
+    blocks,
+  };
 }
 
 /**
@@ -983,8 +1257,8 @@ function linkKnownTitles(blocks: Block[], slugByTitle: Map<string, string>) {
   const titles = [...slugByTitle.keys()].sort((a, b) => b.length - a.length);
   if (titles.length === 0) return;
   const pattern = new RegExp(
-    `(^|[^\\]\\w])(?:[→↗]\\s*)?(${titles.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?![\\w)])`,
-    "gi"
+    `(^|[^\\]\\w])(?:[→↗]\\s*)?(${titles.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?![\\w)])`,
+    "gi",
   );
   const relink = (input: string): string =>
     input.replace(pattern, (match, pre, title) => {
@@ -999,7 +1273,7 @@ function linkKnownTitles(blocks: Block[], slugByTitle: Map<string, string>) {
       // Don't relink text that's already a markdown link target.
       if (!/\]\(#/.test(b.text)) b.text = relink(b.text);
     } else if (b.type === "list") {
-      b.items = b.items.map((i) => (/\]\(#/.test(i) ? i : relink(i)));
+      b.items = b.items.map(i => (/\]\(#/.test(i) ? i : relink(i)));
     }
   }
 }
@@ -1023,10 +1297,10 @@ async function extractPageImages(page: any, OPS: any): Promise<string[]> {
     seen.add(objId);
 
     try {
-      const imgData: any = await new Promise((resolve) => {
+      const imgData: any = await new Promise(resolve => {
         page.objs.get(objId, resolve);
       });
-      if (!imgData || !imgData.width || !imgData.height) continue;
+      if (!imgData?.width || !imgData.height) continue;
       // Skip tiny decorative artifacts (rule lines, spacer pixels) -- not
       // worth carrying through as a real "image" block.
       if (imgData.width < 24 || imgData.height < 24) continue;
@@ -1084,18 +1358,23 @@ async function extractPageImages(page: any, OPS: any): Promise<string[]> {
  */
 export async function parsePdf(
   file: File,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: (current: number, total: number) => void,
 ): Promise<ParsedDocument> {
   const pdfjsLib = await import("pdfjs-dist");
   pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.mjs",
-    import.meta.url
+    import.meta.url,
   ).href;
 
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-  type Line = { text: string; fontSize: number; pageEnd?: boolean; cells?: string[] };
+  type Line = {
+    text: string;
+    fontSize: number;
+    pageEnd?: boolean;
+    cells?: string[];
+  };
   const lines: Line[] = [];
 
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -1104,14 +1383,17 @@ export async function parsePdf(
 
     // Group text items into lines by their Y position (with tolerance for
     // sub-pixel jitter within the same visual line).
-    const rows: { y: number; items: { str: string; fontSize: number; x: number }[] }[] = [];
+    const rows: {
+      y: number;
+      items: { str: string; fontSize: number; x: number }[];
+    }[] = [];
     for (const raw of textContent.items as any[]) {
       if (!("str" in raw)) continue;
       const str = raw.str as string;
       const fontSize = Math.hypot(raw.transform[0], raw.transform[1]) || 1;
       const y = raw.transform[5];
       const x = raw.transform[4];
-      let row = rows.find((r) => Math.abs(r.y - y) < fontSize * 0.4);
+      let row = rows.find(r => Math.abs(r.y - y) < fontSize * 0.4);
       if (!row) {
         row = { y, items: [] };
         rows.push(row);
@@ -1121,7 +1403,11 @@ export async function parsePdf(
     rows.sort((a, b) => b.y - a.y); // PDF y-axis is bottom-up
     for (const row of rows) {
       row.items.sort((a, b) => a.x - b.x);
-      const text = row.items.map((i) => i.str).join("").replace(/\s+/g, " ").trim();
+      const text = row.items
+        .map(i => i.str)
+        .join("")
+        .replace(/\s+/g, " ")
+        .trim();
       if (!text) continue;
       const avgFontSize =
         row.items.reduce((s, i) => s + i.fontSize, 0) / row.items.length;
@@ -1132,7 +1418,7 @@ export async function parsePdf(
 
   let usedOcr = false;
 
-  if (lines.every((l) => !l.text)) {
+  if (lines.every(l => !l.text)) {
     // No real text layer (most likely an image-only / rasterized export, e.g.
     // a mobile "print to PDF" that flattened the page). Fall back to OCR
     // rather than failing outright.
@@ -1153,8 +1439,10 @@ export async function parsePdf(
       // mostly tokens of one or two characters with no real words present.
       const tokens = t.split(/\s+/);
       if (tokens.length >= 4) {
-        const frag = tokens.filter((w) => w.replace(/[^A-Za-z0-9]/g, "").length <= 2).length;
-        const hasRealWord = tokens.some((w) => /[A-Za-z]{4,}/.test(w));
+        const frag = tokens.filter(
+          w => w.replace(/[^A-Za-z0-9]/g, "").length <= 2,
+        ).length;
+        const hasRealWord = tokens.some(w => /[A-Za-z]{4,}/.test(w));
         if (frag / tokens.length > 0.6 && !hasRealWord) return true;
       }
       return false;
@@ -1188,20 +1476,33 @@ export async function parsePdf(
         canvas.height = viewport.height;
         const ctx = canvas.getContext("2d");
         if (!ctx) continue;
-        await page.render({ canvasContext: ctx, viewport, canvas } as any).promise;
+        await page.render({ canvasContext: ctx, viewport, canvas } as any)
+          .promise;
 
         const { data } = await worker.recognize(canvas);
 
         // Work from word bounding boxes, not the flat text dump. Grouping
         // words back into lines and splitting on wide horizontal gaps lets
         // ruled tables come back out as tables instead of word salad.
-        type OcrWord = { text: string; x0: number; x1: number; y0: number; y1: number };
+        type OcrWord = {
+          text: string;
+          x0: number;
+          x1: number;
+          y0: number;
+          y1: number;
+        };
         const words: OcrWord[] = [];
         for (const ln of (data as any).lines ?? []) {
           for (const w of ln.words ?? []) {
             const t = (w.text || "").trim();
             if (!t) continue;
-            words.push({ text: t, x0: w.bbox.x0, x1: w.bbox.x1, y0: w.bbox.y0, y1: w.bbox.y1 });
+            words.push({
+              text: t,
+              x0: w.bbox.x0,
+              x1: w.bbox.x1,
+              y0: w.bbox.y0,
+              y1: w.bbox.y1,
+            });
           }
         }
 
@@ -1212,8 +1513,10 @@ export async function parsePdf(
           const mid = (w.y0 + w.y1) / 2;
           const last = rows[rows.length - 1];
           if (last) {
-            const lm = last.reduce((s, x) => s + (x.y0 + x.y1) / 2, 0) / last.length;
-            const lh = last.reduce((s, x) => s + (x.y1 - x.y0), 0) / last.length;
+            const lm =
+              last.reduce((s, x) => s + (x.y0 + x.y1) / 2, 0) / last.length;
+            const lh =
+              last.reduce((s, x) => s + (x.y1 - x.y0), 0) / last.length;
             if (Math.abs(mid - lm) < lh * 0.6) {
               last.push(w);
               continue;
@@ -1225,8 +1528,8 @@ export async function parsePdf(
         let prevBottom = -1;
         for (const row of rows) {
           row.sort((a, b) => a.x0 - b.x0);
-          const rowTop = Math.min(...row.map((w) => w.y0));
-          const rowBottom = Math.max(...row.map((w) => w.y1));
+          const rowTop = Math.min(...row.map(w => w.y0));
+          const rowBottom = Math.max(...row.map(w => w.y1));
           const rowH = rowBottom - rowTop;
 
           // Vertical whitespace between rows -> paragraph break
@@ -1249,18 +1552,22 @@ export async function parsePdf(
               cells.push(current);
               current = row[wi].text;
             } else {
-              current += " " + row[wi].text;
+              current += ` ${row[wi].text}`;
             }
           }
           cells.push(current);
 
-          const cleaned = cells.map(cleanRun).filter((c) => c && !isJunkLine(c));
+          const cleaned = cells.map(cleanRun).filter(c => c && !isJunkLine(c));
           if (cleaned.length === 0) continue;
 
           if (cleaned.length >= 2) {
             // Multi-cell row: candidate table row. Carried through with the
             // cells intact so the block builder can assemble a real table.
-            lines.push({ text: cleaned.join(" | "), fontSize: 12, cells: cleaned });
+            lines.push({
+              text: cleaned.join(" | "),
+              fontSize: 12,
+              cells: cleaned,
+            });
             continue;
           }
 
@@ -1280,7 +1587,7 @@ export async function parsePdf(
             capsWords.length <= 5 &&
             !/^SEE\b/i.test(text.trim()) &&
             !(capsWords.length >= 4 && /\//.test(text)) &&
-            !/^[\u2022\u00ab\u00bb+*\-]/.test(text.trim());
+            !/^[\u2022\u00ab\u00bb+*-]/.test(text.trim());
           lines.push({ text, fontSize: isAllCaps ? 20 : 12 });
         }
         lines.push({ text: "", fontSize: 0, pageEnd: true }); // page break
@@ -1289,9 +1596,9 @@ export async function parsePdf(
       await worker.terminate();
     }
 
-    if (lines.every((l) => !l.text)) {
+    if (lines.every(l => !l.text)) {
       throw new Error(
-        "OCR could not find any readable text in this PDF either. The file may be corrupted or fully blank."
+        "OCR could not find any readable text in this PDF either. The file may be corrupted or fully blank.",
       );
     }
   }
@@ -1345,23 +1652,33 @@ export async function parsePdf(
       // "1.", so it stays a paragraph with its original number intact.
       blocks.push({ type: "paragraph", text: listBuffer[0].raw });
     } else {
-      blocks.push({ type: "list", ordered: listOrdered, items: listBuffer.map((i) => i.stripped) });
+      blocks.push({
+        type: "list",
+        ordered: listOrdered,
+        items: listBuffer.map(i => i.stripped),
+      });
     }
     listBuffer = [];
   };
   const flushTable = () => {
     if (tableBuffer.length >= 2) {
-      const cols = Math.max(...tableBuffer.map((r) => r.length));
-      const norm = tableBuffer.map((r) => [...r, ...Array(cols - r.length).fill("")]);
+      const cols = Math.max(...tableBuffer.map(r => r.length));
+      const norm = tableBuffer.map(r => [
+        ...r,
+        ...Array(cols - r.length).fill(""),
+      ]);
       blocks.push({ type: "table", headers: norm[0], rows: norm.slice(1) });
     } else if (tableBuffer.length === 1) {
       // A single multi-cell row isn't a table; keep it as readable text.
-      blocks.push({ type: "paragraph", text: tableBuffer[0].join("  \u00b7  ") });
+      blocks.push({
+        type: "paragraph",
+        text: tableBuffer[0].join("  \u00b7  "),
+      });
     }
     tableBuffer = [];
   };
 
-  const bulletRe = /^[•◦▪\-\*]\s+/;
+  const bulletRe = /^[•◦▪\-*]\s+/;
   const numberedRe = /^\d+[.)]\s+/;
   let pageCursor = 0;
 
@@ -1407,7 +1724,11 @@ export async function parsePdf(
     if (ratio > 1.7 || (looksLikeSectionTitle && !isBullet)) {
       flushParagraph();
       flushList();
-      blocks.push({ type: "heading", level: 1, text: text.replace(bulletRe, "").replace(numberedRe, "") });
+      blocks.push({
+        type: "heading",
+        level: 1,
+        text: text.replace(bulletRe, "").replace(numberedRe, ""),
+      });
     } else if (ratio > 1.35) {
       flushParagraph();
       flushList();
@@ -1420,7 +1741,10 @@ export async function parsePdf(
       if (listBuffer.length && listOrdered !== isNumbered) flushList();
       flushParagraph();
       listOrdered = isNumbered;
-      listBuffer.push({ stripped: text.replace(bulletRe, "").replace(numberedRe, ""), raw: text });
+      listBuffer.push({
+        stripped: text.replace(bulletRe, "").replace(numberedRe, ""),
+        raw: text,
+      });
     } else {
       flushList();
       paragraphBuffer.push(text);
@@ -1446,7 +1770,7 @@ export type InputType = "markdown" | "html" | "word" | "affine" | "pdf";
 export async function parseInput(
   file: File,
   inputType: InputType,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: (current: number, total: number) => void,
 ): Promise<ParsedDocument> {
   let parsed: ParsedDocument;
   switch (inputType) {
@@ -1486,7 +1810,8 @@ function cleanParsedDocument(doc: ParsedDocument): ParsedDocument {
   const preamble: Block[] = [];
 
   for (const b of doc.blocks) {
-    const isSectionHead = b.type === "heading" && (b.level === 1 || b.level === 2);
+    const isSectionHead =
+      b.type === "heading" && (b.level === 1 || b.level === 2);
     if (isSectionHead) {
       currentGroup = { title: (b as any).text || "", blocks: [b] };
       groups.push(currentGroup);
@@ -1498,7 +1823,7 @@ function cleanParsedDocument(doc: ParsedDocument): ParsedDocument {
   }
 
   // 2) Drop groups that are scaffolding/junk (tutorial, SOP, empty templates).
-  const kept = groups.filter((g) => !isJunkSection(g.title, g.blocks));
+  const kept = groups.filter(g => !isJunkSection(g.title, g.blocks));
 
   // 3) Reorder kept groups into canonical section order (overview-first),
   //    keeping any preamble at the very top.
@@ -1508,7 +1833,11 @@ function cleanParsedDocument(doc: ParsedDocument): ParsedDocument {
   const finalBlocks = [...preamble, ...orderedBlocks];
   const liveTitles = new Set<string>();
   for (const g of kept) {
-    const slug = g.title.toLowerCase().trim().replace(/[^\w]+/g, "-").replace(/^-+|-+$/g, "");
+    const slug = g.title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w]+/g, "-")
+      .replace(/^-+|-+$/g, "");
     if (slug) liveTitles.add(slug);
   }
   stripDeadLinksInPlace(finalBlocks, liveTitles);
@@ -1526,29 +1855,42 @@ function isJunkSection(title: string, blocks: Block[]): boolean {
   const t = title.toLowerCase().trim();
 
   const titleMarkers = [
-    "internal sop", "onboarding checklist", "master template",
-    "emojioptimized", "emoji-optimized", "sidebar titles",
+    "internal sop",
+    "onboarding checklist",
+    "master template",
+    "emojioptimized",
+    "emoji-optimized",
+    "sidebar titles",
   ];
-  if (titleMarkers.some((m) => t.includes(m))) return true;
+  if (titleMarkers.some(m => t.includes(m))) return true;
   if (/^template\s*[-–]?\s/.test(t)) return true;
 
   // Combine the section's text to fingerprint tutorial/SOP content.
   let combined = "";
   for (const b of blocks) {
-    if (b.type === "paragraph" || b.type === "heading") combined += " " + (b as any).text;
-    else if (b.type === "list") combined += " " + (b as any).items.join(" ");
+    if (b.type === "paragraph" || b.type === "heading")
+      combined += ` ${(b as any).text}`;
+    else if (b.type === "list") combined += ` ${(b as any).items.join(" ")}`;
   }
   const low = combined.toLowerCase();
   const contentMarkers = [
-    "welcome to affine", "rabbit hole", "edgeless canvas", "docs.affine.pro",
-    "everything is now done", "internal sop for delivering",
-    "emojioptimized sidebar", "master template -- duplicate",
+    "welcome to affine",
+    "rabbit hole",
+    "edgeless canvas",
+    "docs.affine.pro",
+    "everything is now done",
+    "internal sop for delivering",
+    "emojioptimized sidebar",
+    "master template -- duplicate",
     "client onboarding checklist",
   ];
-  if (contentMarkers.some((m) => low.includes(m))) return true;
+  if (contentMarkers.some(m => low.includes(m))) return true;
 
   // Blank/near-empty "Untitled" section.
-  if ((t === "" || t === "untitled" || t === "untitled document") && combined.trim().length < 40) {
+  if (
+    (t === "" || t === "untitled" || t === "untitled document") &&
+    combined.trim().length < 40
+  ) {
     return true;
   }
   return false;
@@ -1557,12 +1899,16 @@ function isJunkSection(title: string, blocks: Block[]): boolean {
 /** In-place dead-link stripper operating on a Block[] (any format). */
 function stripDeadLinksInPlace(blocks: Block[], liveSlugs: Set<string>): void {
   const clean = (s: string): string =>
-    s.replace(/\[([^\]]+)\]\((#[\w-]+)\)/g, (_m, label: string, anchor: string) => {
-      const slug = anchor.slice(1);
-      return liveSlugs.has(slug) ? `[${label}](${anchor})` : label;
-    });
+    s.replace(
+      /\[([^\]]+)\]\((#[\w-]+)\)/g,
+      (_m, label: string, anchor: string) => {
+        const slug = anchor.slice(1);
+        return liveSlugs.has(slug) ? `[${label}](${anchor})` : label;
+      },
+    );
   for (const b of blocks) {
-    if (b.type === "paragraph" || b.type === "heading") (b as any).text = clean((b as any).text);
+    if (b.type === "paragraph" || b.type === "heading")
+      (b as any).text = clean((b as any).text);
     else if (b.type === "list") (b as any).items = (b as any).items.map(clean);
     else if (b.type === "table") {
       (b as any).headers = (b as any).headers.map(clean);
@@ -1593,26 +1939,31 @@ function textToHtml(s: string): string {
 
 function blocksToInnerHtml(blocks: Block[]): string {
   return blocks
-    .map((b) => {
-      if (b.type === "heading") return `<h${b.level}${b.id ? ` id="${escapeHtml(b.id)}"` : ""}>${textToHtml(b.text)}</h${b.level}>`;
+    .map(b => {
+      if (b.type === "heading")
+        return `<h${b.level}${b.id ? ` id="${escapeHtml(b.id)}"` : ""}>${textToHtml(b.text)}</h${b.level}>`;
       if (b.type === "paragraph") return `<p>${textToHtml(b.text)}</p>`;
       if (b.type === "hr") return `<hr />`;
       if (b.type === "image") {
-        const dims = b.width && b.height ? ` width="${b.width}" height="${b.height}"` : "";
+        const dims =
+          b.width && b.height ? ` width="${b.width}" height="${b.height}"` : "";
         return `<img src="${escapeHtml(b.src)}" alt="${escapeHtml(b.alt || "")}"${dims} />`;
       }
       if (b.type === "table") {
-        const headerRow = b.headers.some((h) => h)
-          ? `<thead><tr>${b.headers.map((h) => `<th>${textToHtml(h)}</th>`).join("")}</tr></thead>`
+        const headerRow = b.headers.some(h => h)
+          ? `<thead><tr>${b.headers.map(h => `<th>${textToHtml(h)}</th>`).join("")}</tr></thead>`
           : "";
         const bodyRows = b.rows
-          .map((row) => `<tr>${row.map((cell) => `<td>${textToHtml(cell)}</td>`).join("")}</tr>`)
+          .map(
+            row =>
+              `<tr>${row.map(cell => `<td>${textToHtml(cell)}</td>`).join("")}</tr>`,
+          )
           .join("");
         return `<table>${headerRow}<tbody>${bodyRows}</tbody></table>`;
       }
       if (b.type === "list") {
         const tag = b.ordered ? "ol" : "ul";
-        return `<${tag}>${b.items.map((i) => `<li>${textToHtml(i)}</li>`).join("")}</${tag}>`;
+        return `<${tag}>${b.items.map(i => `<li>${textToHtml(i)}</li>`).join("")}</${tag}>`;
       }
       return "";
     })
@@ -1620,10 +1971,7 @@ function blocksToInnerHtml(blocks: Block[]): string {
 }
 
 function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 /** Renders to the dark branded HTML used throughout the portal. Returns the full HTML string. */
@@ -1674,7 +2022,10 @@ export function renderToHtml(doc: ParsedDocument): string {
 /** Opens a print-ready light branded window and triggers the browser's print/Save-as-PDF dialog. */
 export function renderToPdf(doc: ParsedDocument) {
   const printWindow = window.open("", "_blank");
-  if (!printWindow) throw new Error("Couldn't open the print window. Check your popup blocker.");
+  if (!printWindow)
+    throw new Error(
+      "Couldn't open the print window. Check your popup blocker.",
+    );
 
   const html = `<!DOCTYPE html>
 <html>
@@ -1728,7 +2079,9 @@ export function renderToPdf(doc: ParsedDocument) {
 
 /** Builds a real .docx file and returns it as a Blob. */
 /** Decodes a `data:image/png;base64,...` URI into raw bytes and its declared mime type. */
-function decodeDataUri(dataUri: string): { bytes: Uint8Array; mime: string } | null {
+function decodeDataUri(
+  dataUri: string,
+): { bytes: Uint8Array; mime: string } | null {
   const match = /^data:([^;]+);base64,(.*)$/s.exec(dataUri);
   if (!match) return null;
   const mime = match[1];
@@ -1748,17 +2101,40 @@ function docxImageType(mime: string): "png" | "jpg" | "gif" | "bmp" | null {
 }
 
 /** Loads an image to read its intrinsic pixel dimensions when a Block didn't already carry them (e.g. images parsed from HTML/Word without explicit width/height attributes). */
-function getImageDimensions(src: string): Promise<{ width: number; height: number }> {
+function getImageDimensions(
+  src: string,
+): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => resolve({ width: img.naturalWidth || 400, height: img.naturalHeight || 300 });
+    img.onload = () =>
+      resolve({
+        width: img.naturalWidth || 400,
+        height: img.naturalHeight || 300,
+      });
     img.onerror = () => reject(new Error("Could not read image dimensions"));
     img.src = src;
   });
 }
 
 export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
-  const { AlignmentType, Document, HeadingLevel, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, ShadingType, BorderStyle, Bookmark, InternalHyperlink, ExternalHyperlink, ImageRun } = await import("docx");
+  const {
+    AlignmentType,
+    Document,
+    HeadingLevel,
+    Packer,
+    Paragraph,
+    TextRun,
+    Table,
+    TableRow,
+    TableCell,
+    WidthType,
+    ShadingType,
+    BorderStyle,
+    Bookmark,
+    InternalHyperlink,
+    ExternalHyperlink,
+    ImageRun,
+  } = await import("docx");
 
   // DOCX is an inherently light/white-page document, so these use the
   // print-safe bronze from the light theme rather than the on-screen
@@ -1774,28 +2150,47 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
     6: HeadingLevel.HEADING_6,
   };
   const cellBorder = { style: BorderStyle.SINGLE, size: 2, color: "E4DCC8" };
-  const allBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
+  const allBorders = {
+    top: cellBorder,
+    bottom: cellBorder,
+    left: cellBorder,
+    right: cellBorder,
+  };
 
   // Splits text on [label](url) markdown-link syntax (produced during
   // AFFiNE parsing for cross-references) into plain TextRuns and real
   // internal/external hyperlinks, for use as a Paragraph's children.
-  const runsWithLinks = (text: string, baseProps: Record<string, any> = {}): any[] => {
+  const runsWithLinks = (
+    text: string,
+    baseProps: Record<string, any> = {},
+  ): any[] => {
     const runs: any[] = [];
     let lastIndex = 0;
     for (const match of text.matchAll(LINK_PATTERN)) {
       if ((match.index ?? 0) > lastIndex) {
-        runs.push(new TextRun({ ...baseProps, text: text.slice(lastIndex, match.index) }));
+        runs.push(
+          new TextRun({
+            ...baseProps,
+            text: text.slice(lastIndex, match.index),
+          }),
+        );
       }
       const [, label, url] = match;
-      const linkRun = new TextRun({ ...baseProps, text: label, color: GOLD, underline: {} });
+      const linkRun = new TextRun({
+        ...baseProps,
+        text: label,
+        color: GOLD,
+        underline: {},
+      });
       runs.push(
         url.startsWith("#")
           ? new InternalHyperlink({ anchor: url.slice(1), children: [linkRun] })
-          : new ExternalHyperlink({ link: url, children: [linkRun] })
+          : new ExternalHyperlink({ link: url, children: [linkRun] }),
       );
       lastIndex = (match.index ?? 0) + match[0].length;
     }
-    if (lastIndex < text.length) runs.push(new TextRun({ ...baseProps, text: text.slice(lastIndex) }));
+    if (lastIndex < text.length)
+      runs.push(new TextRun({ ...baseProps, text: text.slice(lastIndex) }));
     return runs.length > 0 ? runs : [new TextRun({ ...baseProps, text: "" })];
   };
 
@@ -1803,17 +2198,26 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
     new TableCell({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: allBorders,
-      shading: isHeader ? { type: ShadingType.SOLID, color: GOLD, fill: GOLD } : undefined,
+      shading: isHeader
+        ? { type: ShadingType.SOLID, color: GOLD, fill: GOLD }
+        : undefined,
       children: [
         new Paragraph({
-          children: runsWithLinks(text, { bold: isHeader, color: isHeader ? "FFFFFF" : undefined, allCaps: isHeader, size: isHeader ? 18 : undefined }),
+          children: runsWithLinks(text, {
+            bold: isHeader,
+            color: isHeader ? "FFFFFF" : undefined,
+            allCaps: isHeader,
+            size: isHeader ? 18 : undefined,
+          }),
         }),
       ],
     });
 
   const children: any[] = [
     new Paragraph({
-      children: [new TextRun({ text: doc.title, bold: true, color: GOLD, size: 44 })],
+      children: [
+        new TextRun({ text: doc.title, bold: true, color: GOLD, size: 44 }),
+      ],
       alignment: AlignmentType.CENTER,
       spacing: { after: 120 },
     }),
@@ -1832,26 +2236,48 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
 
   for (const b of dedupeTitleBlock(doc)) {
     if (b.type === "heading") {
-      const headingRuns = runsWithLinks(b.text, { color: GOLD, bold: true, allCaps: b.level <= 2 });
+      const headingRuns = runsWithLinks(b.text, {
+        color: GOLD,
+        bold: true,
+        allCaps: b.level <= 2,
+      });
       children.push(
         new Paragraph({
           heading: HEADING_LEVELS[b.level] || HeadingLevel.HEADING_3,
-          children: b.id ? [new Bookmark({ id: b.id, children: headingRuns })] : headingRuns,
-          border: b.level === 1 ? { bottom: { style: BorderStyle.SINGLE, size: 4, color: GOLD_LIGHT, space: 4 } } : undefined,
-        })
+          children: b.id
+            ? [new Bookmark({ id: b.id, children: headingRuns })]
+            : headingRuns,
+          border:
+            b.level === 1
+              ? {
+                  bottom: {
+                    style: BorderStyle.SINGLE,
+                    size: 4,
+                    color: GOLD_LIGHT,
+                    space: 4,
+                  },
+                }
+              : undefined,
+        }),
       );
     } else if (b.type === "paragraph") {
       children.push(new Paragraph({ children: runsWithLinks(b.text) }));
     } else if (b.type === "table") {
       const rows: any[] = [];
-      if (b.headers.some((h) => h)) {
-        rows.push(new TableRow({ children: b.headers.map((h) => makeCell(h, true)) }));
+      if (b.headers.some(h => h)) {
+        rows.push(
+          new TableRow({ children: b.headers.map(h => makeCell(h, true)) }),
+        );
       }
       for (const row of b.rows) {
-        rows.push(new TableRow({ children: row.map((cell) => makeCell(cell, false)) }));
+        rows.push(
+          new TableRow({ children: row.map(cell => makeCell(cell, false)) }),
+        );
       }
       if (rows.length > 0) {
-        children.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows }));
+        children.push(
+          new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows }),
+        );
         children.push(new Paragraph({ text: "" }));
       }
     } else if (b.type === "list") {
@@ -1860,8 +2286,10 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
           new Paragraph({
             children: runsWithLinks(item),
             bullet: b.ordered ? undefined : { level: 0 },
-            numbering: b.ordered ? { reference: "numbered-list", level: 0 } : undefined,
-          })
+            numbering: b.ordered
+              ? { reference: "numbered-list", level: 0 }
+              : undefined,
+          }),
         );
       }
     } else if (b.type === "image") {
@@ -1869,7 +2297,10 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
       const imgType = decoded ? docxImageType(decoded.mime) : null;
       if (decoded && imgType) {
         try {
-          const dims = b.width && b.height ? { width: b.width, height: b.height } : await getImageDimensions(b.src);
+          const dims =
+            b.width && b.height
+              ? { width: b.width, height: b.height }
+              : await getImageDimensions(b.src);
           const maxWidth = 460;
           const scale = dims.width > maxWidth ? maxWidth / dims.width : 1;
           children.push(
@@ -1886,7 +2317,7 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
                   },
                 }),
               ],
-            })
+            }),
           );
         } catch {
           // Couldn't read this image's dimensions -- skip it rather than
@@ -1900,7 +2331,19 @@ export async function renderToDocx(doc: ParsedDocument): Promise<Blob> {
 
   const docxDoc = new Document({
     numbering: {
-      config: [{ reference: "numbered-list", levels: [{ level: 0, format: "decimal", text: "%1.", alignment: AlignmentType.START }] }],
+      config: [
+        {
+          reference: "numbered-list",
+          levels: [
+            {
+              level: 0,
+              format: "decimal",
+              text: "%1.",
+              alignment: AlignmentType.START,
+            },
+          ],
+        },
+      ],
     },
     sections: [{ children }],
   });
@@ -1932,34 +2375,39 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
   // to their WinAnsi-safe equivalents, then strips anything that's still
   // outside the 0x00–0xFF range (which WinAnsi covers).
   function sanitize(text: string): string {
-    return text
-      // Zero-width / invisible characters that contribute no visual width
-      .replace(/[\u200B\u200C\u200D\uFEFF\u00AD]/g, "")
-      // Directional marks
-      .replace(/[\u200E\u200F\u202A-\u202E]/g, "")
-      // Fancy quotation marks → straight equivalents
-      .replace(/[\u2018\u2019\u02BC]/g, "'")
-      .replace(/[\u201A\u201B\u2032]/g, "'")
-      .replace(/[\u201C\u201D]/g, '"')
-      .replace(/[\u201E\u201F\u2033]/g, '"')
-      // Dashes
-      .replace(/[\u2013]/g, "-")  // en-dash
-      .replace(/[\u2014\u2015]/g, "--")  // em-dash
-      // Ellipsis
-      .replace(/\u2026/g, "...")
-      // Bullets and similar markers
-      .replace(/[\u2022\u2023\u2043\u204C\u204D\u2219\u25AA\u25AB\u25CF\u25E6]/g, "*")
-      // Checkmarks / special marks
-      .replace(/[\u2713\u2714]/g, "+")
-      .replace(/[\u2715\u2716]/g, "x")
-      // Non-breaking space → regular space
-      .replace(/\u00A0/g, " ")
-      // Arrows
-      .replace(/[\u2190-\u21FF]/g, "->")
-      // Mathematical operators
-      .replace(/\u00D7/g, "x")  // multiplication sign (already in WinAnsi, keep)
-      // Any remaining non-WinAnsi characters (code point > 255)
-      .replace(/[^\x00-\xFF]/g, "");
+    return (
+      text
+        // Zero-width / invisible characters that contribute no visual width
+        .replace(/[\u200B\u200C\u200D\uFEFF\u00AD]/g, "")
+        // Directional marks
+        .replace(/[\u200E\u200F\u202A-\u202E]/g, "")
+        // Fancy quotation marks → straight equivalents
+        .replace(/[\u2018\u2019\u02BC]/g, "'")
+        .replace(/[\u201A\u201B\u2032]/g, "'")
+        .replace(/[\u201C\u201D]/g, '"')
+        .replace(/[\u201E\u201F\u2033]/g, '"')
+        // Dashes
+        .replace(/[\u2013]/g, "-") // en-dash
+        .replace(/[\u2014\u2015]/g, "--") // em-dash
+        // Ellipsis
+        .replace(/\u2026/g, "...")
+        // Bullets and similar markers
+        .replace(
+          /[\u2022\u2023\u2043\u204C\u204D\u2219\u25AA\u25AB\u25CF\u25E6]/g,
+          "*",
+        )
+        // Checkmarks / special marks
+        .replace(/[\u2713\u2714]/g, "+")
+        .replace(/[\u2715\u2716]/g, "x")
+        // Non-breaking space → regular space
+        .replace(/\u00A0/g, " ")
+        // Arrows
+        .replace(/[\u2190-\u21FF]/g, "->")
+        // Mathematical operators
+        .replace(/\u00D7/g, "x") // multiplication sign (already in WinAnsi, keep)
+        // Any remaining non-WinAnsi characters (code point > 255)
+        .replace(/[^\x00-\xFF]/g, "")
+    );
   }
 
   const pdfDoc = await PDFDocument.create();
@@ -1978,7 +2426,7 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
 
   let page = pdfDoc.addPage([PAGE_W, PAGE_H]);
   let y = PAGE_H - MARGIN;
-  const pages: typeof page[] = [page];
+  const pages: (typeof page)[] = [page];
 
   const newPage = () => {
     page = pdfDoc.addPage([PAGE_W, PAGE_H]);
@@ -1993,7 +2441,12 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
   // Greedy word-wrap using real glyph widths from the embedded font.
   // Sanitizes text first so widthOfTextAtSize never encounters an
   // out-of-encoding character.
-  const wrapText = (text: string, font: typeof bodyFont, size: number, maxWidth: number): string[] => {
+  const wrapText = (
+    text: string,
+    font: typeof bodyFont,
+    size: number,
+    maxWidth: number,
+  ): string[] => {
     const safe = sanitize(text);
     const words = safe.split(/\s+/).filter(Boolean);
     const out: string[] = [];
@@ -2017,7 +2470,17 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
     return out.length ? out : [""];
   };
 
-  const drawParagraph = (text: string, opts: { font?: typeof bodyFont; size?: number; color?: any; lineHeight?: number; indent?: number; maxWidth?: number } = {}) => {
+  const drawParagraph = (
+    text: string,
+    opts: {
+      font?: typeof bodyFont;
+      size?: number;
+      color?: any;
+      lineHeight?: number;
+      indent?: number;
+      maxWidth?: number;
+    } = {},
+  ) => {
     const font = opts.font || bodyFont;
     const size = opts.size ?? 11;
     const lineHeight = opts.lineHeight ?? size * 1.4;
@@ -2028,7 +2491,13 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
       if (!ln) continue;
       ensureSpace(lineHeight);
       try {
-        page.drawText(ln, { x: MARGIN + indent, y: y - size, size, font, color: opts.color || INK });
+        page.drawText(ln, {
+          x: MARGIN + indent,
+          y: y - size,
+          size,
+          font,
+          color: opts.color || INK,
+        });
       } catch {
         // Skip lines that still contain unencodable characters after sanitization.
       }
@@ -2036,7 +2505,14 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
     }
   };
 
-  const HEADING_SIZES: Record<number, number> = { 1: 19, 2: 16, 3: 14, 4: 12.5, 5: 12, 6: 11.5 };
+  const HEADING_SIZES: Record<number, number> = {
+    1: 19,
+    2: 16,
+    3: 14,
+    4: 12.5,
+    5: 12,
+    6: 11.5,
+  };
 
   // Embed a PNG/JPG data URI as a real PDF image object, scaled to fit the
   // content width while preserving aspect ratio.
@@ -2061,7 +2537,12 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
     const w = naturalW * scale;
     const h = naturalH * scale;
     ensureSpace(h + 16);
-    page.drawImage(embedded, { x: MARGIN + (CONTENT_W - w) / 2, y: y - h, width: w, height: h });
+    page.drawImage(embedded, {
+      x: MARGIN + (CONTENT_W - w) / 2,
+      y: y - h,
+      width: w,
+      height: h,
+    });
     y -= h + 16;
   };
 
@@ -2073,17 +2554,36 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
     if (!ln) continue;
     try {
       const tw = boldFont.widthOfTextAtSize(ln, titleSize);
-      page.drawText(ln, { x: MARGIN + (CONTENT_W - tw) / 2, y: y - titleSize, size: titleSize, font: boldFont, color: GOLD });
-    } catch { /* skip unencodable cover title line */ }
+      page.drawText(ln, {
+        x: MARGIN + (CONTENT_W - tw) / 2,
+        y: y - titleSize,
+        size: titleSize,
+        font: boldFont,
+        color: GOLD,
+      });
+    } catch {
+      /* skip unencodable cover title line */
+    }
     y -= titleSize * 1.25;
   }
   y -= 6;
   const meta = `Prepared by Legacy Architect RVA  \u00b7  ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`;
   const metaSize = 9.5;
   const metaW = italicFont.widthOfTextAtSize(meta, metaSize);
-  page.drawText(meta, { x: MARGIN + (CONTENT_W - metaW) / 2, y: y - metaSize, size: metaSize, font: italicFont, color: MUTED });
+  page.drawText(meta, {
+    x: MARGIN + (CONTENT_W - metaW) / 2,
+    y: y - metaSize,
+    size: metaSize,
+    font: italicFont,
+    color: MUTED,
+  });
   y -= metaSize * 1.4 + 14;
-  page.drawLine({ start: { x: MARGIN + CONTENT_W / 2 - 50, y }, end: { x: MARGIN + CONTENT_W / 2 + 50, y }, thickness: 1, color: RULE });
+  page.drawLine({
+    start: { x: MARGIN + CONTENT_W / 2 - 50, y },
+    end: { x: MARGIN + CONTENT_W / 2 + 50, y },
+    thickness: 1,
+    color: RULE,
+  });
   y -= 28;
 
   // ---- Body ----
@@ -2092,10 +2592,20 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
       const size = HEADING_SIZES[b.level] || 12;
       ensureSpace(size * 1.6 + 14);
       y -= 12;
-      drawParagraph(b.text, { font: boldFont, size, color: GOLD, lineHeight: size * 1.25 });
+      drawParagraph(b.text, {
+        font: boldFont,
+        size,
+        color: GOLD,
+        lineHeight: size * 1.25,
+      });
       if (b.level <= 2) {
         ensureSpace(10);
-        page.drawLine({ start: { x: MARGIN, y: y + 4 }, end: { x: MARGIN + CONTENT_W, y: y + 4 }, thickness: 0.75, color: RULE });
+        page.drawLine({
+          start: { x: MARGIN, y: y + 4 },
+          end: { x: MARGIN + CONTENT_W, y: y + 4 },
+          thickness: 0.75,
+          color: RULE,
+        });
       }
       y -= 6;
     } else if (b.type === "paragraph") {
@@ -2105,40 +2615,75 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
       for (let i = 0; i < b.items.length; i++) {
         const prefix = b.ordered ? `${i + 1}.` : "\u2022";
         ensureSpace(16);
-        page.drawText(prefix, { x: MARGIN, y: y - 11, size: 11, font: bodyFont, color: INK });
+        page.drawText(prefix, {
+          x: MARGIN,
+          y: y - 11,
+          size: 11,
+          font: bodyFont,
+          color: INK,
+        });
         drawParagraph(b.items[i], { indent: 16 });
       }
       y -= 4;
     } else if (b.type === "table") {
-      const cols = Math.max(b.headers.length, ...b.rows.map((r) => r.length), 1);
+      const cols = Math.max(b.headers.length, ...b.rows.map(r => r.length), 1);
       const colW = CONTENT_W / cols;
-      const hasHeader = b.headers.some((h) => h);
+      const hasHeader = b.headers.some(h => h);
 
       const measureRow = (cells: string[], isHeader: boolean) => {
-        const cellLines = cells.map((c) => wrapText(c, isHeader ? boldFont : bodyFont, 9, colW - 10));
-        return { cellLines, rowHeight: Math.max(...cellLines.map((l) => l.length), 1) * 12 + 8 };
+        const cellLines = cells.map(c =>
+          wrapText(c, isHeader ? boldFont : bodyFont, 9, colW - 10),
+        );
+        return {
+          cellLines,
+          rowHeight: Math.max(...cellLines.map(l => l.length), 1) * 12 + 8,
+        };
       };
 
-      const drawMeasuredRow = (m: ReturnType<typeof measureRow>, isHeader: boolean) => {
+      const drawMeasuredRow = (
+        m: ReturnType<typeof measureRow>,
+        isHeader: boolean,
+      ) => {
         if (isHeader) {
-          page.drawRectangle({ x: MARGIN, y: y - m.rowHeight, width: CONTENT_W, height: m.rowHeight, color: rgb(0.93, 0.9, 0.82) });
+          page.drawRectangle({
+            x: MARGIN,
+            y: y - m.rowHeight,
+            width: CONTENT_W,
+            height: m.rowHeight,
+            color: rgb(0.93, 0.9, 0.82),
+          });
         }
         m.cellLines.forEach((lines, ci) => {
           lines.forEach((ln, li) => {
-            page.drawText(ln, { x: MARGIN + ci * colW + 5, y: y - 12 - li * 12, size: 9, font: isHeader ? boldFont : bodyFont, color: INK });
+            page.drawText(ln, {
+              x: MARGIN + ci * colW + 5,
+              y: y - 12 - li * 12,
+              size: 9,
+              font: isHeader ? boldFont : bodyFont,
+              color: INK,
+            });
           });
         });
-        page.drawRectangle({ x: MARGIN, y: y - m.rowHeight, width: CONTENT_W, height: m.rowHeight, borderColor: RULE, borderWidth: 0.5, color: undefined });
+        page.drawRectangle({
+          x: MARGIN,
+          y: y - m.rowHeight,
+          width: CONTENT_W,
+          height: m.rowHeight,
+          borderColor: RULE,
+          borderWidth: 0.5,
+          color: undefined,
+        });
         y -= m.rowHeight;
       };
 
       const headerM = hasHeader ? measureRow(b.headers, true) : null;
-      const rowMs = b.rows.map((r) => measureRow(r, false));
+      const rowMs = b.rows.map(r => measureRow(r, false));
 
       // If the whole table would fit on a fresh page but not in the space
       // that's left, start it on the fresh page instead of stranding the
       // header and a row or two at the bottom of this one.
-      const totalH = (headerM?.rowHeight ?? 0) + rowMs.reduce((s, m) => s + m.rowHeight, 0);
+      const totalH =
+        (headerM?.rowHeight ?? 0) + rowMs.reduce((s, m) => s + m.rowHeight, 0);
       const remaining = y - MARGIN;
       if (totalH > remaining && totalH <= PAGE_H - MARGIN * 2) newPage();
 
@@ -2160,7 +2705,12 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
     } else if (b.type === "hr") {
       ensureSpace(20);
       y -= 8;
-      page.drawLine({ start: { x: MARGIN, y }, end: { x: MARGIN + CONTENT_W, y }, thickness: 0.75, color: RULE });
+      page.drawLine({
+        start: { x: MARGIN, y },
+        end: { x: MARGIN + CONTENT_W, y },
+        thickness: 0.75,
+        color: RULE,
+      });
       y -= 12;
     }
   }
@@ -2169,7 +2719,13 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
   pages.forEach((p, i) => {
     const label = `${i + 1} / ${pages.length}`;
     const w = bodyFont.widthOfTextAtSize(label, 8.5);
-    p.drawText(label, { x: PAGE_W / 2 - w / 2, y: MARGIN / 2 - 4, size: 8.5, font: bodyFont, color: MUTED });
+    p.drawText(label, {
+      x: PAGE_W / 2 - w / 2,
+      y: MARGIN / 2 - 4,
+      size: 8.5,
+      font: bodyFont,
+      color: MUTED,
+    });
   });
 
   const bytes = await pdfDoc.save();
@@ -2178,7 +2734,7 @@ export async function renderToPdfLib(doc: ParsedDocument): Promise<Blob> {
 
 export async function renderToPngZip(
   doc: ParsedDocument,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: (current: number, total: number) => void,
 ): Promise<Blob> {
   const html2canvas = (await import("html2canvas")).default;
 
@@ -2225,12 +2781,15 @@ export async function renderToPngZip(
 
       // Load fonts before rasterizing
       await document.fonts.ready;
-      const canvas = await html2canvas(container.firstElementChild as HTMLElement, {
-        backgroundColor: BRAND_BLACK,
-        scale: 1,
-      });
-      const blob: Blob = await new Promise((resolve) =>
-        canvas.toBlob((b) => resolve(b as Blob), "image/png")
+      const canvas = await html2canvas(
+        container.firstElementChild as HTMLElement,
+        {
+          backgroundColor: BRAND_BLACK,
+          scale: 1,
+        },
+      );
+      const blob: Blob = await new Promise(resolve =>
+        canvas.toBlob(b => resolve(b as Blob), "image/png"),
       );
       zip.file(`page-${String(i + 1).padStart(2, "0")}.png`, blob);
     }
@@ -2251,11 +2810,23 @@ export const INPUT_TYPES: { id: InputType; label: string; accept: string }[] = [
   { id: "affine", label: "AFFiNE", accept: ".json,.affine" },
 ];
 
-export const OUTPUT_TYPES: { id: OutputType; label: string; description: string }[] = [
+export const OUTPUT_TYPES: {
+  id: OutputType;
+  label: string;
+  description: string;
+}[] = [
   { id: "html", label: "HTML", description: "Branded, styled web page" },
-  { id: "pdf", label: "PDF", description: "Branded document with real, selectable text" },
+  {
+    id: "pdf",
+    label: "PDF",
+    description: "Branded document with real, selectable text",
+  },
   { id: "docx", label: "Word (.docx)", description: "Editable Word document" },
-  { id: "png", label: "Images (.zip)", description: "One image per page, for social/marketing" },
+  {
+    id: "png",
+    label: "Images (.zip)",
+    description: "One image per page, for social/marketing",
+  },
 ];
 
 export function downloadBlob(blob: Blob, filename: string) {
@@ -2277,6 +2848,10 @@ export function downloadBlob(blob: Blob, filename: string) {
   }, 10000);
 }
 
-export function downloadText(text: string, filename: string, mime = "text/html") {
+export function downloadText(
+  text: string,
+  filename: string,
+  mime = "text/html",
+) {
   downloadBlob(new Blob([text], { type: mime }), filename);
 }

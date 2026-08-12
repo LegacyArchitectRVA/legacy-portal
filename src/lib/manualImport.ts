@@ -37,13 +37,25 @@ function normalize(s: string): string {
 
 /** Old-edition heading names that don't literally match current titles. */
 const ALIASES: Record<string, { chapterId: string; sectionId: string }> = {
-  REQUIREDNOTIFICATIONS: { chapterId: "emergency", sectionId: "emergency_contacts" },
+  REQUIREDNOTIFICATIONS: {
+    chapterId: "emergency",
+    sectionId: "emergency_contacts",
+  },
   FIRST48HOURSPLAN: { chapterId: "emergency", sectionId: "first_48_hours" },
   CRISISCHECKLIST: { chapterId: "emergency", sectionId: "first_48_hours" },
   SUCCESSORACCESSGUIDE: { chapterId: "emergency", sectionId: "first_48_hours" },
-  TIMESENSITIVEDECISIONS: { chapterId: "emergency", sectionId: "first_48_hours" },
-  EMERGENCYCONTACTS: { chapterId: "emergency", sectionId: "emergency_contacts" },
-  CHILDCAREDEPENDENTS: { chapterId: "emergency", sectionId: "child_care_dependents" },
+  TIMESENSITIVEDECISIONS: {
+    chapterId: "emergency",
+    sectionId: "first_48_hours",
+  },
+  EMERGENCYCONTACTS: {
+    chapterId: "emergency",
+    sectionId: "emergency_contacts",
+  },
+  CHILDCAREDEPENDENTS: {
+    chapterId: "emergency",
+    sectionId: "child_care_dependents",
+  },
   PASSWORDMANAGER: { chapterId: "digital", sectionId: "password_manager" },
   PRIMARYEMAIL: { chapterId: "digital", sectionId: "primary_email" },
   PRIMARYEMAIL1: { chapterId: "digital", sectionId: "primary_email" },
@@ -51,23 +63,44 @@ const ALIASES: Record<string, { chapterId: string; sectionId: string }> = {
   "2FARECOVERYCODES": { chapterId: "digital", sectionId: "twofa_recovery" },
   // Old-edition narrative and orientation sections
   WELCOMEPURPOSE: { chapterId: "introduction", sectionId: "welcome_purpose" },
-  WELCOMEANDPURPOSE: { chapterId: "introduction", sectionId: "welcome_purpose" },
-  LIFELOVESTATEMENT: { chapterId: "introduction", sectionId: "life_love_statement" },
-  LIFEANDLOVESTATEMENT: { chapterId: "introduction", sectionId: "life_love_statement" },
+  WELCOMEANDPURPOSE: {
+    chapterId: "introduction",
+    sectionId: "welcome_purpose",
+  },
+  LIFELOVESTATEMENT: {
+    chapterId: "introduction",
+    sectionId: "life_love_statement",
+  },
+  LIFEANDLOVESTATEMENT: {
+    chapterId: "introduction",
+    sectionId: "life_love_statement",
+  },
   MEDICALINFORMATION: { chapterId: "vitals", sectionId: "medical_information" },
   SECURITYACCESS: { chapterId: "household", sectionId: "security_access" },
   PETCARE: { chapterId: "household", sectionId: "petcare" },
-  INSURANCEOVERVIEW: { chapterId: "financial", sectionId: "insurance_policies" },
+  INSURANCEOVERVIEW: {
+    chapterId: "financial",
+    sectionId: "insurance_policies",
+  },
   BENEFICIARIESREVIEW: { chapterId: "financial", sectionId: "beneficiaries" },
   // Account-type groupings under the old Accounts & Institutions section
   SAVINGS: { chapterId: "financial", sectionId: "accounts_institutions" },
   CHECKING: { chapterId: "financial", sectionId: "accounts_institutions" },
   RETIREMENT: { chapterId: "financial", sectionId: "accounts_institutions" },
-  BROKERAGEINVESTMENTS: { chapterId: "financial", sectionId: "accounts_institutions" },
+  BROKERAGEINVESTMENTS: {
+    chapterId: "financial",
+    sectionId: "accounts_institutions",
+  },
   CREDITCARDS: { chapterId: "financial", sectionId: "accounts_institutions" },
   UTILITIESVENDORS: { chapterId: "household", sectionId: "home_systems" },
-  MEDICALAUTHORITYDOCUMENTS: { chapterId: "vitals", sectionId: "medical_information" },
-  PERSONALNOTESANDLEGACYMESSAGES: { chapterId: "context", sectionId: "final_wishes" },
+  MEDICALAUTHORITYDOCUMENTS: {
+    chapterId: "vitals",
+    sectionId: "medical_information",
+  },
+  PERSONALNOTESANDLEGACYMESSAGES: {
+    chapterId: "context",
+    sectionId: "final_wishes",
+  },
 };
 
 /**
@@ -165,18 +198,27 @@ function buildTargets(): Map<string, SectionTarget> {
 
 export function listAllTargets(): SectionTarget[] {
   // Introduction leads, mirroring the locked manual order.
-  const rest = [...buildTargets().values()].filter((t) => t.chapterId !== "introduction");
+  const rest = [...buildTargets().values()].filter(
+    t => t.chapterId !== "introduction",
+  );
   return [...EXTRA_TARGETS, ...rest];
 }
 
-export function resolveTarget(chapterId: string, sectionId: string): SectionTarget | null {
-  return listAllTargets().find((t) => t.chapterId === chapterId && t.sectionId === sectionId) ?? null;
+export function resolveTarget(
+  chapterId: string,
+  sectionId: string,
+): SectionTarget | null {
+  return (
+    listAllTargets().find(
+      t => t.chapterId === chapterId && t.sectionId === sectionId,
+    ) ?? null
+  );
 }
 
 function matchHeading(
   heading: string,
   targets: Map<string, SectionTarget>,
-  activeChapter: { id: string | null }
+  activeChapter: { id: string | null },
 ): SectionTarget | null {
   const key = normalize(heading);
   if (!key) return null;
@@ -198,11 +240,16 @@ function matchHeading(
   if (key.length >= 6) {
     const candidates: SectionTarget[] = [];
     for (const [tKey, target] of targets) {
-      if (Math.min(tKey.length, key.length) >= 10 && (tKey.includes(key) || key.includes(tKey))) candidates.push(target);
+      if (
+        Math.min(tKey.length, key.length) >= 10 &&
+        (tKey.includes(key) || key.includes(tKey))
+      )
+        candidates.push(target);
     }
     if (candidates.length) {
       // Ambiguity resolves toward the chapter the document is currently in.
-      const preferred = candidates.find((c) => c.chapterId === activeChapter.id) ?? candidates[0];
+      const preferred =
+        candidates.find(c => c.chapterId === activeChapter.id) ?? candidates[0];
       activeChapter.id = preferred.chapterId;
       return preferred;
     }
@@ -212,26 +259,31 @@ function matchHeading(
 
 /** Strips markdown link syntax and stray anchors down to readable text. */
 function cleanInline(s: string): string {
-  return s
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
-    .replace(/\(#[\w-]+\)/g, "")
-    // Legacy parser placeholder for unresolvable page references
-    .replace(/\blinked section\b/gi, "")
-    // Dangling cross-reference remnants: "See" with nothing after it
-    .replace(/\bSee\s*(?=$|[.,;)\]\n])/g, "")
-    // Run-together references from older conversions ("SeeEmergency")
-    .replace(/\bSee(?=[A-Z][a-z])/g, "See ")
-    .replace(/[ \t]{2,}/g, " ")
-    .trim();
+  return (
+    s
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+      .replace(/\(#[\w-]+\)/g, "")
+      // Legacy parser placeholder for unresolvable page references
+      .replace(/\blinked section\b/gi, "")
+      // Dangling cross-reference remnants: "See" with nothing after it
+      .replace(/\bSee\s*(?=$|[.,;)\]\n])/g, "")
+      // Run-together references from older conversions ("SeeEmergency")
+      .replace(/\bSee(?=[A-Z][a-z])/g, "See ")
+      .replace(/[ \t]{2,}/g, " ")
+      .trim()
+  );
 }
 
 /** Old-template instruction paragraphs that must never import as client data. */
-const TEMPLATE_NOISE = /^(high-level description only|do not include passwords|this section provides high-level orientation|use this page first during an emergency|nothing here replaces formal legal|legacy architect is owned and operated)/i;
+const TEMPLATE_NOISE =
+  /^(high-level description only|do not include passwords|this section provides high-level orientation|use this page first during an emergency|nothing here replaces formal legal|legacy architect is owned and operated)/i;
 /** Same phrases arriving mid-line (after a sub-heading label prefix). */
-const TEMPLATE_NOISE_ANY = /(high-level description only|do not include passwords|use this page first during an emergency|nothing here replaces formal legal|legacy architect is owned and operated)/i;
+const TEMPLATE_NOISE_ANY =
+  /(high-level description only|do not include passwords|use this page first during an emergency|nothing here replaces formal legal|legacy architect is owned and operated)/i;
 
 /** Sub-headings whose entire content is old-template instructions. */
-const SKIP_CONTENT_SUBHEADINGS = /^(HOWTOUSETHIS|WHATTHISGUIDEINCLUDES|PRIVACYDATAHANDLING|PRIVACYANDDATAHANDLING)/;
+const SKIP_CONTENT_SUBHEADINGS =
+  /^(HOWTOUSETHIS|WHATTHISGUIDEINCLUDES|PRIVACYDATAHANDLING|PRIVACYANDDATAHANDLING)/;
 
 export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
   const targets = buildTargets();
@@ -246,19 +298,31 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
     if (current && (current.text.trim() || current.tables.length)) {
       // Untitled docs that identify themselves as the old intro content
       // auto-assign to Introduction instead of waiting on a human.
-      if (!current.target && current.sourceHeading.startsWith("Untitled document")) {
+      if (
+        !current.target &&
+        current.sourceHeading.startsWith("Untitled document")
+      ) {
         const t = current.text;
-        if (/life\s*(&|and)\s*love/i.test(t) || /though loved ones know me/i.test(t)) {
+        if (
+          /life\s*(&|and)\s*love/i.test(t) ||
+          /though loved ones know me/i.test(t)
+        ) {
           current.target = resolveTarget("introduction", "life_love_statement");
           current.include = !!current.target;
-        } else if (/^purpose\b/i.test(t) || /this life manual exists/i.test(t) || /^welcome\b/i.test(t)) {
+        } else if (
+          /^purpose\b/i.test(t) ||
+          /this life manual exists/i.test(t) ||
+          /^welcome\b/i.test(t)
+        ) {
           current.target = resolveTarget("introduction", "welcome_purpose");
           current.include = !!current.target;
         }
       }
       // Chapter overview pages are the old edition's own template text;
       // the new manual writes its own overviews, so they default to off.
-      if (/^\d{2}:\s*.+?[-\u2013\u2014]\s*OVERVIEW$/i.test(current.sourceHeading)) {
+      if (
+        /^\d{2}:\s*.+?[-\u2013\u2014]\s*OVERVIEW$/i.test(current.sourceHeading)
+      ) {
         current.include = false;
       }
       chunks.push(current);
@@ -321,25 +385,44 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
     // Per-entry document titles: the old workspace keeps one doc per
     // account or system, named after the thing itself. Order matters:
     // "Auto Insurance" is insurance, bare "Auto" is the vehicle.
-    const ENTRY_PATTERNS: { re: RegExp; chapterId: string; sectionId: string }[] = [
-      { re: /INSURANCE$/, chapterId: "financial", sectionId: "insurance_policies" },
-      { re: /(CHECKING|SAVINGS|RETIREMENT|BROKERAGE)/, chapterId: "financial", sectionId: "accounts_institutions" },
-      { re: /^(ELECTRICITY|WATER|GAS|INTERNET|TRASH|SEWER|POWER)/, chapterId: "household", sectionId: "home_systems" },
+    const ENTRY_PATTERNS: {
+      re: RegExp;
+      chapterId: string;
+      sectionId: string;
+    }[] = [
+      {
+        re: /INSURANCE$/,
+        chapterId: "financial",
+        sectionId: "insurance_policies",
+      },
+      {
+        re: /(CHECKING|SAVINGS|RETIREMENT|BROKERAGE)/,
+        chapterId: "financial",
+        sectionId: "accounts_institutions",
+      },
+      {
+        re: /^(ELECTRICITY|WATER|GAS|INTERNET|TRASH|SEWER|POWER)/,
+        chapterId: "household",
+        sectionId: "home_systems",
+      },
       { re: /^EMAIL/, chapterId: "digital", sectionId: "primary_email" },
-      { re: /^AUTO$|^VEHICLE/, chapterId: "household", sectionId: "vehicle_info" },
+      {
+        re: /^AUTO$|^VEHICLE/,
+        chapterId: "household",
+        sectionId: "vehicle_info",
+      },
     ];
     for (const p of ENTRY_PATTERNS) {
       if (!p.re.test(normalizedHeading)) continue;
       const entryTarget = resolveTarget(p.chapterId, p.sectionId);
       if (!entryTarget) break;
       if (
-        current &&
-        current.target &&
+        current?.target &&
         current.target.chapterId === entryTarget.chapterId &&
         current.target.sectionId === entryTarget.sectionId
       ) {
         // Same destination as the running chunk: label the entry inline.
-        current.text += (current.text ? "\n\n" : "") + trimmed + ":";
+        current.text += `${(current.text ? "\n\n" : "") + trimmed}:`;
         return;
       }
       pushCurrent();
@@ -358,7 +441,9 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
     // Chapter overview pages set chapter context, then exclude themselves:
     // the new manual writes its own chapter overviews, so the old ones are
     // never client data.
-    const overview = /^\d{2}:\s*(.+?)\s*[-\u2013\u2014]\s*OVERVIEW$/i.exec(trimmed);
+    const overview = /^\d{2}:\s*(.+?)\s*[-\u2013\u2014]\s*OVERVIEW$/i.exec(
+      trimmed,
+    );
     if (overview) {
       const chKey = normalize(overview[1]);
       if (CHAPTER_ALIASES[chKey]) activeChapter.id = CHAPTER_ALIASES[chKey];
@@ -378,9 +463,11 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
     // Known per-entry sub-blocks continue the section they live in.
     const isContinuationSubheading =
       CONTINUATION_SUBHEADINGS.has(normalizedHeading) ||
-      /^(WHATDEPENDSON|ROLEOF|WHATTODOIF|BUSINESSPLATFORM)/.test(normalizedHeading);
+      /^(WHATDEPENDSON|ROLEOF|WHATTODOIF|BUSINESSPLATFORM)/.test(
+        normalizedHeading,
+      );
     if (current && isContinuationSubheading) {
-      current.text += (current.text ? "\n\n" : "") + trimmed + ":";
+      current.text += `${(current.text ? "\n\n" : "") + trimmed}:`;
       return;
     }
 
@@ -388,9 +475,10 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
 
     // Intra-section Title Case sub-headings continue their section.
     const letters = trimmed.replace(/[^A-Za-z]/g, "");
-    const isAllCapsHeading = letters.length >= 4 && letters === letters.toUpperCase();
+    const isAllCapsHeading =
+      letters.length >= 4 && letters === letters.toUpperCase();
     if (!target && !isAllCapsHeading && current && !pendingUntitled) {
-      current.text += (current.text ? "\n\n" : "") + trimmed + ":";
+      current.text += `${(current.text ? "\n\n" : "") + trimmed}:`;
       return;
     }
 
@@ -428,10 +516,9 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
       const cur: MappedChunk = current;
       cur.tables.push({
         headers: b.headers.map(cleanInline),
-        rows: b.rows.map((r) => r.map(cleanInline)),
+        rows: b.rows.map(r => r.map(cleanInline)),
       });
     } else if (skippingTemplate) {
-      continue;
     } else if (b.type === "paragraph" && current) {
       const cur: MappedChunk = current;
       const text = cleanInline(b.text);
@@ -452,8 +539,12 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
       }
     } else if (b.type === "list" && current) {
       const cur: MappedChunk = current;
-      const items = b.items.map(cleanInline).filter((i) => i && !TEMPLATE_NOISE.test(i));
-      if (items.length) cur.text += (cur.text ? "\n" : "") + items.map((i) => `- ${i}`).join("\n");
+      const items = b.items
+        .map(cleanInline)
+        .filter(i => i && !TEMPLATE_NOISE.test(i));
+      if (items.length)
+        cur.text +=
+          (cur.text ? "\n" : "") + items.map(i => `- ${i}`).join("\n");
     }
   }
   pushCurrent();
@@ -463,8 +554,7 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
   for (const c of chunks) {
     const prev = merged[merged.length - 1];
     if (
-      prev &&
-      prev.target &&
+      prev?.target &&
       c.target &&
       prev.target.chapterId === c.target.chapterId &&
       prev.target.sectionId === c.target.sectionId
@@ -493,7 +583,13 @@ const COLUMN_SYNONYMS: Record<string, string[]> = {
   impact: ["impact", "purpose", "operational"],
   authority: ["authority", "owner", "access", "managed"],
   records: ["records", "where", "location", "live"],
-  transition: ["transition", "instruction", "guidance", "communication", "notes"],
+  transition: [
+    "transition",
+    "instruction",
+    "guidance",
+    "communication",
+    "notes",
+  ],
   account: ["account", "email", "policy"],
   institution: ["institution", "bank", "company"],
   device: ["device", "category"],
@@ -503,7 +599,11 @@ const COLUMN_SYNONYMS: Record<string, string[]> = {
 };
 
 function normalizeLabel(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /**
@@ -516,7 +616,7 @@ function looksLikeHeaderRow(row: string[]): boolean {
   let hits = 0;
   for (const cell of row) {
     const words = normalizeLabel(cell).split(" ");
-    if (words.some((w) => vocab.has(w))) hits++;
+    if (words.some(w => vocab.has(w))) hits++;
     if (/\d{5,}/.test(cell)) return false;
   }
   return hits >= 2;
@@ -528,7 +628,10 @@ function looksLikeHeaderRow(row: string[]): boolean {
  * regardless of where the old table put them. Falls back to positional
  * order when fewer than half the old headers are recognizable.
  */
-function buildColumnMapping(oldHeaders: string[], columnKeys: string[]): number[] {
+function buildColumnMapping(
+  oldHeaders: string[],
+  columnKeys: string[],
+): number[] {
   // result[i] = index in oldHeaders feeding columnKeys[i], or -1
   const result = columnKeys.map(() => -1);
   const used = new Set<number>();
@@ -550,7 +653,7 @@ function buildColumnMapping(oldHeaders: string[], columnKeys: string[]): number[
     }
   });
 
-  const mapped = result.filter((r) => r >= 0).length;
+  const mapped = result.filter(r => r >= 0).length;
   if (mapped < Math.ceil(columnKeys.length / 2)) {
     return columnKeys.map((_, i) => (i < oldHeaders.length ? i : -1));
   }
@@ -558,25 +661,33 @@ function buildColumnMapping(oldHeaders: string[], columnKeys: string[]): number[
   // Old columns nothing claimed still carry words; the last mapped target
   // column absorbs them so no cell content is silently dropped.
   const spill: number[] = [];
-  for (let oi = 0; oi < oldHeaders.length; oi++) if (!used.has(oi)) spill.push(oi);
+  for (let oi = 0; oi < oldHeaders.length; oi++)
+    if (!used.has(oi)) spill.push(oi);
   if (spill.length) {
     let lastMapped = result.length - 1;
     while (lastMapped >= 0 && result[lastMapped] < 0) lastMapped--;
-    if (lastMapped >= 0) (result as any).spill = { into: lastMapped, from: spill };
+    if (lastMapped >= 0)
+      (result as any).spill = { into: lastMapped, from: spill };
   }
   return result;
 }
 
 /** Converts reviewed chunks into the mutation payload. */
 export function chunksToImportPayload(chunks: MappedChunk[]) {
-  const fields: { chapterId: string; sectionId: string; fieldId: string; value: string }[] = [];
+  const fields: {
+    chapterId: string;
+    sectionId: string;
+    fieldId: string;
+    value: string;
+  }[] = [];
   const rows: { chapterId: string; sectionId: string; data: string }[] = [];
 
   // The old edition ships blank template pages whose cells hold hint text
   // ("Bank, investment firm", "Health, life, property", "Cash, retirement,
   // brokerage") instead of real values. A row whose cells are all hints,
   // or all empty, is scaffolding and must not import as client data.
-  const PLACEHOLDER_CELL = /^(bank, investment firm|health, life, property|cash, retirement, brokerage|holding, income, growth|advisor, firm|protection area|portal or vault|contact type|coverage purpose|where documents live|name of service|e\.g\.,?|ex\.|required\.?|optional\.?|high-level|protection|\d\u2013\d sentences|1\u20132 sentences)/i;
+  const PLACEHOLDER_CELL =
+    /^(bank, investment firm|health, life, property|cash, retirement, brokerage|holding, income, growth|advisor, firm|protection area|portal or vault|contact type|coverage purpose|where documents live|name of service|e\.g\.,?|ex\.|required\.?|optional\.?|high-level|protection|\d\u2013\d sentences|1\u20132 sentences)/i;
 
   // Only the ownership/marketing block is boilerplate ("Legacy Architect is
   // owned and operated by Craig..."). Client-authored privacy notes
@@ -589,9 +700,15 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
     // NOT Contain") is template that trails real content. Cut from the
     // ownership sentence (and its optional "Privacy & Data Handling:" label)
     // to the end of the chunk.
-    const m = /(\n\s*)?(Privacy\s*&?\s*Data Handling:?\s*\n+)?Legacy Architect is owned and operated[\s\S]*$/i.exec(text);
+    const m =
+      /(\n\s*)?(Privacy\s*&?\s*Data Handling:?\s*\n+)?Legacy Architect is owned and operated[\s\S]*$/i.exec(
+        text,
+      );
     if (!m) return text;
-    return text.slice(0, m.index).replace(/\n{3,}/g, "\n\n").trim();
+    return text
+      .slice(0, m.index)
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
   };
 
   for (const c of chunks) {
@@ -603,13 +720,23 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
         // Each table maps through its own header: AFFiNE tables carry real
         // headers directly, OCR tables carry them as the first row.
         let dataRows = table.rows;
-        let headerSource = table.headers.some((h) => h && h.trim()) ? table.headers : null;
-        if (!headerSource && dataRows.length && looksLikeHeaderRow(dataRows[0])) {
+        let headerSource = table.headers.some(h => h?.trim())
+          ? table.headers
+          : null;
+        if (
+          !headerSource &&
+          dataRows.length &&
+          looksLikeHeaderRow(dataRows[0])
+        ) {
           headerSource = dataRows[0];
           dataRows = dataRows.slice(1);
         }
-        const mapping = headerSource ? buildColumnMapping(headerSource, t.columnKeys) : null;
-        const spill: { into: number; from: number[] } | null = mapping ? ((mapping as any).spill ?? null) : null;
+        const mapping = headerSource
+          ? buildColumnMapping(headerSource, t.columnKeys)
+          : null;
+        const spill: { into: number; from: number[] } | null = mapping
+          ? ((mapping as any).spill ?? null)
+          : null;
 
         for (const raw of dataRows) {
           const data: Record<string, string> = {};
@@ -618,7 +745,10 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
             data[k] = oi >= 0 ? (raw[oi] ?? "").trim() : "";
           });
           if (spill) {
-            const extra = spill.from.map((oi) => (raw[oi] ?? "").trim()).filter(Boolean).join(" \u00b7 ");
+            const extra = spill.from
+              .map(oi => (raw[oi] ?? "").trim())
+              .filter(Boolean)
+              .join(" \u00b7 ");
             if (extra) {
               const k = t.columnKeys[spill.into];
               data[k] = data[k] ? `${data[k]} \u00b7 ${extra}` : extra;
@@ -628,35 +758,64 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
           if (!values) continue;
           // A row can carry the ownership appendix as one giant cell when
           // the privacy prose was parsed as a table row. Drop those.
-          if (/Legacy Architect is owned and operated|Information You Choose to Share/i.test(values)) continue;
+          if (
+            /Legacy Architect is owned and operated|Information You Choose to Share/i.test(
+              values,
+            )
+          )
+            continue;
           // Scrub any individual cell still holding template hint text, then
           // drop the row only if nothing real remains.
           for (const k of Object.keys(data)) {
             if (PLACEHOLDER_CELL.test(data[k].trim())) data[k] = "";
           }
           if (Object.values(data).join("").trim().length < 2) continue;
-          rows.push({ chapterId: t.chapterId, sectionId: t.sectionId, data: JSON.stringify(data) });
+          rows.push({
+            chapterId: t.chapterId,
+            sectionId: t.sectionId,
+            data: JSON.stringify(data),
+          });
         }
       }
     } else if (c.tables.length) {
       // Table content headed for a field-based section: flatten readably.
       const flat = c.tables
-        .map((table) => [table.headers, ...table.rows].map((r) => r.filter(Boolean).join("  \u00b7  ")).join("\n"))
+        .map(table =>
+          [table.headers, ...table.rows]
+            .map(r => r.filter(Boolean).join("  \u00b7  "))
+            .join("\n"),
+        )
         .join("\n\n");
       c.text += (c.text ? "\n\n" : "") + flat;
     }
 
     c.text = stripPrivacyBlock(c.text);
 
-    if (c.text.trim() && !/Legacy Architect is owned and operated|Information You Choose to Share/i.test(c.text)) {
+    if (
+      c.text.trim() &&
+      !/Legacy Architect is owned and operated|Information You Choose to Share/i.test(
+        c.text,
+      )
+    ) {
       if (t.firstTextFieldId) {
-        fields.push({ chapterId: t.chapterId, sectionId: t.sectionId, fieldId: t.firstTextFieldId, value: c.text.trim() });
+        fields.push({
+          chapterId: t.chapterId,
+          sectionId: t.sectionId,
+          fieldId: t.firstTextFieldId,
+          value: c.text.trim(),
+        });
       } else if (t.columnKeys.length) {
         // Text bound for a table-only section becomes a single row in the
         // first column, so the words survive somewhere visible.
         const data: Record<string, string> = {};
-        t.columnKeys.forEach((k, i) => (data[k] = i === 0 ? c.text.trim() : ""));
-        rows.push({ chapterId: t.chapterId, sectionId: t.sectionId, data: JSON.stringify(data) });
+        t.columnKeys.forEach(
+          (k, i) => (data[k] = i === 0 ? c.text.trim() : ""),
+        );
+        rows.push({
+          chapterId: t.chapterId,
+          sectionId: t.sectionId,
+          data: JSON.stringify(data),
+        });
       }
     }
   }
@@ -664,7 +823,10 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
   // Several chunks can legitimately target the same field (the intro doc
   // plus an untitled purpose page, for instance). They merge into one
   // value in document order rather than the last one clobbering the rest.
-  const mergedFields = new Map<string, { chapterId: string; sectionId: string; fieldId: string; value: string }>();
+  const mergedFields = new Map<
+    string,
+    { chapterId: string; sectionId: string; fieldId: string; value: string }
+  >();
   for (const f of fields) {
     const key = `${f.chapterId}/${f.sectionId}/${f.fieldId}`;
     const existing = mergedFields.get(key);

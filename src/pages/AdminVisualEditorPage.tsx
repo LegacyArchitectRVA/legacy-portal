@@ -1,23 +1,43 @@
-import { FullPageLoader } from "../components/FullPageLoader";
+import {
+  RiArrowLeftSLine as CaretLeft,
+  RiCheckLine as Check,
+  RiLoader4Line as CircleNotch,
+  RiCursorLine as CursorClick,
+  RiSaveLine as FloppyDisk,
+  RiPaintBrushLine as PaintBrush,
+  RiAlignCenter as TextAlignCenter,
+  RiAlignLeft as TextAlignLeft,
+  RiAlignRight as TextAlignRight,
+  RiBold as TextB,
+  RiItalic as TextItalic,
+  RiUnderline as TextUnderline,
+  RiDeleteBinLine as Trash,
+  RiUploadLine as Upload,
+  RiErrorWarningLine as Warning,
+  RiCloseLine as X,
+} from "@remixicon/react";
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import LandingPage from "./LandingPage";
-import DashboardPage from "./DashboardPage";
-import UpgradePage from "./UpgradePage";
-import LoginPage from "./LoginPage";
-import SignupPage from "./SignupPage";
-import ChapterPage from "./ChapterPage";
-import SettingsPage from "./SettingsPage";
-import ProfilePage from "./ProfilePage";
-import MessagesPage from "./MessagesPage";
-import ManualViewPage from "./ManualViewPage";
-import IntroductionPage from "./IntroductionPage";
-import { EditModeProvider, type EditableKind } from "../contexts/EditModeContext";
-import { SWAPPABLE_MARKER_ICONS } from "../lib/swappableIcons";
+import { FullPageLoader } from "../components/FullPageLoader";
+import {
+  type EditableKind,
+  EditModeProvider,
+} from "../contexts/EditModeContext";
 import { getEditableDefault } from "../lib/editableContentRegistry";
-import { RiPaintBrushLine as PaintBrush, RiAlignLeft as TextAlignLeft, RiAlignCenter as TextAlignCenter, RiAlignRight as TextAlignRight, RiBold as TextB, RiItalic as TextItalic, RiUnderline as TextUnderline, RiSaveLine as FloppyDisk, RiDeleteBinLine as Trash, RiArrowLeftSLine as CaretLeft, RiLoader4Line as CircleNotch, RiCloseLine as X, RiCheckLine as Check, RiCursorLine as CursorClick, RiErrorWarningLine as Warning, RiUploadLine as Upload } from "@remixicon/react";
+import { SWAPPABLE_MARKER_ICONS } from "../lib/swappableIcons";
+import ChapterPage from "./ChapterPage";
+import DashboardPage from "./DashboardPage";
+import IntroductionPage from "./IntroductionPage";
+import LandingPage from "./LandingPage";
+import LoginPage from "./LoginPage";
+import ManualViewPage from "./ManualViewPage";
+import MessagesPage from "./MessagesPage";
+import ProfilePage from "./ProfilePage";
+import SettingsPage from "./SettingsPage";
+import SignupPage from "./SignupPage";
+import UpgradePage from "./UpgradePage";
 
 const FONT_FAMILIES = [
   "Cinzel",
@@ -64,12 +84,25 @@ export default function AdminVisualEditorPage() {
   const [selectedShapeSwappable, setSelectedShapeSwappable] = useState(false);
   const [iconShapeName, setIconShapeName] = useState("");
   const [activePage, setActivePage] = useState<
-    "landing" | "dashboard" | "upgrade" | "login" | "signup" | "chapter" | "settings" | "profile" | "messages" | "manualview" | "introduction"
+    | "landing"
+    | "dashboard"
+    | "upgrade"
+    | "login"
+    | "signup"
+    | "chapter"
+    | "settings"
+    | "profile"
+    | "messages"
+    | "manualview"
+    | "introduction"
   >("landing");
-  const cmsItem = useQuery(api.admin.getCMS, selectedKey ? { key: selectedKey } : "skip");
+  const cmsItem = useQuery(
+    api.admin.getCMS,
+    selectedKey ? { key: selectedKey } : "skip",
+  );
   const currentImageUrl = useQuery(
     api.admin.getCMSImageUrl,
-    selectedKey && selectedKind === "image" ? { key: selectedKey } : "skip"
+    selectedKey && selectedKind === "image" ? { key: selectedKey } : "skip",
   );
 
   const [content, setContent] = useState("");
@@ -91,8 +124,10 @@ export default function AdminVisualEditorPage() {
 
   // Load the extra font set for the picker (Cinzel/Libre Baskerville already loaded globally)
   useEffect(() => {
-    const families = FONT_FAMILIES.filter((f) => f !== "Cinzel" && f !== "Libre Baskerville")
-      .map((f) => f.replace(/ /g, "+"))
+    const families = FONT_FAMILIES.filter(
+      f => f !== "Cinzel" && f !== "Libre Baskerville",
+    )
+      .map(f => f.replace(/ /g, "+"))
       .join("&family=");
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -103,6 +138,15 @@ export default function AdminVisualEditorPage() {
     };
   }, []);
 
+  const resetStyles = () => {
+    setFontFamily("");
+    setFontSize("");
+    setTextColor("#f2ede2");
+    setTextAlign("");
+    setIsBold(false);
+    setIsItalic(false);
+    setIsUnderline(false);
+  };
   useEffect(() => {
     if (!selectedKey) return;
     setMissingFallback(false);
@@ -129,7 +173,7 @@ export default function AdminVisualEditorPage() {
       return;
     }
 
-    if (cmsItem && cmsItem.value?.trim()) {
+    if (cmsItem?.value?.trim()) {
       setContent(cmsItem.value);
       try {
         const m = cmsItem.metadata ? JSON.parse(cmsItem.metadata) : {};
@@ -152,17 +196,7 @@ export default function AdminVisualEditorPage() {
       if (!fallback) setMissingFallback(true);
       resetStyles();
     }
-  }, [selectedKey, selectedKind, cmsItem]);
-
-  const resetStyles = () => {
-    setFontFamily("");
-    setFontSize("");
-    setTextColor("#f2ede2");
-    setTextAlign("");
-    setIsBold(false);
-    setIsItalic(false);
-    setIsUnderline(false);
-  };
+  }, [selectedKey, selectedKind, cmsItem, resetStyles]);
 
   const handleImageUpload = async (file: File) => {
     if (!selectedKey) return;
@@ -187,7 +221,9 @@ export default function AdminVisualEditorPage() {
       const { storageId } = await result.json();
       await updateCMSImage({ key: selectedKey, storageId });
     } catch {
-      setImageUploadError("Something went wrong uploading that image. Try again.");
+      setImageUploadError(
+        "Something went wrong uploading that image. Try again.",
+      );
     } finally {
       setImageUploading(false);
     }
@@ -203,17 +239,34 @@ export default function AdminVisualEditorPage() {
         await updateCMS({
           key: selectedKey,
           value: iconColor,
-          metadata: iconShapeName ? JSON.stringify({ iconName: iconShapeName }) : undefined,
+          metadata: iconShapeName
+            ? JSON.stringify({ iconName: iconShapeName })
+            : undefined,
         });
       } else if (selectedKind === "box") {
         await updateCMS({
           key: selectedKey,
           value: "box",
-          metadata: JSON.stringify({ borderColor: boxBorderColor, bgColor: boxBgColor }),
+          metadata: JSON.stringify({
+            borderColor: boxBorderColor,
+            bgColor: boxBgColor,
+          }),
         });
       } else {
-        const metadata = { fontFamily, fontSize, textColor, textAlign, isBold, isItalic, isUnderline };
-        await updateCMS({ key: selectedKey, value: content, metadata: JSON.stringify(metadata) });
+        const metadata = {
+          fontFamily,
+          fontSize,
+          textColor,
+          textAlign,
+          isBold,
+          isItalic,
+          isUnderline,
+        };
+        await updateCMS({
+          key: selectedKey,
+          value: content,
+          metadata: JSON.stringify(metadata),
+        });
       }
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -224,15 +277,14 @@ export default function AdminVisualEditorPage() {
 
   const handleReset = async () => {
     if (!selectedKey) return;
-    if (!window.confirm("Reset this element to its default text and styling?")) return;
+    if (!window.confirm("Reset this element to its default text and styling?"))
+      return;
     await deleteCMS({ key: selectedKey });
     setSelectedKey(null);
   };
 
   if (isAdmin === undefined) {
-    return (
-<FullPageLoader />
-    );
+    return <FullPageLoader />;
   }
   if (!isAdmin) {
     return (
@@ -246,7 +298,7 @@ export default function AdminVisualEditorPage() {
   const niceLabel = selectedKey
     ?.replace(/^trust_card_/, "")
     .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+    .replace(/\b\w/g, c => c.toUpperCase());
   const isColorKey = !!selectedKey?.endsWith("_color");
 
   return (
@@ -280,7 +332,7 @@ export default function AdminVisualEditorPage() {
           { id: "profile" as const, label: "Profile" },
           { id: "messages" as const, label: "Messages" },
           { id: "manualview" as const, label: "Manual View" },
-        ].map((p) => (
+        ].map(p => (
           <button
             key={p.id}
             onClick={() => {
@@ -318,7 +370,9 @@ export default function AdminVisualEditorPage() {
           {activePage === "upgrade" && <UpgradePage />}
           {activePage === "login" && <LoginPage />}
           {activePage === "signup" && <SignupPage />}
-          {activePage === "chapter" && <ChapterPage chapterIdOverride="digital" />}
+          {activePage === "chapter" && (
+            <ChapterPage chapterIdOverride="digital" />
+          )}
           {activePage === "introduction" && <IntroductionPage />}
           {activePage === "settings" && <SettingsPage />}
           {activePage === "profile" && <ProfilePage />}
@@ -337,11 +391,16 @@ export default function AdminVisualEditorPage() {
         >
           <div
             className="bg-[#0f0c08] border border-gold-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[85vh] overflow-y-auto p-5 space-y-4 animate-modal-sheet"
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-heading text-sm text-gold-primary capitalize">{niceLabel}</h2>
-              <button onClick={() => setSelectedKey(null)} className="text-[#f2ede2]/75">
+              <h2 className="font-heading text-sm text-gold-primary capitalize">
+                {niceLabel}
+              </h2>
+              <button
+                onClick={() => setSelectedKey(null)}
+                className="text-[#f2ede2]/75"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -358,157 +417,171 @@ export default function AdminVisualEditorPage() {
             )}
 
             {selectedKind === "text" && (
-            <>
-            {!isColorKey && (
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={3}
-                className="w-full bg-black border border-gold-border/30 rounded-lg p-3 text-sm text-[#f2ede2] focus:outline-none focus:border-gold-primary/40 resize-y"
-              />
-            )}
-
-            {isColorKey && (
-              <div>
-                <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
-                  Color
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={/^#[0-9a-fA-F]{6}$/.test(content) ? content : "#000000"}
-                    onChange={(e) => setContent(e.target.value)}
-                    className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
-                  />
-                  <input
-                    type="text"
+              <>
+                {!isColorKey && (
+                  <textarea
                     value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="#7D6224"
-                    className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
+                    onChange={e => setContent(e.target.value)}
+                    rows={3}
+                    className="w-full bg-black border border-gold-border/30 rounded-lg p-3 text-sm text-[#f2ede2] focus:outline-none focus:border-gold-primary/40 resize-y"
                   />
-                </div>
-              </div>
-            )}
+                )}
 
-            {/* Font */}
-            {!isColorKey && (
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
-                Font
-              </label>
-              <div className="flex gap-1.5 overflow-x-auto pb-1">
-                {FONT_FAMILIES.map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setFontFamily(fontFamily === f ? "" : f)}
-                    className={`shrink-0 px-3 py-1.5 rounded-lg border text-xs transition-colors ${
-                      fontFamily === f
-                        ? "border-gold-primary bg-gold-dark/15 text-gold-primary"
-                        : "border-gold-border/20 text-[#f2ede2]/75"
-                    }`}
-                    style={{ fontFamily: `'${f}', serif` }}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
-            )}
+                {isColorKey && (
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                      Color
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={
+                          /^#[0-9a-fA-F]{6}$/.test(content)
+                            ? content
+                            : "#000000"
+                        }
+                        onChange={e => setContent(e.target.value)}
+                        className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={content}
+                        onChange={e => setContent(e.target.value)}
+                        placeholder="#7D6224"
+                        className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
 
-            {/* Size */}
-            {!isColorKey && (
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
-                Size
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {FONT_SIZES.map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => setFontSize(fontSize === s.value ? "" : s.value)}
-                    className={`px-3 py-1 rounded-full text-[11px] font-heading transition-colors ${
-                      fontSize === s.value ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            )}
+                {/* Font */}
+                {!isColorKey && (
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                      Font
+                    </label>
+                    <div className="flex gap-1.5 overflow-x-auto pb-1">
+                      {FONT_FAMILIES.map(f => (
+                        <button
+                          key={f}
+                          onClick={() =>
+                            setFontFamily(fontFamily === f ? "" : f)
+                          }
+                          className={`shrink-0 px-3 py-1.5 rounded-lg border text-xs transition-colors ${
+                            fontFamily === f
+                              ? "border-gold-primary bg-gold-dark/15 text-gold-primary"
+                              : "border-gold-border/20 text-[#f2ede2]/75"
+                          }`}
+                          style={{ fontFamily: `'${f}', serif` }}
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            {/* Real color picker */}
-            {!isColorKey && (
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
-                Color
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="color"
-                  value={textColor}
-                  onChange={(e) => setTextColor(e.target.value)}
-                  className="w-10 h-10 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={textColor}
-                  onChange={(e) => setTextColor(e.target.value)}
-                  className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
-                />
-              </div>
-            </div>
-            )}
+                {/* Size */}
+                {!isColorKey && (
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                      Size
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {FONT_SIZES.map(s => (
+                        <button
+                          key={s.value}
+                          onClick={() =>
+                            setFontSize(fontSize === s.value ? "" : s.value)
+                          }
+                          className={`px-3 py-1 rounded-full text-[11px] font-heading transition-colors ${
+                            fontSize === s.value
+                              ? "bg-gold-dark/25 text-gold-primary"
+                              : "bg-black/40 text-[#f2ede2]/75"
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            {!isColorKey && (
-            <div className="flex items-center gap-4">
-              <div>
-                <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
-                  Align
-                </label>
-                <div className="flex gap-1">
-                  {TEXT_ALIGNMENTS.map((a) => (
-                    <button
-                      key={a.value}
-                      onClick={() => setTextAlign(textAlign === a.value ? "" : a.value)}
-                      className={`p-2 rounded-lg transition-colors ${
-                        textAlign === a.value ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"
-                      }`}
-                    >
-                      <a.icon className="w-4 h-4" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
-                  Weight
-                </label>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => setIsBold(!isBold)}
-                    className={`p-2 rounded-lg ${isBold ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"}`}
-                  >
-                    <TextB className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setIsItalic(!isItalic)}
-                    className={`p-2 rounded-lg ${isItalic ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"}`}
-                  >
-                    <TextItalic className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setIsUnderline(!isUnderline)}
-                    className={`p-2 rounded-lg ${isUnderline ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"}`}
-                  >
-                    <TextUnderline className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-            )}
-            </>
+                {/* Real color picker */}
+                {!isColorKey && (
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                      Color
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={textColor}
+                        onChange={e => setTextColor(e.target.value)}
+                        className="w-10 h-10 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={textColor}
+                        onChange={e => setTextColor(e.target.value)}
+                        className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {!isColorKey && (
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                        Align
+                      </label>
+                      <div className="flex gap-1">
+                        {TEXT_ALIGNMENTS.map(a => (
+                          <button
+                            key={a.value}
+                            onClick={() =>
+                              setTextAlign(textAlign === a.value ? "" : a.value)
+                            }
+                            className={`p-2 rounded-lg transition-colors ${
+                              textAlign === a.value
+                                ? "bg-gold-dark/25 text-gold-primary"
+                                : "bg-black/40 text-[#f2ede2]/75"
+                            }`}
+                          >
+                            <a.icon className="w-4 h-4" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase tracking-widest text-gold-muted font-heading block mb-1.5">
+                        Weight
+                      </label>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setIsBold(!isBold)}
+                          className={`p-2 rounded-lg ${isBold ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"}`}
+                        >
+                          <TextB className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setIsItalic(!isItalic)}
+                          className={`p-2 rounded-lg ${isItalic ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"}`}
+                        >
+                          <TextItalic className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setIsUnderline(!isUnderline)}
+                          className={`p-2 rounded-lg ${isUnderline ? "bg-gold-dark/25 text-gold-primary" : "bg-black/40 text-[#f2ede2]/75"}`}
+                        >
+                          <TextUnderline className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {selectedKind === "icon" && (
@@ -520,14 +593,18 @@ export default function AdminVisualEditorPage() {
                   <div className="flex items-center gap-3">
                     <input
                       type="color"
-                      value={/^#[0-9a-fA-F]{6}$/.test(iconColor) ? iconColor : "#000000"}
-                      onChange={(e) => setIconColor(e.target.value)}
+                      value={
+                        /^#[0-9a-fA-F]{6}$/.test(iconColor)
+                          ? iconColor
+                          : "#000000"
+                      }
+                      onChange={e => setIconColor(e.target.value)}
                       className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
                     />
                     <input
                       type="text"
                       value={iconColor}
-                      onChange={(e) => setIconColor(e.target.value)}
+                      onChange={e => setIconColor(e.target.value)}
                       placeholder="#e8c869"
                       className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
                     />
@@ -540,7 +617,7 @@ export default function AdminVisualEditorPage() {
                       Icon Shape
                     </label>
                     <div className="grid grid-cols-5 gap-2">
-                      {SWAPPABLE_MARKER_ICONS.map((opt) => (
+                      {SWAPPABLE_MARKER_ICONS.map(opt => (
                         <button
                           key={opt.name}
                           type="button"
@@ -552,7 +629,10 @@ export default function AdminVisualEditorPage() {
                               : "border-gold-border/30 hover:border-gold-primary/40"
                           }`}
                         >
-                          <opt.icon className="w-4 h-4" style={{ color: iconColor }} />
+                          <opt.icon
+                            className="w-4 h-4"
+                            style={{ color: iconColor }}
+                          />
                         </button>
                       ))}
                     </div>
@@ -570,14 +650,18 @@ export default function AdminVisualEditorPage() {
                   <div className="flex items-center gap-3">
                     <input
                       type="color"
-                      value={/^#[0-9a-fA-F]{6}$/.test(boxBorderColor) ? boxBorderColor : "#000000"}
-                      onChange={(e) => setBoxBorderColor(e.target.value)}
+                      value={
+                        /^#[0-9a-fA-F]{6}$/.test(boxBorderColor)
+                          ? boxBorderColor
+                          : "#000000"
+                      }
+                      onChange={e => setBoxBorderColor(e.target.value)}
                       className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
                     />
                     <input
                       type="text"
                       value={boxBorderColor}
-                      onChange={(e) => setBoxBorderColor(e.target.value)}
+                      onChange={e => setBoxBorderColor(e.target.value)}
                       placeholder="Leave blank for default"
                       className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
                     />
@@ -590,14 +674,18 @@ export default function AdminVisualEditorPage() {
                   <div className="flex items-center gap-3">
                     <input
                       type="color"
-                      value={/^#[0-9a-fA-F]{6}$/.test(boxBgColor) ? boxBgColor : "#000000"}
-                      onChange={(e) => setBoxBgColor(e.target.value)}
+                      value={
+                        /^#[0-9a-fA-F]{6}$/.test(boxBgColor)
+                          ? boxBgColor
+                          : "#000000"
+                      }
+                      onChange={e => setBoxBgColor(e.target.value)}
                       className="w-12 h-12 rounded-lg border border-gold-border/30 bg-transparent cursor-pointer"
                     />
                     <input
                       type="text"
                       value={boxBgColor}
-                      onChange={(e) => setBoxBgColor(e.target.value)}
+                      onChange={e => setBoxBgColor(e.target.value)}
                       placeholder="Leave blank for default"
                       className="flex-1 bg-black border border-gold-border/30 rounded-lg px-3 py-2 text-sm text-[#f2ede2] focus:outline-none"
                     />
@@ -619,7 +707,8 @@ export default function AdminVisualEditorPage() {
                   />
                 ) : (
                   <p className="text-xs text-[#f2ede2]/60 italic">
-                    Using the default image, nothing's been uploaded for this yet.
+                    Using the default image, nothing's been uploaded for this
+                    yet.
                   </p>
                 )}
 
@@ -635,7 +724,7 @@ export default function AdminVisualEditorPage() {
                     accept="image/*"
                     className="hidden"
                     disabled={imageUploading}
-                    onChange={(e) => {
+                    onChange={e => {
                       const file = e.target.files?.[0];
                       if (file) handleImageUpload(file);
                       e.target.value = "";
@@ -646,7 +735,8 @@ export default function AdminVisualEditorPage() {
                   <p className="text-xs text-red-400">{imageUploadError}</p>
                 )}
                 <p className="text-[10px] text-[#f2ede2]/50">
-                  JPG, PNG, or WebP, up to 8MB. Replaces only this image, everywhere it appears.
+                  JPG, PNG, or WebP, up to 8MB. Replaces only this image,
+                  everywhere it appears.
                 </p>
               </div>
             )}
@@ -656,7 +746,12 @@ export default function AdminVisualEditorPage() {
               {selectedKind !== "image" && (
                 <button
                   onClick={handleSave}
-                  disabled={saving || (selectedKind === "text" && missingFallback && !content.trim())}
+                  disabled={
+                    saving ||
+                    (selectedKind === "text" &&
+                      missingFallback &&
+                      !content.trim())
+                  }
                   className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-xl disabled:opacity-50"
                 >
                   {saving ? (

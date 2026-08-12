@@ -1,7 +1,7 @@
-import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { requireAdmin } from "./admin";
 import { chapters } from "../src/data/chapters";
+import { mutation, query } from "./_generated/server";
+import { requireAdmin } from "./admin";
 
 /** Admin only: search every registered user by name or email. */
 export const searchClients = query({
@@ -13,17 +13,19 @@ export const searchClients = query({
 
     const allUsers = await ctx.db.query("users").collect();
     const allClients = await ctx.db.query("clients").collect();
-    const clientByUserId = new Map(allClients.map((c) => [c.userId.toString(), c]));
+    const clientByUserId = new Map(
+      allClients.map(c => [c.userId.toString(), c]),
+    );
 
     return allUsers
-      .filter((u) => !u.isAdmin)
-      .filter((u) => {
+      .filter(u => !u.isAdmin)
+      .filter(u => {
         const name = (u.name || "").toLowerCase();
         const email = (u.email || "").toLowerCase();
         return name.includes(term) || email.includes(term);
       })
       .slice(0, 20)
-      .map((u) => {
+      .map(u => {
         const client = clientByUserId.get(u._id.toString());
         return {
           userId: u._id,
@@ -46,7 +48,7 @@ export const getClientDetail = query({
     if (!user) return null;
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
 
     let profilePicUrl: string | null = null;
@@ -57,11 +59,12 @@ export const getClientDetail = query({
 
     const legalDocs = await ctx.db
       .query("legalDocuments")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .collect();
 
     const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
-    const reviewAnchor = client?.lastReviewedAt ?? client?.deliveryTimestamp ?? null;
+    const reviewAnchor =
+      client?.lastReviewedAt ?? client?.deliveryTimestamp ?? null;
 
     return {
       userId: clientUserId,
@@ -79,7 +82,7 @@ export const getClientDetail = query({
       reviewDueDate: reviewAnchor ? reviewAnchor + YEAR_MS : null,
       hubspotId: client?.hubspotId || null,
       hubspotSyncedAt: client?.hubspotSyncedAt || null,
-      legalDocuments: legalDocs.map((d) => ({
+      legalDocuments: legalDocs.map(d => ({
         documentType: d.documentType,
         inForce: d.inForce,
         notes: d.notes,
@@ -95,14 +98,17 @@ export const getClientProgressSummary = query({
     await requireAdmin(ctx);
     const rows = await ctx.db
       .query("sectionRows")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .collect();
     const fields = await ctx.db
       .query("sectionFields")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .collect();
 
-    const progress: Record<string, { rows: number; fields: number; sections: Set<string> }> = {};
+    const progress: Record<
+      string,
+      { rows: number; fields: number; sections: Set<string> }
+    > = {};
     for (const row of rows) {
       progress[row.chapterId] ||= { rows: 0, fields: 0, sections: new Set() };
       progress[row.chapterId].rows++;
@@ -110,13 +116,17 @@ export const getClientProgressSummary = query({
     }
     for (const field of fields) {
       if (field.value && field.value.trim() !== "") {
-        progress[field.chapterId] ||= { rows: 0, fields: 0, sections: new Set() };
+        progress[field.chapterId] ||= {
+          rows: 0,
+          fields: 0,
+          sections: new Set(),
+        };
         progress[field.chapterId].fields++;
         progress[field.chapterId].sections.add(field.sectionId);
       }
     }
 
-    return chapters.map((ch) => {
+    return chapters.map(ch => {
       const p = progress[ch.id];
       return {
         chapterId: ch.id,
@@ -138,15 +148,15 @@ export const getClientManualData = query({
     await requireAdmin(ctx);
     const rows = await ctx.db
       .query("sectionRows")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .collect();
     const fields = await ctx.db
       .query("sectionFields")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .collect();
     const legalDocs = await ctx.db
       .query("legalDocuments")
-      .withIndex("by_userId", (q) => q.eq("userId", clientUserId))
+      .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .collect();
 
     // Group rows by "chapterId:sectionId" -> array of parsed data objects
@@ -165,7 +175,10 @@ export const getClientManualData = query({
       } catch {
         // skip malformed row data rather than fail the whole manual
       }
-      if (!lastUpdatedByChapter[row.chapterId] || row.updatedAt > lastUpdatedByChapter[row.chapterId]) {
+      if (
+        !lastUpdatedByChapter[row.chapterId] ||
+        row.updatedAt > lastUpdatedByChapter[row.chapterId]
+      ) {
         lastUpdatedByChapter[row.chapterId] = row.updatedAt;
       }
     }
@@ -177,7 +190,10 @@ export const getClientManualData = query({
       const key = `${field.chapterId}:${field.sectionId}`;
       fieldsBySection[key] ||= {};
       fieldsBySection[key][field.fieldId] = field.value;
-      if (!lastUpdatedByChapter[field.chapterId] || field.updatedAt > lastUpdatedByChapter[field.chapterId]) {
+      if (
+        !lastUpdatedByChapter[field.chapterId] ||
+        field.updatedAt > lastUpdatedByChapter[field.chapterId]
+      ) {
         lastUpdatedByChapter[field.chapterId] = field.updatedAt;
       }
     }
@@ -187,8 +203,8 @@ export const getClientManualData = query({
       fieldsBySection,
       lastUpdatedByChapter,
       legalDocuments: legalDocs
-        .filter((d) => d.inForce)
-        .map((d) => ({ documentType: d.documentType, notes: d.notes || "" })),
+        .filter(d => d.inForce)
+        .map(d => ({ documentType: d.documentType, notes: d.notes || "" })),
     };
   },
 });
@@ -199,7 +215,7 @@ export const getClientNotes = query({
     await requireAdmin(ctx);
     const notes = await ctx.db
       .query("clientNotes")
-      .withIndex("by_clientUserId", (q) => q.eq("clientUserId", clientUserId))
+      .withIndex("by_clientUserId", q => q.eq("clientUserId", clientUserId))
       .collect();
     notes.sort((a, b) => b.createdAt - a.createdAt);
     return notes;

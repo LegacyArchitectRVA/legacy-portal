@@ -45,17 +45,17 @@ export const DOCUMENT_GROUPS: { label: string; types: readonly string[] }[] = [
  */
 export const getMyLegalDocuments = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return [];
 
     const saved = await ctx.db
       .query("legalDocuments")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .collect();
 
-    return STANDARD_DOCUMENT_TYPES.map((documentType) => {
-      const existing = saved.find((d) => d.documentType === documentType);
+    return STANDARD_DOCUMENT_TYPES.map(documentType => {
+      const existing = saved.find(d => d.documentType === documentType);
       return (
         existing || {
           _id: null,
@@ -85,8 +85,8 @@ export const upsertLegalDocument = mutation({
 
     const existing = await ctx.db
       .query("legalDocuments")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .filter((q) => q.eq(q.field("documentType"), documentType))
+      .withIndex("by_userId", q => q.eq("userId", userId))
+      .filter(q => q.eq(q.field("documentType"), documentType))
       .unique();
 
     const updatedAt = Date.now();

@@ -25,9 +25,11 @@ export const EDITABLE_DEFAULTS: Record<string, string> = {
   trust_card_private_desc:
     "Limited to 5 clients per month. Your manual receives our full attention and discretion.",
   dashboard_welcome: "Welcome",
-  dashboard_description: "Your Life Manual, organized across seven chapters of continuity",
+  dashboard_description:
+    "Your Life Manual, organized across seven chapters of continuity",
   upgrade_title: "Upgrade Your Life Manual",
-  upgrade_vault_desc: "A secure foundation for your essential documents and access details.",
+  upgrade_vault_desc:
+    "A secure foundation for your essential documents and access details.",
   upgrade_archive_desc:
     "Comprehensive clarity for complex lives. Every detail is organized and accessible.",
   upgrade_legacy_desc:
@@ -74,9 +76,11 @@ export const EDITABLE_DEFAULTS: Record<string, string> = {
   signup_submit_button: "Create Account",
   signup_footer_prompt: "Already have an account?",
   signup_footer_link: "Sign in",
-  chapter_intro: "Need help with this chapter? Contact Legacy Architect RVA for guidance.",
+  chapter_intro:
+    "Need help with this chapter? Contact Legacy Architect RVA for guidance.",
   introduction_title: "Introduction",
-  introduction_subtitle: "Start here. Review these guides before building your Life Manual.",
+  introduction_subtitle:
+    "Start here. Review these guides before building your Life Manual.",
   settings_title: "Settings",
   profile_title: "Profile",
   messages_title: "Messages",
@@ -94,13 +98,21 @@ export const EDITABLE_DEFAULTS: Record<string, string> = {
  */
 const CHAPTER_CONTENT_DEFAULTS: Record<string, string> = {};
 for (const chapter of chapters) {
-  CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_shorttitle`] = chapter.shortTitle;
-  CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_chapterdesc`] = chapter.description;
+  CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_shorttitle`] =
+    chapter.shortTitle;
+  CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_chapterdesc`] =
+    chapter.description;
   for (const section of chapter.subSections) {
-    CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_section_${section.id}_title`] = section.title;
-    CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_section_${section.id}_desc`] = section.description;
+    CHAPTER_CONTENT_DEFAULTS[
+      `chapter_${chapter.id}_section_${section.id}_title`
+    ] = section.title;
+    CHAPTER_CONTENT_DEFAULTS[
+      `chapter_${chapter.id}_section_${section.id}_desc`
+    ] = section.description;
     for (const col of section.tableColumns) {
-      CHAPTER_CONTENT_DEFAULTS[`chapter_${chapter.id}_section_${section.id}_col_${col.key}`] = col.label;
+      CHAPTER_CONTENT_DEFAULTS[
+        `chapter_${chapter.id}_section_${section.id}_col_${col.key}`
+      ] = col.label;
     }
   }
 }

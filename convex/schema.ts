@@ -18,7 +18,9 @@ const schema = defineSchema({
     crestId: v.optional(v.id("_storage")),
     profilePicId: v.optional(v.id("_storage")),
     emailNotifications: v.optional(v.boolean()),
-  }).index("email", ["email"]).index("phone", ["phone"]),
+  })
+    .index("email", ["email"])
+    .index("phone", ["phone"]),
 
   // Client profile / tier / activation
   clients: defineTable({
@@ -176,7 +178,11 @@ const schema = defineSchema({
     prospectName: v.string(),
     prospectEmail: v.optional(v.string()),
     sessionDate: v.number(),
-    status: v.union(v.literal("draft"), v.literal("completed"), v.literal("delivered")),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("completed"),
+      v.literal("delivered"),
+    ),
     notes: v.optional(v.string()),
     assessments: v.array(
       v.object({
@@ -185,10 +191,10 @@ const schema = defineSchema({
           v.literal("handled"),
           v.literal("partial"),
           v.literal("exposed"),
-          v.literal("na")
+          v.literal("na"),
         ),
         note: v.optional(v.string()),
-      })
+      }),
     ),
     actions: v.array(
       v.object({
@@ -198,7 +204,7 @@ const schema = defineSchema({
         day: v.union(v.literal(1), v.literal(2), v.literal(3)),
         pillarId: v.string(),
         done: v.boolean(),
-      })
+      }),
     ),
     createdAt: v.number(),
     updatedAt: v.number(),

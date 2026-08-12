@@ -1,8 +1,12 @@
 import { v } from "convex/values";
-import { internalQuery, internalMutation, internalAction } from "./_generated/server";
-import { internal } from "./_generated/api";
-import { APP_NAME } from "./constants";
 import { tiers } from "../src/data/tiers";
+import { internal } from "./_generated/api";
+import {
+  internalAction,
+  internalMutation,
+  internalQuery,
+} from "./_generated/server";
+import { APP_NAME } from "./constants";
 
 const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 const REMINDER_WINDOW_BEFORE_MS = 30 * 24 * 60 * 60 * 1000; // start reminding 30 days before due
@@ -17,11 +21,11 @@ interface DueReminder {
 }
 
 function tierLabel(tier: string) {
-  return tiers.find((t) => t.id === tier)?.name ?? tier;
+  return tiers.find(t => t.id === tier)?.name ?? tier;
 }
 
 function tierReviewPriceLabel(tier: string) {
-  return tiers.find((t) => t.id === tier)?.reviewPriceLabel ?? "";
+  return tiers.find(t => t.id === tier)?.reviewPriceLabel ?? "";
 }
 
 /**
@@ -38,7 +42,7 @@ export const getClientsDueForReminder = internalQuery({
     const now = Date.now();
     const clients = await ctx.db
       .query("clients")
-      .filter((q) => q.eq(q.field("deliveryStatus"), "delivered"))
+      .filter(q => q.eq(q.field("deliveryStatus"), "delivered"))
       .collect();
 
     const due: DueReminder[] = [];
@@ -53,7 +57,7 @@ export const getClientsDueForReminder = internalQuery({
       if (client.reviewReminderSentForCycle === dueDate) continue;
 
       const user = await ctx.db.get(client.userId);
-      if (!user || !user.email) continue;
+      if (!user?.email) continue;
       if (user.emailNotifications === false) continue;
 
       due.push({
@@ -146,18 +150,29 @@ Craig`;
 export const sendDueReminders = internalAction({
   args: {},
   handler: async (ctx): Promise<{ checked: number; sent: number }> => {
-    const due: DueReminder[] = await ctx.runQuery(internal.reviewReminders.getClientsDueForReminder, {});
+    const due: DueReminder[] = await ctx.runQuery(
+      internal.reviewReminders.getClientsDueForReminder,
+      {},
+    );
     let sent = 0;
     for (const item of due) {
       try {
-        await sendReviewReminderEmail({ email: item.email, name: item.name, tier: item.tier });
+        await sendReviewReminderEmail({
+          email: item.email,
+          name: item.name,
+          tier: item.tier,
+        });
         await ctx.runMutation(internal.reviewReminders.markReminderSent, {
           clientId: item.clientId as any,
           dueDate: item.dueDate,
         });
         sent++;
       } catch (err) {
-        console.error("Failed to send review reminder for client", item.clientId, err);
+        console.error(
+          "Failed to send review reminder for client",
+          item.clientId,
+          err,
+        );
       }
     }
     return { checked: due.length, sent };

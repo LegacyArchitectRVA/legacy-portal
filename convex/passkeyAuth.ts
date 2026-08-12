@@ -1,6 +1,6 @@
 import { ConvexCredentials } from "@convex-dev/auth/providers/ConvexCredentials";
-import type { DataModel } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
+import type { DataModel } from "./_generated/dataModel";
 
 /**
  * Bridges a verified WebAuthn passkey assertion into a real session.
@@ -14,8 +14,11 @@ export const PasskeyCredentials = ConvexCredentials<DataModel>({
     const ticket = params.ticket as string;
     if (!ticket) throw new Error("Missing passkey ticket");
 
-    const userId: any = await ctx.runMutation(internal.webauthn.consumeTicket, { ticket });
-    if (!userId) throw new Error("That passkey sign-in attempt expired. Try again.");
+    const userId: any = await ctx.runMutation(internal.webauthn.consumeTicket, {
+      ticket,
+    });
+    if (!userId)
+      throw new Error("That passkey sign-in attempt expired. Try again.");
 
     return { userId };
   },

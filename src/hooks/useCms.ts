@@ -80,7 +80,9 @@ export function cmsStyleToCss(s: CmsStyle): React.CSSProperties {
     ...(s.bgColor ? { backgroundColor: s.bgColor } : {}),
     ...(s.fontFamily ? { fontFamily: s.fontFamily } : {}),
     ...(s.fontSize ? { fontSize: SIZE_MAP[s.fontSize] || s.fontSize } : {}),
-    ...(s.textAlign ? { textAlign: s.textAlign as React.CSSProperties["textAlign"] } : {}),
+    ...(s.textAlign
+      ? { textAlign: s.textAlign as React.CSSProperties["textAlign"] }
+      : {}),
     ...(s.bold ? { fontWeight: 700 } : {}),
     ...(s.italic ? { fontStyle: "italic" } : {}),
     ...(s.underline ? { textDecoration: "underline" } : {}),

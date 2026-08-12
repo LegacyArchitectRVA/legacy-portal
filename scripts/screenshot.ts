@@ -7,17 +7,19 @@ async function main() {
   // Start preview server
   console.log("🚀 Starting preview server...");
   const server = Bun.spawn(["bun", "run", "preview"], {
-    cwd: import.meta.dir + "/..",
+    cwd: `${import.meta.dir}/..`,
     stdout: "pipe",
     stderr: "pipe",
   });
-  await new Promise((r) => setTimeout(r, 3000));
+  await new Promise(r => setTimeout(r, 3000));
   console.log("✅ Server ready");
 
   const browser = await chromium.launch({ args: ["--no-sandbox"] });
 
   // Desktop screenshots
-  const desktop = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const desktop = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+  });
   const page = await desktop.newPage();
 
   // Landing
@@ -81,7 +83,9 @@ async function main() {
 
   // Mobile screenshots
   console.log("📱 Mobile screenshots...");
-  const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const mobile = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+  });
   const mpage = await mobile.newPage();
 
   // Mobile landing
@@ -101,7 +105,10 @@ async function main() {
   // Mobile dashboard
   await mpage.goto(`${BASE}/dashboard`);
   await mpage.waitForTimeout(2000);
-  await mpage.screenshot({ path: `${OUT}/mobile-dashboard.png`, fullPage: true });
+  await mpage.screenshot({
+    path: `${OUT}/mobile-dashboard.png`,
+    fullPage: true,
+  });
 
   // Mobile sidebar open then close
   console.log("📱 Mobile sidebar...");
@@ -111,7 +118,7 @@ async function main() {
     await mpage.waitForTimeout(500);
     await mpage.screenshot({ path: `${OUT}/mobile-sidebar.png` });
     // Click a nav item to verify sidebar closes
-    await mpage.locator('text=2. Emergency').click();
+    await mpage.locator("text=2. Emergency").click();
     await mpage.waitForTimeout(1000);
     await mpage.screenshot({ path: `${OUT}/mobile-after-nav.png` });
   }
@@ -121,7 +128,7 @@ async function main() {
   console.log("\n✅ All screenshots saved to tmp/");
 }
 
-main().catch((e) => {
+main().catch(e => {
   console.error(e);
   process.exit(1);
 });

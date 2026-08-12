@@ -1,5 +1,8 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { RiFlaskLine as FlaskConical, RiLoader4Line as Loader2 } from "@remixicon/react";
+import {
+  RiFlaskLine as FlaskConical,
+  RiLoader4Line as Loader2,
+} from "@remixicon/react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";

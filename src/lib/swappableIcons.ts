@@ -1,14 +1,14 @@
 import {
-  RiCheckLine,
+  RiArrowRightCircleFill,
   RiCheckboxCircleFill,
   RiCheckDoubleLine,
-  RiStarFill,
-  RiShieldCheckFill,
-  RiHeartFill,
+  RiCheckLine,
   RiCircleFill,
-  RiThumbUpFill,
+  RiHeartFill,
+  RiShieldCheckFill,
   RiSparklingFill,
-  RiArrowRightCircleFill,
+  RiStarFill,
+  RiThumbUpFill,
 } from "@remixicon/react";
 
 /**
@@ -17,7 +17,11 @@ import {
  * panel. Kept deliberately short, this is a stylistic choice between
  * a handful of good options, not a full icon library browser.
  */
-export const SWAPPABLE_MARKER_ICONS: { name: string; label: string; icon: React.ComponentType<any> }[] = [
+export const SWAPPABLE_MARKER_ICONS: {
+  name: string;
+  label: string;
+  icon: React.ComponentType<any>;
+}[] = [
   { name: "check", label: "Check", icon: RiCheckLine },
   { name: "check-circle", label: "Check Circle", icon: RiCheckboxCircleFill },
   { name: "check-double", label: "Double Check", icon: RiCheckDoubleLine },
@@ -31,5 +35,5 @@ export const SWAPPABLE_MARKER_ICONS: { name: string; label: string; icon: React.
 ];
 
 export function getSwappableIcon(name: string) {
-  return SWAPPABLE_MARKER_ICONS.find((i) => i.name === name)?.icon;
+  return SWAPPABLE_MARKER_ICONS.find(i => i.name === name)?.icon;
 }

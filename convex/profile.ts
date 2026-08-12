@@ -1,16 +1,16 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
 
 export const getMyProfile = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return null;
     const user = await ctx.db.get(userId);
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .unique();
 
     const profilePicId = (user as any)?.profilePicId || client?.profilePicId;
@@ -19,10 +19,10 @@ export const getMyProfile = query({
     let profilePicUrl: string | null = null;
     let crestUrl: string | null = null;
     if (profilePicId) {
-      profilePicUrl = await ctx.storage.getUrl(profilePicId) ?? null;
+      profilePicUrl = (await ctx.storage.getUrl(profilePicId)) ?? null;
     }
     if (crestId) {
-      crestUrl = await ctx.storage.getUrl(crestId) ?? null;
+      crestUrl = (await ctx.storage.getUrl(crestId)) ?? null;
     }
 
     return {
@@ -67,8 +67,10 @@ export const updateProfile = mutation({
     // as a client, previously had these saves silently discarded).
     const userPatch: Record<string, unknown> = {};
     if (args.name !== undefined) userPatch.name = args.name;
-    if (args.phoneNumber !== undefined) userPatch.contactPhone = args.phoneNumber;
-    if (args.profilePicId !== undefined) userPatch.profilePicId = args.profilePicId;
+    if (args.phoneNumber !== undefined)
+      userPatch.contactPhone = args.phoneNumber;
+    if (args.profilePicId !== undefined)
+      userPatch.profilePicId = args.profilePicId;
     if (args.crestId !== undefined) userPatch.crestId = args.crestId;
     if (Object.keys(userPatch).length > 0) {
       await ctx.db.patch(userId, userPatch);
@@ -78,12 +80,14 @@ export const updateProfile = mutation({
     // older code path still reading from it.
     const client = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .unique();
     if (client) {
       const clientPatch: Record<string, unknown> = {};
-      if (args.phoneNumber !== undefined) clientPatch.phoneNumber = args.phoneNumber;
-      if (args.profilePicId !== undefined) clientPatch.profilePicId = args.profilePicId;
+      if (args.phoneNumber !== undefined)
+        clientPatch.phoneNumber = args.phoneNumber;
+      if (args.profilePicId !== undefined)
+        clientPatch.profilePicId = args.profilePicId;
       if (args.crestId !== undefined) clientPatch.crestId = args.crestId;
       if (Object.keys(clientPatch).length > 0) {
         await ctx.db.patch(client._id, clientPatch);
@@ -94,12 +98,12 @@ export const updateProfile = mutation({
 
 export const ensureClient = mutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
     const existing = await ctx.db
       .query("clients")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", q => q.eq("userId", userId))
       .unique();
     if (!existing) {
       await ctx.db.insert("clients", {
@@ -114,7 +118,7 @@ export const ensureClient = mutation({
 
 export const generateUploadUrl = mutation({
   args: {},
-  handler: async (ctx) => {
+  handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
     return await ctx.storage.generateUploadUrl();
