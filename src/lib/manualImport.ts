@@ -417,12 +417,13 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
       const entryTarget = resolveTarget(p.chapterId, p.sectionId);
       if (!entryTarget) break;
       if (
-        current?.target &&
+        current &&
+        current.target &&
         current.target.chapterId === entryTarget.chapterId &&
         current.target.sectionId === entryTarget.sectionId
       ) {
         // Same destination as the running chunk: label the entry inline.
-        current.text += `${(current.text ? "\n\n" : "") + trimmed}:`;
+        current.text += (current.text ? "\n\n" : "") + trimmed + ":";
         return;
       }
       pushCurrent();
@@ -461,13 +462,35 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
     }
 
     // Known per-entry sub-blocks continue the section they live in.
+    // Canonical chapter-title headings (Digital Life, Financial & Assets,
+    // Household Operations, etc.) always start a fresh chunk and set the
+    // active chapter context, the same way a chapter overview page does.
+    // Without this, a chapter heading that doesn't also happen to be the
+    // very first heading in the document gets swallowed as continuation
+    // text into whatever chunk was open before it, silently losing an
+    // entire chapter's worth of content instead of starting a new one.
+    if (CHAPTER_ALIASES[normalizedHeading]) {
+      activeChapter.id = CHAPTER_ALIASES[normalizedHeading];
+      pushCurrent();
+      pendingUntitled = false;
+      current = {
+        id: `chunk-${counter++}`,
+        sourceHeading: trimmed,
+        target: null,
+        text: "",
+        tables: [],
+        include: true,
+      };
+      return;
+    }
+
     const isContinuationSubheading =
       CONTINUATION_SUBHEADINGS.has(normalizedHeading) ||
       /^(WHATDEPENDSON|ROLEOF|WHATTODOIF|BUSINESSPLATFORM)/.test(
         normalizedHeading,
       );
     if (current && isContinuationSubheading) {
-      current.text += `${(current.text ? "\n\n" : "") + trimmed}:`;
+      current.text += (current.text ? "\n\n" : "") + trimmed + ":";
       return;
     }
 
@@ -478,7 +501,7 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
     const isAllCapsHeading =
       letters.length >= 4 && letters === letters.toUpperCase();
     if (!target && !isAllCapsHeading && current && !pendingUntitled) {
-      current.text += `${(current.text ? "\n\n" : "") + trimmed}:`;
+      current.text += (current.text ? "\n\n" : "") + trimmed + ":";
       return;
     }
 
@@ -554,7 +577,8 @@ export function mapManualToPortal(parsed: ParsedDocument): MappedChunk[] {
   for (const c of chunks) {
     const prev = merged[merged.length - 1];
     if (
-      prev?.target &&
+      prev &&
+      prev.target &&
       c.target &&
       prev.target.chapterId === c.target.chapterId &&
       prev.target.sectionId === c.target.sectionId
@@ -720,7 +744,7 @@ export function chunksToImportPayload(chunks: MappedChunk[]) {
         // Each table maps through its own header: AFFiNE tables carry real
         // headers directly, OCR tables carry them as the first row.
         let dataRows = table.rows;
-        let headerSource = table.headers.some(h => h?.trim())
+        let headerSource = table.headers.some(h => h && h.trim())
           ? table.headers
           : null;
         if (

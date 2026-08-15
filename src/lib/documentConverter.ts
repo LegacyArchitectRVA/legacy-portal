@@ -607,7 +607,7 @@ function isKnownSectionTitle(text: string): boolean {
 }
 
 function orderByCanonicalSection(
-  pageGroups: { title: string; blocks: Block[] }[],
+  pageGroups: { title: string; blocks: Block[]; parentTitle?: string }[],
 ): Block[] {
   // Build a lookup from normalized title -> section index.
   const sectionOfTitle = new Map<string, number>();
@@ -616,21 +616,30 @@ function orderByCanonicalSection(
   });
 
   const norm = (s: string) => s.toLowerCase().trim().replace(/\s+/g, " ");
+  const matchIndex = (title: string): number | undefined => {
+    const key = norm(title);
+    const direct = sectionOfTitle.get(key);
+    if (direct !== undefined) return direct;
+    // Fallback: partial contains match (handles minor title drift).
+    for (const [t, i] of sectionOfTitle) {
+      if (key.includes(t) || t.includes(key)) return i;
+    }
+    return undefined;
+  };
+
   const buckets: { title: string; blocks: Block[] }[][] =
     CANONICAL_SECTIONS.map(() => []);
   const unmatched: { title: string; blocks: Block[] }[] = [];
 
   for (const group of pageGroups) {
-    const key = norm(group.title);
-    let idx = sectionOfTitle.get(key);
-    // Fallback: partial contains match (handles minor title drift).
-    if (idx === undefined) {
-      for (const [t, i] of sectionOfTitle) {
-        if (key.includes(t) || t.includes(key)) {
-          idx = i;
-          break;
-        }
-      }
+    let idx = matchIndex(group.title);
+    // A sub-heading that doesn't itself match a canonical section name
+    // (e.g. "Bank Accounts" under the "Financial & Assets" chapter) falls
+    // back to whichever canonical section its parent heading matched, so
+    // it stays with the chapter it actually belongs to instead of being
+    // treated as unrecognized and pushed to the very end of the document.
+    if (idx === undefined && group.parentTitle) {
+      idx = matchIndex(group.parentTitle);
     }
     if (idx === undefined) unmatched.push(group);
     else buckets[idx].push(group);
@@ -1300,7 +1309,7 @@ async function extractPageImages(page: any, OPS: any): Promise<string[]> {
       const imgData: any = await new Promise(resolve => {
         page.objs.get(objId, resolve);
       });
-      if (!imgData?.width || !imgData.height) continue;
+      if (!imgData || !imgData.width || !imgData.height) continue;
       // Skip tiny decorative artifacts (rule lines, spacer pixels) -- not
       // worth carrying through as a real "image" block.
       if (imgData.width < 24 || imgData.height < 24) continue;
@@ -1552,7 +1561,7 @@ export async function parsePdf(
               cells.push(current);
               current = row[wi].text;
             } else {
-              current += ` ${row[wi].text}`;
+              current += " " + row[wi].text;
             }
           }
           cells.push(current);
@@ -1805,15 +1814,30 @@ export async function parseInput(
  */
 function cleanParsedDocument(doc: ParsedDocument): ParsedDocument {
   // 1) Split the flat block stream into sections at level-1/2 headings.
-  const groups: { title: string; blocks: Block[] }[] = [];
-  let currentGroup: { title: string; blocks: Block[] } | null = null;
+  //    A level-2 heading's group remembers which level-1 heading it fell
+  //    under in the original document, so that if the level-2 title itself
+  //    doesn't match a canonical section name, ordering can still keep it
+  //    with its parent chapter instead of losing that relationship and
+  //    dumping it at the end with every other unmatched group.
+  const groups: { title: string; blocks: Block[]; parentTitle?: string }[] = [];
+  let currentGroup: {
+    title: string;
+    blocks: Block[];
+    parentTitle?: string;
+  } | null = null;
+  let currentParentTitle: string | undefined;
   const preamble: Block[] = [];
 
   for (const b of doc.blocks) {
     const isSectionHead =
       b.type === "heading" && (b.level === 1 || b.level === 2);
     if (isSectionHead) {
-      currentGroup = { title: (b as any).text || "", blocks: [b] };
+      if (b.level === 1) currentParentTitle = (b as any).text || undefined;
+      currentGroup = {
+        title: (b as any).text || "",
+        blocks: [b],
+        parentTitle: b.level === 2 ? currentParentTitle : undefined,
+      };
       groups.push(currentGroup);
     } else if (currentGroup) {
       currentGroup.blocks.push(b);
@@ -1869,8 +1893,8 @@ function isJunkSection(title: string, blocks: Block[]): boolean {
   let combined = "";
   for (const b of blocks) {
     if (b.type === "paragraph" || b.type === "heading")
-      combined += ` ${(b as any).text}`;
-    else if (b.type === "list") combined += ` ${(b as any).items.join(" ")}`;
+      combined += " " + (b as any).text;
+    else if (b.type === "list") combined += " " + (b as any).items.join(" ");
   }
   const low = combined.toLowerCase();
   const contentMarkers = [
