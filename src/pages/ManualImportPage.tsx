@@ -61,11 +61,20 @@ export default function ManualImportPage() {
     setChunks(null);
     try {
       const isAffine = /\.(affine|db|sqlite|json)$/i.test(file.name);
+      const isWord = /\.docx$/i.test(file.name);
+      const isHtml = /\.(html|htm)$/i.test(file.name);
+      const isMarkdown = /\.(md|markdown|txt)$/i.test(file.name);
       const parsed = isAffine
         ? await parseInput(file, "affine")
-        : await parsePdf(file, (c, t) =>
-            setProgress(`Reading page ${c} of ${t} (OCR)...`),
-          );
+        : isWord
+          ? await parseInput(file, "word")
+          : isHtml
+            ? await parseInput(file, "html")
+            : isMarkdown
+              ? await parseInput(file, "markdown")
+              : await parsePdf(file, (c, t) =>
+                  setProgress(`Reading page ${c} of ${t} (OCR)...`),
+                );
       const mapped = mapManualToPortal(parsed);
       if (!mapped.length) {
         setError("Nothing readable came out of this file.");
@@ -155,7 +164,7 @@ export default function ManualImportPage() {
         <input
           ref={fileRef}
           type="file"
-          accept=".pdf,.affine,.db,.sqlite,.json"
+          accept=".pdf,.affine,.db,.sqlite,.json,.docx,.html,.htm,.md,.markdown,.txt"
           className="hidden"
           onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])}
         />
@@ -170,8 +179,8 @@ export default function ManualImportPage() {
             <Upload className="w-4 h-4" />
           )}
           {parsing
-            ? progress || "Reading PDF..."
-            : "Choose Old Manual (PDF or AFFiNE)"}
+            ? progress || "Reading file..."
+            : "Choose Old Manual (PDF, Word, HTML, Markdown, or AFFiNE)"}
         </button>
       </div>
 
@@ -223,14 +232,14 @@ export default function ManualImportPage() {
                   <p className="font-heading text-sm text-gold-primary truncate">
                     {c.sourceHeading}
                   </p>
-                  <p className="text-[10px] text-[#f2ede2]/50 mt-0.5">
+                  <p className="text-[11.5px] sm:text-[10px] text-[#f2ede2]/50 mt-0.5">
                     {c.tables.length
                       ? `${c.tables.reduce((s, tb) => s + tb.rows.length, 0)} table rows \u00b7 `
                       : ""}
                     {c.text ? `${c.text.length} chars text` : ""}
                   </p>
                 </div>
-                <label className="flex items-center gap-1.5 text-[10px] text-[#f2ede2]/70 shrink-0">
+                <label className="flex items-center gap-1.5 text-[11.5px] sm:text-[10px] text-[#f2ede2]/70 shrink-0">
                   <input
                     type="checkbox"
                     checked={c.include}
@@ -280,7 +289,7 @@ export default function ManualImportPage() {
                   {c.tables.slice(0, 2).map((tb, ti) => (
                     <table
                       key={ti}
-                      className="text-[10px] text-[#f2ede2]/80 w-full"
+                      className="text-[11.5px] sm:text-[10px] text-[#f2ede2]/80 w-full"
                     >
                       <thead>
                         <tr className="border-b border-gold-border/25">
@@ -315,7 +324,7 @@ export default function ManualImportPage() {
                   ))}
                   {(c.tables.length > 2 ||
                     c.tables.some(tb => tb.rows.length > 3)) && (
-                    <p className="text-[10px] text-[#f2ede2]/50 mt-1">
+                    <p className="text-[11.5px] sm:text-[10px] text-[#f2ede2]/50 mt-1">
                       {c.tables.reduce((s, tb) => s + tb.rows.length, 0)} rows
                       across {c.tables.length} table
                       {c.tables.length === 1 ? "" : "s"} total
