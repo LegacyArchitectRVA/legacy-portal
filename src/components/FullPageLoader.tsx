@@ -17,9 +17,9 @@ export function FullPageLoader({ label }: { label?: string }) {
           src="/logo.png"
           alt=""
           aria-hidden="true"
-          width={62}
-          height={62}
-          className="relative w-14 h-14 object-contain animate-crest-breathe"
+          width={64}
+          height={64}
+          className="relative w-16 h-16 object-contain animate-crest-breathe"
         />
       </div>
       {label && (

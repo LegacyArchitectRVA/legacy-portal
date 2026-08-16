@@ -87,11 +87,11 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
           src="/logo.png"
           alt=""
           aria-hidden="true"
-          width={72}
-          height={72}
+          width={64}
+          height={64}
           style={{
-            width: 72,
-            height: 72,
+            width: 64,
+            height: 64,
             objectFit: "contain",
             filter: "drop-shadow(0 0 16px rgba(232, 200, 105,0.4))",
           }}
