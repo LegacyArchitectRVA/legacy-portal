@@ -32,9 +32,19 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (switchable) {
-      const stored = localStorage.getItem("theme");
-      if (stored === "light" || stored === "dark") {
-        return stored;
+      // Guarded: localStorage throws outright (not just returns null) when
+      // storage is blocked, which happens in some private/incognito modes,
+      // with strict privacy settings, and behind certain content blockers.
+      // This runs during the initial render of a provider that wraps the
+      // entire app, so an unguarded throw here blanks the whole screen with
+      // no visible error at all.
+      try {
+        const stored = localStorage.getItem("theme");
+        if (stored === "light" || stored === "dark") {
+          return stored;
+        }
+      } catch {
+        // Storage unavailable, fall through to the default below.
       }
     }
     return defaultTheme === "system" ? getSystemTheme() : defaultTheme;
@@ -51,7 +61,11 @@ export function ThemeProvider({
     }
 
     if (switchable) {
-      localStorage.setItem("theme", theme);
+      try {
+        localStorage.setItem("theme", theme);
+      } catch {
+        // Storage unavailable, the theme still applies for this session.
+      }
     }
   }, [theme, switchable]);
 
