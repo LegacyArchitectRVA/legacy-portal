@@ -1,17 +1,19 @@
 import {
-  RiGiftLine as BeneficiaryIcon,
-  RiSuitcaseLine as BusinessIcon,
   RiArrowDownSLine as ChevronDown,
   RiMoneyDollarCircleLine as FinancialPoaIcon,
   RiParentLine as GuardianshipIcon,
-  RiHeartPulseLine as HealthcarePoaIcon,
   RiLockUnlockLine as HipaaIcon,
   RiQuillPenLine as LetterIcon,
   RiFileShieldLine as LivingWillIcon,
   RiScalesLine as Scale,
-  RiSafeLine as TrustIcon,
-  RiFileTextLine as WillIcon,
 } from "@remixicon/react";
+import {
+  Gift as BeneficiaryIcon,
+  Suitcase as BusinessIcon,
+  HeartPulse as HealthcarePoaIcon,
+  Safe as TrustIcon,
+  FileText as WillIcon,
+} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { api } from "../../convex/_generated/api";

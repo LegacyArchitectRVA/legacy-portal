@@ -1,9 +1,11 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import {
-  RiArrowLeftLine as ArrowLeft,
   RiLoader4Line as Loader2,
   RiMailLine as Mail,
 } from "@remixicon/react";
+import {
+  ArrowLeft,
+} from "reicon-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";

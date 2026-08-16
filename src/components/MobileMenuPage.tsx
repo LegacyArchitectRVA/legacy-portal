@@ -1,21 +1,23 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import {
-  RiBookOpenLine as BookOpen,
   RiArrowRightSLine as ChevronRight,
-  RiFileLine as File,
   RiLayoutGridLine as LayoutDashboard,
   RiLogoutBoxRLine as LogOut,
   RiChat3Line as MessageSquare,
-  RiPaintBrushLine as PaintBrush,
-  RiPlugLine as PlugsConnected,
   RiSettings3Line as Settings,
-  RiShieldCheckLine as ShieldCheck,
   RiLineChartLine as TrendingUp,
-  RiUserLine as User,
   RiUserSettingsLine as UserCog,
   RiTeamLine as Users,
   RiCloseLine as X,
 } from "@remixicon/react";
+import {
+  BookOpen,
+  File,
+  Paintbrush as PaintBrush,
+  Plug as PlugsConnected,
+  ShieldCheck,
+  User,
+} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
@@ -114,7 +116,7 @@ export function MobileMenuPage() {
             alt="Legacy Architect RVA"
             width={44}
             height={44}
-            className="w-11 h-11 rounded object-contain"
+            className="w-[44px] h-[44px] rounded object-contain"
           />
           <span className="text-sm font-heading font-semibold text-gold-primary tracking-wide uppercase">
             Menu

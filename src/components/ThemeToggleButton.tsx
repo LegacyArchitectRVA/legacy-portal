@@ -1,4 +1,7 @@
-import { RiMoonLine as Moon, RiSunLine as Sun } from "@remixicon/react";
+import {
+  Moon,
+  Sun,
+} from "reicon-react";
 import { useTheme } from "../contexts/ThemeContext";
 
 /**

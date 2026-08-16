@@ -1,8 +1,8 @@
 import {
-  RiLockPasswordLine as LockKey,
-  RiShieldCheckLine as ShieldCheckIcon,
-  RiGhostLine as ZeroKnowledgeGlyph,
-} from "@remixicon/react";
+  LockPassword as LockKey,
+  ShieldCheck as ShieldCheckIcon,
+  Ghost as ZeroKnowledgeGlyph,
+} from "reicon-react";
 import type { LucideIcon } from "lucide-react";
 import type { ComponentType } from "react";
 

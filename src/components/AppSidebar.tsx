@@ -1,20 +1,22 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import {
-  RiBookOpenLine as BookOpen,
   RiArrowUpSLine as ChevronUp,
-  RiFileLine as File,
   RiLayoutGridLine as LayoutDashboard,
   RiLogoutBoxRLine as LogOut,
   RiChat3Line as MessageSquare,
-  RiPaintBrushLine as PaintBrush,
-  RiPlugLine as PlugsConnected,
   RiSettings3Line as Settings,
-  RiShieldCheckLine as ShieldCheck,
   RiLineChartLine as TrendingUp,
-  RiUserLine as User,
   RiUserSettingsLine as UserCog,
   RiTeamLine as Users,
 } from "@remixicon/react";
+import {
+  BookOpen,
+  File,
+  Paintbrush as PaintBrush,
+  Plug as PlugsConnected,
+  ShieldCheck,
+  User,
+} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
@@ -110,7 +112,7 @@ export function AppSidebar() {
               alt="Legacy Architect RVA"
               width={44}
               height={44}
-              className="w-11 h-11 rounded-lg object-contain flex-shrink-0"
+              className="w-[44px] h-[44px] rounded-lg object-contain flex-shrink-0"
               onError={e => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}

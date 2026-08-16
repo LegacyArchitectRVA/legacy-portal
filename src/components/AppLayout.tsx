@@ -1,4 +1,6 @@
-import { RiMenuLine as Menu } from "@remixicon/react";
+import {
+  Menu,
+} from "reicon-react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import FloatingChatButton from "./FloatingChatButton";

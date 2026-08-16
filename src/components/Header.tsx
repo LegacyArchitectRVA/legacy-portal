@@ -1,4 +1,6 @@
-import { RiArrowRightLine as ArrowRight } from "@remixicon/react";
+import {
+  ArrowRight,
+} from "reicon-react";
 import { useConvexAuth } from "convex/react";
 import { Link, useLocation } from "react-router-dom";
 import { APP_NAME } from "@/lib/constants";
