@@ -495,3 +495,67 @@ export const getClientRecordInternal = internalQuery({
     return client ? { hubspotId: client.hubspotId } : null;
   },
 });
+
+/** Search HubSpot contacts by name or email, for the "create account from
+ * HubSpot" picker on the User Access page. Uses HubSpot's free-text
+ * `query` search (matches across name/email/phone/company on their end)
+ * rather than the exact-match filter pullContactFromHubSpot uses, since
+ * this is for browsing/picking rather than looking up one known email. */
+export const searchHubSpotContacts = action({
+  args: { query: v.string() },
+  handler: async (
+    ctx,
+    { query },
+  ): Promise<{
+    results: Array<{
+      id: string;
+      email: string;
+      name: string;
+      phone: string;
+    }>;
+  }> => {
+    await requireAdminInAction(ctx);
+    const apiKey: string | null = await ctx.runQuery(
+      internal.hubspot.getApiKeyInternal,
+      {},
+    );
+    if (!apiKey) throw new Error("HubSpot Service Key not configured.");
+
+    const trimmed = query.trim();
+    if (!trimmed) return { results: [] };
+
+    const res = await fetch(`${HUBSPOT_BASE}/crm/v3/objects/contacts/search`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: trimmed,
+        properties: ["email", "firstname", "lastname", "phone"],
+        limit: 10,
+      }),
+    });
+
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(
+        `HubSpot search failed (${res.status}): ${body.slice(0, 300)}`,
+      );
+    }
+
+    const data = await res.json();
+    const results = (data.results || []).map((c: any) => {
+      const first = c.properties?.firstname || "";
+      const last = c.properties?.lastname || "";
+      return {
+        id: c.id,
+        email: c.properties?.email || "",
+        name: `${first} ${last}`.trim() || c.properties?.email || "Unnamed",
+        phone: c.properties?.phone || "",
+      };
+    });
+
+    return { results };
+  },
+});
