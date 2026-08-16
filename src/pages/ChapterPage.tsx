@@ -583,7 +583,15 @@ function SectionAccordion({
               {rows && rows.length > 0 ? (
                 <div className="space-y-2">
                   {rows.map((row: any) => {
-                    const data = JSON.parse(row.data || "{}");
+                    // Guarded rather than a bare JSON.parse: this runs during
+                    // render, so one malformed row would throw and blank the
+                    // whole chapter page instead of just skipping that row.
+                    let data: any = {};
+                    try {
+                      data = JSON.parse(row.data || "{}");
+                    } catch {
+                      data = {};
+                    }
                     const isEditing = editingRow === row.rowId;
 
                     if (isEditing) {

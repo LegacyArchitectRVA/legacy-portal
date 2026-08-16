@@ -19,7 +19,7 @@ import {
   Upload,
 } from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { FullPageLoader } from "../components/FullPageLoader";
@@ -140,7 +140,11 @@ export default function AdminVisualEditorPage() {
     };
   }, []);
 
-  const resetStyles = () => {
+  // Wrapped in useCallback so its identity stays stable across renders.
+  // Without this it's a brand new function every render, which makes the
+  // effect below re-fire constantly instead of only when the selection
+  // actually changes, resetting the style controls while you're using them.
+  const resetStyles = useCallback(() => {
     setFontFamily("");
     setFontSize("");
     setTextColor("#f2ede2");
@@ -148,7 +152,7 @@ export default function AdminVisualEditorPage() {
     setIsBold(false);
     setIsItalic(false);
     setIsUnderline(false);
-  };
+  }, []);
   useEffect(() => {
     if (!selectedKey) return;
     setMissingFallback(false);

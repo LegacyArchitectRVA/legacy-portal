@@ -63,7 +63,13 @@ export default function HubSpotSettingsPage() {
 
   const handleCopy = () => {
     if (apiKey) {
-      navigator.clipboard.writeText(apiKey);
+      // navigator.clipboard is undefined in some browsers and blocked in
+      // non-secure contexts, so this would throw rather than silently fail.
+      try {
+        void navigator.clipboard?.writeText(apiKey);
+      } catch {
+        // Copy unavailable, the key is still visible on screen to copy by hand.
+      }
     }
   };
 
