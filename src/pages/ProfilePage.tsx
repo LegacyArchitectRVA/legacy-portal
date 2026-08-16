@@ -2,6 +2,7 @@ import {
   RiCameraLine as Camera,
   RiCheckLine as Check,
   RiVipCrownLine as Crown,
+  RiLoader4Line as Loader2,
   RiSaveLine as Save,
   RiUserLine as User,
 } from "@remixicon/react";
@@ -30,6 +31,10 @@ export default function ProfilePage() {
     null,
   );
   const [crestPreview, setCrestPreview] = useState<string | null>(null);
+  const [uploadingType, setUploadingType] = useState<
+    "profilePic" | "crest" | null
+  >(null);
+  const [uploadError, setUploadError] = useState("");
   const profilePicRef = useRef<HTMLInputElement>(null);
   const crestRef = useRef<HTMLInputElement>(null);
 
@@ -46,6 +51,8 @@ export default function ProfilePage() {
     file: File,
     type: "profilePic" | "crest",
   ) => {
+    setUploadError("");
+    setUploadingType(type);
     try {
       const uploadUrl = await generateUploadUrl();
       const result = await fetch(uploadUrl, {
@@ -57,13 +64,23 @@ export default function ProfilePage() {
 
       if (type === "profilePic") {
         await updateProfile({ profilePicId: storageId });
-        setProfilePicPreview(URL.createObjectURL(file));
       } else {
         await updateProfile({ crestId: storageId });
-        setCrestPreview(URL.createObjectURL(file));
       }
+      // Don't set a local blob: preview here — the profile query above is
+      // reactive and will pick up the new profilePicUrl/crestUrl as soon as
+      // this mutation commits, which is the actual saved state. A local
+      // blob URL can go stale or get blocked, leaving a broken image with
+      // its alt text ("Profile"/"Family Crest") rendered over the circle.
     } catch (e) {
       console.error("Upload failed:", e);
+      setUploadError(
+        type === "profilePic"
+          ? "Couldn't upload that photo. Try again."
+          : "Couldn't upload that crest. Try again.",
+      );
+    } finally {
+      setUploadingType(null);
     }
   };
 
@@ -106,8 +123,9 @@ export default function ProfilePage() {
               {profilePicPreview ? (
                 <img
                   src={profilePicPreview}
-                  alt="Profile"
+                  alt=""
                   className="w-full h-full object-cover"
+                  onError={() => setProfilePicPreview(null)}
                 />
               ) : (
                 <User className="w-12 h-12 text-[#d4b661]/75" />
@@ -116,9 +134,14 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => profilePicRef.current?.click()}
-              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center text-black shadow-lg opacity-60 group-hover:opacity-100 transition-opacity"
+              disabled={uploadingType === "profilePic"}
+              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center text-black shadow-lg opacity-60 group-hover:opacity-100 transition-opacity disabled:opacity-90"
             >
-              <Camera className="w-4 h-4" />
+              {uploadingType === "profilePic" ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
             </button>
             <input
               ref={profilePicRef}
@@ -149,8 +172,9 @@ export default function ProfilePage() {
               {crestPreview ? (
                 <img
                   src={crestPreview}
-                  alt="Family Crest"
+                  alt=""
                   className="w-full h-full object-contain p-2"
+                  onError={() => setCrestPreview(null)}
                 />
               ) : (
                 <>
@@ -164,9 +188,14 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => crestRef.current?.click()}
-              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center text-black shadow-lg opacity-60 group-hover:opacity-100 transition-opacity"
+              disabled={uploadingType === "crest"}
+              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gradient-to-br from-gold-bright to-gold-dark flex items-center justify-center text-black shadow-lg opacity-60 group-hover:opacity-100 transition-opacity disabled:opacity-90"
             >
-              <Camera className="w-4 h-4" />
+              {uploadingType === "crest" ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
             </button>
             <input
               ref={crestRef}
@@ -183,6 +212,12 @@ export default function ProfilePage() {
             </p>
           </div>
         </div>
+
+        {uploadError && (
+          <p className="text-xs text-red-400 bg-red-400/10 rounded-lg px-3 py-2">
+            {uploadError}
+          </p>
+        )}
 
         {/* Form Fields */}
         <div className="space-y-4">
