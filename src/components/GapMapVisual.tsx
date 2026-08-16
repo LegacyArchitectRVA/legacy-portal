@@ -94,8 +94,9 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
       <svg
         ref={ref}
         viewBox="0 0 460 460"
-        width="100%"
-        style={{ display: "block", maxWidth: 680, margin: "0 auto" }}
+        width="460"
+        height="460"
+        style={{ display: "block", width: "100%", maxWidth: 680, height: "auto", margin: "0 auto" }}
         xmlns="http://www.w3.org/2000/svg"
       >
         {/* Transparent canvas -- no background rect, the Gap Map sits directly
