@@ -27,7 +27,11 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
     const t3 = setTimeout(() => setPhase("fade"), 1600);
     const t4 = setTimeout(() => {
       setPhase("done");
-      sessionStorage.setItem(SESSION_KEY, "1");
+      try {
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        // Storage blocked, the entrance just replays next login.
+      }
       onComplete();
     }, 1950);
     return () => {
@@ -125,5 +129,12 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
 
 /** Returns true if the vault entrance should be shown this session. */
 export function shouldShowVaultEntrance(): boolean {
-  return !sessionStorage.getItem(SESSION_KEY);
+  // Guarded: sessionStorage throws when storage is blocked (private mode,
+  // strict privacy settings, some content blockers). This is called during
+  // the login flow, so an unguarded throw here breaks sign-in entirely.
+  try {
+    return !sessionStorage.getItem(SESSION_KEY);
+  } catch {
+    return false;
+  }
 }
