@@ -53,9 +53,9 @@ export default function SignupPage() {
           <img
             src="/logo.png"
             alt="Legacy Architect RVA"
-            width={65}
-            height={65}
-            className="mx-auto w-[65px] h-[65px] object-contain"
+            width={64}
+            height={64}
+            className="mx-auto w-16 h-16 object-contain"
           />
           <h1 className="font-heading text-2xl text-[#f2ede2] tracking-wide uppercase">
             <EditableText cmsKey="signup_title" as="span" />

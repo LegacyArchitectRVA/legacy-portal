@@ -722,8 +722,8 @@ export default function IntroductionPage() {
           <img
             src="/logo.png"
             alt="Legacy Architect RVA"
-            width={70}
-            height={70}
+            width={64}
+            height={64}
             className="w-16 h-16 object-contain shrink-0"
           />
           <div>

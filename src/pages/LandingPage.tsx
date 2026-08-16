@@ -23,9 +23,9 @@ export default function LandingPage() {
             <img
               src="/logo.png"
               alt="Legacy Architect RVA"
-              width={62}
-              height={62}
-              className="w-14 h-14 rounded-lg object-contain"
+              width={44}
+              height={44}
+              className="w-11 h-11 rounded-lg object-contain"
             />
             <span className="text-sm font-heading tracking-wider text-gold-primary hidden sm:block">
               LEGACY ARCHITECT
@@ -91,28 +91,6 @@ export default function LandingPage() {
         </div>
 
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          {/* Logo */}
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-[#e8c869] blur-3xl opacity-15 animate-subtle-shimmer" />
-              <img
-                src="/logo.png"
-                alt="Legacy Architect RVA"
-                width={110}
-                height={110}
-                className="relative h-[110px] md:h-[142px] w-auto"
-                onError={e => {
-                  // Fallback if logo.png not found
-                  (e.target as HTMLImageElement).style.display = "none";
-                  (e.target as HTMLImageElement).parentElement!.innerHTML = `
-                    <div class="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#e8c869] to-[#7D6224] flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0f0c08" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
-                    </div>`;
-                }}
-              />
-            </div>
-          </div>
-
           <div className="space-y-5">
             <h1
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]"
