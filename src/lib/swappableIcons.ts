@@ -1,15 +1,17 @@
 import {
-  RiArrowRightCircleFill,
   RiCheckboxCircleFill,
   RiCheckDoubleLine,
-  RiCheckLine,
   RiCircleFill,
-  RiHeartFill,
-  RiShieldCheckFill,
   RiSparklingFill,
-  RiStarFill,
   RiThumbUpFill,
 } from "@remixicon/react";
+import {
+  ArrowRightCircle,
+  Check,
+  Heart,
+  ShieldCheck,
+  Star,
+} from "reicon-react";
 
 /**
  * A small, curated set of icons an admin can swap a "marker" icon
@@ -22,16 +24,16 @@ export const SWAPPABLE_MARKER_ICONS: {
   label: string;
   icon: React.ComponentType<any>;
 }[] = [
-  { name: "check", label: "Check", icon: RiCheckLine },
+  { name: "check", label: "Check", icon: Check },
   { name: "check-circle", label: "Check Circle", icon: RiCheckboxCircleFill },
   { name: "check-double", label: "Double Check", icon: RiCheckDoubleLine },
-  { name: "star", label: "Star", icon: RiStarFill },
-  { name: "shield-check", label: "Shield", icon: RiShieldCheckFill },
-  { name: "heart", label: "Heart", icon: RiHeartFill },
+  { name: "star", label: "Star", icon: Star },
+  { name: "shield-check", label: "Shield", icon: ShieldCheck },
+  { name: "heart", label: "Heart", icon: Heart },
   { name: "dot", label: "Dot", icon: RiCircleFill },
   { name: "thumb-up", label: "Thumbs Up", icon: RiThumbUpFill },
   { name: "sparkle", label: "Sparkle", icon: RiSparklingFill },
-  { name: "arrow", label: "Arrow", icon: RiArrowRightCircleFill },
+  { name: "arrow", label: "Arrow", icon: ArrowRightCircle },
 ];
 
 export function getSwappableIcon(name: string) {
