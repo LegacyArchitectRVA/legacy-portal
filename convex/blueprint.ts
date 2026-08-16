@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAdmin } from "./admin";
 
@@ -119,7 +119,7 @@ export const setAssessment = mutation({
   handler: async (ctx, { sessionId, assessment }) => {
     await requireAdmin(ctx);
     const session = await ctx.db.get(sessionId);
-    if (!session) throw new Error("Session not found");
+    if (!session) throw new ConvexError("Session not found");
     const rest = session.assessments.filter(
       a => a.checkpointId !== assessment.checkpointId,
     );

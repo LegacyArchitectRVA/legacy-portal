@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import {
   action,
@@ -84,7 +84,7 @@ async function fetchAllHubSpotContacts(apiKey: string): Promise<any[]> {
     });
     if (!res.ok) {
       const body = await res.text();
-      throw new Error(
+      throw new ConvexError(
         `HubSpot contacts list failed (${res.status}): ${body.slice(0, 300)}`,
       );
     }
@@ -108,7 +108,7 @@ async function runProspectSync(ctx: any): Promise<{
     internal.hubspot.getApiKeyInternal,
     {},
   );
-  if (!apiKey) throw new Error("HubSpot Private App Token not configured.");
+  if (!apiKey) throw new ConvexError("HubSpot Private App Token not configured.");
 
   const contacts = await fetchAllHubSpotContacts(apiKey);
   const clientEmails: string[] = await ctx.runQuery(
@@ -225,14 +225,14 @@ export const pushClientToHubSpot = action({
       internal.hubspot.getApiKeyInternal,
       {},
     );
-    if (!apiKey) throw new Error("HubSpot Service Key not configured.");
+    if (!apiKey) throw new ConvexError("HubSpot Service Key not configured.");
 
     const info: any = await ctx.runQuery(
       internal.hubspot.getClientInfoInternal,
       { clientUserId },
     );
     if (!info?.email)
-      throw new Error("This client has no email on file to sync with.");
+      throw new ConvexError("This client has no email on file to sync with.");
 
     const { firstname, lastname } = splitName(info.name);
 
@@ -263,7 +263,7 @@ export const pushClientToHubSpot = action({
 
     if (!res.ok) {
       const body = await res.text();
-      throw new Error(
+      throw new ConvexError(
         `HubSpot sync failed (${res.status}): ${body.slice(0, 300)}`,
       );
     }
@@ -296,7 +296,7 @@ export const pullContactFromHubSpot = action({
       internal.hubspot.getApiKeyInternal,
       {},
     );
-    if (!apiKey) throw new Error("HubSpot Service Key not configured.");
+    if (!apiKey) throw new ConvexError("HubSpot Service Key not configured.");
 
     const res = await fetch(`${HUBSPOT_BASE}/crm/v3/objects/contacts/search`, {
       method: "POST",
@@ -326,7 +326,7 @@ export const pullContactFromHubSpot = action({
 
     if (!res.ok) {
       const body = await res.text();
-      throw new Error(
+      throw new ConvexError(
         `HubSpot search failed (${res.status}): ${body.slice(0, 300)}`,
       );
     }
@@ -371,7 +371,7 @@ async function ensureHubSpotId(
   const pushResult: { success: boolean; message: string; hubspotId?: string } =
     await ctx.runAction(api.hubspot.pushClientToHubSpot, { clientUserId });
   if (!pushResult.hubspotId) {
-    throw new Error(
+    throw new ConvexError(
       pushResult.message || "Couldn't find or create this client in HubSpot.",
     );
   }
@@ -402,9 +402,9 @@ export const addNoteToHubSpot = action({
       internal.hubspot.getApiKeyInternal,
       {},
     );
-    if (!apiKey) throw new Error("HubSpot Service Key not configured.");
+    if (!apiKey) throw new ConvexError("HubSpot Service Key not configured.");
     if (!note.trim() && !attachmentStorageId)
-      throw new Error("Add note text or a file, at least one.");
+      throw new ConvexError("Add note text or a file, at least one.");
 
     const hubspotId = await ensureHubSpotId(ctx, clientUserId);
 
@@ -412,7 +412,7 @@ export const addNoteToHubSpot = action({
     if (attachmentStorageId) {
       const fileBlob = await ctx.storage.get(attachmentStorageId);
       if (!fileBlob)
-        throw new Error(
+        throw new ConvexError(
           "That attachment couldn't be found, try uploading it again.",
         );
 
@@ -430,7 +430,7 @@ export const addNoteToHubSpot = action({
       });
       if (!uploadRes.ok) {
         const body = await uploadRes.text();
-        throw new Error(
+        throw new ConvexError(
           `HubSpot file upload failed (${uploadRes.status}): ${body.slice(0, 300)}`,
         );
       }
@@ -467,7 +467,7 @@ export const addNoteToHubSpot = action({
 
     if (!noteRes.ok) {
       const body = await noteRes.text();
-      throw new Error(
+      throw new ConvexError(
         `HubSpot note creation failed (${noteRes.status}): ${body.slice(0, 300)}`,
       );
     }
@@ -519,7 +519,7 @@ export const searchHubSpotContacts = action({
       internal.hubspot.getApiKeyInternal,
       {},
     );
-    if (!apiKey) throw new Error("HubSpot Service Key not configured.");
+    if (!apiKey) throw new ConvexError("HubSpot Service Key not configured.");
 
     const trimmed = query.trim();
     if (!trimmed) return { results: [] };
@@ -539,7 +539,7 @@ export const searchHubSpotContacts = action({
 
     if (!res.ok) {
       const body = await res.text();
-      throw new Error(
+      throw new ConvexError(
         `HubSpot search failed (${res.status}): ${body.slice(0, 300)}`,
       );
     }

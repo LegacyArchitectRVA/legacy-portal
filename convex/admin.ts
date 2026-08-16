@@ -1,5 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import {
@@ -12,9 +12,9 @@ import {
 // Helper to verify admin status (for queries/mutations, where ctx.db exists directly)
 export async function requireAdmin(ctx: any) {
   const userId = await getAuthUserId(ctx);
-  if (!userId) throw new Error("Not authenticated");
+  if (!userId) throw new ConvexError("Not authenticated");
   const user = await ctx.db.get(userId);
-  if (!user?.isAdmin) throw new Error("Not authorized — admin only");
+  if (!user?.isAdmin) throw new ConvexError("Not authorized, admin only");
   return userId;
 }
 
@@ -23,9 +23,9 @@ export async function requireAdmin(ctx: any) {
 // support plus a query for the user record.
 export async function requireAdminInAction(ctx: any) {
   const userId = await getAuthUserId(ctx);
-  if (!userId) throw new Error("Not authenticated");
+  if (!userId) throw new ConvexError("Not authenticated");
   const user = await ctx.runQuery(internal.admin.getUserInternal, { userId });
-  if (!user?.isAdmin) throw new Error("Not authorized — admin only");
+  if (!user?.isAdmin) throw new ConvexError("Not authorized, admin only");
   return userId;
 }
 
@@ -86,7 +86,7 @@ export const setClientActivation = mutation({
       .query("clients")
       .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
-    if (!client) throw new Error("Client not found");
+    if (!client) throw new ConvexError("Client not found");
     await ctx.db.patch(client._id, { isActivated });
   },
 });
@@ -106,7 +106,7 @@ export const setClientTier = mutation({
       .query("clients")
       .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
-    if (!client) throw new Error("Client not found");
+    if (!client) throw new ConvexError("Client not found");
     await ctx.db.patch(client._id, { tier });
   },
 });
@@ -119,7 +119,7 @@ export const markDelivered = mutation({
       .query("clients")
       .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
-    if (!client) throw new Error("Client not found");
+    if (!client) throw new ConvexError("Client not found");
     await ctx.db.patch(client._id, {
       deliveryStatus: "delivered",
       deliveryTimestamp: Date.now(),
@@ -135,7 +135,7 @@ export const markReviewComplete = mutation({
       .query("clients")
       .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
-    if (!client) throw new Error("Client not found");
+    if (!client) throw new ConvexError("Client not found");
     await ctx.db.patch(client._id, {
       lastReviewedAt: Date.now(),
       reviewReminderSentForCycle: undefined,
@@ -151,7 +151,7 @@ export const cancelDelivery = mutation({
       .query("clients")
       .withIndex("by_userId", q => q.eq("userId", clientUserId))
       .unique();
-    if (!client) throw new Error("Client not found");
+    if (!client) throw new ConvexError("Client not found");
     await ctx.db.patch(client._id, {
       deliveryStatus: "pending",
       deliveryTimestamp: undefined,
@@ -236,19 +236,19 @@ export const makeAdmin = mutation({
   args: { email: v.string() },
   handler: async (ctx, { email }) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     // Only allow if no admins exist yet, or caller is already admin
     const user = await ctx.db.get(userId);
     const allUsers = await ctx.db.query("users").collect();
     const hasAdmin = allUsers.some(u => u.isAdmin === true);
     if (hasAdmin && !user?.isAdmin) {
-      throw new Error(
+      throw new ConvexError(
         "Admins already exist. Only an admin can create new admins.",
       );
     }
     // Find user by email
     const target = allUsers.find(u => u.email === email);
-    if (!target) throw new Error("User not found with that email");
+    if (!target) throw new ConvexError("User not found with that email");
     await ctx.db.patch(target._id, { isAdmin: true });
     return { success: true };
   },
@@ -288,12 +288,12 @@ export const addClient = mutation({
   handler: async (ctx, { userId, tier }) => {
     await requireAdmin(ctx);
     const user = await ctx.db.get(userId);
-    if (!user) throw new Error("User not found");
+    if (!user) throw new ConvexError("User not found");
     const existing = await ctx.db
       .query("clients")
       .withIndex("by_userId", q => q.eq("userId", userId))
       .unique();
-    if (existing) throw new Error("This person is already a client.");
+    if (existing) throw new ConvexError("This person is already a client.");
     const clientId = await ctx.db.insert("clients", {
       userId,
       tier,
@@ -308,7 +308,7 @@ export const updateClientTier = mutation({
   handler: async (ctx, { clientId, tier }) => {
     await requireAdmin(ctx);
     const client = await ctx.db.get(clientId);
-    if (!client) throw new Error("Client not found");
+    if (!client) throw new ConvexError("Client not found");
     await ctx.db.patch(clientId, { tier: tier as any });
   },
 });
@@ -318,7 +318,7 @@ export const activateClient = mutation({
   handler: async (ctx, { clientId, isActivated }) => {
     await requireAdmin(ctx);
     const client = await ctx.db.get(clientId);
-    if (!client) throw new Error("Client not found");
+    if (!client) throw new ConvexError("Client not found");
     await ctx.db.patch(clientId, { isActivated });
   },
 });
@@ -485,7 +485,7 @@ export const setAdminByEmail = internalMutation({
       .query("users")
       .filter(q => q.eq(q.field("email"), args.email))
       .first();
-    if (!user) throw new Error("No user with that email");
+    if (!user) throw new ConvexError("No user with that email");
     await ctx.db.patch(user._id, { isAdmin: args.isAdmin });
     return { userId: user._id, isAdmin: args.isAdmin };
   },

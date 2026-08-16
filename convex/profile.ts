@@ -1,5 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 export const getMyProfile = query({
@@ -46,7 +46,7 @@ export const updateNotificationPreference = mutation({
   args: { emailNotifications: v.boolean() },
   handler: async (ctx, { emailNotifications }) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     await ctx.db.patch(userId, { emailNotifications });
   },
 });
@@ -60,7 +60,7 @@ export const updateProfile = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
 
     // Write directly to the user record so this works whether or not a
     // clients row exists (admins, or any account before it's been added
@@ -100,7 +100,7 @@ export const ensureClient = mutation({
   args: {},
   handler: async ctx => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     const existing = await ctx.db
       .query("clients")
       .withIndex("by_userId", q => q.eq("userId", userId))
@@ -120,7 +120,7 @@ export const generateUploadUrl = mutation({
   args: {},
   handler: async ctx => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     return await ctx.storage.generateUploadUrl();
   },
 });

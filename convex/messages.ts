@@ -1,5 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 async function getAdminUserId(ctx: any) {
@@ -149,7 +149,7 @@ export const sendMessage = mutation({
   args: { content: v.string(), toUserId: v.optional(v.id("users")) },
   handler: async (ctx, { content, toUserId }) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     const user = await ctx.db.get(userId);
 
     let resolvedToUserId = toUserId;
@@ -157,7 +157,7 @@ export const sendMessage = mutation({
       // Clients always message the admin, regardless of what's passed.
       resolvedToUserId = (await getAdminUserId(ctx)) ?? undefined;
     } else if (!toUserId) {
-      throw new Error("Select a conversation to reply to.");
+      throw new ConvexError("Select a conversation to reply to.");
     }
 
     return await ctx.db.insert("messages", {
@@ -175,12 +175,12 @@ export const deleteMessage = mutation({
   args: { messageId: v.id("messages") },
   handler: async (ctx, { messageId }) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     const user = await ctx.db.get(userId);
     const message = await ctx.db.get(messageId);
     if (!message) return;
     if (message.fromUserId !== userId && !user?.isAdmin) {
-      throw new Error("You can only remove your own messages.");
+      throw new ConvexError("You can only remove your own messages.");
     }
     await ctx.db.patch(messageId, { isHidden: true });
   },
@@ -190,7 +190,7 @@ export const markRead = mutation({
   args: { messageId: v.id("messages") },
   handler: async (ctx, { messageId }) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     await ctx.db.patch(messageId, { isRead: true });
   },
 });
@@ -200,7 +200,7 @@ export const markAllRead = mutation({
   args: {},
   handler: async ctx => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     const messages = await ctx.db
       .query("messages")
       .withIndex("by_toUserId", q => q.eq("toUserId", userId))
@@ -217,7 +217,7 @@ export const markThreadRead = mutation({
   args: { clientUserId: v.id("users") },
   handler: async (ctx, { clientUserId }) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     const user = await ctx.db.get(userId);
     if (!user?.isAdmin) return;
     const messages = await ctx.db

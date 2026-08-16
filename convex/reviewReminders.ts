@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { tiers } from "../src/data/tiers";
 import { internal } from "./_generated/api";
 import {
@@ -91,7 +91,7 @@ async function sendReviewReminderEmail({
 }) {
   const apiKey = process.env.AUTH_RESEND_KEY;
   if (!apiKey) {
-    throw new Error("AUTH_RESEND_KEY environment variable not configured.");
+    throw new ConvexError("AUTH_RESEND_KEY environment variable not configured.");
   }
 
   const tName = tierLabel(tier);
@@ -139,7 +139,7 @@ Craig`;
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`Failed to send review reminder via Resend: ${error}`);
+    throw new ConvexError(`Failed to send review reminder via Resend: ${error}`);
   }
 }
 

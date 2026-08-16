@@ -4,6 +4,7 @@ import {
   invalidateSessions,
 } from "@convex-dev/auth/server";
 import { action, query } from "./_generated/server";
+import { ConvexError } from "convex/values";
 
 /**
  * Lists the current user's active sessions (by creation time), flagging
@@ -39,7 +40,7 @@ export const signOutOtherSessions = action({
   args: {},
   handler: async ctx => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     const currentSessionId = await getAuthSessionId(ctx);
     await invalidateSessions(ctx, {
       userId,

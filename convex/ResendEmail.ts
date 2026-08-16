@@ -1,5 +1,6 @@
 import { Email } from "@convex-dev/auth/providers/Email";
 import { APP_NAME } from "./constants";
+import { ConvexError } from "convex/values";
 
 declare const process: { env: Record<string, string | undefined> };
 
@@ -25,7 +26,7 @@ async function sendEmail({
   const apiKey = process.env.AUTH_RESEND_KEY;
 
   if (!apiKey) {
-    throw new Error("AUTH_RESEND_KEY environment variable not configured.");
+    throw new ConvexError("AUTH_RESEND_KEY environment variable not configured.");
   }
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -56,7 +57,7 @@ async function sendEmail({
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`Failed to send email via Resend: ${error}`);
+    throw new ConvexError(`Failed to send email via Resend: ${error}`);
   }
 }
 

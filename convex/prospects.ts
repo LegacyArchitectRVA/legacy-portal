@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import {
   internalMutation,
   internalQuery,
@@ -98,7 +98,7 @@ export const addProspect = mutation({
   },
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
-    if (!args.name.trim()) throw new Error("Name is required.");
+    if (!args.name.trim()) throw new ConvexError("Name is required.");
     const now = Date.now();
     return await ctx.db.insert("prospects", {
       ...args,
@@ -130,7 +130,7 @@ export const updateProspect = mutation({
   handler: async (ctx, { prospectId, ...patch }) => {
     await requireAdmin(ctx);
     const existing = await ctx.db.get(prospectId);
-    if (!existing) throw new Error("Prospect not found.");
+    if (!existing) throw new ConvexError("Prospect not found.");
     await ctx.db.patch(prospectId, { ...patch, updatedAt: Date.now() });
   },
 });

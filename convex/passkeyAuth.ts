@@ -1,6 +1,7 @@
 import { ConvexCredentials } from "@convex-dev/auth/providers/ConvexCredentials";
 import { internal } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
+import { ConvexError } from "convex/values";
 
 /**
  * Bridges a verified WebAuthn passkey assertion into a real session.
@@ -12,13 +13,13 @@ export const PasskeyCredentials = ConvexCredentials<DataModel>({
   id: "passkey",
   authorize: async (params, ctx): Promise<{ userId: any } | null> => {
     const ticket = params.ticket as string;
-    if (!ticket) throw new Error("Missing passkey ticket");
+    if (!ticket) throw new ConvexError("Missing passkey ticket");
 
     const userId: any = await ctx.runMutation(internal.webauthn.consumeTicket, {
       ticket,
     });
     if (!userId)
-      throw new Error("That passkey sign-in attempt expired. Try again.");
+      throw new ConvexError("That passkey sign-in attempt expired. Try again.");
 
     return { userId };
   },

@@ -1,5 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 export const STANDARD_DOCUMENT_TYPES = [
@@ -81,7 +81,7 @@ export const upsertLegalDocument = mutation({
   },
   handler: async (ctx, { documentType, inForce, notes }) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
 
     const existing = await ctx.db
       .query("legalDocuments")

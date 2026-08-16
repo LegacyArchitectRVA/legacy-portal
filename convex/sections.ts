@@ -1,13 +1,13 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 async function requireAdmin(ctx: any, onBehalfOf?: any) {
   const userId = await getAuthUserId(ctx);
-  if (!userId) throw new Error("Not authenticated");
+  if (!userId) throw new ConvexError("Not authenticated");
   const user = await ctx.db.get(userId);
   if (!user?.isAdmin)
-    throw new Error("Chapter sections are view-only for clients");
+    throw new ConvexError("Chapter sections are view-only for clients");
   return onBehalfOf || userId;
 }
 
@@ -25,7 +25,7 @@ export const getRows = query({
     let userId = authUserId;
     if (onBehalfOf) {
       const user = await ctx.db.get(authUserId);
-      if (!user?.isAdmin) throw new Error("Not authorized");
+      if (!user?.isAdmin) throw new ConvexError("Not authorized");
       userId = onBehalfOf;
     }
     const rows = await ctx.db
@@ -96,7 +96,7 @@ export const updateRow = mutation({
       )
       .filter(q => q.eq(q.field("rowId"), args.rowId))
       .unique();
-    if (!row) throw new Error("Row not found");
+    if (!row) throw new ConvexError("Row not found");
     await ctx.db.patch(row._id, { data: args.data, updatedAt: Date.now() });
   },
 });
@@ -120,7 +120,7 @@ export const deleteRow = mutation({
       )
       .filter(q => q.eq(q.field("rowId"), args.rowId))
       .unique();
-    if (!row) throw new Error("Row not found");
+    if (!row) throw new ConvexError("Row not found");
     await ctx.db.delete(row._id);
   },
 });
@@ -139,7 +139,7 @@ export const getFields = query({
     let userId = authUserId;
     if (onBehalfOf) {
       const user = await ctx.db.get(authUserId);
-      if (!user?.isAdmin) throw new Error("Not authorized");
+      if (!user?.isAdmin) throw new ConvexError("Not authorized");
       userId = onBehalfOf;
     }
     const fields = await ctx.db
@@ -261,7 +261,7 @@ export const purgeAllMyData = mutation({
   args: {},
   handler: async ctx => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     const rows = await ctx.db
       .query("sectionRows")
       .withIndex("by_userId", q => q.eq("userId", userId))

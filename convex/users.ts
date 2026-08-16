@@ -1,12 +1,13 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation } from "./_generated/server";
+import { ConvexError } from "convex/values";
 
 export const deleteAccount = mutation({
   args: {},
   handler: async ctx => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
-      throw new Error("Not authenticated");
+      throw new ConvexError("Not authenticated");
     }
 
     const authAccounts = await ctx.db

@@ -1,5 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import {
   internalMutation,
   internalQuery,
@@ -145,9 +145,9 @@ export const deleteCredential = mutation({
   args: { id: v.id("webauthnCredentials") },
   handler: async (ctx, { id }) => {
     const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    if (!userId) throw new ConvexError("Not authenticated");
     const cred = await ctx.db.get(id);
-    if (!cred || cred.userId !== userId) throw new Error("Not found");
+    if (!cred || cred.userId !== userId) throw new ConvexError("Not found");
     await ctx.db.delete(id);
   },
 });

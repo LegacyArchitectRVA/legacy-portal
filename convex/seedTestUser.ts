@@ -1,5 +1,5 @@
 import { createAccount, retrieveAccount } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { Scrypt } from "lucia";
 import { internal } from "./_generated/api";
 import {
@@ -214,7 +214,7 @@ export const setTestUserAdminStatus = internalMutation({
       .withIndex("email", q => q.eq("email", TEST_USER.email))
       .unique();
     if (!user)
-      throw new Error("Test user doesn't exist yet — run seedTestUser first.");
+      throw new ConvexError("Test user doesn't exist yet, run seedTestUser first.");
     await ctx.db.patch(user._id, { isAdmin });
     return { isAdmin };
   },
@@ -235,7 +235,7 @@ export const seedTestClientSampleRow = internalMutation({
       .withIndex("email", q => q.eq("email", TEST_USER.email))
       .unique();
     if (!user)
-      throw new Error("Test user doesn't exist yet — run seedTestUser first.");
+      throw new ConvexError("Test user doesn't exist yet, run seedTestUser first.");
 
     const rowId = "test_seed_row_cloud_storage";
     const existing = await ctx.db
@@ -298,7 +298,7 @@ export const activateTestClient = internalMutation({
       .withIndex("email", q => q.eq("email", TEST_USER.email))
       .unique();
     if (!user)
-      throw new Error("Test user doesn't exist yet — run seedTestUser first.");
+      throw new ConvexError("Test user doesn't exist yet, run seedTestUser first.");
 
     const existing = await ctx.db
       .query("clients")

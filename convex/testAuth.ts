@@ -2,6 +2,7 @@ import { ConvexCredentials } from "@convex-dev/auth/providers/ConvexCredentials"
 import { createAccount, retrieveAccount } from "@convex-dev/auth/server";
 import { Scrypt } from "lucia";
 import type { DataModel } from "./_generated/dataModel";
+import { ConvexError } from "convex/values";
 
 const TEST_EMAIL_DOMAIN = "test.local";
 
@@ -25,11 +26,11 @@ export const TestCredentials = ConvexCredentials<DataModel>({
     const flow = params.flow as string;
 
     if (!email || !isTestEmail(email)) {
-      throw new Error("Only @test.local emails allowed for test auth");
+      throw new ConvexError("Only @test.local emails allowed for test auth");
     }
 
     if (!password || password.length < 6) {
-      throw new Error("Password must be at least 6 characters");
+      throw new ConvexError("Password must be at least 6 characters");
     }
 
     if (flow === "signUp") {

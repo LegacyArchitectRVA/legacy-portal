@@ -3,7 +3,7 @@ import {
   invalidateSessions,
   modifyAccountCredentials,
 } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
 import {
   action,
@@ -79,9 +79,9 @@ export const setTemporaryPassword = action({
     const user: any = await ctx.runQuery(internal.admin.getUserInternal, {
       userId: targetUserId,
     });
-    if (!user) throw new Error("User not found");
+    if (!user) throw new ConvexError("User not found");
     if (!user.email)
-      throw new Error(
+      throw new ConvexError(
         "This user has no email on file to attach a password account to.",
       );
 
@@ -125,8 +125,8 @@ export const sendPasswordResetEmail = action({
     const user: any = await ctx.runQuery(internal.admin.getUserInternal, {
       userId: targetUserId,
     });
-    if (!user) throw new Error("User not found");
-    if (!user.email) throw new Error("This user has no email on file.");
+    if (!user) throw new ConvexError("User not found");
+    if (!user.email) throw new ConvexError("This user has no email on file.");
 
     const temporaryPassword = generateTemporaryPassword();
     await modifyAccountCredentials(ctx as any, {
@@ -136,7 +136,7 @@ export const sendPasswordResetEmail = action({
 
     const apiKey = process.env.AUTH_RESEND_KEY;
     if (!apiKey)
-      throw new Error("AUTH_RESEND_KEY environment variable not configured.");
+      throw new ConvexError("AUTH_RESEND_KEY environment variable not configured.");
     const greetingName = user.name ? String(user.name).split(" ")[0] : "there";
     const loginUrl = "https://portal.legacyarchitectrva.com/login";
     const response = await fetch("https://api.resend.com/emails", {
@@ -170,7 +170,7 @@ export const sendPasswordResetEmail = action({
     });
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(`Failed to send reset email via Resend: ${error}`);
+      throw new ConvexError(`Failed to send reset email via Resend: ${error}`);
     }
 
     return { sent: true, email: user.email };
@@ -214,7 +214,7 @@ export const unlockAccount = action({
     const user: any = await ctx.runQuery(internal.admin.getUserInternal, {
       userId: targetUserId,
     });
-    if (!user) throw new Error("User not found");
+    if (!user) throw new ConvexError("User not found");
 
     let reactivated = false;
     const client: any = await ctx.runQuery(
@@ -267,10 +267,10 @@ export const createAccountAdmin = action({
 
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes("@")) {
-      throw new Error("A valid email address is required.");
+      throw new ConvexError("A valid email address is required.");
     }
     if (!name.trim()) {
-      throw new Error("A name is required.");
+      throw new ConvexError("A name is required.");
     }
 
     const existing: any = await ctx.runQuery(
@@ -278,7 +278,7 @@ export const createAccountAdmin = action({
       { email: cleanEmail },
     );
     if (existing) {
-      throw new Error(
+      throw new ConvexError(
         `An account already exists for ${cleanEmail}. Use that account instead of creating a new one.`,
       );
     }
@@ -299,7 +299,7 @@ export const createAccountAdmin = action({
       });
       userId = result.user._id;
     } catch (err: any) {
-      throw new Error(
+      throw new ConvexError(
         err?.message || "Could not create the account credentials.",
       );
     }
@@ -403,7 +403,7 @@ export const deleteAccountAdmin = action({
   ): Promise<{ success: boolean; deletedEmail: string }> => {
     const callerId = await requireAdminInAction(ctx);
     if (callerId === targetUserId) {
-      throw new Error(
+      throw new ConvexError(
         "You can't delete your own account from here. Use Settings > Delete Account instead.",
       );
     }
@@ -411,13 +411,13 @@ export const deleteAccountAdmin = action({
     const user: any = await ctx.runQuery(internal.admin.getUserInternal, {
       userId: targetUserId,
     });
-    if (!user) throw new Error("User not found.");
+    if (!user) throw new ConvexError("User not found.");
     if (user.isAdmin) {
-      throw new Error("Admin accounts can't be deleted from this panel.");
+      throw new ConvexError("Admin accounts can't be deleted from this panel.");
     }
     const actualEmail = (user.email || "").trim().toLowerCase();
     if (!actualEmail || confirmEmail.trim().toLowerCase() !== actualEmail) {
-      throw new Error(
+      throw new ConvexError(
         "The typed email doesn't match this account's email. Nothing was deleted.",
       );
     }

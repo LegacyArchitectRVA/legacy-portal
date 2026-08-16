@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { chapters } from "../src/data/chapters";
 import { mutation, query } from "./_generated/server";
 import { requireAdmin } from "./admin";
@@ -226,7 +226,7 @@ export const addClientNote = mutation({
   args: { clientUserId: v.id("users"), content: v.string() },
   handler: async (ctx, { clientUserId, content }) => {
     const authorId = await requireAdmin(ctx);
-    if (!content.trim()) throw new Error("Note can't be empty.");
+    if (!content.trim()) throw new ConvexError("Note can't be empty.");
     await ctx.db.insert("clientNotes", {
       clientUserId,
       authorId,
