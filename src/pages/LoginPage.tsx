@@ -1,10 +1,12 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import {
   RiLoader4Line as CircleNotch,
-  RiEyeLine as Eye,
-  RiEyeOffLine as EyeSlash,
-  RiFingerprintLine as Fingerprint,
 } from "@remixicon/react";
+import {
+  Eye,
+  EyeOff as EyeSlash,
+  Fingerprint,
+} from "reicon-react";
 import {
   browserSupportsWebAuthn,
   startAuthentication,
@@ -173,7 +175,7 @@ export default function LoginPage() {
             alt="Legacy Architect RVA"
             width={64}
             height={64}
-            className="mx-auto w-16 h-16 object-contain"
+            className="mx-auto w-[64px] h-[64px] object-contain"
           />
           <h1 className="font-heading text-2xl text-[#f2ede2] tracking-wide uppercase">
             {mode === "signin" ? (

@@ -1,12 +1,12 @@
 import {
-  RiArrowLeftLine as ArrowLeft,
-  RiBookOpenLine as BookOpen,
-  RiClipboardLine as ClipboardCheck,
-  RiDownloadLine as Download,
-  RiEyeLine as Eye,
-  RiMapLine as MapIcon,
-  RiShieldCheckLine as ShieldCheck,
-} from "@remixicon/react";
+  ArrowLeft,
+  BookOpen,
+  Clipboard as ClipboardCheck,
+  Download,
+  Eye,
+  Map as MapIcon,
+  ShieldCheck,
+} from "reicon-react";
 import { useState } from "react";
 import { EditableText } from "../components/EditableText";
 

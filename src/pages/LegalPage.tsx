@@ -1,4 +1,6 @@
-import { RiArrowLeftLine as ArrowLeft } from "@remixicon/react";
+import {
+  ArrowLeft,
+} from "reicon-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

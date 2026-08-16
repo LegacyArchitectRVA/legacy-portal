@@ -1,13 +1,15 @@
 import {
-  RiArrowLeftLine as ArrowLeft,
   RiArrowDownSLine as ChevronDown,
-  RiArrowDownLine as Down,
-  RiDownloadLine as Download,
   RiLoader4Line as Loader2,
   RiSparklingLine as Sparkle,
   RiDeleteBinLine as Trash2,
-  RiArrowUpLine as Up,
 } from "@remixicon/react";
+import {
+  ArrowLeft,
+  ArrowDown as Down,
+  Download,
+  ArrowUp as Up,
+} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";

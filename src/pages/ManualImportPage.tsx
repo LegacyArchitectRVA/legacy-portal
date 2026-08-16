@@ -1,10 +1,12 @@
 import {
-  RiAlertLine as AlertCircle,
-  RiArrowLeftLine as ArrowLeft,
   RiCheckboxCircleLine as CheckCircle2,
   RiLoader4Line as Loader2,
-  RiUploadLine as Upload,
 } from "@remixicon/react";
+import {
+  Alert as AlertCircle,
+  ArrowLeft,
+  Upload,
+} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";

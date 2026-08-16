@@ -1,13 +1,15 @@
 import {
-  RiArrowLeftLine as ArrowLeft,
-  RiCalendarLine as Calendar,
   RiCheckDoubleLine as CheckCheck,
   RiChat3Line as MessageSquare,
-  RiAddLine as Plus,
   RiSendPlaneLine as Send,
   RiDeleteBinLine as Trash2,
   RiCloseLine as X,
 } from "@remixicon/react";
+import {
+  ArrowLeft,
+  Calendar,
+  Add as Plus,
+} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";

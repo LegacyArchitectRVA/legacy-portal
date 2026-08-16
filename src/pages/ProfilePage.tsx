@@ -1,11 +1,13 @@
 import {
-  RiCameraLine as Camera,
-  RiCheckLine as Check,
   RiVipCrownLine as Crown,
   RiLoader4Line as Loader2,
-  RiSaveLine as Save,
-  RiUserLine as User,
 } from "@remixicon/react";
+import {
+  Camera,
+  Check,
+  Save,
+  User,
+} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../../convex/_generated/api";
@@ -119,13 +121,18 @@ export default function ProfilePage() {
         <div className="flex flex-col sm:flex-row items-center gap-5">
           {/* Profile Picture */}
           <div className="relative group shrink-0">
-            <div className="w-24 h-24 rounded-full bg-[#111] flex items-center justify-center border-2 border-[rgba(212, 182, 97,0.15)] overflow-hidden shadow-[0_0_15px_rgba(212, 182, 97,0.06)]">
+            <div className="w-[96px] h-[96px] rounded-full bg-[#111] flex items-center justify-center border-2 border-[rgba(212, 182, 97,0.15)] overflow-hidden shadow-[0_0_15px_rgba(212, 182, 97,0.06)]">
               {profilePicPreview ? (
                 <img
                   src={profilePicPreview}
                   alt=""
                   className="w-full h-full object-cover"
-                  onError={() => setProfilePicPreview(null)}
+                  onError={() => {
+                    setProfilePicPreview(null);
+                    setUploadError(
+                      "Your photo saved, but the image itself won't load right now. Try uploading it again.",
+                    );
+                  }}
                 />
               ) : (
                 <User className="w-12 h-12 text-[#d4b661]/75" />
@@ -168,13 +175,18 @@ export default function ProfilePage() {
 
           {/* Family Crest */}
           <div className="relative group shrink-0 w-full sm:w-auto">
-            <div className="w-24 h-24 rounded-xl bg-[#111] flex flex-col items-center justify-center border-2 border-[rgba(212, 182, 97,0.15)] overflow-hidden gap-1 shadow-[0_0_15px_rgba(212, 182, 97,0.06)] mx-auto">
+            <div className="w-[96px] h-[96px] rounded-xl bg-[#111] flex flex-col items-center justify-center border-2 border-[rgba(212, 182, 97,0.15)] overflow-hidden gap-1 shadow-[0_0_15px_rgba(212, 182, 97,0.06)] mx-auto">
               {crestPreview ? (
                 <img
                   src={crestPreview}
                   alt=""
                   className="w-full h-full object-contain p-2"
-                  onError={() => setCrestPreview(null)}
+                  onError={() => {
+                    setCrestPreview(null);
+                    setUploadError(
+                      "Your crest saved, but the image itself won't load right now. Try uploading it again.",
+                    );
+                  }}
                 />
               ) : (
                 <>

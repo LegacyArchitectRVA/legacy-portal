@@ -1,29 +1,32 @@
 import {
   RiArchiveStackLine as ArchiveStack,
-  RiBookOpenLine as BookOpen,
   RiCheckboxCircleLine as CheckCircle2,
   RiVipCrownLine as Crown,
-  RiCloudLine as DownloadCloud,
   RiExternalLinkLine as ExternalLink,
-  RiEyeLine as Eye,
-  RiFileTextLine as FileText,
   RiLoader4Line as Loader2,
-  RiPaintBrushLine as Paintbrush,
-  RiSafeLine as Safe,
-  RiSearchLine as Search,
   RiSettings3Line as Settings,
   RiUploadCloud2Line as UploadCloud,
   RiUserSettingsLine as UserCog,
-  RiUserAddLine as UserPlus,
   RiTeamLine as Users,
-  RiCloseCircleLine as XCircle,
 } from "@remixicon/react";
+import {
+  BookOpen,
+  Cloud as DownloadCloud,
+  Eye,
+  FileText,
+  Paintbrush,
+  Safe,
+  Search,
+  UserAdd as UserPlus,
+  CloseCircle as XCircle,
+} from "reicon-react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { IconMedallion } from "../components/TrustIcons";
 import { tiers } from "../data/tiers";
+import { getErrorMessage } from "../lib/utils";
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -66,7 +69,7 @@ export default function AdminPage() {
       await addClientMutation({ userId: userId as any, tier: tier as any });
       setShowAddClient(false);
     } catch (err: any) {
-      setAddClientError(err?.message || "Could not add this client.");
+      setAddClientError(getErrorMessage(err, "Could not add this client."));
     } finally {
       setAddingTierFor(null);
     }
@@ -91,7 +94,7 @@ export default function AdminPage() {
       setHubspotResult({
         id: client._id,
         ok: false,
-        message: err?.message || "Pull failed.",
+        message: getErrorMessage(err, "Pull failed."),
       });
     } finally {
       setPullingId(null);
@@ -108,7 +111,7 @@ export default function AdminPage() {
       setHubspotResult({
         id: client._id,
         ok: false,
-        message: err?.message || "Sync failed.",
+        message: getErrorMessage(err, "Sync failed."),
       });
     } finally {
       setHubspotSyncingId(null);

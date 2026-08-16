@@ -1,25 +1,28 @@
 import {
-  RiArrowLeftLine as ArrowLeft,
-  RiCalendarLine as Calendar,
   RiCheckboxCircleLine as CheckCircle2,
   RiExternalLinkLine as ExternalLink,
-  RiFileTextLine as FileText,
   RiLoader4Line as Loader2,
   RiMailLine as Mail,
   RiChat3Line as MessageSquare,
   RiAttachment2 as Paperclip,
-  RiPhoneLine as Phone,
   RiScalesLine as Scale,
   RiSendPlaneLine as Send,
   RiDeleteBinLine as Trash2,
-  RiUserLine as User,
-  RiCloseCircleLine as XCircle,
 } from "@remixicon/react";
+import {
+  ArrowLeft,
+  Calendar,
+  FileText,
+  Phone,
+  User,
+  CloseCircle as XCircle,
+} from "reicon-react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { getErrorMessage } from "../lib/utils";
 
 const CAL_LINK = "https://cal.com/legacyarchitectrva/60min";
 
@@ -120,7 +123,7 @@ export default function ClientDetailPage() {
       if (hsFileRef.current) hsFileRef.current.value = "";
     } catch (err: any) {
       setHsMessage({
-        text: err?.message || "Couldn't reach HubSpot.",
+        text: getErrorMessage(err, "Couldn't reach HubSpot."),
         isError: true,
       });
     } finally {

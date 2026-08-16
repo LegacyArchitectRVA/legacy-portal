@@ -1,9 +1,11 @@
 import {
-  RiArrowLeftLine as ArrowLeft,
   RiBankCardLine as CreditCard,
-  RiShieldLine as Shield,
   RiSplitCellsHorizontal as SquareSplitVertical,
 } from "@remixicon/react";
+import {
+  ArrowLeft,
+  Shield,
+} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

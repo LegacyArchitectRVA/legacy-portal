@@ -1,9 +1,11 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import {
-  RiEyeLine as Eye,
-  RiEyeOffLine as EyeOff,
   RiLoader4Line as Loader2,
 } from "@remixicon/react";
+import {
+  Eye,
+  EyeOff,
+} from "reicon-react";
 import { ConvexError } from "convex/values";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -55,7 +57,7 @@ export default function SignupPage() {
             alt="Legacy Architect RVA"
             width={64}
             height={64}
-            className="mx-auto w-16 h-16 object-contain"
+            className="mx-auto w-[64px] h-[64px] object-contain"
           />
           <h1 className="font-heading text-2xl text-[#f2ede2] tracking-wide uppercase">
             <EditableText cmsKey="signup_title" as="span" />

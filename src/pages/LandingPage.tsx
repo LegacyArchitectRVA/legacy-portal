@@ -1,4 +1,6 @@
-import { RiArrowRightLine as ArrowRight } from "@remixicon/react";
+import {
+  ArrowRight,
+} from "reicon-react";
 import { useConvexAuth, useMutation } from "convex/react";
 import { Link } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
@@ -25,7 +27,7 @@ export default function LandingPage() {
               alt="Legacy Architect RVA"
               width={44}
               height={44}
-              className="w-11 h-11 rounded-lg object-contain"
+              className="w-[44px] h-[44px] rounded-lg object-contain"
             />
             <span className="text-sm font-heading tracking-wider text-gold-primary hidden sm:block">
               LEGACY ARCHITECT

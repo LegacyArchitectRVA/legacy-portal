@@ -1,22 +1,24 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import {
   RiErrorWarningLine as AlertTriangle,
-  RiNotification3Line as Bell,
-  RiCheckLine as Check,
   RiArrowRightSLine as ChevronRight,
-  RiEyeLine as Eye,
-  RiEyeOffLine as EyeOff,
-  RiFileTextLine as FileText,
-  RiFingerprintLine as Fingerprint,
-  RiKeyLine as KeyRound,
   RiLoader4Line as Loader2,
   RiLogoutBoxRLine as LogOut,
   RiSmartphoneLine as MonitorSmartphone,
-  RiShieldLine as Shield,
-  RiShieldCheckLine as ShieldCheck,
-  RiSunLine as Sun,
   RiDeleteBinLine as Trash2,
 } from "@remixicon/react";
+import {
+  Notification3 as Bell,
+  Check,
+  Eye,
+  EyeOff,
+  FileText,
+  Fingerprint,
+  Key as KeyRound,
+  Shield,
+  ShieldCheck,
+  Sun,
+} from "reicon-react";
 import {
   browserSupportsWebAuthn,
   startRegistration,

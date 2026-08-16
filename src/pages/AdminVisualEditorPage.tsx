@@ -1,21 +1,23 @@
 import {
   RiArrowLeftSLine as CaretLeft,
-  RiCheckLine as Check,
   RiLoader4Line as CircleNotch,
-  RiCursorLine as CursorClick,
-  RiSaveLine as FloppyDisk,
-  RiPaintBrushLine as PaintBrush,
   RiAlignCenter as TextAlignCenter,
-  RiAlignLeft as TextAlignLeft,
-  RiAlignRight as TextAlignRight,
-  RiBold as TextB,
-  RiItalic as TextItalic,
-  RiUnderline as TextUnderline,
   RiDeleteBinLine as Trash,
-  RiUploadLine as Upload,
   RiErrorWarningLine as Warning,
   RiCloseLine as X,
 } from "@remixicon/react";
+import {
+  Check,
+  Cursor as CursorClick,
+  Save as FloppyDisk,
+  Paintbrush as PaintBrush,
+  AlignLeft as TextAlignLeft,
+  AlignRight as TextAlignRight,
+  Bold as TextB,
+  Italic as TextItalic,
+  Underline as TextUnderline,
+  Upload,
+} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";

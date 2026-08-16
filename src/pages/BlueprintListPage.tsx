@@ -1,11 +1,13 @@
 import {
-  RiArrowLeftLine as ArrowLeft,
   RiCheckboxCircleLine as Done,
   RiDraftLine as Draft,
-  RiAddLine as Plus,
   RiSendPlaneLine as Sent,
   RiDeleteBinLine as Trash2,
 } from "@remixicon/react";
+import {
+  ArrowLeft,
+  Add as Plus,
+} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";

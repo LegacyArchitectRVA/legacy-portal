@@ -1,18 +1,21 @@
 import {
-  RiArrowLeftLine as ArrowLeft,
   RiCheckboxCircleLine as CheckCircle2,
   RiFileCopyLine as Copy,
-  RiEyeLine as Eye,
-  RiKeyLine as Key,
   RiLoader4Line as Loader2,
-  RiSaveLine as Save,
   RiSettings3Line as Settings,
-  RiCloseCircleLine as XCircle,
 } from "@remixicon/react";
+import {
+  ArrowLeft,
+  Eye,
+  Key,
+  Save,
+  CloseCircle as XCircle,
+} from "reicon-react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
+import { getErrorMessage } from "../lib/utils";
 
 export default function HubSpotSettingsPage() {
   const navigate = useNavigate();
@@ -73,7 +76,7 @@ export default function HubSpotSettingsPage() {
     } catch (err: any) {
       setTestResult({
         connected: false,
-        message: err?.message || "Test failed.",
+        message: getErrorMessage(err, "Test failed."),
       });
     } finally {
       setTesting(false);

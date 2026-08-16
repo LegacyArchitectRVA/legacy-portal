@@ -1,22 +1,25 @@
 import {
   RiErrorWarningLine as AlertTriangle,
-  RiCheckLine as Check,
   RiDeleteBinLine as DeleteIcon,
-  RiKeyLine as KeyRound,
   RiLoader4Line as Loader2,
   RiMailSendLine as MailSend,
-  RiSearchLine as Search,
-  RiShieldCheckLine as ShieldCheck,
   RiLockUnlockLine as Unlock,
-  RiUserAddLine as UserPlus,
   RiTeamLine as Users,
   RiCloseLine as X,
 } from "@remixicon/react";
+import {
+  Check,
+  Key as KeyRound,
+  Search,
+  ShieldCheck,
+  UserAdd as UserPlus,
+} from "reicon-react";
 import { useAction, useQuery } from "convex/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { FullPageLoader } from "../components/FullPageLoader";
+import { getErrorMessage } from "../lib/utils";
 
 const TIERS = [
   { value: "vault", label: "Vault" },
@@ -123,7 +126,7 @@ export default function UserAccessPage() {
     } catch (err: any) {
       setResultMessage({
         userId,
-        text: err?.message || "Could not set a temporary password.",
+        text: getErrorMessage(err, "Could not set a temporary password."),
         isError: true,
       });
     } finally {
@@ -154,7 +157,7 @@ export default function UserAccessPage() {
     } catch (err: any) {
       setResultMessage({
         userId,
-        text: err?.message || "Could not send the reset email.",
+        text: getErrorMessage(err, "Could not send the reset email."),
         isError: true,
       });
     } finally {
@@ -181,7 +184,7 @@ export default function UserAccessPage() {
     } catch (err: any) {
       setResultMessage({
         userId,
-        text: err?.message || "Could not unlock this account.",
+        text: getErrorMessage(err, "Could not unlock this account."),
         isError: true,
       });
     } finally {
@@ -219,7 +222,7 @@ export default function UserAccessPage() {
       });
       setHubspotResults(results);
     } catch (err: any) {
-      setHubspotError(err?.message || "HubSpot search failed.");
+      setHubspotError(getErrorMessage(err, "HubSpot search failed."));
       setHubspotResults([]);
     } finally {
       setHubspotSearching(false);
@@ -259,7 +262,7 @@ export default function UserAccessPage() {
         emailSent: result.emailSent,
       });
     } catch (err: any) {
-      setCreateError(err?.message || "Could not create this account.");
+      setCreateError(getErrorMessage(err, "Could not create this account."));
     } finally {
       setCreating(false);
     }
@@ -290,7 +293,7 @@ export default function UserAccessPage() {
       setDeleteConfirmEmail("");
       setTimeout(() => setJustDeletedEmail(null), 4000);
     } catch (err: any) {
-      setDeleteError(err?.message || "Could not delete this account.");
+      setDeleteError(getErrorMessage(err, "Could not delete this account."));
     } finally {
       setDeleteBusy(false);
     }

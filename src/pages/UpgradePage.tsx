@@ -1,9 +1,9 @@
 import {
-  RiArrowRightLine as ArrowRight,
-  RiCheckLine as Check,
-  RiLockLine as Lock,
-  RiShieldLine as Shield,
-} from "@remixicon/react";
+  ArrowRight,
+  Check,
+  Lock,
+  Shield,
+} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

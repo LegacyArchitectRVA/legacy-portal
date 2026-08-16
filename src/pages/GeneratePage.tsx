@@ -1,11 +1,13 @@
 import {
   RiErrorWarningLine as AlertTriangle,
-  RiArrowLeftLine as ArrowLeft,
-  RiBookOpenLine as BookOpen,
-  RiDownloadLine as Download,
-  RiFileTextLine as FileText,
   RiLoader4Line as Loader2,
 } from "@remixicon/react";
+import {
+  ArrowLeft,
+  BookOpen,
+  Download,
+  FileText,
+} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";

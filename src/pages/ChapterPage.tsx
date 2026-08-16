@@ -1,13 +1,15 @@
 import {
-  RiArrowLeftLine as ArrowLeft,
-  RiCheckLine as Check,
   RiArrowDownSLine as ChevronDown,
   RiLoader4Line as Loader2,
-  RiAddLine as Plus,
-  RiSaveLine as Save,
   RiDeleteBinLine as Trash2,
   RiCloseLine as X,
 } from "@remixicon/react";
+import {
+  ArrowLeft,
+  Check,
+  Add as Plus,
+  Save,
+} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";

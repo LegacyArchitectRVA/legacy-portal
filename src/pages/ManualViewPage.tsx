@@ -1,8 +1,8 @@
 import {
-  RiArrowLeftLine as ArrowLeft,
-  RiBookOpenLine as BookOpen,
-  RiFileTextLine as FileText,
-} from "@remixicon/react";
+  ArrowLeft,
+  BookOpen,
+  FileText,
+} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";

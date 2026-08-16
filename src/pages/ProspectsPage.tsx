@@ -1,23 +1,26 @@
 import {
-  RiArrowLeftLine as ArrowLeft,
   RiCheckboxCircleLine as ConvertedIcon,
   RiTimeLine as FollowUpIcon,
-  RiPauseCircleLine as InactiveIcon,
   RiLoader4Line as Loader2,
   RiMailLine as Mail,
-  RiAddCircleLine as NewIcon,
-  RiPhoneLine as Phone,
-  RiAddLine as Plus,
-  RiRefreshLine as RefreshCw,
   RiDeleteBinLine as Trash2,
-  RiUserLine as User,
   RiCloseLine as X,
 } from "@remixicon/react";
+import {
+  ArrowLeft,
+  PauseCircle as InactiveIcon,
+  AddCircle as NewIcon,
+  Phone,
+  Add as Plus,
+  Refresh as RefreshCw,
+  User,
+} from "reicon-react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { getErrorMessage } from "../lib/utils";
 
 const STATUSES = [
   { id: "new", label: "New", color: "text-sky-400", icon: NewIcon },
@@ -74,8 +77,7 @@ export default function ProspectsPage() {
       );
     } catch (err: any) {
       setSyncResult(
-        err?.message ||
-          "Sync failed. Check your HubSpot connection in Settings.",
+        getErrorMessage(err, "Sync failed. Check your HubSpot connection in Settings."),
       );
     } finally {
       setSyncing(false);
@@ -117,7 +119,7 @@ export default function ProspectsPage() {
       setSource("");
       setShowAdd(false);
     } catch (err: any) {
-      setError(err?.message || "Could not add prospect.");
+      setError(getErrorMessage(err, "Could not add prospect."));
     } finally {
       setAdding(false);
     }

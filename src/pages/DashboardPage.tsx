@@ -1,9 +1,11 @@
 import {
-  RiArrowRightLine as ArrowRight,
   RiLoader4Line as CircleNotch,
   RiTimeLine as Clock,
-  RiLockLine as Lock,
 } from "@remixicon/react";
+import {
+  ArrowRight,
+  Lock,
+} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";

@@ -1,19 +1,22 @@
 import {
-  RiAlertLine as AlertCircle,
   RiCheckboxCircleLine as CheckCircle2,
-  RiDownloadLine as Download,
-  RiFileLine as File,
-  RiFileTextLine as FileText,
-  RiImageLine as ImageIcon,
   RiLoader4Line as Loader2,
   RiFontSize2 as Type,
-  RiUploadLine as Upload,
   RiCloseLine as X,
 } from "@remixicon/react";
+import {
+  Alert as AlertCircle,
+  Download,
+  File,
+  FileText,
+  Image as ImageIcon,
+  Upload,
+} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
+import { getErrorMessage } from "../lib/utils";
 import {
   downloadBlob,
   downloadText,
@@ -111,7 +114,7 @@ export default function DocumentConversionPage() {
       }
     } catch (err: any) {
       setError(
-        err?.message || "Conversion failed. Check the file and try again.",
+        getErrorMessage(err, "Conversion failed. Check the file and try again."),
       );
     } finally {
       setIsLoading(false);
