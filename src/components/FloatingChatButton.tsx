@@ -5,8 +5,11 @@ export default function FloatingChatButton() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Don't show on messages page itself
-  if (location.pathname === "/messages") return null;
+  // Don't show on the messages page itself, or on Profile — Profile
+  // already has two of its own floating upload buttons (photo, crest)
+  // that this can visually collide with at certain scroll positions.
+  if (location.pathname === "/messages" || location.pathname === "/profile")
+    return null;
 
   return (
     <button
