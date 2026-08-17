@@ -3,10 +3,110 @@
   <head>
     <meta charset="UTF-8" />
     <!--
-      TEMPORARY DIAGNOSTIC — remove once the black screen bug is found.
-      Runs before anything else, including React. Catches any script error
-      or unhandled promise rejection and writes it straight onto the page
-      as plain text, so it's visible on a phone with no devtools involved.
+      STORAGE RESILIENCE SHIM
+      Runs before Convex, React, or any app code. Some mobile browser privacy
+      modes (Brave Shields, Chrome's stricter mobile storage rules) block
+      localStorage, sessionStorage, and IndexedDB outright. Chrome's error for
+      this is "SecurityError: The request was denied." Several things in this
+      app touch storage without expecting that: Convex Auth's default token
+      storage, and tesseract.js's OCR language-data cache (used in
+      documentConverter.ts) both assume storage always works.
+
+      Instead of patching every library one at a time, this replaces
+      localStorage/sessionStorage with a working in-memory fallback the
+      moment real storage proves blocked, and wraps indexedDB.open so a
+      blocked database fails the normal async way (onerror) instead of
+      throwing synchronously and skipping past a library's own error
+      handling. Nothing here is destructive: if storage works normally, this
+      does nothing and the real APIs are left alone.
+    -->
+    <script>
+      (function () {
+        function makeMemoryStorage() {
+          var map = new Map();
+          return {
+            getItem: function (k) {
+              return map.has(k) ? map.get(k) : null;
+            },
+            setItem: function (k, v) {
+              map.set(String(k), String(v));
+            },
+            removeItem: function (k) {
+              map.delete(k);
+            },
+            clear: function () {
+              map.clear();
+            },
+            key: function (i) {
+              return Array.from(map.keys())[i] ?? null;
+            },
+            get length() {
+              return map.size;
+            },
+          };
+        }
+
+        function shimWebStorage(propName) {
+          try {
+            var real = window[propName];
+            var testKey = "__lrva_storage_probe__";
+            real.setItem(testKey, "1");
+            real.removeItem(testKey);
+            // Works fine here, leave the real implementation alone.
+          } catch (e) {
+            // Blocked. Swap in one shared in-memory instance so everything
+            // reading window[propName] sees the same data for this page load.
+            var memoryInstance = makeMemoryStorage();
+            try {
+              Object.defineProperty(window, propName, {
+                configurable: true,
+                get: function () {
+                  return memoryInstance;
+                },
+              });
+            } catch (e2) {
+              // If the property itself can't be redefined, there's nothing
+              // more to do here; the diagnostic catcher below will still
+              // surface whatever throws downstream.
+            }
+          }
+        }
+
+        shimWebStorage("localStorage");
+        shimWebStorage("sessionStorage");
+
+        try {
+          if (window.indexedDB && window.indexedDB.open) {
+            var nativeOpen = window.indexedDB.open.bind(window.indexedDB);
+            window.indexedDB.open = function () {
+              try {
+                return nativeOpen.apply(window.indexedDB, arguments);
+              } catch (err) {
+                // Mimic a normal failed IDB request: return a request-shaped
+                // object and fire onerror asynchronously, same as a real
+                // blocked-database failure would, instead of throwing here
+                // and skipping past the caller's own error handling.
+                var fakeRequest = {};
+                setTimeout(function () {
+                  if (typeof fakeRequest.onerror === "function") {
+                    fakeRequest.onerror({ target: { error: err } });
+                  }
+                }, 0);
+                return fakeRequest;
+              }
+            };
+          }
+        } catch (e) {
+          // Best effort only.
+        }
+      })();
+    </script>
+
+    <!--
+      DIAGNOSTIC — safety net for anything not covered above. Catches any
+      remaining script error or unhandled promise rejection and writes it
+      straight onto the page as plain text, visible on a phone with no
+      devtools needed. Remove once the portal's been stable for a while.
     -->
     <script>
       (function () {
@@ -46,6 +146,7 @@
         });
       })();
     </script>
+
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
