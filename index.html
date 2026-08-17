@@ -107,6 +107,19 @@
       remaining script error or unhandled promise rejection and writes it
       straight onto the page as plain text, visible on a phone with no
       devtools needed. Remove once the portal's been stable for a while.
+
+      One thing this has to be careful about: the window "error" listener
+      below is capture-phase, which is needed to catch the app's own script
+      tag failing to load (a 404 or CSP block on /src/main.tsx would be
+      fatal, the whole app can't boot). But capture-phase also sees every
+      OTHER resource load failure on the page: a broken <img>, a blocked
+      stylesheet, and so on. Those aren't crashes, several places in the app
+      (like the profile photo and crest previews) already handle a broken
+      image gracefully on their own. A plain resource load failure fires as
+      an ordinary Event with no message, filename, or error attached, that's
+      the "Unknown error at ?:?" text, not a real problem. Only a genuine
+      ErrorEvent (an actual thrown script error) or the main script tag
+      itself failing to load should take over the screen.
     -->
     <script>
       (function () {
@@ -126,14 +139,32 @@
         window.addEventListener(
           "error",
           function (e) {
-            var detail =
-              e.error && e.error.stack
-                ? e.error.stack
-                : (e.message || "Unknown error") +
-                  " at " +
-                  (e.filename || "?") +
-                  ":" +
-                  (e.lineno || "?");
+            var isRealScriptError = e instanceof ErrorEvent;
+            var isMainScriptLoadFailure =
+              !isRealScriptError &&
+              e.target &&
+              e.target.tagName === "SCRIPT";
+
+            // A resource (image, stylesheet, etc.) other than the app's own
+            // script tag failing to load isn't fatal, the page carries on.
+            // Don't paint over a portal that's actually working fine.
+            if (!isRealScriptError && !isMainScriptLoadFailure) return;
+
+            var detail;
+            if (isRealScriptError) {
+              detail =
+                e.error && e.error.stack
+                  ? e.error.stack
+                  : (e.message || "Unknown error") +
+                    " at " +
+                    (e.filename || "?") +
+                    ":" +
+                    (e.lineno || "?");
+            } else {
+              detail =
+                "The app's main script tag failed to load: " +
+                (e.target.src || e.target.outerHTML);
+            }
             showDiagnostic("Caught a script error:", detail);
           },
           true,
