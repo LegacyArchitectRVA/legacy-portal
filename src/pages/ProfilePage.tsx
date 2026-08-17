@@ -62,7 +62,13 @@ export default function ProfilePage() {
         headers: { "Content-Type": file.type },
         body: file,
       });
+      if (!result.ok) {
+        throw new Error(`Upload failed (${result.status}).`);
+      }
       const { storageId } = await result.json();
+      if (!storageId) {
+        throw new Error("Upload didn't return a file reference.");
+      }
 
       if (type === "profilePic") {
         await updateProfile({ profilePicId: storageId });
