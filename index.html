@@ -4,27 +4,28 @@
     <meta charset="UTF-8" />
     <!--
       STORAGE RESILIENCE SHIM
-      Runs before Convex, React, or any app code. Some mobile browser privacy
-      modes (Brave Shields, Chrome's stricter mobile storage rules, some
-      managed/enterprise Chrome profiles) block localStorage, sessionStorage,
-      and IndexedDB outright. Chrome's error for this is "SecurityError: The
-      request was denied." Several things in this app touch storage without
-      expecting that: Convex Auth's default token storage, and tesseract.js's
-      OCR language-data cache (used in documentConverter.ts) both assume
-      storage always works.
+      Runs before Convex, React, or any app code. Some browser configurations
+      deny a document access to localStorage/sessionStorage/IndexedDB
+      entirely. There are two different ways that shows up in Chrome, and
+      this shim has to handle both:
 
-      This patches the shared getItem/setItem/removeItem methods on
-      Storage.prototype (what window.localStorage and window.sessionStorage
-      both inherit from) rather than trying to replace window.localStorage or
-      window.sessionStorage themselves. That distinction matters: some locked-
-      down browser configurations make the window.localStorage property
-      itself non-configurable, so replacing the property silently fails while
-      the underlying blocked storage stays in place. The methods on
-      Storage.prototype don't have that restriction, patching them there
-      catches every caller (this app's own code, Convex's internals,
-      anything) no matter how it reaches storage. Nothing here is
-      destructive: if storage works normally, this does nothing and the real
-      APIs are left alone.
+      1. Reading window.localStorage itself throws:
+         "SecurityError: Failed to read the 'localStorage' property from
+         'Window': Access is denied for this document." This is the more
+         restrictive case — the document doesn't get a Storage object at
+         all, not even one whose methods fail. A prior version of this shim
+         only guarded the setItem/removeItem calls, not this read, so on a
+         browser hitting this case the shim's very first line threw,
+         uncaught, and silently skipped everything after it in this script,
+         including sessionStorage and the indexedDB wrap below.
+      2. window.localStorage reads fine, but calling .setItem/.getItem/
+         .removeItem on it throws "SecurityError: The request was denied."
+
+      Several things in this app touch storage without expecting either
+      case: Convex Auth's default token storage, and tesseract.js's OCR
+      language-data cache (used in documentConverter.ts) both assume storage
+      always works. Nothing here is destructive: if storage works normally,
+      this does nothing and the real APIs are left alone.
     -->
     <script>
       (function () {
@@ -44,7 +45,55 @@
         }
 
         function shimWebStorage(propName) {
-          var real = window[propName];
+          window.__lrvaStorageStatus[propName] = { state: "in-progress" };
+
+          // The property read itself — window.localStorage — can throw on
+          // its own, before any method is even called on it. This is the
+          // case that actually matters: some browser configurations deny a
+          // document storage access entirely, and Chrome's error for that
+          // is specifically "Failed to read the 'localStorage' property
+          // from 'Window': Access is denied for this document." An earlier
+          // version of this shim only guarded the setItem/removeItem probe
+          // below, not this read, so it never got past this line and the
+          // rest of the shim (sessionStorage, the indexedDB wrap further
+          // down) silently never ran either.
+          var real;
+          var readThrew = false;
+          var readError = null;
+          try {
+            real = window[propName];
+          } catch (e) {
+            readThrew = true;
+            readError = e;
+          }
+
+          if (readThrew) {
+            var memoryForReadThrow = makeMemoryStorage();
+            try {
+              Object.defineProperty(window, propName, {
+                configurable: true,
+                get: function () {
+                  return memoryForReadThrow;
+                },
+              });
+              window.__lrvaStorageStatus[propName] = {
+                state: "blocked-and-patched",
+                patchedVia: ["window-property (read itself threw)"],
+                probeError: readError.name + ": " + readError.message,
+              };
+            } catch (e2) {
+              // The property can't be redefined either. Nothing further to
+              // try from script, this document's storage access is denied
+              // at a level JavaScript on the page can't work around.
+              window.__lrvaStorageStatus[propName] = {
+                state: "blocked-unpatched",
+                probeError: readError.name + ": " + readError.message,
+                patchError: e2.message,
+              };
+            }
+            return;
+          }
+
           if (!real) {
             window.__lrvaStorageStatus[propName] = { state: "not-present" };
             return;
@@ -66,9 +115,11 @@
           var memoryInstance = makeMemoryStorage();
           var patchedVia = [];
 
-          // Preferred fix: patch the shared prototype so every caller,
-          // regardless of how it holds a reference to localStorage/
-          // sessionStorage, goes through the same safe implementation.
+          // Preferred fix for this branch: the object itself was readable,
+          // just its methods throw when called. Patch the shared prototype
+          // so every caller, regardless of how it holds a reference to
+          // localStorage/sessionStorage, goes through the same safe
+          // implementation.
           try {
             var proto = Object.getPrototypeOf(real);
             proto.getItem = function (k) {
@@ -140,9 +191,29 @@
           };
         }
 
+        // Each call is independently guarded. If shimming one storage type
+        // hits something totally unanticipated, it must not be able to take
+        // the other one, or the indexedDB wrap below, down with it — that
+        // exact failure mode (one unguarded line aborting everything after
+        // it in this script) is what caused the last version of this file
+        // to silently do nothing.
         window.__lrvaStorageStatus = {};
-        shimWebStorage("localStorage");
-        shimWebStorage("sessionStorage");
+        try {
+          shimWebStorage("localStorage");
+        } catch (eOuterLS) {
+          window.__lrvaStorageStatus.localStorage = {
+            state: "shim-crashed",
+            error: eOuterLS && eOuterLS.message,
+          };
+        }
+        try {
+          shimWebStorage("sessionStorage");
+        } catch (eOuterSS) {
+          window.__lrvaStorageStatus.sessionStorage = {
+            state: "shim-crashed",
+            error: eOuterSS && eOuterSS.message,
+          };
+        }
 
         try {
           if (window.indexedDB && window.indexedDB.open) {
