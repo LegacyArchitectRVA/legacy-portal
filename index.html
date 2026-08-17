@@ -45,19 +45,26 @@
 
         function shimWebStorage(propName) {
           var real = window[propName];
-          if (!real) return; // storage API not present at all, nothing to patch
+          if (!real) {
+            window.__lrvaStorageStatus[propName] = { state: "not-present" };
+            return;
+          }
 
           try {
             var testKey = "__lrva_storage_probe__";
             real.setItem(testKey, "1");
             real.removeItem(testKey);
+            window.__lrvaStorageStatus[propName] = { state: "working" };
             return; // works fine here, leave the real implementation alone
           } catch (e) {
-            // Blocked. Fall through to patching below.
+            window.__lrvaStorageStatus[propName] = {
+              state: "blocked",
+              probeError: e && e.name ? e.name + ": " + e.message : String(e),
+            };
           }
 
           var memoryInstance = makeMemoryStorage();
-          var patchedSomething = false;
+          var patchedVia = [];
 
           // Preferred fix: patch the shared prototype so every caller,
           // regardless of how it holds a reference to localStorage/
@@ -73,7 +80,7 @@
             proto.removeItem = function (k) {
               return memoryInstance.removeItem(k);
             };
-            patchedSomething = true;
+            patchedVia.push("prototype");
           } catch (e2) {
             // Extremely unusual for Storage.prototype itself to be locked.
           }
@@ -93,28 +100,47 @@
             real.removeItem = function (k) {
               return memoryInstance.removeItem(k);
             };
-            patchedSomething = true;
+            patchedVia.push("own-property");
           } catch (e2b) {
             // Instance methods aren't writable either, fine, the prototype
             // patch above is what actually matters in real browsers.
           }
 
-          if (patchedSomething) return;
-
-          try {
-            Object.defineProperty(window, propName, {
-              configurable: true,
-              get: function () {
-                return memoryInstance;
-              },
-            });
-          } catch (e3) {
-            // Both approaches failed. Nothing more to do here; the
-            // diagnostic catcher below will still surface whatever throws
-            // downstream instead of it disappearing as a silent crash.
+          if (patchedVia.length === 0) {
+            try {
+              Object.defineProperty(window, propName, {
+                configurable: true,
+                get: function () {
+                  return memoryInstance;
+                },
+              });
+              patchedVia.push("window-property");
+            } catch (e3) {
+              // All three approaches failed.
+            }
           }
+
+          // Verify the patch actually works by using window[propName] the
+          // same way real calling code would, not just trusting that the
+          // assignment above didn't throw.
+          var verified = false;
+          try {
+            window[propName].setItem(testKey, "1");
+            verified = window[propName].getItem(testKey) === "1";
+            window[propName].removeItem(testKey);
+          } catch (e4) {
+            verified = false;
+          }
+
+          window.__lrvaStorageStatus[propName] = {
+            state: patchedVia.length ? "blocked-and-patched" : "blocked-unpatched",
+            patchedVia: patchedVia,
+            verified: verified,
+            probeError: window.__lrvaStorageStatus[propName].probeError,
+          };
         }
 
+        window.__lrvaStorageStatus = {};
         shimWebStorage("localStorage");
         shimWebStorage("sessionStorage");
 
@@ -166,6 +192,44 @@
     -->
     <script>
       (function () {
+        function liveStorageCheck() {
+          // Re-test right now, at the moment something failed, in case
+          // state differs from what the shim found at page load.
+          var result = {};
+          ["localStorage", "sessionStorage"].forEach(function (propName) {
+            try {
+              window[propName].setItem("__lrva_live_probe__", "1");
+              var ok = window[propName].getItem("__lrva_live_probe__") === "1";
+              window[propName].removeItem("__lrva_live_probe__");
+              result[propName] = ok ? "working right now" : "wrote ok but read back wrong value";
+            } catch (e) {
+              result[propName] =
+                "STILL THROWS: " + (e && e.name ? e.name + ": " + e.message : String(e));
+            }
+          });
+          return result;
+        }
+
+        function formatStorageStatus() {
+          var atLoad = window.__lrvaStorageStatus || {};
+          var now = liveStorageCheck();
+          var lines = ["Storage shim status:"];
+          ["localStorage", "sessionStorage"].forEach(function (propName) {
+            var s = atLoad[propName] || { state: "unknown (shim did not run?)" };
+            lines.push(
+              "  " +
+                propName +
+                " at page load: " +
+                s.state +
+                (s.patchedVia ? " (patched via: " + s.patchedVia.join(", ") + ")" : "") +
+                (s.verified === false ? " [verify check FAILED]" : "") +
+                (s.probeError ? " [" + s.probeError + "]" : ""),
+            );
+            lines.push("  " + propName + " right now: " + now[propName]);
+          });
+          return lines.join("\n");
+        }
+
         function showDiagnostic(title, detail) {
           if (document.getElementById("__lrva_diag__")) return;
           var el = document.createElement("div");
@@ -174,7 +238,8 @@
             "position:fixed;inset:0;z-index:999999;background:#0f0c08;" +
             "color:#f2ede2;font-family:monospace;font-size:13px;" +
             "padding:16px;overflow:auto;white-space:pre-wrap;line-height:1.5;";
-          el.textContent = title + "\n\n" + detail;
+          el.textContent =
+            title + "\n\n" + detail + "\n\n" + formatStorageStatus();
           document.body ? document.body.appendChild(el) : document.addEventListener("DOMContentLoaded", function () {
             document.body.appendChild(el);
           });
@@ -214,9 +279,23 @@
         );
         window.addEventListener("unhandledrejection", function (e) {
           var reason = e.reason;
-          var detail =
-            reason && reason.stack ? reason.stack : String(reason);
-          showDiagnostic("Caught an unhandled promise rejection:", detail);
+          var parts = [];
+          if (reason && reason.stack) {
+            parts.push(reason.stack);
+          } else {
+            parts.push(String(reason));
+          }
+          if (reason && reason.name) parts.push("name: " + reason.name);
+          if (reason && typeof reason.code !== "undefined") {
+            parts.push("code: " + reason.code);
+          }
+          if (reason && reason.constructor && reason.constructor.name) {
+            parts.push("constructor: " + reason.constructor.name);
+          }
+          showDiagnostic(
+            "Caught an unhandled promise rejection:",
+            parts.join("\n"),
+          );
         });
       })();
     </script>
