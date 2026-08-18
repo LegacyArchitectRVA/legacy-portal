@@ -239,6 +239,61 @@
         } catch (e) {
           // Best effort only.
         }
+
+        // Active probe, separate from the wrap above. The wrap only tells
+        // us anything if some caller happens to invoke indexedDB.open —
+        // this actually tries it, right now, at page load, the same way
+        // the storage probes above do, so the diagnostic further down has
+        // a real answer instead of silence if nothing else in the app
+        // touches IndexedDB before something else fails.
+        window.__lrvaStorageStatus.indexedDB = { state: "checking" };
+        try {
+          if (!window.indexedDB) {
+            window.__lrvaStorageStatus.indexedDB = { state: "not-present" };
+          } else {
+            var idbReq;
+            try {
+              idbReq = nativeOpen
+                ? nativeOpen("__lrva_idb_probe__", 1)
+                : window.indexedDB.open("__lrva_idb_probe__", 1);
+            } catch (openErr) {
+              window.__lrvaStorageStatus.indexedDB = {
+                state: "blocked",
+                probeError: openErr && openErr.name
+                  ? openErr.name + ": " + openErr.message
+                  : String(openErr),
+              };
+            }
+            if (idbReq) {
+              idbReq.onsuccess = function () {
+                window.__lrvaStorageStatus.indexedDB = { state: "working" };
+                try {
+                  idbReq.result.close();
+                  window.indexedDB.deleteDatabase("__lrva_idb_probe__");
+                } catch (cleanupErr) {
+                  // Non-fatal, probe database is tiny and harmless either way.
+                }
+              };
+              idbReq.onerror = function (ev) {
+                var err = ev && ev.target && ev.target.error;
+                window.__lrvaStorageStatus.indexedDB = {
+                  state: "blocked",
+                  probeError: err && err.name
+                    ? err.name + ": " + err.message
+                    : "open request errored",
+                };
+              };
+              idbReq.onblocked = function () {
+                window.__lrvaStorageStatus.indexedDB = { state: "blocked-by-other-tab" };
+              };
+            }
+          }
+        } catch (eIdbProbe) {
+          window.__lrvaStorageStatus.indexedDB = {
+            state: "probe-crashed",
+            error: eIdbProbe && eIdbProbe.message,
+          };
+        }
       })();
     </script>
 
@@ -298,6 +353,16 @@
             );
             lines.push("  " + propName + " right now: " + now[propName]);
           });
+          var idb = atLoad.indexedDB || { state: "unknown (probe did not run?)" };
+          lines.push(
+            "  indexedDB probe at page load: " +
+              idb.state +
+              (idb.state === "checking"
+                ? " (async, had not finished when this fired — the real answer may be different by now)"
+                : "") +
+              (idb.probeError ? " [" + idb.probeError + "]" : "") +
+              (idb.error ? " [" + idb.error + "]" : ""),
+          );
           return lines.join("\n");
         }
 
