@@ -19,7 +19,7 @@ This repository contains the authenticated client/admin portal that powers that 
 - **Hosting**: Cloudflare Pages (frontend), Convex Cloud (backend)
 - **Auth**: Convex Auth (email/password)
 
-## Local Development
+## Local Developments
 
 ```bash
 # Install dependencies
