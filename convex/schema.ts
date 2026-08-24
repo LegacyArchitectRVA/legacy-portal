@@ -25,16 +25,9 @@ const schema = defineSchema({
   // Client profile / tier / activation
   clients: defineTable({
     userId: v.id("users"),
-    // Widened deliberately. Live data may still hold the retired
-    // vault/archive/legacy values until admin.migrateOldTierNames runs
-    // post-deploy. Narrow this back to just personal/business once
-    // that mutation confirms zero old-tier records remain.
     tier: v.union(
       v.literal("personal"),
       v.literal("business"),
-      v.literal("vault"),
-      v.literal("archive"),
-      v.literal("legacy"),
     ),
     isActivated: v.boolean(),
     deliveryStatus: v.optional(v.string()),
