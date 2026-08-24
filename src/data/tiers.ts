@@ -38,7 +38,7 @@ export const tiers: Tier[] = [
     depositPriceLabel: "$1,250",
     tagline: "Everything, plus what keeps it running",
     description:
-      "Everything Personal covers, plus Business Continuity. Covers all 8 chapters. Built over structured working sessions, with live draft review in the portal.",
+      "Everything Personal covers, plus Business Continuity. Covers all 7 pillars. Built over structured working sessions, with live draft review in the portal.",
     chaptersUnlocked: [1, 2, 3, 4, 5, 6, 7],
     features: [
       "Everything in Personal",

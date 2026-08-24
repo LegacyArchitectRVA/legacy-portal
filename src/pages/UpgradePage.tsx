@@ -53,7 +53,7 @@ export default function UpgradePage() {
 
   const visibleTiers = isBusiness
     ? tiers.filter(tier => tier.id === "business")
-    : tiers.filter(tier => tierRank[tier.id] >= currentRank);
+    : tiers.filter(tier => tierRank[tier.id] > currentRank);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-fade-in">
@@ -108,7 +108,7 @@ export default function UpgradePage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch max-w-3xl mx-auto">
+      <div className="grid grid-cols-1 gap-5 items-stretch max-w-sm mx-auto">
         {visibleTiers.map(tier => {
           const isCurrent = tier.id === currentTier;
           const isUpgrade = tierRank[tier.id] > currentRank;

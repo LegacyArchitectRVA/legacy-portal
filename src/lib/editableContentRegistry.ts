@@ -37,7 +37,7 @@ export const EDITABLE_DEFAULTS: Record<string, string> = {
   upgrade_current_badge: "Current Edition",
   upgrade_cta_prefix: "Upgrade to",
   upgrade_active_badge: "Active",
-  upgrade_chapters_included_label: "Chapters Included",
+  upgrade_chapters_included_label: "Pillars Included",
   upgrade_notice_text:
     "Upgrade options only show editions above the client's current edition. Blueprint Session is intentionally excluded from the portal.",
   upgrade_footer_text:
