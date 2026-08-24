@@ -13,7 +13,10 @@ import type { PillarScore } from "../lib/blueprintDeliverable";
  * its appearance.
  */
 
-const STATUS_COLORS = {
+/** Shared with BlueprintSessionPage's checkpoint status chips, so the live
+ * handled/partial/exposed labels use the exact same palette as the map
+ * itself instead of an independently-chosen set of colors. */
+export const STATUS_COLORS = {
   strong: "#3da977",
   watch: "#d9a441",
   exposed: "#b3413a",
@@ -163,10 +166,10 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
         />
         <text
           x={CX}
-          y={CY + 2}
+          y={CY + 3}
           textAnchor="middle"
-          fontSize={26}
-          fontFamily="Cinzel, Georgia, serif"
+          fontSize={30}
+          fontFamily="'Crimson Pro', serif"
           fill="#e8c869"
           fontWeight={700}
         >
@@ -174,11 +177,11 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
         </text>
         <text
           x={CX}
-          y={CY + 22}
+          y={CY + 24}
           textAnchor="middle"
-          fontSize={8}
+          fontSize={9.5}
           letterSpacing={2.5}
-          fontFamily="Georgia, serif"
+          fontFamily="'Crimson Pro', serif"
           fill="#d4b661"
           fillOpacity={0.7}
         >
@@ -192,17 +195,23 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
           const y = CY + RING * Math.sin(ang);
           const color = nodeColor(s);
           const lines = labelLines(s.title);
+          const lineHeight = 12.5;
           // Chip sits on the hub-facing side of the node, along the spoke,
           // so it can never collide with labels, which always face outward.
           const chipX = x - (NODE_R - 1) * Math.cos(ang);
           const chipY = y - (NODE_R - 1) * Math.sin(ang);
-          // Push labels outward from the ring so they never collide with it
-          const labelY =
-            y > CY + 40
-              ? y + NODE_R + 14
-              : y < CY - 40
-                ? y - NODE_R - 20 - (lines.length - 1) * 11
-                : y - NODE_R - 22 - (lines.length - 1) * 11;
+          // Label block is projected radially outward from the node along
+          // the same spoke angle, at a fixed distance from the ring. This
+          // keeps every one of the seven positions the same gap from its
+          // node regardless of where it sits on the circle, instead of the
+          // old top/bottom/middle-band special cases that left two of the
+          // seven nodes (the ones nearest 3 and 9 o'clock) visually closer
+          // to their labels than the rest.
+          const labelGap = 22;
+          const labelCenterX = x + (NODE_R + labelGap) * Math.cos(ang);
+          const labelCenterY = y + (NODE_R + labelGap) * Math.sin(ang);
+          const blockHeight = lines.length * lineHeight;
+          const labelStartY = labelCenterY - blockHeight / 2 + lineHeight * 0.75;
           const pct = s.assessed === 0 ? "" : `${100 - s.riskPct}%`;
 
           return (
@@ -246,22 +255,22 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
                 x={chipX}
                 y={chipY + 3}
                 textAnchor="middle"
-                fontSize={8.5}
-                fontFamily="Georgia, serif"
+                fontSize={9.5}
+                fontFamily="'Crimson Pro', serif"
                 fill={color}
                 fontWeight={700}
               >
                 {s.number.replace(/^0/, "")}
               </text>
-              {/* Label */}
+              {/* Label, radially projected so spacing reads evenly at every position */}
               {lines.map((ln, li) => (
                 <text
                   key={li}
-                  x={x}
-                  y={labelY + li * 11}
+                  x={labelCenterX}
+                  y={labelStartY + li * lineHeight}
                   textAnchor="middle"
-                  fontSize={9.5}
-                  fontFamily="Georgia, serif"
+                  fontSize={11}
+                  fontFamily="'Crimson Pro', serif"
                   fill="#f2ede2"
                   fillOpacity={0.9}
                   letterSpacing={0.4}
@@ -271,11 +280,11 @@ export const GapMapVisual = forwardRef<SVGSVGElement, GapMapVisualProps>(
               ))}
               {/* Status + score */}
               <text
-                x={x}
-                y={labelY + lines.length * 11 + 1}
+                x={labelCenterX}
+                y={labelStartY + lines.length * lineHeight + 1}
                 textAnchor="middle"
-                fontSize={8}
-                fontFamily="Georgia, serif"
+                fontSize={9.5}
+                fontFamily="'Crimson Pro', serif"
                 fill={color}
                 letterSpacing={0.6}
               >

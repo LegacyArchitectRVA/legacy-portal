@@ -31,10 +31,17 @@ import {
 } from "../lib/blueprintDeliverable";
 import { downloadBlob, renderToPdfLib } from "../lib/documentConverter";
 
+// Literal Tailwind arbitrary-value classes, not built from STATUS_COLORS at
+// runtime: Tailwind's build-time scanner can't see inside a template
+// literal, so an interpolated class string here would just never get
+// generated. These hex values must stay in sync with STATUS_COLORS in
+// GapMapVisual.tsx by hand, that's the same palette the Gap Map itself
+// uses, so a checkpoint marked exposed here is the same red as an exposed
+// pillar on the map, not a separately-chosen color that happens to be close.
 const STATUS_CHIP: Record<CheckStatus, string> = {
-  exposed: "bg-rose-500/15 text-rose-300 border-rose-500/40",
-  partial: "bg-amber-500/15 text-amber-300 border-amber-500/40",
-  handled: "bg-emerald-500/15 text-emerald-300 border-emerald-500/40",
+  exposed: "bg-[#b3413a]/15 text-[#e8938c] border-[#b3413a]/40",
+  partial: "bg-[#d9a441]/15 text-[#e8c481] border-[#d9a441]/40",
+  handled: "bg-[#3da977]/15 text-[#7ed1ac] border-[#3da977]/40",
   na: "bg-white/5 text-[#f2ede2]/50 border-white/10",
 };
 
