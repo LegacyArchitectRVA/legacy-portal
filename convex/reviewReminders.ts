@@ -1,5 +1,5 @@
 import { ConvexError, v } from "convex/values";
-import { tiers } from "../src/data/tiers";
+import { annualReview, tiers } from "../src/data/tiers";
 import { internal } from "./_generated/api";
 import {
   internalAction,
@@ -22,10 +22,6 @@ interface DueReminder {
 
 function tierLabel(tier: string) {
   return tiers.find(t => t.id === tier)?.name ?? tier;
-}
-
-function tierReviewPriceLabel(tier: string) {
-  return tiers.find(t => t.id === tier)?.reviewPriceLabel ?? "";
 }
 
 /**
@@ -95,7 +91,6 @@ async function sendReviewReminderEmail({
   }
 
   const tName = tierLabel(tier);
-  const reviewPrice = tierReviewPriceLabel(tier);
   const greetingName = name ? name.split(" ")[0] : "there";
 
   const subject = `Your ${tName} review is coming up`;
@@ -103,9 +98,9 @@ async function sendReviewReminderEmail({
 
 It's been about a year since your ${tName} Life Manual was completed, and life doesn't sit still for twelve months. Accounts open and close, contacts change, plans shift. The annual review exists for exactly this: a chance to go back through everything and confirm it still matches reality.
 
-The review for ${tName} is ${reviewPrice}. If you upgrade tiers later on, that amount gets credited toward it.
+The review is a flat ${annualReview.priceLabel}. Pay here to get it on the calendar: ${annualReview.link}
 
-Just reply to this email and we'll get it scheduled.
+Reply to this email instead if you'd rather set it up directly.
 
 Best,
 Craig`;
@@ -114,8 +109,8 @@ Craig`;
     <div style="font-family: Georgia, serif; max-width: 480px; margin: 0 auto; padding: 24px; color: #1a1a1a; line-height: 1.6;">
       <p>Hi ${greetingName},</p>
       <p>It's been about a year since your ${tName} Life Manual was completed, and life doesn't sit still for twelve months. Accounts open and close, contacts change, plans shift. The annual review exists for exactly this: a chance to go back through everything and confirm it still matches reality.</p>
-      <p>The review for ${tName} is ${reviewPrice}. If you upgrade tiers later on, that amount gets credited toward it.</p>
-      <p>Just reply to this email and we'll get it scheduled.</p>
+      <p>The review is a flat ${annualReview.priceLabel}. <a href="${annualReview.link}" style="color: #1a1a1a; text-decoration: underline;">Pay here</a> to get it on the calendar.</p>
+      <p>Reply to this email instead if you'd rather set it up directly.</p>
       <p>Best,<br/>Craig</p>
       <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
       <p style="color: #999; font-size: 12px;">This email was sent by ${APP_NAME}</p>

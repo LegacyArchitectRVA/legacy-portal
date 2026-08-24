@@ -89,7 +89,7 @@ export function MobileMenuPage() {
   const profile = useQuery(api.profile.getMyProfile);
   const isAdmin = useQuery(api.admin.isAdmin);
   const unreadCount = useQuery(api.messages.getUnreadCount);
-  const tier = profile?.tier || "vault";
+  const tier = profile?.tier || "personal";
 
   const go = (path: string) => navigate(path);
 

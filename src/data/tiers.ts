@@ -1,10 +1,11 @@
 export interface Tier {
-  id: "vault" | "archive" | "legacy";
+  id: "personal" | "business";
   name: string;
   price: number;
   priceLabel: string;
-  reviewPrice: number;
-  reviewPriceLabel: string;
+  depositPrice: number;
+  depositPriceLabel: string;
+  tagline: string;
   description: string;
   chaptersUnlocked: number[];
   features: string[];
@@ -12,73 +13,66 @@ export interface Tier {
 
 export const tiers: Tier[] = [
   {
-    id: "vault",
-    name: "The Vault",
-    price: 950,
-    priceLabel: "$950",
-    reviewPrice: 400,
-    reviewPriceLabel: "$400",
+    id: "personal",
+    name: "Personal",
+    price: 1500,
+    priceLabel: "$1,500",
+    depositPrice: 750,
+    depositPriceLabel: "$750",
+    tagline: "Your life, in one place",
     description:
-      "A secure foundation for your essential documents and access details.",
-    chaptersUnlocked: [1, 2, 4, 5],
-    features: [
-      "Core Document Inventory",
-      "Secure Access Framework",
-      "Critical Contact Directory",
-    ],
-  },
-  {
-    id: "archive",
-    name: "The Archive",
-    price: 1950,
-    priceLabel: "$1,950",
-    reviewPrice: 800,
-    reviewPriceLabel: "$800",
-    description:
-      "Comprehensive clarity for complex lives. Every detail is organized and accessible.",
+      "Covers 7 of 8 chapters: Introduction, Digital Life, Emergency & Successor Access, Financial & Assets, Household Operations, Vital Records, Legacy & Wishes. Built over structured working sessions, with live draft review in the portal.",
     chaptersUnlocked: [1, 2, 3, 4, 5, 6],
     features: [
-      "Everything in The Vault",
-      "Decision-Making Context",
-      "Asset & Liability Mapping",
-      "Relationship & Dependency Guide",
-      "Digital & Physical Asset Management",
+      "6 to 8 working sessions, 60 to 90 minutes each",
+      "Live draft review in the portal",
+      "Annual review available",
     ],
   },
   {
-    id: "legacy",
-    name: "The Legacy",
-    price: 3000,
-    priceLabel: "$3,000+",
-    reviewPrice: 1200,
-    reviewPriceLabel: "$1,200",
+    id: "business",
+    name: "Business",
+    price: 2500,
+    priceLabel: "$2,500",
+    depositPrice: 1250,
+    depositPriceLabel: "$1,250",
+    tagline: "Everything, plus what keeps it running",
     description:
-      "Full operational continuity for business owners and multi-estate individuals.",
+      "Everything Personal covers, plus Business Continuity. Covers all 8 chapters. Built over structured working sessions, with live draft review in the portal.",
     chaptersUnlocked: [1, 2, 3, 4, 5, 6, 7],
     features: [
-      "Everything in The Archive",
-      "Business Succession Integration",
-      "Long-Term Stewardship Plan",
+      "Everything in Personal",
+      "8 to 10 working sessions, 60 to 90 minutes each",
+      "Business Continuity chapter",
+      "Annual review available",
     ],
   },
 ];
 
-export const tierAccess: Record<string, number[]> = {
-  vault: [1, 2, 4, 5],
-  archive: [1, 2, 3, 4, 5, 6],
-  legacy: [1, 2, 3, 4, 5, 6, 7],
+// Pulled directly from legacyarchitectrva.com/services (LINKS object). Keep in sync
+// if pricing or links change on the main site.
+export const stripeLinks: Record<string, string> = {
+  personal_full: "https://buy.stripe.com/14AaEX9rV5ag4wQcMd6Zy02",
+  personal_deposit: "https://buy.stripe.com/3cI8wP5bF0U04wQdQh6Zy03",
+  business_full: "https://buy.stripe.com/28EbJ1fQjcCIgfy9A16Zy04",
+  business_deposit: "https://buy.stripe.com/7sY00jdIbeKQd3mh2t6Zy05",
+  annual_review: "https://buy.stripe.com/14A9ATcE7byEe7qdQh6Zy06",
+  upgrade_personal_to_business: "https://buy.stripe.com/4gM9AT0Vp7iobZi8vX6Zy07",
 };
 
-export const stripeLinks: Record<string, string> = {
-  vault_archive_full: "https://buy.stripe.com/eVqcMYbTAd1p3l66xo1Nu05",
-  vault_legacy_full: "https://buy.stripe.com/4gMbIUaPw9PddZKg7Y1Nu06",
-  archive_legacy_full: "https://buy.stripe.com/cNibIUaPwe5tcVGcVM1Nu07",
-  vault_archive_half: "https://buy.stripe.com/eVqfZa6zgbXlf3O8Fw1Nu0c",
-  vault_legacy_half: "https://buy.stripe.com/cNi8wI3n46D1g7Sf3U1Nu0d",
-  archive_legacy_half: "https://buy.stripe.com/00w4gs1eW1iH6xibRI1Nu0b",
-  review_vault: "https://buy.stripe.com/4gMeV64r80eD1cY1d41Nu08",
-  review_archive: "https://buy.stripe.com/dRmdR27Dke5t1cY7Bs1Nu09",
-  review_legacy: "https://buy.stripe.com/fZucMY6zg4uT3l66xo1Nu0a",
+// Flat fee, same for both editions. Not tied to a specific tier's pricing.
+export const annualReview = {
+  price: 250,
+  priceLabel: "$250",
+  link: stripeLinks.annual_review,
+};
+
+// The only upgrade path in the current model: Personal to Business.
+// Flat fee rather than a prorated difference.
+export const upgradePersonalToBusiness = {
+  price: 1000,
+  priceLabel: "$1,000",
+  link: stripeLinks.upgrade_personal_to_business,
 };
 
 export function getTierByName(name: string): Tier | undefined {
@@ -86,6 +80,6 @@ export function getTierByName(name: string): Tier | undefined {
 }
 
 export function canAccessChapter(tier: string, chapterNumber: number): boolean {
-  const access = tierAccess[tier];
-  return access ? access.includes(chapterNumber) : false;
+  const t = getTierByName(tier);
+  return t ? t.chaptersUnlocked.includes(chapterNumber) : false;
 }

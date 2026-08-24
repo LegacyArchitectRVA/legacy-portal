@@ -12,7 +12,6 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { ChapterIcon } from "../components/ChapterIcons";
-import { EditableImage } from "../components/EditableImage";
 import { EditableText } from "../components/EditableText";
 import { FullPageLoader } from "../components/FullPageLoader";
 import { LucideIcon } from "../components/LucideIcon";
@@ -23,10 +22,9 @@ import {
 import { chapters } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";
 
-const tierImages: Record<string, string> = {
-  vault: "/tier-vault.png",
-  archive: "/tier-archive.png",
-  legacy: "/tier-legacy.png",
+const tierColors: Record<string, { accent: string; label: string }> = {
+  personal: { accent: "#c3cad1", label: "Personal" },
+  business: { accent: "#e8c869", label: "Business" },
 };
 
 export default function DashboardPage() {
@@ -75,7 +73,7 @@ export default function DashboardPage() {
         )
       : myProgress;
 
-  const tier = profile?.tier || "vault";
+  const tier = profile?.tier || "personal";
   const tierInfo = getTierByName(tier);
   const isActivated = profile?.isActivated !== false;
 
@@ -130,12 +128,7 @@ export default function DashboardPage() {
   const purgeCountdown = getPurgeCountdown();
 
   // Next tier for upgrade prompt
-  const nextTier =
-    tier === "vault"
-      ? getTierByName("archive")
-      : tier === "archive"
-        ? getTierByName("legacy")
-        : null;
+  const nextTier = tier === "personal" ? getTierByName("business") : null;
 
   // Compute chapter progress for pillars
   const chapterProgress = chapters.map(ch => {
@@ -207,12 +200,16 @@ export default function DashboardPage() {
         ) : (
           tierInfo && (
             <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c869]/20 bg-gradient-to-r from-[#e8c869]/[0.06] to-transparent p-3 md:p-4">
-              <EditableImage
-                cmsKey={`upgrade_${tier}_emblem`}
-                defaultSrc={tierImages[tier] || tierImages.vault}
-                alt={tierInfo.name}
-                className="w-14 h-14 object-contain shrink-0"
-              />
+              <div
+                className="w-14 h-14 rounded-lg border flex items-center justify-center shrink-0 font-heading text-lg"
+                style={{
+                  color: tierColors[tier]?.accent || tierColors.personal.accent,
+                  borderColor: `${tierColors[tier]?.accent || tierColors.personal.accent}40`,
+                  backgroundColor: `${tierColors[tier]?.accent || tierColors.personal.accent}14`,
+                }}
+              >
+                {tierInfo.name.charAt(0)}
+              </div>
               <div className="flex-1">
                 <p className="font-semibold text-sm text-[#e8c869] font-heading">
                   {tierInfo.name} Edition
@@ -374,7 +371,7 @@ export default function DashboardPage() {
               </div>
             )}
             <iframe
-              src="https://cal.com/legacyarchitectrva/60min?embed=true&theme=dark"
+              src="https://cal.com/legacyarchitectrva/discovery-call?embed=true&theme=dark"
               width="100%"
               height="500"
               frameBorder="0"

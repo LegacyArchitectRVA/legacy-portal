@@ -1,5 +1,4 @@
 import {
-  RiArchiveStackLine as ArchiveStack,
   RiCheckboxCircleLine as CheckCircle2,
   RiVipCrownLine as Crown,
   RiExternalLinkLine as ExternalLink,
@@ -267,12 +266,7 @@ export default function AdminPage() {
           </p>
         </div>
         {tiers.map(t => {
-          const tierIcon =
-            t.id === "legacy"
-              ? Crown
-              : t.id === "archive"
-                ? ArchiveStack
-                : Safe;
+          const tierIcon = t.id === "business" ? Crown : Safe;
           return (
             <div
               key={t.id}
@@ -343,7 +337,7 @@ export default function AdminPage() {
                   <div className="flex flex-wrap items-center gap-2 pl-7">
                     {/* Tier Selector */}
                     <select
-                      value={client.tier || "vault"}
+                      value={client.tier || "personal"}
                       onChange={e =>
                         handleTierChange(client._id, e.target.value)
                       }

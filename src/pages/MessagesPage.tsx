@@ -232,7 +232,7 @@ function Thread({
           type="button"
           onClick={() =>
             onSend(
-              `Here's a link to book a time that works for you: https://cal.com/legacyarchitectrva/60min`,
+              `Here's a link to book a time that works for you: https://cal.com/legacyarchitectrva/discovery-call`,
             )
           }
           className="flex items-center gap-1.5 text-xs text-gold-muted hover:text-gold-primary bg-black/40 px-3 py-1.5 rounded-full transition-colors"

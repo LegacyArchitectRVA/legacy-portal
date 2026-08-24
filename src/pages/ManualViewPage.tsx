@@ -153,7 +153,7 @@ export default function ManualViewPage({
   }
 
   const client = clients?.find(c => c.userId === clientUserId);
-  const tier = client?.tier || "vault";
+  const tier = client?.tier || "personal";
 
   function escapeHtml(s: string): string {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

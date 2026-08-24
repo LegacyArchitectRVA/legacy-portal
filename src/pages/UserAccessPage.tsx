@@ -22,9 +22,8 @@ import { FullPageLoader } from "../components/FullPageLoader";
 import { getErrorMessage } from "../lib/utils";
 
 const TIERS = [
-  { value: "vault", label: "Vault" },
-  { value: "archive", label: "Archive" },
-  { value: "legacy", label: "Legacy" },
+  { value: "personal", label: "Personal" },
+  { value: "business", label: "Business" },
 ] as const;
 
 function formatPhoneNumber(value: string): string {
@@ -72,9 +71,9 @@ export default function UserAccessPage() {
   const [createName, setCreateName] = useState("");
   const [createEmail, setCreateEmail] = useState("");
   const [createPhone, setCreatePhone] = useState("");
-  const [createTier, setCreateTier] = useState<
-    "" | "vault" | "archive" | "legacy"
-  >("");
+  const [createTier, setCreateTier] = useState<"" | "personal" | "business">(
+    "",
+  );
   const [createHubspotId, setCreateHubspotId] = useState<string | undefined>(
     undefined,
   );

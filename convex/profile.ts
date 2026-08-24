@@ -108,7 +108,7 @@ export const ensureClient = mutation({
     if (!existing) {
       await ctx.db.insert("clients", {
         userId,
-        tier: "vault",
+        tier: "personal",
         isActivated: false,
       });
     }

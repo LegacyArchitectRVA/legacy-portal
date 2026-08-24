@@ -587,7 +587,7 @@ export default function GeneratePage() {
 
     // Build HTML Life Manual from client data
     try {
-      const tier = client?.tier || "vault";
+      const tier = client?.tier || "personal";
       const tierInfo = getTierByName(tier);
       const accessibleChapters = chapters.filter(ch =>
         canAccessChapter(tier, ch.chapterNumber),

@@ -1,62 +1,40 @@
-import {
-  ArrowRight,
-  Check,
-  Lock,
-  Shield,
-} from "reicon-react";
+import { ArrowRight, Check, Lock, Shield } from "reicon-react";
 import { useQuery } from "convex/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { EditableBox } from "../components/EditableBox";
 import { EditableIcon } from "../components/EditableIcon";
-import { EditableImage } from "../components/EditableImage";
 import { EditableText } from "../components/EditableText";
 import { FullPageLoader } from "../components/FullPageLoader";
 import { useEditMode } from "../contexts/EditModeContext";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, tiers } from "../data/tiers";
 
-const tierImages: Record<string, string> = {
-  vault:
-    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/vault%20emblem.png",
-  archive:
-    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/archive%20emblem.png",
-  legacy:
-    "https://pub-edbffba3e85240eabfa80aa13a1b8169.r2.dev/Emblems/legacy%20emblem.png",
-};
-
 const tierRank: Record<string, number> = {
-  vault: 1,
-  archive: 2,
-  legacy: 3,
+  personal: 1,
+  business: 2,
 };
 
 const tierColors: Record<
   string,
   { accent: string; accentRgb: string; label: string; border: string }
 > = {
-  vault: {
-    accent: "#b87333",
-    accentRgb: "184, 115, 51",
-    label: "Bronze",
-    border: "border-[#b87333]/35",
-  },
-  archive: {
-    accent: "#c8c8c8",
-    accentRgb: "200, 200, 200",
+  personal: {
+    accent: "#c3cad1",
+    accentRgb: "195, 202, 209",
     label: "Silver",
-    border: "border-[#c8c8c8]/35",
+    border: "border-[#c3cad1]/35",
   },
-  legacy: {
-    accent: "#d4b661",
-    accentRgb: "214, 168, 79",
+  business: {
+    accent: "#e8c869",
+    accentRgb: "232, 200, 105",
     label: "Gold",
-    border: "border-[#d4b661]/40",
+    border: "border-[#e8c869]/40",
   },
 };
 
 function normalizeTier(tier?: string) {
-  return tierRank[tier || ""] ? tier || "vault" : "vault";
+  return tierRank[tier || ""] ? tier || "personal" : "personal";
 }
 
 export default function UpgradePage() {
@@ -71,10 +49,10 @@ export default function UpgradePage() {
 
   const currentTier = normalizeTier(profile?.tier ?? undefined);
   const currentRank = tierRank[currentTier];
-  const isLegacy = currentTier === "legacy";
+  const isBusiness = currentTier === "business";
 
-  const visibleTiers = isLegacy
-    ? tiers.filter(tier => tier.id === "legacy")
+  const visibleTiers = isBusiness
+    ? tiers.filter(tier => tier.id === "business")
     : tiers.filter(tier => tierRank[tier.id] >= currentRank);
 
   return (
@@ -97,8 +75,9 @@ export default function UpgradePage() {
           <EditableText cmsKey="upgrade_title" as="span" />
         </h1>
         <p className="text-[#f2ede2]/80 mt-2 leading-relaxed max-w-2xl">
-          Portal upgrades begin with The Vault and move upward. Lower editions
-          are not offered once a higher edition is active.
+          Personal covers everything you'll need day to day. Business adds
+          full continuity for the company you built. You can move from
+          Personal to Business, but not back down once Business is active.
         </p>
       </div>
 
@@ -117,23 +96,22 @@ export default function UpgradePage() {
         </div>
       </div>
 
-      {isLegacy && (
-        <div className="rounded-xl border border-[#d4b661]/35 bg-[#0f0c08] p-5 shadow-[0_0_35px_rgba(214,168,79,0.10)]">
-          <p className="font-heading text-[#d4b661] text-lg">
-            Current Edition: The Legacy
+      {isBusiness && (
+        <div className="rounded-xl border border-[#e8c869]/35 bg-[#0f0c08] p-5 shadow-[0_0_35px_rgba(232,200,105,0.10)]">
+          <p className="font-heading text-[#e8c869] text-lg">
+            Current Edition: Business
           </p>
           <p className="text-sm text-[#f2ede2]/65 mt-2 leading-relaxed">
-            You are already on the highest Life Manual edition. No Vault or
-            Archive upgrade options are available for this account.
+            You're already on the highest Life Manual edition. No other
+            upgrade options are available for this account.
           </p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch max-w-3xl mx-auto">
         {visibleTiers.map(tier => {
           const isCurrent = tier.id === currentTier;
           const isUpgrade = tierRank[tier.id] > currentRank;
-          const tierImage = tierImages[tier.id];
           const colors = tierColors[tier.id];
 
           return (
@@ -163,12 +141,16 @@ export default function UpgradePage() {
 
               <div className="relative flex flex-col flex-1 space-y-4">
                 <div className="flex justify-center min-h-[120px] items-center py-2">
-                  <EditableImage
-                    cmsKey={`upgrade_${tier.id}_emblem`}
-                    defaultSrc={tierImage}
-                    alt={tier.name}
-                    className="h-28 w-auto object-contain drop-shadow-lg"
-                  />
+                  <div
+                    className="h-20 w-20 rounded-full border flex items-center justify-center font-heading text-2xl drop-shadow-lg"
+                    style={{
+                      color: colors.accent,
+                      borderColor: `${colors.accent}55`,
+                      backgroundColor: `${colors.accent}14`,
+                    }}
+                  >
+                    {tier.name.charAt(0)}
+                  </div>
                 </div>
 
                 {isCurrent && (

@@ -251,7 +251,7 @@ export const createAccountAdmin = action({
     email: v.string(),
     phone: v.optional(v.string()),
     tier: v.optional(
-      v.union(v.literal("vault"), v.literal("archive"), v.literal("legacy")),
+      v.union(v.literal("personal"), v.literal("business")),
     ),
     hubspotId: v.optional(v.string()),
   },
@@ -367,9 +367,8 @@ export const insertClientInternal = internalMutation({
   args: {
     userId: v.id("users"),
     tier: v.union(
-      v.literal("vault"),
-      v.literal("archive"),
-      v.literal("legacy"),
+      v.literal("personal"),
+      v.literal("business"),
     ),
     hubspotId: v.optional(v.string()),
   },

@@ -287,9 +287,8 @@ export const seedTestClientSampleRow = internalMutation({
 export const activateTestClient = internalMutation({
   args: {
     tier: v.union(
-      v.literal("vault"),
-      v.literal("archive"),
-      v.literal("legacy"),
+      v.literal("personal"),
+      v.literal("business"),
     ),
   },
   handler: async (ctx, { tier }) => {

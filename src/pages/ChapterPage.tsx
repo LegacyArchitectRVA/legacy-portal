@@ -37,7 +37,7 @@ export default function ChapterPage({
   const [searchParams] = useSearchParams();
   const onBehalfOf = searchParams.get("for") as Id<"users"> | null;
   const profile = useQuery(api.profile.getMyProfile);
-  const tier = profile?.tier || "vault";
+  const tier = profile?.tier || "personal";
 
   const isAdmin = useQuery(api.admin.isAdmin);
   const editingClient = useQuery(

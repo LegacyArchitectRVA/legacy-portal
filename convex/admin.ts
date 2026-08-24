@@ -95,9 +95,8 @@ export const setClientTier = mutation({
   args: {
     clientUserId: v.id("users"),
     tier: v.union(
-      v.literal("vault"),
-      v.literal("archive"),
-      v.literal("legacy"),
+      v.literal("personal"),
+      v.literal("business"),
     ),
   },
   handler: async (ctx, { clientUserId, tier }) => {
@@ -280,9 +279,8 @@ export const addClient = mutation({
   args: {
     userId: v.id("users"),
     tier: v.union(
-      v.literal("vault"),
-      v.literal("archive"),
-      v.literal("legacy"),
+      v.literal("personal"),
+      v.literal("business"),
     ),
   },
   handler: async (ctx, { userId, tier }) => {
@@ -488,5 +486,32 @@ export const setAdminByEmail = internalMutation({
     if (!user) throw new ConvexError("No user with that email");
     await ctx.db.patch(user._id, { isAdmin: args.isAdmin });
     return { userId: user._id, isAdmin: args.isAdmin };
+  },
+});
+
+/**
+ * One-time cleanup for the retired vault/archive/legacy tier names.
+ * Run this BEFORE deploying the updated schema.ts if any clients record
+ * still holds an old tier value, or the schema push will fail validation.
+ * Old vault + archive both fold into "personal" (both covered chapters
+ * 1-6 under the old model); legacy becomes "business". Safe to run more
+ * than once, it only touches records still on an old value.
+ */
+export const migrateOldTierNames = internalMutation({
+  args: {},
+  handler: async ctx => {
+    const clients = await ctx.db.query("clients").collect();
+    let updated = 0;
+    for (const client of clients) {
+      const raw = client.tier as string;
+      if (raw === "vault" || raw === "archive") {
+        await ctx.db.patch(client._id, { tier: "personal" as any });
+        updated++;
+      } else if (raw === "legacy") {
+        await ctx.db.patch(client._id, { tier: "business" as any });
+        updated++;
+      }
+    }
+    return { checked: clients.length, updated };
   },
 });

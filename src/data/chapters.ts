@@ -35,7 +35,7 @@ export interface Chapter {
   description: string;
   color: string;
   colorName: string;
-  tier: "vault" | "archive" | "legacy";
+  tier: "personal" | "business";
   subSections: SubSection[];
 }
 
@@ -54,7 +54,7 @@ const ch01: Chapter = {
     "High-level map of digital systems. Linked sections define operational role, authority structure, recovery location, and transition handling.",
   color: "#3B82F6",
   colorName: "blue",
-  tier: "vault",
+  tier: "personal",
   subSections: [
     {
       id: "cloud_storage",
@@ -217,13 +217,13 @@ const ch01: Chapter = {
 const ch02: Chapter = {
   id: "emergency",
   chapterNumber: 2,
-  title: "Emergency & Successor Orientation",
+  title: "Emergency & Successor Access",
   shortTitle: "Emergency",
   description:
     "In moments of urgency or uncertainty, this section exists to reduce confusion and establish calm direction.",
   color: "#F43F5E",
   colorName: "rose",
-  tier: "vault",
+  tier: "personal",
   subSections: [
     {
       id: "emergency_contacts",
@@ -333,13 +333,13 @@ const ch02: Chapter = {
 const ch03: Chapter = {
   id: "financial",
   chapterNumber: 3,
-  title: "Financial & Asset Orientation",
+  title: "Financial & Assets",
   shortTitle: "Financial & Assets",
   description:
     "High-level map of accounts, institutions, beneficiaries, and ownership structures.",
   color: "#D4AF37",
   colorName: "gold",
-  tier: "archive",
+  tier: "personal",
   subSections: [
     {
       id: "titles_ownership",
@@ -419,13 +419,13 @@ const ch03: Chapter = {
 const ch04: Chapter = {
   id: "household",
   chapterNumber: 4,
-  title: "Household Continuity",
+  title: "Household Operations",
   shortTitle: "Household",
   description:
     "Physical systems, routines, access considerations, and operational stability.",
   color: "#10B981",
   colorName: "emerald",
-  tier: "vault",
+  tier: "personal",
   subSections: [
     {
       id: "home_systems",
@@ -556,7 +556,7 @@ const ch05: Chapter = {
     "Legal, medical, identification, and insurance documentation locations.",
   color: "#FFFFFF",
   colorName: "white",
-  tier: "vault",
+  tier: "personal",
   subSections: [
     {
       id: "identification_documents",
@@ -620,7 +620,7 @@ const ch06: Chapter = {
     "Additional areas included based on circumstances, priorities, or professional responsibilities held.",
   color: "#A855F7",
   colorName: "purple",
-  tier: "archive",
+  tier: "personal",
   subSections: [
     {
       id: "final_wishes",
@@ -742,7 +742,7 @@ const ch07: Chapter = {
     "Business-specific systems and governance. Designed to support continuity decisions, not day-to-day operation.",
   color: "#94A3B8",
   colorName: "silver",
-  tier: "legacy",
+  tier: "business",
   subSections: [
     {
       id: "business_systems",

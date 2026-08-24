@@ -24,7 +24,7 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { getErrorMessage } from "../lib/utils";
 
-const CAL_LINK = "https://cal.com/legacyarchitectrva/60min";
+const CAL_LINK = "https://cal.com/legacyarchitectrva/discovery-call";
 
 export default function ClientDetailPage() {
   const { clientUserId } = useParams<{ clientUserId: string }>();

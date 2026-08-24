@@ -147,15 +147,13 @@ A Life Manual is a comprehensive, organized document that puts every account, sy
 - Use the messaging feature to communicate with your facilitator
 
 ## Editions
-- **The Vault** ($950) - Chapters 1, 2, 4, 5 - essential digital and household continuity
-- **The Archive** ($1,950) - Adds Chapters 3, 6 - financial overview and legacy wishes
-- **The Legacy** ($3,000+) - All 7 chapters including business continuity
+- **Personal** ($1,500) - Introduction, Digital Life, Emergency & Successor Access, Financial & Assets, Household Operations, Vital Records, Legacy & Wishes
+- **Business** ($2,500) - Everything in Personal, plus Business Continuity, all 8 chapters
+
+Pay in full or start with a 50% deposit. The balance is due on delivery.
 
 ## Annual Reviews
-Your Life Manual should be reviewed annually to stay current:
-- Vault: $400/year
-- Archive: $800/year
-- Legacy: $1,200/year
+Annual review sessions are available for both editions. We'd suggest reviewing your manual at every major life event, and at minimum once every six months.
 
 ## Zero-Knowledge Standard
 We never store passwords, recovery codes, or sensitive credentials. All data is purged 72 hours after your Life Manual is delivered. Your security is our highest priority.
