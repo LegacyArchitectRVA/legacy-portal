@@ -21,7 +21,7 @@ export const tiers: Tier[] = [
     depositPriceLabel: "$750",
     tagline: "Your life, in one place",
     description:
-      "Covers 7 of 8 chapters: Introduction, Digital Life, Emergency & Successor Access, Financial & Assets, Household Operations, Vital Records, Legacy & Wishes. Built over structured working sessions, with live draft review in the portal.",
+      "Covers 6 of 7 pillars: Digital Life, Emergency & Successor Access, Financial & Assets, Household Operations, Vital Records, Legacy & Wishes. Built over structured working sessions, with live draft review in the portal.",
     chaptersUnlocked: [1, 2, 3, 4, 5, 6],
     features: [
       "6 to 8 working sessions, 60 to 90 minutes each",
