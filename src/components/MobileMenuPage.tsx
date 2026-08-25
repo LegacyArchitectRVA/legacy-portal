@@ -116,7 +116,7 @@ export function MobileMenuPage() {
             alt="Legacy Architect RVA"
             width={44}
             height={44}
-            className="w-[44px] h-[44px] rounded object-contain"
+            className="w-11 h-11 rounded object-contain"
           />
           <span className="text-sm font-heading font-semibold text-gold-primary tracking-wide uppercase">
             Menu

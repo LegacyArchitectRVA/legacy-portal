@@ -862,7 +862,7 @@ export default function GeneratePage() {
       break-inside: avoid;
     }
     .footer-logo {
-      height: 210px;
+      height: 130px;
       opacity: 0.9;
       margin-bottom: 0.5rem;
     }
@@ -1131,7 +1131,7 @@ export default function GeneratePage() {
     }
     @media screen and (min-width: 641px) and (max-width: 1024px) {
       .chapter { padding: 2rem 1.5rem 1.5rem; }
-      .footer-logo { height: 160px; }
+      .footer-logo { height: 115px; }
     }
     @media screen and (max-width: 640px) {
       .cover { padding: 1.25rem; }

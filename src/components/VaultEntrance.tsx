@@ -93,10 +93,8 @@ export function VaultEntrance({ onComplete }: { onComplete: () => void }) {
           aria-hidden="true"
           width={64}
           height={64}
+          className="w-16 h-16 object-contain"
           style={{
-            width: 64,
-            height: 64,
-            objectFit: "contain",
             filter: "drop-shadow(0 0 16px rgba(232, 200, 105,0.4))",
           }}
         />

@@ -112,7 +112,7 @@ export function AppSidebar() {
               alt="Legacy Architect RVA"
               width={44}
               height={44}
-              className="w-[44px] h-[44px] rounded-lg object-contain flex-shrink-0"
+              className="w-11 h-11 rounded-lg object-contain flex-shrink-0"
               onError={e => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}

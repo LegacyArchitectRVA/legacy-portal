@@ -19,7 +19,7 @@ export function FullPageLoader({ label }: { label?: string }) {
           aria-hidden="true"
           width={64}
           height={64}
-          className="relative w-[64px] h-[64px] object-contain animate-crest-breathe"
+          className="relative w-16 h-16 object-contain animate-crest-breathe"
         />
       </div>
       {label && (
