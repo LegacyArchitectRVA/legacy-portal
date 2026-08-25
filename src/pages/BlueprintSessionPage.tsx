@@ -78,7 +78,7 @@ export default function BlueprintSessionPage() {
     [session?.assessments],
   );
   const readiness = useMemo(() => overallReadiness(scores), [scores]);
-  const gapMapRef = useRef<SVGSVGElement>(null);
+  const gapMapRef = useRef<HTMLCanvasElement>(null);
   const totalExposed = scores.reduce((s, p) => s + p.exposed, 0);
   const totalAssessed = scores.reduce((s, p) => s + p.assessed, 0);
   const totalCheckpoints = BLUEPRINT_PILLARS.reduce(
@@ -225,9 +225,12 @@ export default function BlueprintSessionPage() {
             {" · "}
             {totalAssessed}/{totalCheckpoints} assessed
             {" · "}
+            {/* Colors match the Gap Map / checkpoint chip palette exactly
+                (STATUS_COLORS in GapMapVisual.tsx) rather than generic
+                Tailwind rose/emerald. */}
             <span
               className={
-                totalExposed > 0 ? "text-rose-400" : "text-emerald-400"
+                totalExposed > 0 ? "text-[#e8938c]" : "text-[#7ed1ac]"
               }
             >
               {totalExposed} exposed

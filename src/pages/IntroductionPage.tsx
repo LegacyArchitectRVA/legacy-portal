@@ -47,10 +47,11 @@ This roadmap provides your designated successor with a clear, sequential path to
 - Transfer or close accounts as directed, confirming beneficiary designations first
 - File necessary documents with appropriate agencies
 - Follow the asset distribution plan
-- Complete all items in the Vital Records chapter, and begin Chapter 7: Business Continuity if the Life Manual includes it
+- Complete all items in the Vital Records chapter
 
 ## Phase 4: Legacy Preservation
 - Review Chapter 6: Legacy & Wishes, including any Letter of Intent on file
+- Complete Chapter 7: Business Continuity if the Life Manual includes it
 - Execute any legacy instructions
 - Archive the Life Manual per the zero-knowledge protocol
 

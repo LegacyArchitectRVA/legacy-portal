@@ -123,8 +123,12 @@ export default function BlueprintListPage() {
                       })}
                       {" · "}
                       {s.assessedCount} assessed{" · "}
+                      {/* Colored to match the Gap Map / checkpoint chip palette
+                          exactly (STATUS_COLORS.exposed in GapMapVisual.tsx) rather
+                          than a generic Tailwind red, so "exposed" reads the same
+                          shade everywhere in the app. */}
                       <span
-                        className={s.exposedCount > 0 ? "text-rose-400" : ""}
+                        className={s.exposedCount > 0 ? "text-[#e8938c]" : ""}
                       >
                         {s.exposedCount} exposed
                       </span>
