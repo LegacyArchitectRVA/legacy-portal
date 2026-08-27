@@ -121,6 +121,7 @@ export default function UpgradePage() {
           const isCurrent = tier.id === currentTier;
           const isUpgrade = tierRank[tier.id] > currentRank;
           const colors = tierColors[tier.id];
+          // When upgrading Personal → Business, show the $1,000 difference, not full $2,500
           const displayPrice =
             isUpgrade &&
             currentTier === "personal" &&
@@ -166,19 +167,33 @@ export default function UpgradePage() {
                       src={tierImages[tier.id]}
                       alt={tier.name}
                       className="h-24 w-24 object-contain drop-shadow-lg"
-                    />
-                  ) : (
-                    <div
-                      className="h-20 w-20 rounded-full border flex items-center justify-center font-heading text-2xl drop-shadow-lg"
-                      style={{
-                        color: colors.accent,
-                        borderColor: `${colors.accent}55`,
-                        backgroundColor: `${colors.accent}14`,
+                      onError={e => {
+                        const el = e.currentTarget;
+                        el.style.display = "none";
+                        const fallback = el.nextElementSibling as HTMLElement | null;
+                        if (fallback) fallback.style.display = "flex";
                       }}
-                    >
-                      {tier.name.charAt(0)}
-                    </div>
-                  )}
+                    />
+                  ) : null}
+                  <div
+                    className="h-20 w-20 rounded-full border items-center justify-center drop-shadow-lg"
+                    style={{
+                      display: tierImages[tier.id] ? "none" : "flex",
+                      color: colors.accent,
+                      borderColor: `${colors.accent}55`,
+                      backgroundColor: `${colors.accent}14`,
+                    }}
+                    aria-hidden={!!tierImages[tier.id]}
+                  >
+                    {/* Business continuity building mark — not a letter */}
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 21h18" />
+                      <path d="M5 21V7l7-4 7 4v14" />
+                      <path d="M9 21v-6h6v6" />
+                      <path d="M10 9h4" />
+                      <path d="M10 13h4" />
+                    </svg>
+                  </div>
                 </div>
 
                 {isCurrent && (
