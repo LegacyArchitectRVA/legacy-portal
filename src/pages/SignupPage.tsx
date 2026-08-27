@@ -15,6 +15,40 @@ import { EditableText } from "../components/EditableText";
 
 type Step = "signUp" | { email: string };
 
+function friendlyAuthError(err: unknown): string {
+  if (err instanceof ConvexError) {
+    const data = err.data;
+    if (typeof data === "string") return data;
+    if (data && typeof data === "object" && "message" in data) {
+      return String((data as { message: unknown }).message);
+    }
+  }
+  const msg = err instanceof Error ? err.message : String(err ?? "");
+  const lower = msg.toLowerCase();
+  if (
+    lower.includes("already exists") ||
+    lower.includes("already registered") ||
+    lower.includes("account already") ||
+    lower.includes("user already") ||
+    lower.includes("duplicate")
+  ) {
+    return "An account with this email already exists. Sign in instead, or use a different email.";
+  }
+  if (lower.includes("auth_resend_key") || lower.includes("resend")) {
+    return "Could not send the verification email. Please try again in a moment, or contact support.";
+  }
+  if (lower.includes("password") && lower.includes("invalid")) {
+    return "Password does not meet requirements. Use at least 8 characters.";
+  }
+  if (lower.includes("rate") || lower.includes("too many")) {
+    return "Too many attempts. Please wait a minute and try again.";
+  }
+  if (msg && msg.length < 160 && !lower.includes("failed to fetch")) {
+    return msg;
+  }
+  return "Could not create account. Please try again.";
+}
+
 export default function SignupPage() {
   const navigate = useNavigate();
   const { signIn } = useAuthActions();
@@ -45,12 +79,8 @@ export default function SignupPage() {
       } else {
         setStep({ email });
       }
-    } catch (err: any) {
-      if (err instanceof ConvexError) {
-        setError(err.data as string);
-      } else {
-        setError("Could not create account. Please try again.");
-      }
+    } catch (err: unknown) {
+      setError(friendlyAuthError(err));
     } finally {
       setLoading(false);
     }
@@ -67,12 +97,8 @@ export default function SignupPage() {
         flow: "email-verification",
       });
       navigate("/profile?welcome=1");
-    } catch (err: any) {
-      if (err instanceof ConvexError) {
-        setError(err.data as string);
-      } else {
-        setError("Invalid or expired code. Please try again.");
-      }
+    } catch (err: unknown) {
+      setError(friendlyAuthError(err) || "Invalid or expired code. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -87,9 +113,9 @@ export default function SignupPage() {
           <img
             src="/logo.png"
             alt="Legacy Architect RVA"
-            width={64}
-            height={64}
-            className="mx-auto w-16 h-16 object-contain"
+            width={88}
+            height={88}
+            className="mx-auto w-20 h-20 sm:w-22 sm:h-22 object-contain"
           />
           <h1 className="font-heading text-2xl text-[#f2ede2] tracking-wide uppercase">
             {step === "signUp" ? (
