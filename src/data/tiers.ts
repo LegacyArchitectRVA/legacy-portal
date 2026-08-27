@@ -26,7 +26,7 @@ export const tiers: Tier[] = [
     features: [
       "6 to 8 working sessions, 60 to 90 minutes each",
       "Live draft review in the portal",
-      "Annual review available",
+      "Annual review available ($250)",
     ],
   },
   {
@@ -44,31 +44,29 @@ export const tiers: Tier[] = [
       "Everything in Personal",
       "8 to 10 working sessions, 60 to 90 minutes each",
       "Business Continuity chapter",
-      "Annual review available",
+      "Annual review available ($250)",
     ],
   },
 ];
 
-// Pulled directly from legacyarchitectrva.com/services (LINKS object). Keep in sync
-// if pricing or links change on the main site.
+// Stripe payment links — keep in sync with main site / Stripe dashboard.
 export const stripeLinks: Record<string, string> = {
-  personal_full: "https://buy.stripe.com/14AaEX9rV5ag4wQcMd6Zy02",
-  personal_deposit: "https://buy.stripe.com/3cI8wP5bF0U04wQdQh6Zy03",
-  business_full: "https://buy.stripe.com/28EbJ1fQjcCIgfy9A16Zy04",
-  business_deposit: "https://buy.stripe.com/7sY00jdIbeKQd3mh2t6Zy05",
+  personal_full: "https://buy.stripe.com/eVqdR9eMfdGM5AUfYp6Zy08",
+  personal_deposit: "https://buy.stripe.com/14A7sLcE77io2oI4fH6Zy09",
+  business_full: "https://buy.stripe.com/8x2cN5avZdGM9Ra8vX6Zy0a",
+  business_deposit: "https://buy.stripe.com/aFa4gz7jNdGM5AUh2t6Zy0b",
   annual_review: "https://buy.stripe.com/14A9ATcE7byEe7qdQh6Zy06",
   upgrade_personal_to_business: "https://buy.stripe.com/4gM9AT0Vp7iobZi8vX6Zy07",
 };
 
-// Flat fee, same for both editions. Not tied to a specific tier's pricing.
+// Flat fee, same for both editions.
 export const annualReview = {
   price: 250,
   priceLabel: "$250",
   link: stripeLinks.annual_review,
 };
 
-// The only upgrade path in the current model: Personal to Business.
-// Flat fee rather than a prorated difference.
+// Personal → Business upgrade is the difference only ($2,500 − $1,500).
 export const upgradePersonalToBusiness = {
   price: 1000,
   priceLabel: "$1,000",
