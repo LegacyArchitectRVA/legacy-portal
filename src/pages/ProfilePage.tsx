@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { EditableText } from "../components/EditableText";
 import { FullPageLoader } from "../components/FullPageLoader";
+import { OrientationTour } from "../components/OrientationTour";
 
 function formatPhoneNumber(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 10);
@@ -75,11 +76,6 @@ export default function ProfilePage() {
       } else {
         await updateProfile({ crestId: storageId });
       }
-      // Don't set a local blob: preview here — the profile query above is
-      // reactive and will pick up the new profilePicUrl/crestUrl as soon as
-      // this mutation commits, which is the actual saved state. A local
-      // blob URL can go stale or get blocked, leaving a broken image with
-      // its alt text ("Profile"/"Family Crest") rendered over the circle.
     } catch (e) {
       console.error("Upload failed:", e);
       setUploadError(
@@ -113,6 +109,8 @@ export default function ProfilePage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6 animate-fade-in">
+      <OrientationTour />
+
       <div>
         <h1 className="font-heading text-2xl font-bold text-[#f2ede2]">
           <EditableText cmsKey="profile_title" as="span" />
@@ -123,9 +121,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="bg-[#0f0c08] rounded-xl p-6 gold-border-glow space-y-6">
-        {/* Profile Picture & Info — stacked on mobile */}
         <div className="flex flex-col sm:flex-row items-center gap-5">
-          {/* Profile Picture */}
           <div className="relative group shrink-0">
             <div className="w-[96px] h-[96px] rounded-full bg-[#111] flex items-center justify-center border-2 border-[rgba(212, 182, 97,0.15)] overflow-hidden shadow-[0_0_15px_rgba(212, 182, 97,0.06)]">
               {profilePicPreview ? (
@@ -168,7 +164,6 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* Name & Info */}
           <div className="flex-1 text-center sm:text-left">
             <p className="font-heading text-xl font-semibold text-[#f2ede2]">
               {profile?.name || "Your Name"}
@@ -179,7 +174,6 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          {/* Family Crest */}
           <div className="relative group shrink-0 w-full sm:w-auto">
             <div className="w-[96px] h-[96px] rounded-xl bg-[#111] flex flex-col items-center justify-center border-2 border-[rgba(212, 182, 97,0.15)] overflow-hidden gap-1 shadow-[0_0_15px_rgba(212, 182, 97,0.06)] mx-auto">
               {crestPreview ? (
@@ -237,7 +231,6 @@ export default function ProfilePage() {
           </p>
         )}
 
-        {/* Form Fields */}
         <div className="space-y-4">
           <div>
             <label className="block text-xs text-[#f2ede2]/80 mb-1.5 font-heading uppercase tracking-wider">
