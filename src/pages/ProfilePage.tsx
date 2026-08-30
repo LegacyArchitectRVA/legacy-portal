@@ -98,7 +98,7 @@ export default function ProfilePage() {
 
   const tierLabel = profile?.tier
     ? profile.tier.charAt(0).toUpperCase() + profile.tier.slice(1)
-    : "Vault";
+    : "Personal";
   const accessLabel = profile?.isAdmin
     ? "Administrator"
     : `${tierLabel} Edition`;

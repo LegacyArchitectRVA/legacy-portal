@@ -26,9 +26,9 @@ Life Manual Data (submitted through the Client Portal or provided during consult
 • Household and property details
 • Vital records and legal documents
 • Personal letters, traditions, and memories
-• Business continuity information (Legacy tier only)
+• Business continuity information (Business edition only)
 
-The specific categories collected depend on your service tier (The Vault, The Archive, or The Legacy).`,
+The specific categories collected depend on your service edition (Personal or Business).`,
   },
   {
     heading: "3. How We Use Your Information",
@@ -115,7 +115,7 @@ The Service is a private, secure digital workspace designed to facilitate the cr
 • Life Manual Creation: Your dedicated Legacy Architect reviews, organizes, and crafts your submitted information into a comprehensive, branded Life Manual document.
 • Delivery: Your completed Life Manual is delivered as a professional PDF document for your exclusive retention.
 
-Service tiers (The Vault, The Archive, The Legacy) determine the scope of pillars and content included in your Life Manual, as agreed upon at the time of engagement.`,
+Service editions (Personal or Business) determine the scope of pillars and content included in your Life Manual, as agreed upon at the time of engagement.`,
   },
   {
     heading: "3. Account Responsibilities",

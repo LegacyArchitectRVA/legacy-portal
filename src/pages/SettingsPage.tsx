@@ -251,7 +251,7 @@ export default function SettingsPage() {
               {profile?.isAdmin ? "Access" : "Tier"}
             </p>
             <p className="text-sm text-[#f2ede2] capitalize">
-              {profile?.isAdmin ? "Administrator" : profile?.tier || "Vault"}
+              {profile?.isAdmin ? "Administrator" : profile?.tier || "Personal"}
             </p>
           </div>
           <div>

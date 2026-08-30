@@ -28,12 +28,6 @@ export const EDITABLE_DEFAULTS: Record<string, string> = {
   dashboard_description:
     "Your Life Manual, organized across seven chapters of continuity",
   upgrade_title: "Upgrade Your Life Manual",
-  upgrade_vault_desc:
-    "A secure foundation for your essential documents and access details.",
-  upgrade_archive_desc:
-    "Comprehensive clarity for complex lives. Every detail is organized and accessible.",
-  upgrade_legacy_desc:
-    "Full operational continuity for business owners and multi-estate individuals.",
   upgrade_current_badge: "Current Edition",
   upgrade_cta_prefix: "Upgrade to",
   upgrade_active_badge: "Active",
@@ -42,17 +36,6 @@ export const EDITABLE_DEFAULTS: Record<string, string> = {
     "Upgrade options only show editions above the client's current edition. Blueprint Session is intentionally excluded from the portal.",
   upgrade_footer_text:
     "All Life Manuals include secure client portal access, a premium branded PDF, and a 72-hour data purge after delivery.",
-  upgrade_vault_feature_0: "Core Document Inventory",
-  upgrade_vault_feature_1: "Secure Access Framework",
-  upgrade_vault_feature_2: "Critical Contact Directory",
-  upgrade_archive_feature_0: "Everything in The Vault",
-  upgrade_archive_feature_1: "Decision-Making Context",
-  upgrade_archive_feature_2: "Asset & Liability Mapping",
-  upgrade_archive_feature_3: "Relationship & Dependency Guide",
-  upgrade_archive_feature_4: "Digital & Physical Asset Management",
-  upgrade_legacy_feature_0: "Everything in The Archive",
-  upgrade_legacy_feature_1: "Business Succession Integration",
-  upgrade_legacy_feature_2: "Long-Term Stewardship Plan",
   login_title: "Welcome Back",
   login_subtitle: "Sign in to your Life Manual portal",
   login_passkey_button: "Sign In with Face ID / Fingerprint",
