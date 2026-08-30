@@ -7,7 +7,6 @@ import { api } from "../../convex/_generated/api";
 import { EditableText } from "../components/EditableText";
 import {
   EncryptedIcon,
-  PrivateIcon,
   ZeroKnowledgeIcon,
 } from "../components/TrustIcons";
 import { useEditMode } from "../contexts/EditModeContext";
@@ -115,7 +114,7 @@ export default function LandingPage() {
             <EditableText
               cmsKey="app_tagline"
               as="p"
-              className="text-xs md:text-sm tracking-[0.3em] uppercase text-[#e8c869]/50"
+              className="text-xs md:text-sm tracking-[0.22em] uppercase text-[#e8c869]/90"
               style={{ fontFamily: "Cinzel, serif" }}
             />
           </div>
@@ -147,7 +146,7 @@ export default function LandingPage() {
       <div className="relative flex items-center justify-center py-8">
         <div className="w-full max-w-2xl h-px bg-gradient-to-r from-transparent via-[#e8c869]/20 to-transparent" />
         <p
-          className="absolute text-center text-xs md:text-sm tracking-[0.3em] uppercase text-[#e8c869]/50 bg-black px-8"
+          className="absolute text-center text-xs md:text-sm tracking-[0.22em] uppercase text-[#e8c869]/90 bg-black px-8"
           style={{ fontFamily: "Cinzel, serif" }}
         >
           Your life is planned. Your absence isn't.
@@ -187,9 +186,8 @@ export default function LandingPage() {
 const TRUST_CARD_DEFS: Record<string, { icon: typeof EncryptedIcon }> = {
   encrypted: { icon: EncryptedIcon },
   zeroknowledge: { icon: ZeroKnowledgeIcon },
-  private: { icon: PrivateIcon },
 };
-const DEFAULT_ORDER = ["encrypted", "zeroknowledge", "private"];
+const DEFAULT_ORDER = ["encrypted", "zeroknowledge"];
 
 function TrustCardsGrid() {
   const { active } = useEditMode();
@@ -217,7 +215,7 @@ function TrustCardsGrid() {
   };
 
   return (
-    <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+    <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
       {order.map((cardId, index) => {
         const def = TRUST_CARD_DEFS[cardId];
         if (!def) return null;

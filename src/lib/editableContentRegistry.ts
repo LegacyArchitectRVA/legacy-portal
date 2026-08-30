@@ -21,9 +21,6 @@ export const EDITABLE_DEFAULTS: Record<string, string> = {
   trust_card_zeroknowledge_title: "Zero-Knowledge Protocol",
   trust_card_zeroknowledge_desc:
     "After delivery, all files and access are purged. Your information stays with you.",
-  trust_card_private_title: "Private & Confidential",
-  trust_card_private_desc:
-    "Limited to 5 clients per month. Your manual receives our full attention and discretion.",
   dashboard_welcome: "Welcome",
   dashboard_description:
     "Your Life Manual, organized across seven chapters of continuity",
