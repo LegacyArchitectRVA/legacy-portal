@@ -98,11 +98,17 @@ function makeTextSprite(
     color: string;
     weight?: number;
     letterSpacing?: number;
+    /** Dark stroke drawn behind the fill so text stays legible sitting on
+     * top of the gem glow / bloom instead of washing out into it. On by
+     * default; the dial's own center numerals sit over a near-black cap
+     * already, so they skip it rather than pay the extra draw for nothing. */
+    outline?: boolean;
   },
 ): THREE.Sprite {
   const RENDER_PX = 72;
   const weight = opts.weight ?? 400;
   const spacing = opts.letterSpacing ?? 0;
+  const outline = opts.outline ?? true;
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
   const font = `${weight} ${RENDER_PX}px 'Crimson Pro', Georgia, serif`;
@@ -120,12 +126,20 @@ function makeTextSprite(
   canvas.height = Math.max(4, Math.ceil(lineH * lines.length + RENDER_PX * 0.3));
 
   ctx.font = font;
-  ctx.fillStyle = opts.color;
   ctx.textBaseline = "middle";
+  ctx.lineJoin = "round";
+  ctx.miterLimit = 2;
+  const strokeWidth = RENDER_PX * 0.16;
   lines.forEach((line, i) => {
     const y = lineH * (i + 0.5) + RENDER_PX * 0.15;
     if (!spacing) {
       ctx.textAlign = "center";
+      if (outline) {
+        ctx.strokeStyle = "rgba(10,8,5,0.92)";
+        ctx.lineWidth = strokeWidth;
+        ctx.strokeText(line, canvas.width / 2, y);
+      }
+      ctx.fillStyle = opts.color;
       ctx.fillText(line, canvas.width / 2, y);
       return;
     }
@@ -133,6 +147,12 @@ function makeTextSprite(
     let x = (canvas.width - w) / 2;
     ctx.textAlign = "left";
     for (const ch of line) {
+      if (outline) {
+        ctx.strokeStyle = "rgba(10,8,5,0.92)";
+        ctx.lineWidth = strokeWidth;
+        ctx.strokeText(ch, x, y);
+      }
+      ctx.fillStyle = opts.color;
       ctx.fillText(ch, x, y);
       x += ctx.measureText(ch).width + spacing;
     }
@@ -203,7 +223,11 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
       const height = 920;
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+      // Widened from 40 to 46 to keep the enlarged, further-pushed pillar
+      // labels (see labelGap below) inside frame at the left/right nodes,
+      // where a two-line label like "Household & Property" now runs wide
+      // enough to clip the old frustum.
+      const camera = new THREE.PerspectiveCamera(46, width / height, 0.1, 100);
       camera.position.set(0, 9.2, 12.6);
       camera.lookAt(0, -0.1, 0);
 
@@ -283,6 +307,7 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         size: 0.62,
         color: GOLD,
         weight: 700,
+        outline: false,
       });
       readinessSprite.position.set(0, 0.08, 0.18);
       scene.add(readinessSprite);
@@ -292,6 +317,7 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         color: CREAM,
         weight: 500,
         letterSpacing: 6,
+        outline: false,
       });
       readinessCaption.position.set(0, -0.38, 0.18);
       readinessCaption.material.opacity = 0.75;
@@ -339,8 +365,8 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
             opacity: 0,
           });
           const iconSprite = new THREE.Sprite(iconMat);
-          iconSprite.scale.set(0.52, 0.52, 1);
-          iconSprite.position.y = 0.9;
+          iconSprite.scale.set(0.4, 0.4, 1);
+          iconSprite.position.y = 0.72;
           iconSprite.renderOrder = 5;
           node.add(iconSprite);
           textureLoader.load(iconSrc, (iconTexture) => {
@@ -355,28 +381,31 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         }
 
         const chipRing = new THREE.Mesh(
-          new THREE.RingGeometry(0.19, 0.24, 32),
+          new THREE.RingGeometry(0.16, 0.2, 32),
           new THREE.MeshBasicMaterial({ color: colorNum, side: THREE.DoubleSide }),
         );
-        chipRing.position.set(0.5, 0.55, 0.1);
+        chipRing.position.set(0.4, 0.4, 0.1);
         chipRing.rotation.x = -Math.PI / 2.6;
         node.add(chipRing);
         const chipNumber = makeTextSprite([s.number.replace(/^0/, "")], {
-          size: 0.22,
+          size: 0.19,
           color,
           weight: 700,
         });
-        chipNumber.position.set(0.5, 0.55, 0.14);
+        chipNumber.position.set(0.4, 0.4, 0.14);
         node.add(chipNumber);
 
-        const labelGap = 1.2;
+        // Pushed further out than before (1.2 -> 1.7) so adjacent labels
+        // clear each other around the ring, especially the top row where
+        // three nodes used to collapse into a jumble at phone scale.
+        const labelGap = 1.7;
         const lx = Math.cos(angle) * labelGap;
         const lz = Math.sin(angle) * labelGap;
         const lines = labelLines(s.title).map((l) => l.toUpperCase());
         const nameSprite = makeTextSprite(lines, {
-          size: 0.19,
+          size: 0.25,
           color: CREAM,
-          weight: 500,
+          weight: 600,
           letterSpacing: 1,
         });
         nameSprite.position.set(x + lx, 0.62, z + lz);
@@ -386,11 +415,15 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         const pct = s.assessed > 0 ? `${s.riskPct}%` : "";
         const statusSprite = makeTextSprite(
           [pct ? `${statusWord(s).toUpperCase()}  ${pct}` : statusWord(s).toUpperCase()],
-          { size: 0.155, color, weight: 600, letterSpacing: 1.2 },
+          { size: 0.19, color, weight: 600, letterSpacing: 1.2 },
         );
+        // Vertical drop scales with lines.length the same way the name
+        // sprite's own line height does, so a two-line pillar name (e.g.
+        // "FINANCIAL & ASSETS") still clears its status line below it now
+        // that both are drawn larger than before.
         statusSprite.position.set(
           x + lx,
-          0.62 - 0.02 - lines.length * 0.24,
+          0.62 - 0.03 - lines.length * 0.32,
           z + lz,
         );
         scene.add(statusSprite);
