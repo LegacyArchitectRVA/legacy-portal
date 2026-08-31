@@ -8,3 +8,11 @@ dist-debug/
 tmp/
 __pycache__/
 *.pyc
+
+# Root-level duplicates of what belongs in public/ have snuck in before
+# via mobile uploads (Aug 2026 cleanup). These never get deployed since
+# Cloudflare only builds dist/ from public/, so keeping git from
+# re-tracking them at root if it happens again.
+/assets/
+/videos/
+*.tsbuildinfo
