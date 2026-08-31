@@ -1,6 +1,453 @@
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8" /><style>body{background:#0c0a07;margin:0;padding:40px;}</style>  <script type="module" crossorigin src="./assets/index-C1udvKra.js"></script>
-</head>
-<body><div id="root"></div></body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      STORAGE RESILIENCE SHIM
+      Runs before Convex, React, or any app code. Some browser configurations
+      deny a document access to localStorage/sessionStorage/IndexedDB
+      entirely. There are two different ways that shows up in Chrome, and
+      this shim has to handle both:
+
+      1. Reading window.localStorage itself throws:
+         "SecurityError: Failed to read the 'localStorage' property from
+         'Window': Access is denied for this document." This is the more
+         restrictive case — the document doesn't get a Storage object at
+         all, not even one whose methods fail. A prior version of this shim
+         only guarded the setItem/removeItem calls, not this read, so on a
+         browser hitting this case the shim's very first line threw,
+         uncaught, and silently skipped everything after it in this script,
+         including sessionStorage and the indexedDB wrap below.
+      2. window.localStorage reads fine, but calling .setItem/.getItem/
+         .removeItem on it throws "SecurityError: The request was denied."
+
+      Several things in this app touch storage without expecting either
+      case: Convex Auth's default token storage, and tesseract.js's OCR
+      language-data cache (used in documentConverter.ts) both assume storage
+      always works. Nothing here is destructive: if storage works normally,
+      this does nothing and the real APIs are left alone.
+    -->
+    <script>
+      (function () {
+        function makeMemoryStorage() {
+          var map = new Map();
+          return {
+            getItem: function (k) {
+              return map.has(k) ? map.get(k) : null;
+            },
+            setItem: function (k, v) {
+              map.set(String(k), String(v));
+            },
+            removeItem: function (k) {
+              map.delete(k);
+            },
+          };
+        }
+
+        function shimWebStorage(propName) {
+          window.__lrvaStorageStatus[propName] = { state: "in-progress" };
+
+          // The property read itself — window.localStorage — can throw on
+          // its own, before any method is even called on it. This is the
+          // case that actually matters: some browser configurations deny a
+          // document storage access entirely, and Chrome's error for that
+          // is specifically "Failed to read the 'localStorage' property
+          // from 'Window': Access is denied for this document." An earlier
+          // version of this shim only guarded the setItem/removeItem probe
+          // below, not this read, so it never got past this line and the
+          // rest of the shim (sessionStorage, the indexedDB wrap further
+          // down) silently never ran either.
+          var real;
+          var readThrew = false;
+          var readError = null;
+          try {
+            real = window[propName];
+          } catch (e) {
+            readThrew = true;
+            readError = e;
+          }
+
+          if (readThrew) {
+            var memoryForReadThrow = makeMemoryStorage();
+            try {
+              Object.defineProperty(window, propName, {
+                configurable: true,
+                get: function () {
+                  return memoryForReadThrow;
+                },
+              });
+              window.__lrvaStorageStatus[propName] = {
+                state: "blocked-and-patched",
+                patchedVia: ["window-property (read itself threw)"],
+                probeError: readError.name + ": " + readError.message,
+              };
+            } catch (e2) {
+              // The property can't be redefined either. Nothing further to
+              // try from script, this document's storage access is denied
+              // at a level JavaScript on the page can't work around.
+              window.__lrvaStorageStatus[propName] = {
+                state: "blocked-unpatched",
+                probeError: readError.name + ": " + readError.message,
+                patchError: e2.message,
+              };
+            }
+            return;
+          }
+
+          if (!real) {
+            window.__lrvaStorageStatus[propName] = { state: "not-present" };
+            return;
+          }
+
+          try {
+            var testKey = "__lrva_storage_probe__";
+            real.setItem(testKey, "1");
+            real.removeItem(testKey);
+            window.__lrvaStorageStatus[propName] = { state: "working" };
+            return; // works fine here, leave the real implementation alone
+          } catch (e) {
+            window.__lrvaStorageStatus[propName] = {
+              state: "blocked",
+              probeError: e && e.name ? e.name + ": " + e.message : String(e),
+            };
+          }
+
+          var memoryInstance = makeMemoryStorage();
+          var patchedVia = [];
+
+          // Preferred fix for this branch: the object itself was readable,
+          // just its methods throw when called. Patch the shared prototype
+          // so every caller, regardless of how it holds a reference to
+          // localStorage/sessionStorage, goes through the same safe
+          // implementation.
+          try {
+            var proto = Object.getPrototypeOf(real);
+            proto.getItem = function (k) {
+              return memoryInstance.getItem(k);
+            };
+            proto.setItem = function (k, v) {
+              return memoryInstance.setItem(k, v);
+            };
+            proto.removeItem = function (k) {
+              return memoryInstance.removeItem(k);
+            };
+            patchedVia.push("prototype");
+          } catch (e2) {
+            // Extremely unusual for Storage.prototype itself to be locked.
+          }
+
+          // Belt and suspenders: if getItem/setItem/removeItem happen to be
+          // own properties directly on this particular localStorage/
+          // sessionStorage instance rather than inherited from the
+          // prototype, they'd shadow the prototype patch above. Not how any
+          // real browser actually shapes Storage, but cheap to cover.
+          try {
+            real.getItem = function (k) {
+              return memoryInstance.getItem(k);
+            };
+            real.setItem = function (k, v) {
+              return memoryInstance.setItem(k, v);
+            };
+            real.removeItem = function (k) {
+              return memoryInstance.removeItem(k);
+            };
+            patchedVia.push("own-property");
+          } catch (e2b) {
+            // Instance methods aren't writable either, fine, the prototype
+            // patch above is what actually matters in real browsers.
+          }
+
+          if (patchedVia.length === 0) {
+            try {
+              Object.defineProperty(window, propName, {
+                configurable: true,
+                get: function () {
+                  return memoryInstance;
+                },
+              });
+              patchedVia.push("window-property");
+            } catch (e3) {
+              // All three approaches failed.
+            }
+          }
+
+          // Verify the patch actually works by using window[propName] the
+          // same way real calling code would, not just trusting that the
+          // assignment above didn't throw.
+          var verified = false;
+          try {
+            window[propName].setItem(testKey, "1");
+            verified = window[propName].getItem(testKey) === "1";
+            window[propName].removeItem(testKey);
+          } catch (e4) {
+            verified = false;
+          }
+
+          window.__lrvaStorageStatus[propName] = {
+            state: patchedVia.length ? "blocked-and-patched" : "blocked-unpatched",
+            patchedVia: patchedVia,
+            verified: verified,
+            probeError: window.__lrvaStorageStatus[propName].probeError,
+          };
+        }
+
+        // Each call is independently guarded. If shimming one storage type
+        // hits something totally unanticipated, it must not be able to take
+        // the other one, or the indexedDB wrap below, down with it — that
+        // exact failure mode (one unguarded line aborting everything after
+        // it in this script) is what caused the last version of this file
+        // to silently do nothing.
+        window.__lrvaStorageStatus = {};
+        try {
+          shimWebStorage("localStorage");
+        } catch (eOuterLS) {
+          window.__lrvaStorageStatus.localStorage = {
+            state: "shim-crashed",
+            error: eOuterLS && eOuterLS.message,
+          };
+        }
+        try {
+          shimWebStorage("sessionStorage");
+        } catch (eOuterSS) {
+          window.__lrvaStorageStatus.sessionStorage = {
+            state: "shim-crashed",
+            error: eOuterSS && eOuterSS.message,
+          };
+        }
+
+        try {
+          if (window.indexedDB && window.indexedDB.open) {
+            var nativeOpen = window.indexedDB.open.bind(window.indexedDB);
+            window.indexedDB.open = function () {
+              try {
+                return nativeOpen.apply(window.indexedDB, arguments);
+              } catch (err) {
+                // Mimic a normal failed IDB request: return a request-shaped
+                // object and fire onerror asynchronously, same as a real
+                // blocked-database failure would, instead of throwing here
+                // and skipping past the caller's own error handling.
+                var fakeRequest = {};
+                setTimeout(function () {
+                  if (typeof fakeRequest.onerror === "function") {
+                    fakeRequest.onerror({ target: { error: err } });
+                  }
+                }, 0);
+                return fakeRequest;
+              }
+            };
+          }
+        } catch (e) {
+          // Best effort only.
+        }
+
+        // Active probe, separate from the wrap above. The wrap only tells
+        // us anything if some caller happens to invoke indexedDB.open —
+        // this actually tries it, right now, at page load, the same way
+        // the storage probes above do, so the diagnostic further down has
+        // a real answer instead of silence if nothing else in the app
+        // touches IndexedDB before something else fails.
+        window.__lrvaStorageStatus.indexedDB = { state: "checking" };
+        try {
+          if (!window.indexedDB) {
+            window.__lrvaStorageStatus.indexedDB = { state: "not-present" };
+          } else {
+            var idbReq;
+            try {
+              idbReq = nativeOpen
+                ? nativeOpen("__lrva_idb_probe__", 1)
+                : window.indexedDB.open("__lrva_idb_probe__", 1);
+            } catch (openErr) {
+              window.__lrvaStorageStatus.indexedDB = {
+                state: "blocked",
+                probeError: openErr && openErr.name
+                  ? openErr.name + ": " + openErr.message
+                  : String(openErr),
+              };
+            }
+            if (idbReq) {
+              idbReq.onsuccess = function () {
+                window.__lrvaStorageStatus.indexedDB = { state: "working" };
+                try {
+                  idbReq.result.close();
+                  window.indexedDB.deleteDatabase("__lrva_idb_probe__");
+                } catch (cleanupErr) {
+                  // Non-fatal, probe database is tiny and harmless either way.
+                }
+              };
+              idbReq.onerror = function (ev) {
+                var err = ev && ev.target && ev.target.error;
+                window.__lrvaStorageStatus.indexedDB = {
+                  state: "blocked",
+                  probeError: err && err.name
+                    ? err.name + ": " + err.message
+                    : "open request errored",
+                };
+              };
+              idbReq.onblocked = function () {
+                window.__lrvaStorageStatus.indexedDB = { state: "blocked-by-other-tab" };
+              };
+            }
+          }
+        } catch (eIdbProbe) {
+          window.__lrvaStorageStatus.indexedDB = {
+            state: "probe-crashed",
+            error: eIdbProbe && eIdbProbe.message,
+          };
+        }
+      })();
+    </script>
+
+    <!--
+      DIAGNOSTIC — safety net for anything not covered above. Catches any
+      remaining script error or unhandled promise rejection and writes it
+      straight onto the page as plain text, visible on a phone with no
+      devtools needed. Remove once the portal's been stable for a while.
+
+      One thing this has to be careful about: the window "error" listener
+      below is capture-phase, which is needed to catch the app's own script
+      tag failing to load (a 404 or CSP block on /src/main.tsx would be
+      fatal, the whole app can't boot). But capture-phase also sees every
+      OTHER resource load failure on the page: a broken <img>, a blocked
+      stylesheet, and so on. Those aren't crashes, several places in the app
+      (like the profile photo and crest previews) already handle a broken
+      image gracefully on their own. A plain resource load failure fires as
+      an ordinary Event with no message, filename, or error attached, that's
+      the "Unknown error at ?:?" text, not a real problem. Only a genuine
+      ErrorEvent (an actual thrown script error) or the main script tag
+      itself failing to load should take over the screen.
+    -->
+    <script>
+      (function () {
+        function liveStorageCheck() {
+          // Re-test right now, at the moment something failed, in case
+          // state differs from what the shim found at page load.
+          var result = {};
+          ["localStorage", "sessionStorage"].forEach(function (propName) {
+            try {
+              window[propName].setItem("__lrva_live_probe__", "1");
+              var ok = window[propName].getItem("__lrva_live_probe__") === "1";
+              window[propName].removeItem("__lrva_live_probe__");
+              result[propName] = ok ? "working right now" : "wrote ok but read back wrong value";
+            } catch (e) {
+              result[propName] =
+                "STILL THROWS: " + (e && e.name ? e.name + ": " + e.message : String(e));
+            }
+          });
+          return result;
+        }
+
+        function formatStorageStatus() {
+          var atLoad = window.__lrvaStorageStatus || {};
+          var now = liveStorageCheck();
+          var lines = ["Storage shim status:"];
+          ["localStorage", "sessionStorage"].forEach(function (propName) {
+            var s = atLoad[propName] || { state: "unknown (shim did not run?)" };
+            lines.push(
+              "  " +
+                propName +
+                " at page load: " +
+                s.state +
+                (s.patchedVia ? " (patched via: " + s.patchedVia.join(", ") + ")" : "") +
+                (s.verified === false ? " [verify check FAILED]" : "") +
+                (s.probeError ? " [" + s.probeError + "]" : ""),
+            );
+            lines.push("  " + propName + " right now: " + now[propName]);
+          });
+          var idb = atLoad.indexedDB || { state: "unknown (probe did not run?)" };
+          lines.push(
+            "  indexedDB probe at page load: " +
+              idb.state +
+              (idb.state === "checking"
+                ? " (async, had not finished when this fired — the real answer may be different by now)"
+                : "") +
+              (idb.probeError ? " [" + idb.probeError + "]" : "") +
+              (idb.error ? " [" + idb.error + "]" : ""),
+          );
+          return lines.join("\n");
+        }
+
+        function showDiagnostic(title, detail) {
+          if (document.getElementById("__lrva_diag__")) return;
+          var el = document.createElement("div");
+          el.id = "__lrva_diag__";
+          el.style.cssText =
+            "position:fixed;inset:0;z-index:999999;background:#0f0c08;" +
+            "color:#f2ede2;font-family:monospace;font-size:13px;" +
+            "padding:16px;overflow:auto;white-space:pre-wrap;line-height:1.5;";
+          el.textContent =
+            title + "\n\n" + detail + "\n\n" + formatStorageStatus();
+          document.body ? document.body.appendChild(el) : document.addEventListener("DOMContentLoaded", function () {
+            document.body.appendChild(el);
+          });
+        }
+        window.addEventListener(
+          "error",
+          function (e) {
+            var isRealScriptError = e instanceof ErrorEvent;
+            var isMainScriptLoadFailure =
+              !isRealScriptError &&
+              e.target &&
+              e.target.tagName === "SCRIPT";
+
+            // A resource (image, stylesheet, etc.) other than the app's own
+            // script tag failing to load isn't fatal, the page carries on.
+            // Don't paint over a portal that's actually working fine.
+            if (!isRealScriptError && !isMainScriptLoadFailure) return;
+
+            var detail;
+            if (isRealScriptError) {
+              detail =
+                e.error && e.error.stack
+                  ? e.error.stack
+                  : (e.message || "Unknown error") +
+                    " at " +
+                    (e.filename || "?") +
+                    ":" +
+                    (e.lineno || "?");
+            } else {
+              detail =
+                "The app's main script tag failed to load: " +
+                (e.target.src || e.target.outerHTML);
+            }
+            showDiagnostic("Caught a script error:", detail);
+          },
+          true,
+        );
+        window.addEventListener("unhandledrejection", function (e) {
+          var reason = e.reason;
+          var parts = [];
+          if (reason && reason.stack) {
+            parts.push(reason.stack);
+          } else {
+            parts.push(String(reason));
+          }
+          if (reason && reason.name) parts.push("name: " + reason.name);
+          if (reason && typeof reason.code !== "undefined") {
+            parts.push("code: " + reason.code);
+          }
+          if (reason && reason.constructor && reason.constructor.name) {
+            parts.push("constructor: " + reason.constructor.name);
+          }
+          showDiagnostic(
+            "Caught an unhandled promise rejection:",
+            parts.join("\n"),
+          );
+        });
+      })();
+    </script>
+
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&family=Cardo:wght@400;700&family=Cinzel:wght@400;500;600;700;800&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <title>Legacy Architect RVA | Client Portal</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script data-cfasync="false" type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
