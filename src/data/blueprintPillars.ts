@@ -1,13 +1,18 @@
 /**
  * Blueprint Session assessment bank.
  *
- * Seven pillars in the locked Readiness Check order (this is the QUIZ
- * pillar system, NOT the Life Manual chapter order; the two must never
- * be conflated): Digital Life, Financial & Assets, Household & Property,
- * Health & Medical, Legal & Estate, Legacy & Wishes (06),
- * Business Continuity (07). (Pillars 6 and 7 transposed from the original
- * Readiness Check quiz order, per Craig, for the Gap Map and Blueprint
- * Session specifically.)
+ * Seven pillars in the locked Readiness Check order. Two of these titles
+ * were deliberately aligned to Life Manual chapter names per Craig
+ * (Household & Property -> Household Operations, Legal & Estate -> Vital
+ * Records), specifically for the Blueprint Session and nowhere else. The
+ * underlying `id` values and checkpoint content are unchanged: Vital
+ * Records' pillar still covers a will, POA, and attorney contacts
+ * alongside the vital-documents checkpoint its new title borrows from,
+ * it's a title change, not a content change. Order: Digital Life,
+ * Financial & Assets, Household Operations, Health & Medical, Vital
+ * Records, Legacy & Wishes (06), Business Continuity (07). (Pillars 6
+ * and 7 transposed from the original Readiness Check quiz order, per
+ * Craig, for the Gap Map and Blueprint Session specifically.)
  *
  * Each checkpoint carries a `fix`: the concrete step that moves that item
  * from exposed to handled. Fixes are written in the brand's plain-spoken
@@ -139,7 +144,7 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
   {
     id: "household",
     number: "03",
-    title: "Household & Property",
+    title: "Household Operations",
     color: "#10B981",
     checkpoints: [
       {
@@ -222,7 +227,7 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
   {
     id: "legal",
     number: "05",
-    title: "Legal & Estate",
+    title: "Vital Records",
     color: "#A78BFA",
     checkpoints: [
       {

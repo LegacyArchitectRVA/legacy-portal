@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import type { PillarScore } from "../lib/blueprintDeliverable";
 
@@ -30,6 +31,71 @@ export const STATUS_COLORS = {
   unassessed: "#6b675e",
 } as const;
 
+// Craig deliberately aligned two Blueprint pillar titles to their Life
+// Manual chapter names (see blueprintPillars.ts), so 6 of 7 now share an
+// icon cleanly: Digital Life, Financial & Assets, Legacy & Wishes, and
+// Business Continuity always matched; Household Operations and Vital
+// Records now match by name too, using the Life Manual's own icons for
+// each. Health & Medical is the one pillar with no Life Manual
+// equivalent at all, so it has no icon here yet, a real one still needs
+// to be made for it rather than borrowing a mismatched stand-in.
+const PILLAR_ICON_SRC: Partial<Record<string, string>> = {
+  digital: "/g_digital-e.webp",
+  legal: "/g_vital-e.webp",
+  financial: "/g_financial-e.webp",
+  household: "/g_household-e.webp",
+  health: "/g_health-e.webp",
+  business: "/g_business-e.webp",
+  legacy: "/g_legacy-e.webp",
+};
+
+/** Loads a square source image, masks it to a circle on an offscreen
+ * canvas, and hands back a billboarded sprite via callback once ready.
+ * Async by nature, so callers need to guard against the component having
+ * unmounted (or this effect having re-run) before the image finishes. */
+function loadIconSprite(
+  src: string,
+  worldSize: number,
+  onReady: (sprite: THREE.Sprite) => void,
+): void {
+  const img = new Image();
+  img.onload = () => {
+    const RENDER_PX = 256;
+    const canvas = document.createElement("canvas");
+    canvas.width = RENDER_PX;
+    canvas.height = RENDER_PX;
+    const ctx = canvas.getContext("2d")!;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(RENDER_PX / 2, RENDER_PX / 2, RENDER_PX / 2 - 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(img, 0, 0, RENDER_PX, RENDER_PX);
+    ctx.restore();
+    // Thin ring so the badge reads as a deliberate medallion against the
+    // scene rather than a cropped photo floating in space.
+    ctx.beginPath();
+    ctx.arc(RENDER_PX / 2, RENDER_PX / 2, RENDER_PX / 2 - 2, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(232, 200, 105, 0.55)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    const material = new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      depthWrite: false,
+      depthTest: false,
+    });
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(worldSize, worldSize, 1);
+    sprite.renderOrder = 9;
+    onReady(sprite);
+  };
+  img.src = src;
+}
+
 function nodeColor(s: PillarScore): string {
   if (s.assessed === 0) return STATUS_COLORS.unassessed;
   if (s.riskPct >= 60) return STATUS_COLORS.exposed;
@@ -49,6 +115,25 @@ function labelLines(title: string): string[] {
   if (title.length <= 14) return [title];
   const at = title.indexOf(" & ");
   if (at > 0) return [title.slice(0, at + 2), title.slice(at + 3)];
+  // No ampersand to split on (e.g. "Household Operations"): fall back to
+  // breaking at whichever space sits closest to the midpoint, so a long
+  // title still wraps to two roughly balanced lines instead of trying to
+  // render as one long unsplit line.
+  const mid = title.length / 2;
+  let bestSpace = -1;
+  let bestDist = Infinity;
+  for (let i = 0; i < title.length; i++) {
+    if (title[i] === " ") {
+      const dist = Math.abs(i - mid);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestSpace = i;
+      }
+    }
+  }
+  if (bestSpace > 0) {
+    return [title.slice(0, bestSpace), title.slice(bestSpace + 1)];
+  }
   return [title];
 }
 
@@ -69,17 +154,15 @@ function makeTextSprite(
     color: string;
     weight?: number;
     letterSpacing?: number;
-    /** Dark stroke drawn behind the fill so text stays legible sitting on
-     * top of the gem glow / bloom instead of washing out into it. On by
-     * default; the dial's own center numerals sit over a near-black cap
-     * already, so they skip it rather than pay the extra draw for nothing. */
+    /** Dark stroke drawn behind the fill. Off by default now, per Craig's
+     * call that it read as a drop shadow rather than a legibility aid. */
     outline?: boolean;
   },
 ): THREE.Sprite {
   const RENDER_PX = 72;
   const weight = opts.weight ?? 400;
   const spacing = opts.letterSpacing ?? 0;
-  const outline = opts.outline ?? true;
+  const outline = opts.outline ?? false;
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
   const font = `${weight} ${RENDER_PX}px 'Crimson Pro', Georgia, serif`;
@@ -150,7 +233,7 @@ function makeTextSprite(
 /** Soft radial-gradient billboard used as a glow halo behind each node,
  * additive-blended so it reinforces the real UnrealBloomPass rather than
  * fighting it. */
-function makeGlowSprite(color: string, worldSize: number): THREE.Sprite {
+function makeGlowSprite(color: string, worldSize: number, opacity = 0.32): THREE.Sprite {
   const px = 128;
   const canvas = document.createElement("canvas");
   canvas.width = px;
@@ -168,7 +251,7 @@ function makeGlowSprite(color: string, worldSize: number): THREE.Sprite {
     transparent: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending,
-    opacity: 0.32,
+    opacity,
   });
   const sprite = new THREE.Sprite(material);
   sprite.scale.set(worldSize, worldSize, 1);
@@ -189,6 +272,18 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
     useEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
+      // Guards the async icon image loads below: if this effect re-runs
+      // or the component unmounts before an image finishes loading, its
+      // onload callback must not touch a scene that's already been torn
+      // down or add a sprite that'll never get cleaned up.
+      let cancelled = false;
+      // Bloom is a full-scene post-process, so it can't tell text from
+      // orbs by brightness alone — cream text is often brighter than the
+      // colored gems, so a threshold tweak would catch one or lose the
+      // other. Tracking every text sprite here instead, so the render
+      // sequence below can hide just these for the bloom-only pass and
+      // composite that result back in without them.
+      const noBloomSprites: THREE.Object3D[] = [];
 
       const width = 920;
       const height = 920;
@@ -196,11 +291,25 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
       const scene = new THREE.Scene();
       // Widened from 40 to 46 to keep the enlarged, further-pushed pillar
       // labels (see labelGap below) inside frame at the left/right nodes,
-      // where a two-line label like "Household & Property" now runs wide
+      // where a two-line label like "Household Operations" now runs wide
       // enough to clip the old frustum.
-      const camera = new THREE.PerspectiveCamera(46, width / height, 0.1, 100);
-      camera.position.set(0, 9.2, 12.6);
-      camera.lookAt(0, -0.1, 0);
+      const camera = new THREE.PerspectiveCamera(56, width / height, 0.1, 100);
+      // Steepened from (0, 9.2, 12.6) — a fairly raking ~54-degree angle
+      // off vertical — to a much more top-down ~33 degrees. At the old
+      // angle, the seven nodes sat at meaningfully different distances
+      // from the camera despite being equidistant from the ring center,
+      // so the same world-space label size read as different apparent
+      // sizes on screen, and pushing a label outward along its node's
+      // radial direction meant "outward" sometimes translated to mostly
+      // sideways motion on screen and sometimes to mostly depth motion,
+      // which is why the gaps looked inconsistent node to node. A more
+      // top-down angle makes both of those problems much smaller at the
+      // geometry level rather than patching them after the fact.
+      camera.position.set(0, 12.5, 8);
+      // Look-at target dropped from -0.1 to -0.35 to recenter the frame
+      // slightly lower, since the bottom two nodes' status lines were
+      // running past the bottom edge with the steeper camera angle.
+      camera.lookAt(0, -0.35, 0);
 
       const renderer = new THREE.WebGLRenderer({
         canvas,
@@ -282,6 +391,7 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
       });
       readinessSprite.position.set(0, 0.08, 0.18);
       scene.add(readinessSprite);
+      noBloomSprites.push(readinessSprite);
 
       const readinessCaption = makeTextSprite(["READINESS"], {
         size: 0.16,
@@ -293,11 +403,18 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
       readinessCaption.position.set(0, -0.38, 0.18);
       readinessCaption.material.opacity = 0.75;
       scene.add(readinessCaption);
+      noBloomSprites.push(readinessCaption);
 
       // --- Seven pillar nodes -------------------------------------------
       const nodeGroup = new THREE.Group();
       scene.add(nodeGroup);
       const disposables: Array<{ dispose: () => void }> = [];
+      // Reference distance for the label-scale normalization below: how
+      // far the camera sits from the point every node's label is nominally
+      // anchored around (the same target camera.lookAt uses).
+      const camDistToCenter = camera.position.distanceTo(
+        new THREE.Vector3(0, -0.1, 0),
+      );
 
       scores.forEach((s, i) => {
         const angle = -Math.PI / 2 + i * ((Math.PI * 2) / scores.length);
@@ -314,7 +431,7 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         glow.position.y = 0.02;
         node.add(glow);
 
-        const gemGeo = new THREE.IcosahedronGeometry(0.44, 2);
+        const gemGeo = new THREE.IcosahedronGeometry(0.33, 2);
         const gemMat = new THREE.MeshStandardMaterial({
           color: colorNum,
           emissive: colorNum,
@@ -327,10 +444,52 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         node.add(gem);
         disposables.push(gemGeo, gemMat);
 
-        // Icon sprite and number-chip badge removed. Neither carried
-        // information the gem's own color and the label/status text below
-        // didn't already, and stacked together they read as clutter rather
-        // than detail. The gem's color and glow now do that job alone.
+        // Stone pillar shaft beneath the gem, per Craig's direction toward
+        // the Legacy OS reference: the gem still carries the readiness
+        // color as its own bright emissive cap, and the stone picks up a
+        // faint wash of that same color near the top, as if lit by the
+        // gem sitting on it, rather than the whole shaft being flat-
+        // colored (which read as cartoonish in an early pass).
+        const pillarHeight = 1.5;
+        const gemRadius = 0.33;
+        const pillarGeo = new THREE.CylinderGeometry(0.22, 0.28, pillarHeight, 24);
+        const pillarMat = new THREE.MeshStandardMaterial({
+          color: 0x8a8378,
+          emissive: colorNum,
+          emissiveIntensity: 0.16,
+          metalness: 0.12,
+          roughness: 0.82,
+        });
+        const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+        pillar.position.y = -(gemRadius + pillarHeight / 2 - 0.14);
+        node.add(pillar);
+        disposables.push(pillarGeo, pillarMat);
+
+        // Base plinth, a short wider cylinder the shaft sits on, so it
+        // reads as standing on something instead of floating mid-air with
+        // its bottom edge just stopping in space.
+        const plinthHeight = 0.12;
+        const pillarBottomY = pillar.position.y - pillarHeight / 2;
+        const plinthGeo = new THREE.CylinderGeometry(0.34, 0.38, plinthHeight, 24);
+        const plinthMat = new THREE.MeshStandardMaterial({
+          color: 0x726c60,
+          metalness: 0.1,
+          roughness: 0.88,
+        });
+        const plinth = new THREE.Mesh(plinthGeo, plinthMat);
+        plinth.position.y = pillarBottomY - plinthHeight / 2 + 0.03;
+        node.add(plinth);
+        disposables.push(plinthGeo, plinthMat);
+
+        // Small ground-glow pool at the base, standing in for the ambient
+        // light the reference shows pooling around each pillar's foot.
+        // Deliberately a soft, per-node additive sprite rather than one
+        // shared floor plane across the whole scene, since a single flat
+        // disc under everything was the earlier attempt that read as a
+        // flat, hard-edged shape once bloom stopped covering for it.
+        const groundGlow = makeGlowSprite(color, 1.9, 0.16);
+        groundGlow.position.y = pillarBottomY;
+        node.add(groundGlow);
 
         // Pushed further out than before (1.2 -> 1.7) so adjacent labels
         // clear each other around the ring, especially the top row where
@@ -347,56 +506,139 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         });
         nameSprite.position.set(x + lx, 0.62, z + lz);
         nameSprite.material.opacity = 0.92;
+        // Sprites keep a fixed world-space size, so two labels of the same
+        // font size still read as different sizes on screen once they sit
+        // at different distances from the camera. Rescaling each one by
+        // its own distance-to-camera relative to the ring center's
+        // distance-to-camera cancels that out, so all seven read as the
+        // same size regardless of which side of the ring they're on.
+        const distScale = camera.position.distanceTo(nameSprite.position) / camDistToCenter;
+        nameSprite.scale.multiplyScalar(distScale);
         scene.add(nameSprite);
+        noBloomSprites.push(nameSprite);
+
+        const iconSrc = PILLAR_ICON_SRC[s.pillarId];
+        if (iconSrc) {
+          const iconWorldSize = 0.62;
+          // Same flat, generous-and-verified approach as the status-line
+          // gap below: given how much trouble deriving an exact figure
+          // from sprite dimensions caused for that one, not repeating it
+          // here. Bigger gap for two-line names so the icon clears the
+          // taller block, plus half the icon's own size so its footprint
+          // doesn't creep back down into the name it's sitting above.
+          // The 0.78 constant was tuned against six nodes before Health &
+          // Medical had an icon at all, and none of those six land as
+          // close to camera (low distScale) on a two-line label as Health
+          // does. Its icon collided with "HEALTH &" once added, so this
+          // is bumped to clear that node's worst-case distScale with real
+          // margin, confirmed against all seven afterward.
+          const iconGap = (lines.length >= 2 ? 1.02 : 0.68) + iconWorldSize / 2;
+          const iconX = x + lx;
+          const iconZ = z + lz;
+          const iconY = nameSprite.position.y + iconGap * distScale;
+          loadIconSprite(iconSrc, iconWorldSize, (iconSprite) => {
+            if (cancelled) return;
+            iconSprite.position.set(iconX, iconY, iconZ);
+            iconSprite.scale.multiplyScalar(
+              camera.position.distanceTo(iconSprite.position) / camDistToCenter,
+            );
+            scene.add(iconSprite);
+            renderScene();
+          });
+        }
 
         const pct = s.assessed > 0 ? `${s.riskPct}%` : "";
         const statusSprite = makeTextSprite(
           [pct ? `${statusWord(s).toUpperCase()}  ${pct}` : statusWord(s).toUpperCase()],
           { size: 0.19, color, weight: 600, letterSpacing: 1.2 },
         );
-        // Vertical drop scales with lines.length the same way the name
-        // sprite's own line height does, so a two-line pillar name (e.g.
-        // "FINANCIAL & ASSETS") still clears its status line below it now
-        // that both are drawn larger than before.
+        // Every formula tried here derived from sprite dimensions or
+        // camera distance, and each one looked right on paper but still
+        // overlapped for at least one node in practice, with no single
+        // variable explaining the shortfall. Falling back to a flat,
+        // deliberately generous gap per line count instead, confirmed
+        // empirically against all seven nodes including the worst case.
+        const statusOffset = lines.length >= 2 ? 1.05 : 0.44;
         statusSprite.position.set(
           x + lx,
-          0.62 - 0.03 - lines.length * 0.32,
+          nameSprite.position.y - statusOffset,
           z + lz,
         );
+        statusSprite.scale.multiplyScalar(
+          camera.position.distanceTo(statusSprite.position) / camDistToCenter,
+        );
+        // Explicit render order above the name sprite (which defaults to
+        // 10 from makeTextSprite) so status always draws on top of name
+        // if the two ever end up close enough on screen to compete,
+        // rather than leaving that to Three's default transparent sort.
+        statusSprite.renderOrder = 11;
         scene.add(statusSprite);
+        noBloomSprites.push(statusSprite);
       });
 
-      // --- Floor glow -----------------------------------------------------
-      const floorGlow = new THREE.Mesh(
-        new THREE.CircleGeometry(4.6, 64),
-        new THREE.MeshBasicMaterial({
-          color: 0x14110c,
-          transparent: true,
-          opacity: 0.35,
-        }),
-      );
-      floorGlow.rotation.x = -Math.PI / 2;
-      floorGlow.position.y = -0.6;
-      scene.add(floorGlow);
+      // --- Bloom post-processing (selective) -------------------------------
+      // Bloom now only applies to the gems, their glow halos, and the
+      // readiness ring. Text renders in a plain pass with no bloom
+      // contribution, then the two are composited together additively,
+      // so the orbs still glow but the lettering stays crisp and flat.
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
 
-      // --- Bloom post-processing ------------------------------------------
-      const composer = new EffectComposer(renderer);
-      composer.setSize(width, height);
-      composer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      composer.addPass(new RenderPass(scene, camera));
+      const bloomComposer = new EffectComposer(renderer);
+      bloomComposer.renderToScreen = false;
+      bloomComposer.setSize(width, height);
+      bloomComposer.setPixelRatio(pixelRatio);
+      bloomComposer.addPass(new RenderPass(scene, camera));
       const bloom = new UnrealBloomPass(
         new THREE.Vector2(width, height),
         0.35,
         0.28,
         0.5,
       );
-      composer.addPass(bloom);
+      bloomComposer.addPass(bloom);
+
+      const additiveMixShader = {
+        uniforms: {
+          baseTexture: { value: null },
+          bloomTexture: { value: bloomComposer.renderTarget2.texture },
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D baseTexture;
+          uniform sampler2D bloomTexture;
+          varying vec2 vUv;
+          void main() {
+            gl_FragColor = texture2D(baseTexture, vUv) + texture2D(bloomTexture, vUv);
+          }
+        `,
+      };
+      const mixPass = new ShaderPass(additiveMixShader, "baseTexture");
+      mixPass.needsSwap = true;
+
+      const composer = new EffectComposer(renderer);
+      composer.setSize(width, height);
+      composer.setPixelRatio(pixelRatio);
+      composer.addPass(new RenderPass(scene, camera));
+      composer.addPass(mixPass);
       composer.addPass(new OutputPass());
 
-      composer.render();
+      const renderScene = () => {
+        noBloomSprites.forEach((o) => (o.visible = false));
+        bloomComposer.render();
+        noBloomSprites.forEach((o) => (o.visible = true));
+        composer.render();
+      };
+      renderScene();
 
       return () => {
+        cancelled = true;
         composer.dispose();
+        bloomComposer.dispose();
         renderer.dispose();
         scene.traverse((obj) => {
           const mesh = obj as THREE.Mesh;
