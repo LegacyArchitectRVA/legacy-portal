@@ -6,7 +6,7 @@ This repository contains the authenticated client/admin portal that powers that 
 
 ## What's in the Portal
 
-- **Life Manual chapters** — Seven structured chapters (Digital Life, Emergency & Successor Access, Financial & Assets, Household Operations, Vital Records, Legacy & Wishes, Business Continuity) where clients enter the information their Life Manual is built from.
+- **Life Manual chapters** — Seven structured chapters (Digital Life, Emergency & Successor Orientation, Financial & Assets, Household Operations, Vital Records, Legacy & Wishes, Business Continuity) where clients enter the information their Life Manual is built from.
 - **Life Manual Generator** — Produces a finished, branded Life Manual (HTML and print-ready PDF) from a client's entered data, including a table of contents, cross-referenced sections, and a Legal Documents in Force summary.
 - **Document Converter** — Converts AFFiNE-exported documents into branded, polished output.
 - **Admin tools** — Client management, a lightweight CRM for prospects and referral partners, messaging between admin and clients, and a Visual Editor for in-place content and copy changes across the site.
