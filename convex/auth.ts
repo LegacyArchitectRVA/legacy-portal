@@ -34,15 +34,25 @@ if (jwtPrivateKey) {
   process.env.JWT_PRIVATE_KEY = decodePrivateKey(jwtPrivateKey);
 }
 
+// TestCredentials is disabled unless ALLOW_TEST_AUTH=true is set on this
+// specific Convex deployment (see testAuth.ts). It isn't set on production,
+// so this array excludes it there by default. Kept out of the list
+// entirely, rather than left in and only rejecting inside authorize(), so
+// the provider doesn't appear in this deployment's auth provider metadata
+// at all when disabled.
+const providers = [
+  Password({
+    verify: ResendVerificationEmail,
+    reset: ResendPasswordReset,
+  }),
+  PasskeyCredentials,
+];
+if (process.env.ALLOW_TEST_AUTH === "true") {
+  providers.push(TestCredentials);
+}
+
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: [
-    Password({
-      verify: ResendVerificationEmail,
-      reset: ResendPasswordReset,
-    }),
-    TestCredentials,
-    PasskeyCredentials,
-  ],
+  providers,
 });
 
 export const currentUser = query({

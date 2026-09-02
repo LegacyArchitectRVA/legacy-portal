@@ -214,7 +214,9 @@ export const setTestUserAdminStatus = internalMutation({
       .withIndex("email", q => q.eq("email", TEST_USER.email))
       .unique();
     if (!user)
-      throw new ConvexError("Test user doesn't exist yet, run seedTestUser first.");
+      throw new ConvexError(
+        "Test user doesn't exist yet, run seedTestUser first.",
+      );
     await ctx.db.patch(user._id, { isAdmin });
     return { isAdmin };
   },
@@ -235,7 +237,9 @@ export const seedTestClientSampleRow = internalMutation({
       .withIndex("email", q => q.eq("email", TEST_USER.email))
       .unique();
     if (!user)
-      throw new ConvexError("Test user doesn't exist yet, run seedTestUser first.");
+      throw new ConvexError(
+        "Test user doesn't exist yet, run seedTestUser first.",
+      );
 
     const rowId = "test_seed_row_cloud_storage";
     const existing = await ctx.db
@@ -277,6 +281,54 @@ export const seedTestClientSampleRow = internalMutation({
 });
 
 /**
+ * Removes the agent@test.local test account entirely: authAccounts,
+ * authSessions, its clients row (if activateTestClient was ever run) and
+ * its sectionRows (if seedTestClientSampleRow was ever run), then the
+ * user itself. Mirrors deleteVerifyTestUser above, extended to cover the
+ * extra client/data rows this account can accumulate that the
+ * password-provider verify account never has. Internal only, never
+ * reachable from the browser. Safe to call even if the account, or any
+ * of its associated rows, don't exist.
+ */
+export const deleteTestUser = internalMutation({
+  args: {},
+  handler: async ctx => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", q => q.eq("email", TEST_USER.email))
+      .unique();
+    if (!user) return { deleted: false };
+
+    const client = await ctx.db
+      .query("clients")
+      .withIndex("by_userId", q => q.eq("userId", user._id))
+      .unique();
+    if (client) await ctx.db.delete(client._id);
+
+    const rows = await ctx.db
+      .query("sectionRows")
+      .withIndex("by_userId", q => q.eq("userId", user._id))
+      .collect();
+    for (const r of rows) await ctx.db.delete(r._id);
+
+    const accounts = await ctx.db
+      .query("authAccounts")
+      .withIndex("userIdAndProvider", q => q.eq("userId", user._id))
+      .collect();
+    for (const a of accounts) await ctx.db.delete(a._id);
+
+    const sessions = await ctx.db
+      .query("authSessions")
+      .withIndex("userId", q => q.eq("userId", user._id))
+      .collect();
+    for (const s of sessions) await ctx.db.delete(s._id);
+
+    await ctx.db.delete(user._id);
+    return { deleted: true };
+  },
+});
+
+/**
  * One-time setup so the test account can actually be used to verify the
  * client-facing portal end-to-end (login, dashboard, chapter pages, the
  * read-only view, etc.) — mirrors exactly what the real admin.addClient
@@ -286,10 +338,7 @@ export const seedTestClientSampleRow = internalMutation({
  */
 export const activateTestClient = internalMutation({
   args: {
-    tier: v.union(
-      v.literal("personal"),
-      v.literal("business"),
-    ),
+    tier: v.union(v.literal("personal"), v.literal("business")),
   },
   handler: async (ctx, { tier }) => {
     const user = await ctx.db
@@ -297,7 +346,9 @@ export const activateTestClient = internalMutation({
       .withIndex("email", q => q.eq("email", TEST_USER.email))
       .unique();
     if (!user)
-      throw new ConvexError("Test user doesn't exist yet, run seedTestUser first.");
+      throw new ConvexError(
+        "Test user doesn't exist yet, run seedTestUser first.",
+      );
 
     const existing = await ctx.db
       .query("clients")
