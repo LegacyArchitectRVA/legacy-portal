@@ -31,20 +31,20 @@ export const STATUS_COLORS = {
   unassessed: "#6b675e",
 } as const;
 
-// Craig deliberately aligned two Blueprint pillar titles to their Life
-// Manual chapter names (see blueprintPillars.ts), so 6 of 7 now share an
-// icon cleanly: Digital Life, Financial & Assets, Legacy & Wishes, and
-// Business Continuity always matched; Household Operations and Vital
-// Records now match by name too, using the Life Manual's own icons for
-// each. Health & Medical is the one pillar with no Life Manual
-// equivalent at all, so it has no icon here yet, a real one still needs
-// to be made for it rather than borrowing a mismatched stand-in.
+// Craig deliberately aligned three Blueprint pillar titles to their Life
+// Manual chapter names (see blueprintPillars.ts), so all 7 now share an
+// icon with their Life Manual counterpart: Digital Life, Financial &
+// Assets, Legacy & Wishes, and Business Continuity always matched;
+// Household Operations, Vital Records, and Emergency & Successor
+// Orientation now match by name too, using the Life Manual's own icons
+// for each. Pillar 04's underlying id stays "health" (see the header
+// comment above), it's the title and icon that moved, not the id.
 const PILLAR_ICON_SRC: Partial<Record<string, string>> = {
   digital: "/g_digital-e.webp",
   legal: "/g_vital-e.webp",
   financial: "/g_financial-e.webp",
   household: "/g_household-e.webp",
-  health: "/g_health-e.webp",
+  health: "/g_emergency-e.webp",
   business: "/g_business-e.webp",
   legacy: "/g_legacy-e.webp",
 };
@@ -528,11 +528,15 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
           // doesn't creep back down into the name it's sitting above.
           // The 0.78 constant was tuned against six nodes before Health &
           // Medical had an icon at all, and none of those six land as
-          // close to camera (low distScale) on a two-line label as Health
-          // does. Its icon collided with "HEALTH &" once added, so this
-          // is bumped to clear that node's worst-case distScale with real
-          // margin, confirmed against all seven afterward.
-          const iconGap = (lines.length >= 2 ? 1.02 : 0.68) + iconWorldSize / 2;
+          // close to camera (low distScale) on a two-line label as this
+          // node does (id stays "health" after the Emergency & Successor
+          // Orientation rename, so it's still the worst-case position).
+          // 1.02 cleared the literal collision, then 1.3 still left the
+          // icon's badge ring visibly clipping the top of "EMERGENCY &"
+          // once rendered and inspected directly, so bumped again to 1.6,
+          // rebuilt, and re-inspected at full resolution to confirm the
+          // badge sits clear of the text with real margin this time.
+          const iconGap = (lines.length >= 2 ? 1.6 : 0.68) + iconWorldSize / 2;
           const iconX = x + lx;
           const iconZ = z + lz;
           const iconY = nameSprite.position.y + iconGap * distScale;

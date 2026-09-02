@@ -1,18 +1,28 @@
 /**
  * Blueprint Session assessment bank.
  *
- * Seven pillars in the locked Readiness Check order. Two of these titles
+ * Seven pillars in the locked Readiness Check order. Three of these titles
  * were deliberately aligned to Life Manual chapter names per Craig
  * (Household & Property -> Household Operations, Legal & Estate -> Vital
- * Records), specifically for the Blueprint Session and nowhere else. The
- * underlying `id` values and checkpoint content are unchanged: Vital
- * Records' pillar still covers a will, POA, and attorney contacts
- * alongside the vital-documents checkpoint its new title borrows from,
- * it's a title change, not a content change. Order: Digital Life,
- * Financial & Assets, Household Operations, Health & Medical, Vital
- * Records, Legacy & Wishes (06), Business Continuity (07). (Pillars 6
- * and 7 transposed from the original Readiness Check quiz order, per
- * Craig, for the Gap Map and Blueprint Session specifically.)
+ * Records, Health & Medical -> Emergency & Successor Orientation),
+ * specifically for the Blueprint Session and nowhere else. "Orientation"
+ * instead of "Access" is intentional: the Blueprint Session is a
+ * diagnostic conversation, not the Life Manual document itself, so the
+ * pillar is framed around whether a successor is oriented, not around
+ * granting access.
+ *
+ * Pillar 04's underlying `id` ("health") and `color` are unchanged from
+ * before the rename to avoid orphaning any Blueprint Session already run
+ * under the old title. Its checkpoints were fully replaced (the old
+ * healthcare-directive / medications / providers content didn't belong
+ * under a successor-orientation heading), so those four checkpoint `id`s
+ * are new rather than reused.
+ *
+ * Order: Digital Life, Financial & Assets, Household Operations,
+ * Emergency & Successor Orientation, Vital Records, Legacy & Wishes (06),
+ * Business Continuity (07). (Pillars 6 and 7 transposed from the original
+ * Readiness Check quiz order, per Craig, for the Gap Map and Blueprint
+ * Session specifically.)
  *
  * Each checkpoint carries a `fix`: the concrete step that moves that item
  * from exposed to handled. Fixes are written in the brand's plain-spoken
@@ -190,36 +200,37 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
   {
     id: "health",
     number: "04",
-    title: "Health & Medical",
+    title: "Emergency & Successor Orientation",
     color: "#F43F5E",
     checkpoints: [
       {
-        id: "hm_directives",
-        label: "Healthcare directive and medical POA exist and are findable",
+        id: "es_named_successor",
+        label: "A named successor knows the role is theirs",
         impact:
-          "Care decisions land on a hospital committee instead of the chosen person.",
-        fix: "Confirm the documents exist, are signed, and their physical location is written down.",
-        effort: "involved",
-      },
-      {
-        id: "hm_providers",
-        label: "Active providers and specialists are listed",
-        impact: "Continuity of care breaks exactly when it matters.",
-        fix: "List each provider, specialty, and patient portal in one table.",
+          "In an emergency, everyone waits because no one was ever formally handed the job.",
+        fix: "Name the person directly and tell them in plain terms what they're responsible for.",
         effort: "quick",
       },
       {
-        id: "hm_medications",
-        label: "Current medications and allergies are documented",
-        impact: "A preventable drug interaction in an emergency room.",
-        fix: "Write the current medication list with dosages and allergies, dated.",
+        id: "es_starting_point",
+        label: "The successor knows exactly where to start",
+        impact:
+          "A fully documented life is worthless if nobody knows where the documents live.",
+        fix: "Point to one starting location, a folder, binder, or portal, and confirm the successor knows how to reach it.",
+        effort: "moderate",
+      },
+      {
+        id: "es_backup_named",
+        label: "A backup successor is named in case the first can't act",
+        impact: "One person becomes unreachable and the whole plan stalls with them.",
+        fix: "Name a second person and write down how authority passes if the first can't step in.",
         effort: "quick",
       },
       {
-        id: "hm_insurance_cards",
-        label: "Health insurance details are accessible",
-        impact: "Coverage exists but can't be proven at intake.",
-        fix: "Note where cards and policy details live and who the policyholder is.",
+        id: "es_first_moves",
+        label: "The first moves in an emergency are written down",
+        impact: "The first hours get spent guessing instead of acting.",
+        fix: "Write the ordered first steps: who to call, what to secure, and what can wait.",
         effort: "quick",
       },
     ],
