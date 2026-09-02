@@ -2,9 +2,9 @@ import {
   RiBankCardLine as CreditCard,
   RiSplitCellsHorizontal as SquareSplitVertical,
 } from "@remixicon/react";
-import { ArrowLeft, Shield } from "reicon-react";
 import { useQuery } from "convex/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Shield } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import { FullPageLoader } from "../components/FullPageLoader";
 import {
@@ -64,10 +64,9 @@ export default function PaymentPage() {
             Upgrade to Business
           </h1>
           <p className="text-[#f2ede2]/75 leading-relaxed max-w-lg mx-auto">
-            You already have a Personal Life Manual underway. This upgrade
-            adds Business Continuity and everything else the Business
-            edition covers, for a flat fee rather than the full Business
-            price.
+            You already have a Personal Life Manual underway. This upgrade adds
+            Business Continuity and everything else the Business edition covers,
+            for a flat fee rather than the full Business price.
           </p>
         </div>
 
@@ -144,9 +143,9 @@ export default function PaymentPage() {
           Upgrade to {targetTier.name}
         </h1>
         <p className="text-[#f2ede2]/75 leading-relaxed max-w-lg mx-auto">
-          This link charges the full {targetTier.name} edition price. If
-          that doesn't match your situation, message us before you pay and
-          we'll sort out the right amount directly.
+          This link charges the full {targetTier.name} edition price. If that
+          doesn't match your situation, message us before you pay and we'll sort
+          out the right amount directly.
         </p>
       </div>
 

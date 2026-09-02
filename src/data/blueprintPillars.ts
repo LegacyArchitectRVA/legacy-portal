@@ -222,7 +222,8 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
       {
         id: "es_backup_named",
         label: "A backup successor is named in case the first can't act",
-        impact: "One person becomes unreachable and the whole plan stalls with them.",
+        impact:
+          "One person becomes unreachable and the whole plan stalls with them.",
         fix: "Name a second person and write down how authority passes if the first can't step in.",
         effort: "quick",
       },

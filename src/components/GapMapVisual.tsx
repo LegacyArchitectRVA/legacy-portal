@@ -1,10 +1,10 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import type { PillarScore } from "../lib/blueprintDeliverable";
 
 /**
@@ -177,7 +177,10 @@ function makeTextSprite(
   const widest = Math.max(...lines.map(measureLine));
   const lineH = RENDER_PX * 1.32;
   canvas.width = Math.max(4, Math.ceil(widest + RENDER_PX * 0.9));
-  canvas.height = Math.max(4, Math.ceil(lineH * lines.length + RENDER_PX * 0.3));
+  canvas.height = Math.max(
+    4,
+    Math.ceil(lineH * lines.length + RENDER_PX * 0.3),
+  );
 
   ctx.font = font;
   ctx.textBaseline = "middle";
@@ -233,7 +236,11 @@ function makeTextSprite(
 /** Soft radial-gradient billboard used as a glow halo behind each node,
  * additive-blended so it reinforces the real UnrealBloomPass rather than
  * fighting it. */
-function makeGlowSprite(color: string, worldSize: number, opacity = 0.32): THREE.Sprite {
+function makeGlowSprite(
+  color: string,
+  worldSize: number,
+  opacity = 0.32,
+): THREE.Sprite {
   const px = 128;
   const canvas = document.createElement("canvas");
   canvas.width = px;
@@ -341,7 +348,14 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
       dialGroup.rotation.x = -Math.PI / 2;
       scene.add(dialGroup);
 
-      const trackGeo = new THREE.RingGeometry(1.02, 1.16, 96, 1, 0, Math.PI * 2);
+      const trackGeo = new THREE.RingGeometry(
+        1.02,
+        1.16,
+        96,
+        1,
+        0,
+        Math.PI * 2,
+      );
       const trackMat = new THREE.MeshStandardMaterial({
         color: 0x1c1914,
         emissive: 0x000000,
@@ -452,7 +466,12 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         // colored (which read as cartoonish in an early pass).
         const pillarHeight = 1.5;
         const gemRadius = 0.33;
-        const pillarGeo = new THREE.CylinderGeometry(0.22, 0.28, pillarHeight, 24);
+        const pillarGeo = new THREE.CylinderGeometry(
+          0.22,
+          0.28,
+          pillarHeight,
+          24,
+        );
         const pillarMat = new THREE.MeshStandardMaterial({
           color: 0x8a8378,
           emissive: colorNum,
@@ -470,7 +489,12 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         // its bottom edge just stopping in space.
         const plinthHeight = 0.12;
         const pillarBottomY = pillar.position.y - pillarHeight / 2;
-        const plinthGeo = new THREE.CylinderGeometry(0.34, 0.38, plinthHeight, 24);
+        const plinthGeo = new THREE.CylinderGeometry(
+          0.34,
+          0.38,
+          plinthHeight,
+          24,
+        );
         const plinthMat = new THREE.MeshStandardMaterial({
           color: 0x726c60,
           metalness: 0.1,
@@ -497,7 +521,7 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         const labelGap = 1.7;
         const lx = Math.cos(angle) * labelGap;
         const lz = Math.sin(angle) * labelGap;
-        const lines = labelLines(s.title).map((l) => l.toUpperCase());
+        const lines = labelLines(s.title).map(l => l.toUpperCase());
         const nameSprite = makeTextSprite(lines, {
           size: 0.25,
           color: CREAM,
@@ -512,7 +536,8 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         // its own distance-to-camera relative to the ring center's
         // distance-to-camera cancels that out, so all seven read as the
         // same size regardless of which side of the ring they're on.
-        const distScale = camera.position.distanceTo(nameSprite.position) / camDistToCenter;
+        const distScale =
+          camera.position.distanceTo(nameSprite.position) / camDistToCenter;
         nameSprite.scale.multiplyScalar(distScale);
         scene.add(nameSprite);
         noBloomSprites.push(nameSprite);
@@ -540,7 +565,7 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
           const iconX = x + lx;
           const iconZ = z + lz;
           const iconY = nameSprite.position.y + iconGap * distScale;
-          loadIconSprite(iconSrc, iconWorldSize, (iconSprite) => {
+          loadIconSprite(iconSrc, iconWorldSize, iconSprite => {
             if (cancelled) return;
             iconSprite.position.set(iconX, iconY, iconZ);
             iconSprite.scale.multiplyScalar(
@@ -553,7 +578,11 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
 
         const pct = s.assessed > 0 ? `${s.riskPct}%` : "";
         const statusSprite = makeTextSprite(
-          [pct ? `${statusWord(s).toUpperCase()}  ${pct}` : statusWord(s).toUpperCase()],
+          [
+            pct
+              ? `${statusWord(s).toUpperCase()}  ${pct}`
+              : statusWord(s).toUpperCase(),
+          ],
           { size: 0.19, color, weight: 600, letterSpacing: 1.2 },
         );
         // Every formula tried here derived from sprite dimensions or
@@ -643,9 +672,9 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
       composer.addPass(new OutputPass());
 
       const renderScene = () => {
-        noBloomSprites.forEach((o) => (o.visible = false));
+        noBloomSprites.forEach(o => (o.visible = false));
         bloomComposer.render();
-        noBloomSprites.forEach((o) => (o.visible = true));
+        noBloomSprites.forEach(o => (o.visible = true));
         composer.render();
       };
       renderScene();
@@ -655,17 +684,17 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         composer.dispose();
         bloomComposer.dispose();
         renderer.dispose();
-        scene.traverse((obj) => {
+        scene.traverse(obj => {
           const mesh = obj as THREE.Mesh;
           if (mesh.geometry) mesh.geometry.dispose();
           const mat = (obj as THREE.Sprite).material as
             | THREE.Material
             | THREE.Material[]
             | undefined;
-          if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
+          if (Array.isArray(mat)) mat.forEach(m => m.dispose());
           else if (mat) mat.dispose();
         });
-        disposables.forEach((d) => d.dispose());
+        disposables.forEach(d => d.dispose());
       };
     }, [scores, readiness]);
 
@@ -705,7 +734,9 @@ export function gapMapToPng(
         height: canvasEl.height,
       });
     } catch (err) {
-      reject(err instanceof Error ? err : new Error("Could not capture the Gap Map"));
+      reject(
+        err instanceof Error ? err : new Error("Could not capture the Gap Map"),
+      );
     }
   });
 }

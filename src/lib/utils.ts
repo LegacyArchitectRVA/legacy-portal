@@ -18,7 +18,11 @@ export function getErrorMessage(err: unknown, fallback: string): string {
   const data = (err as any)?.data;
   if (typeof data === "string" && data.trim()) return data;
   const message = (err as any)?.message;
-  if (typeof message === "string" && message.trim() && message !== "Server Error") {
+  if (
+    typeof message === "string" &&
+    message.trim() &&
+    message !== "Server Error"
+  ) {
     return message;
   }
   return fallback;

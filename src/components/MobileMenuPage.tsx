@@ -10,6 +10,8 @@ import {
   RiTeamLine as Users,
   RiCloseLine as X,
 } from "@remixicon/react";
+import { useQuery } from "convex/react";
+import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
   File,
@@ -18,8 +20,6 @@ import {
   ShieldCheck,
   User,
 } from "reicon-react";
-import { useQuery } from "convex/react";
-import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter } from "../data/tiers";

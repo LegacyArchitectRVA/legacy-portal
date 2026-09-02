@@ -1,10 +1,10 @@
+import type { LucideIcon } from "lucide-react";
+import type { ComponentType } from "react";
 import {
   LockPassword as LockKey,
   ShieldCheck as ShieldCheckIcon,
   Ghost as ZeroKnowledgeGlyph,
 } from "reicon-react";
-import type { LucideIcon } from "lucide-react";
-import type { ComponentType } from "react";
 
 /**
  * Shared gold-medallion icon treatment used across the portal: a soft glow,

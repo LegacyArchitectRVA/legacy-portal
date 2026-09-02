@@ -166,7 +166,8 @@ export const verifyAuthentication = action({
       internal.webauthn.consumeChallenge,
       { token },
     );
-    if (!stored) throw new ConvexError("That sign-in attempt expired. Try again.");
+    if (!stored)
+      throw new ConvexError("That sign-in attempt expired. Try again.");
 
     const credentialId = response.id as string;
     const credential: any = await ctx.runQuery(

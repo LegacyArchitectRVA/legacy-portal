@@ -4,13 +4,10 @@ import {
   RiSendPlaneLine as Sent,
   RiDeleteBinLine as Trash2,
 } from "@remixicon/react";
-import {
-  ArrowLeft,
-  Add as Plus,
-} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Add as Plus } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 

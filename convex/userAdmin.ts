@@ -136,7 +136,9 @@ export const sendPasswordResetEmail = action({
 
     const apiKey = process.env.AUTH_RESEND_KEY;
     if (!apiKey)
-      throw new ConvexError("AUTH_RESEND_KEY environment variable not configured.");
+      throw new ConvexError(
+        "AUTH_RESEND_KEY environment variable not configured.",
+      );
     const greetingName = user.name ? String(user.name).split(" ")[0] : "there";
     const loginUrl = "https://portal.legacyarchitectrva.com/login";
     const response = await fetch("https://api.resend.com/emails", {
@@ -250,9 +252,7 @@ export const createAccountAdmin = action({
     name: v.string(),
     email: v.string(),
     phone: v.optional(v.string()),
-    tier: v.optional(
-      v.union(v.literal("personal"), v.literal("business")),
-    ),
+    tier: v.optional(v.union(v.literal("personal"), v.literal("business"))),
     hubspotId: v.optional(v.string()),
   },
   handler: async (
@@ -366,10 +366,7 @@ export const getUserByEmailInternal = internalQuery({
 export const insertClientInternal = internalMutation({
   args: {
     userId: v.id("users"),
-    tier: v.union(
-      v.literal("personal"),
-      v.literal("business"),
-    ),
+    tier: v.union(v.literal("personal"), v.literal("business")),
     hubspotId: v.optional(v.string()),
   },
   handler: async (ctx, { userId, tier, hubspotId }) => {

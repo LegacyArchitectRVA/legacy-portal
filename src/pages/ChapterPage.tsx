@@ -4,15 +4,10 @@ import {
   RiDeleteBinLine as Trash2,
   RiCloseLine as X,
 } from "@remixicon/react";
-import {
-  ArrowLeft,
-  Check,
-  Add as Plus,
-  Save,
-} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Check, Add as Plus, Save } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { ChapterIcon } from "../components/ChapterIcons";

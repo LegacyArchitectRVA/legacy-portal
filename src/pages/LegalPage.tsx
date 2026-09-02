@@ -1,8 +1,6 @@
-import {
-  ArrowLeft,
-} from "reicon-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "reicon-react";
 
 const PRIVACY_SECTIONS = [
   {

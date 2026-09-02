@@ -10,8 +10,8 @@
  * To add a new tool, first test it to see the response shape.
  */
 import { ConvexError, v } from "convex/values";
-import { requireAdminInAction } from "./admin";
 import { action } from "./_generated/server";
+import { requireAdminInAction } from "./admin";
 
 declare const process: { env: Record<string, string | undefined> };
 

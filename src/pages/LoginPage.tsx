@@ -1,12 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import {
-  RiLoader4Line as CircleNotch,
-} from "@remixicon/react";
-import {
-  Eye,
-  EyeOff as EyeSlash,
-  Fingerprint,
-} from "reicon-react";
+import { RiLoader4Line as CircleNotch } from "@remixicon/react";
 import {
   browserSupportsWebAuthn,
   startAuthentication,
@@ -15,6 +8,7 @@ import { useAction, useQuery } from "convex/react";
 import { ConvexError } from "convex/values";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff as EyeSlash, Fingerprint } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import { EditableInput } from "../components/EditableInput";
 import { EditableText } from "../components/EditableText";

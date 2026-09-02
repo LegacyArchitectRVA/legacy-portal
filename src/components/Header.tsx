@@ -1,8 +1,6 @@
-import {
-  ArrowRight,
-} from "reicon-react";
 import { useConvexAuth } from "convex/react";
 import { Link, useLocation } from "react-router-dom";
+import { ArrowRight } from "reicon-react";
 import { APP_NAME } from "@/lib/constants";
 import { Button } from "./ui/button";
 

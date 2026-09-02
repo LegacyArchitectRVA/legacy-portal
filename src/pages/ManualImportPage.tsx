@@ -2,14 +2,10 @@ import {
   RiCheckboxCircleLine as CheckCircle2,
   RiLoader4Line as Loader2,
 } from "@remixicon/react";
-import {
-  Alert as AlertCircle,
-  ArrowLeft,
-  Upload,
-} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Alert as AlertCircle, ArrowLeft, Upload } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { parseInput, parsePdf } from "../lib/documentConverter";

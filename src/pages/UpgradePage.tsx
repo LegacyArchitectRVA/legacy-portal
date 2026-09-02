@@ -1,6 +1,6 @@
-import { ArrowRight, Check, Lock, Shield } from "reicon-react";
 import { useQuery } from "convex/react";
 import { useNavigate } from "react-router-dom";
+import { ArrowRight, Check, Lock, Shield } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import { EditableBox } from "../components/EditableBox";
 import { EditableIcon } from "../components/EditableIcon";
@@ -85,8 +85,8 @@ export default function UpgradePage() {
         </h1>
         <p className="text-[#f2ede2]/80 mt-2 leading-relaxed max-w-2xl">
           Personal covers everything you will need day to day. Business adds
-          full continuity for the company you built. You can move from
-          Personal to Business, but not back down once Business is active.
+          full continuity for the company you built. You can move from Personal
+          to Business, but not back down once Business is active.
         </p>
       </div>
 
@@ -110,8 +110,8 @@ export default function UpgradePage() {
             Current Edition: Business
           </p>
           <p className="text-sm text-[#f2ede2]/65 mt-2 leading-relaxed">
-            You are already on the highest Life Manual edition. No other
-            upgrade options are available for this account.
+            You are already on the highest Life Manual edition. No other upgrade
+            options are available for this account.
           </p>
         </div>
       )}
@@ -123,15 +123,11 @@ export default function UpgradePage() {
           const colors = tierColors[tier.id];
           // When upgrading Personal → Business, show the $1,000 difference, not full $2,500
           const displayPrice =
-            isUpgrade &&
-            currentTier === "personal" &&
-            tier.id === "business"
+            isUpgrade && currentTier === "personal" && tier.id === "business"
               ? upgradePersonalToBusiness.priceLabel
               : tier.priceLabel;
           const priceCaption =
-            isUpgrade &&
-            currentTier === "personal" &&
-            tier.id === "business"
+            isUpgrade && currentTier === "personal" && tier.id === "business"
               ? "Upgrade fee (you already have Personal)"
               : null;
 
@@ -170,7 +166,8 @@ export default function UpgradePage() {
                       onError={e => {
                         const el = e.currentTarget;
                         el.style.display = "none";
-                        const fallback = el.nextElementSibling as HTMLElement | null;
+                        const fallback =
+                          el.nextElementSibling as HTMLElement | null;
                         if (fallback) fallback.style.display = "flex";
                       }}
                     />
@@ -186,7 +183,16 @@ export default function UpgradePage() {
                     aria-hidden={!!tierImages[tier.id]}
                   >
                     {/* Business continuity building mark — not a letter */}
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="36"
+                      height="36"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M3 21h18" />
                       <path d="M5 21V7l7-4 7 4v14" />
                       <path d="M9 21v-6h6v6" />

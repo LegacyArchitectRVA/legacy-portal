@@ -1,7 +1,5 @@
-import {
-  Menu,
-} from "reicon-react";
 import { Outlet, useNavigate } from "react-router-dom";
+import { Menu } from "reicon-react";
 import { AppSidebar } from "./AppSidebar";
 import FloatingChatButton from "./FloatingChatButton";
 import { LegalDocsBar } from "./LegalDocsBar";

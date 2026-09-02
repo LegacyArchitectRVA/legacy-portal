@@ -1,14 +1,9 @@
-import {
-  ArrowRight,
-} from "reicon-react";
 import { useConvexAuth, useMutation } from "convex/react";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import { EditableText } from "../components/EditableText";
-import {
-  EncryptedIcon,
-  ZeroKnowledgeIcon,
-} from "../components/TrustIcons";
+import { EncryptedIcon, ZeroKnowledgeIcon } from "../components/TrustIcons";
 import { useEditMode } from "../contexts/EditModeContext";
 import { useCmsValue } from "../hooks/useCms";
 

@@ -2,13 +2,10 @@ import {
   RiLoader4Line as CircleNotch,
   RiTimeLine as Clock,
 } from "@remixicon/react";
-import {
-  ArrowRight,
-  Lock,
-} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowRight, Lock } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { ChapterIcon } from "../components/ChapterIcons";

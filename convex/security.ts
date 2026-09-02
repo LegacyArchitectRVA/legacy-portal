@@ -3,8 +3,8 @@ import {
   getAuthUserId,
   invalidateSessions,
 } from "@convex-dev/auth/server";
-import { action, query } from "./_generated/server";
 import { ConvexError } from "convex/values";
+import { action, query } from "./_generated/server";
 
 /**
  * Lists the current user's active sessions (by creation time), flagging

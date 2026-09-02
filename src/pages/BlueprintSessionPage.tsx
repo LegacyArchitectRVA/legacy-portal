@@ -4,15 +4,15 @@ import {
   RiSparklingLine as Sparkle,
   RiDeleteBinLine as Trash2,
 } from "@remixicon/react";
+import { useMutation, useQuery } from "convex/react";
+import { useMemo, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowDown as Down,
   Download,
   ArrowUp as Up,
 } from "reicon-react";
-import { useMutation, useQuery } from "convex/react";
-import { useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { GapMapVisual, gapMapToPng } from "../components/GapMapVisual";
@@ -229,9 +229,7 @@ export default function BlueprintSessionPage() {
                 (STATUS_COLORS in GapMapVisual.tsx) rather than generic
                 Tailwind rose/emerald. */}
             <span
-              className={
-                totalExposed > 0 ? "text-[#e8938c]" : "text-[#7ed1ac]"
-              }
+              className={totalExposed > 0 ? "text-[#e8938c]" : "text-[#7ed1ac]"}
             >
               {totalExposed} exposed
             </span>

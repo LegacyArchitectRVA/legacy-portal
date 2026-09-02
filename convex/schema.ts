@@ -25,10 +25,7 @@ const schema = defineSchema({
   // Client profile / tier / activation
   clients: defineTable({
     userId: v.id("users"),
-    tier: v.union(
-      v.literal("personal"),
-      v.literal("business"),
-    ),
+    tier: v.union(v.literal("personal"), v.literal("business")),
     isActivated: v.boolean(),
     deliveryStatus: v.optional(v.string()),
     deliveryTimestamp: v.optional(v.number()),

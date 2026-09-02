@@ -2,15 +2,10 @@ import {
   RiErrorWarningLine as AlertTriangle,
   RiLoader4Line as Loader2,
 } from "@remixicon/react";
-import {
-  ArrowLeft,
-  BookOpen,
-  Download,
-  FileText,
-} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { ArrowLeft, BookOpen, Download, FileText } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter, getTierByName } from "../data/tiers";

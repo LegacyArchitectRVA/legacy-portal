@@ -9,6 +9,8 @@ import {
   RiUserSettingsLine as UserCog,
   RiTeamLine as Users,
 } from "@remixicon/react";
+import { useQuery } from "convex/react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   BookOpen,
   File,
@@ -17,8 +19,6 @@ import {
   ShieldCheck,
   User,
 } from "reicon-react";
-import { useQuery } from "convex/react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { chapters } from "../data/chapters";
 import { canAccessChapter } from "../data/tiers";

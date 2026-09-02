@@ -56,7 +56,8 @@ export const stripeLinks: Record<string, string> = {
   business_full: "https://buy.stripe.com/8x2cN5avZdGM9Ra8vX6Zy0a",
   business_deposit: "https://buy.stripe.com/aFa4gz7jNdGM5AUh2t6Zy0b",
   annual_review: "https://buy.stripe.com/14A9ATcE7byEe7qdQh6Zy06",
-  upgrade_personal_to_business: "https://buy.stripe.com/4gM9AT0Vp7iobZi8vX6Zy07",
+  upgrade_personal_to_business:
+    "https://buy.stripe.com/4gM9AT0Vp7iobZi8vX6Zy07",
 };
 
 // Flat fee, same for both editions.

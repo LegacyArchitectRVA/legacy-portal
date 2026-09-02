@@ -1,15 +1,9 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import {
-  RiLoader4Line as Loader2,
-  RiMailLine as Mail,
-} from "@remixicon/react";
-import {
-  Eye,
-  EyeOff,
-} from "reicon-react";
+import { RiLoader4Line as Loader2, RiMailLine as Mail } from "@remixicon/react";
 import { ConvexError } from "convex/values";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "reicon-react";
 import { EditableInput } from "../components/EditableInput";
 import { EditableText } from "../components/EditableText";
 
@@ -98,7 +92,9 @@ export default function SignupPage() {
       });
       navigate("/profile?welcome=1");
     } catch (err: unknown) {
-      setError(friendlyAuthError(err) || "Invalid or expired code. Please try again.");
+      setError(
+        friendlyAuthError(err) || "Invalid or expired code. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -233,14 +229,17 @@ export default function SignupPage() {
                 name="code"
                 required
                 value={code}
-                onChange={e => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                onChange={e =>
+                  setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
                 autoComplete="one-time-code"
                 inputMode="numeric"
                 className="w-full bg-[#0f0c08] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] text-center tracking-[0.4em] font-mono placeholder:text-[#f2ede2]/40 focus:border-gold-primary/50 focus:outline-none"
                 placeholder="000000"
               />
               <p className="text-[11px] text-[#f2ede2]/60 mt-1.5 text-center">
-                Check your inbox (and spam folder). The code expires in 15 minutes.
+                Check your inbox (and spam folder). The code expires in 15
+                minutes.
               </p>
             </div>
 

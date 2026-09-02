@@ -7,6 +7,8 @@ import {
   RiFileShieldLine as LivingWillIcon,
   RiScalesLine as Scale,
 } from "@remixicon/react";
+import { useMutation, useQuery } from "convex/react";
+import { useState } from "react";
 import {
   Gift as BeneficiaryIcon,
   Suitcase as BusinessIcon,
@@ -14,8 +16,6 @@ import {
   Safe as TrustIcon,
   FileText as WillIcon,
 } from "reicon-react";
-import { useMutation, useQuery } from "convex/react";
-import { useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { IconMedallion } from "./TrustIcons";
 import { Switch } from "./ui/switch";

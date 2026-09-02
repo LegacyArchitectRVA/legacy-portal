@@ -1,10 +1,6 @@
-import {
-  ArrowLeft,
-  BookOpen,
-  FileText,
-} from "reicon-react";
 import { useQuery } from "convex/react";
 import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, BookOpen, FileText } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { EditableText } from "../components/EditableText";

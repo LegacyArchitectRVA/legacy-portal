@@ -94,10 +94,7 @@ export const setClientActivation = mutation({
 export const setClientTier = mutation({
   args: {
     clientUserId: v.id("users"),
-    tier: v.union(
-      v.literal("personal"),
-      v.literal("business"),
-    ),
+    tier: v.union(v.literal("personal"), v.literal("business")),
   },
   handler: async (ctx, { clientUserId, tier }) => {
     await requireAdmin(ctx);
@@ -278,10 +275,7 @@ export const listAddableUsers = query({
 export const addClient = mutation({
   args: {
     userId: v.id("users"),
-    tier: v.union(
-      v.literal("personal"),
-      v.literal("business"),
-    ),
+    tier: v.union(v.literal("personal"), v.literal("business")),
   },
   handler: async (ctx, { userId, tier }) => {
     await requireAdmin(ctx);

@@ -108,7 +108,8 @@ async function runProspectSync(ctx: any): Promise<{
     internal.hubspot.getApiKeyInternal,
     {},
   );
-  if (!apiKey) throw new ConvexError("HubSpot Private App Token not configured.");
+  if (!apiKey)
+    throw new ConvexError("HubSpot Private App Token not configured.");
 
   const contacts = await fetchAllHubSpotContacts(apiKey);
   const clientEmails: string[] = await ctx.runQuery(

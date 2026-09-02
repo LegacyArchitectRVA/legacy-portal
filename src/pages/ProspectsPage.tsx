@@ -6,6 +6,9 @@ import {
   RiDeleteBinLine as Trash2,
   RiCloseLine as X,
 } from "@remixicon/react";
+import { useAction, useMutation, useQuery } from "convex/react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   PauseCircle as InactiveIcon,
@@ -15,9 +18,6 @@ import {
   Refresh as RefreshCw,
   User,
 } from "reicon-react";
-import { useAction, useMutation, useQuery } from "convex/react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { getErrorMessage } from "../lib/utils";
@@ -77,7 +77,10 @@ export default function ProspectsPage() {
       );
     } catch (err: any) {
       setSyncResult(
-        getErrorMessage(err, "Sync failed. Check your HubSpot connection in Settings."),
+        getErrorMessage(
+          err,
+          "Sync failed. Check your HubSpot connection in Settings.",
+        ),
       );
     } finally {
       setSyncing(false);

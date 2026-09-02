@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ArrowLeft,
   BookOpen,
@@ -7,7 +8,6 @@ import {
   Map as MapIcon,
   ShieldCheck,
 } from "reicon-react";
-import { useState } from "react";
 import { EditableText } from "../components/EditableText";
 
 interface Guide {

@@ -1,7 +1,7 @@
 import { ConvexCredentials } from "@convex-dev/auth/providers/ConvexCredentials";
+import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
-import { ConvexError } from "convex/values";
 
 /**
  * Bridges a verified WebAuthn passkey assertion into a real session.

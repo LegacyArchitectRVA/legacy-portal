@@ -8,6 +8,13 @@ import {
   RiDeleteBinLine as Trash2,
 } from "@remixicon/react";
 import {
+  browserSupportsWebAuthn,
+  startRegistration,
+} from "@simplewebauthn/browser";
+import { useAction, useMutation, useQuery } from "convex/react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
   Notification3 as Bell,
   Check,
   Eye,
@@ -19,13 +26,6 @@ import {
   ShieldCheck,
   Sun,
 } from "reicon-react";
-import {
-  browserSupportsWebAuthn,
-  startRegistration,
-} from "@simplewebauthn/browser";
-import { useAction, useMutation, useQuery } from "convex/react";
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { EditableText } from "../components/EditableText";
 import { Switch } from "../components/ui/switch";

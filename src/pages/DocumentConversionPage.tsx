@@ -4,6 +4,9 @@ import {
   RiFontSize2 as Type,
   RiCloseLine as X,
 } from "@remixicon/react";
+import { useQuery } from "convex/react";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Alert as AlertCircle,
   Download,
@@ -12,11 +15,7 @@ import {
   Image as ImageIcon,
   Upload,
 } from "reicon-react";
-import { useQuery } from "convex/react";
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
-import { getErrorMessage } from "../lib/utils";
 import {
   downloadBlob,
   downloadText,
@@ -30,6 +29,7 @@ import {
   renderToPdfLib,
   renderToPngZip,
 } from "../lib/documentConverter";
+import { getErrorMessage } from "../lib/utils";
 
 const INPUT_ICONS: Record<InputType, any> = {
   markdown: Type,
@@ -114,7 +114,10 @@ export default function DocumentConversionPage() {
       }
     } catch (err: any) {
       setError(
-        getErrorMessage(err, "Conversion failed. Check the file and try again."),
+        getErrorMessage(
+          err,
+          "Conversion failed. Check the file and try again.",
+        ),
       );
     } finally {
       setIsLoading(false);

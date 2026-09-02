@@ -2,14 +2,9 @@ import {
   RiVipCrownLine as Crown,
   RiLoader4Line as Loader2,
 } from "@remixicon/react";
-import {
-  Camera,
-  Check,
-  Save,
-  User,
-} from "reicon-react";
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useRef, useState } from "react";
+import { Camera, Check, Save, User } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import { EditableText } from "../components/EditableText";
 import { FullPageLoader } from "../components/FullPageLoader";

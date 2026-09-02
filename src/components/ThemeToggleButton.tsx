@@ -1,7 +1,4 @@
-import {
-  Moon,
-  Sun,
-} from "reicon-react";
+import { Moon, Sun } from "reicon-react";
 import { useTheme } from "../contexts/ThemeContext";
 
 /**
