@@ -562,7 +562,18 @@ export const GapMapVisual = forwardRef<HTMLCanvasElement, GapMapVisualProps>(
         // variable explaining the shortfall. Falling back to a flat,
         // deliberately generous gap per line count instead, confirmed
         // empirically against all seven nodes including the worst case.
-        const statusOffset = lines.length >= 2 ? 1.05 : 0.44;
+        //
+        // The single-line value was 0.44 and passed that verification at
+        // the time, but "Legal & Estate" (two lines, 1.05 gap) later became
+        // "Vital Records" (one line) during the terminology rename, which
+        // moved that node onto the tighter single-line offset and nobody
+        // re-checked the Gap Map render against the new, shorter title.
+        // "VITAL RECORDS" and its status line overlapped as a result.
+        // Bumped with real margin this time, re-verified against all seven
+        // current titles including Vital Records and Digital Life, the two
+        // one-line labels, at the bottom-of-ring camera angle where this
+        // has broken before.
+        const statusOffset = lines.length >= 2 ? 1.05 : 0.62;
         statusSprite.position.set(
           x + lx,
           nameSprite.position.y - statusOffset,
