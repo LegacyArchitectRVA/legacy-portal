@@ -10,6 +10,7 @@
  * To add a new tool, first test it to see the response shape.
  */
 import { ConvexError, v } from "convex/values";
+import { requireAdminInAction } from "./admin";
 import { action } from "./_generated/server";
 
 declare const process: { env: Record<string, string | undefined> };
@@ -47,10 +48,20 @@ async function callTool<T>(
   return json.result as T;
 }
 
+// Both actions below call out to real, metered, paid Viktor Spaces APIs
+// using this project's own secret. They were public actions with no auth
+// check at all (ctx was unused), reachable by anyone who could speak the
+// Convex protocol to this deployment, not just from AdminVisualEditorPage,
+// the only place either is actually called from. That's unauthenticated
+// cost abuse at minimum, and for generateImage, unauthenticated arbitrary
+// image generation tied to this business's paid account. Gated behind
+// requireAdminInAction, same as every other admin-only action in this app.
+
 export const quickAiSearch = action({
   args: { query: v.string() },
   returns: v.string(),
-  handler: async (_ctx, { query }) => {
+  handler: async (ctx, { query }) => {
+    await requireAdminInAction(ctx);
     const result = await callTool<{ search_response: string }>(
       "quick_ai_search",
       {
@@ -75,7 +86,8 @@ export const generateImage = action({
     ),
   },
   returns: v.string(),
-  handler: async (_ctx, { prompt, aspectRatio }) => {
+  handler: async (ctx, { prompt, aspectRatio }) => {
+    await requireAdminInAction(ctx);
     const result = await callTool<{ response_text: string }>("text2im", {
       prompt,
       aspect_ratio: aspectRatio ?? "1:1",
