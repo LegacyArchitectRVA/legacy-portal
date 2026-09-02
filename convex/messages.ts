@@ -186,15 +186,6 @@ export const deleteMessage = mutation({
   },
 });
 
-export const markRead = mutation({
-  args: { messageId: v.id("messages") },
-  handler: async (ctx, { messageId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new ConvexError("Not authenticated");
-    await ctx.db.patch(messageId, { isRead: true });
-  },
-});
-
 /** For non-admins: marks every message sent to them as read. */
 export const markAllRead = mutation({
   args: {},
