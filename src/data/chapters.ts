@@ -217,7 +217,7 @@ const ch01: Chapter = {
 const ch02: Chapter = {
   id: "emergency",
   chapterNumber: 2,
-  title: "Emergency & Successor Access",
+  title: "Emergency & Successor Orientation",
   shortTitle: "Emergency",
   description:
     "In moments of urgency or uncertainty, this section exists to reduce confusion and establish calm direction.",

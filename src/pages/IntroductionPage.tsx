@@ -148,7 +148,7 @@ A Life Manual is a comprehensive, organized document that puts every account, sy
 - Use the messaging feature to communicate with your facilitator
 
 ## Editions
-- **Personal** ($1,500) - Digital Life, Emergency & Successor Access, Financial & Assets, Household Operations, Vital Records, Legacy & Wishes (6 of 7 pillars)
+- **Personal** ($1,500) - Digital Life, Emergency & Successor Orientation, Financial & Assets, Household Operations, Vital Records, Legacy & Wishes (6 of 7 pillars)
 - **Business** ($2,500) - Everything in Personal, plus Business Continuity, all 7 pillars
 
 Pay in full or start with a 50% deposit. The balance is due on delivery.

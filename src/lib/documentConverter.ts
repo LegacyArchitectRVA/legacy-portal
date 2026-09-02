@@ -451,7 +451,7 @@ const CANONICAL_SECTIONS: { section: string; titles: string[] }[] = [
     ],
   },
   {
-    section: "Emergency & Successor Access",
+    section: "Emergency & Successor Orientation",
     titles: [
       "02: emergency & successor access - overview",
       "emergency & successor access",
