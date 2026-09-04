@@ -18,11 +18,13 @@
  * under a successor-orientation heading), so those four checkpoint `id`s
  * are new rather than reused.
  *
- * Order: Digital Life, Financial & Assets, Household Operations,
- * Emergency & Successor Orientation, Vital Records, Legacy & Wishes (06),
- * Business Continuity (07). (Pillars 6 and 7 transposed from the original
- * Readiness Check quiz order, per Craig, for the Gap Map and Blueprint
- * Session specifically.)
+ * Order: Digital Life, Emergency & Successor Orientation, Financial &
+ * Assets, Household Operations, Vital Records, Legacy & Wishes, Business
+ * Continuity. This mirrors the locked Life Manual chapter order exactly
+ * (same as Secure Drive), so a client paging through their own Life Manual
+ * lands on chapters in the same sequence the Gap Map and Blueprint Session
+ * assessed them in. An earlier version of this file transposed pillars 6
+ * and 7 and floated Emergency down to position 04; corrected per Craig.
  *
  * Each checkpoint carries a `fix`: the concrete step that moves that item
  * from exposed to handled. Fixes are written in the brand's plain-spoken
@@ -106,8 +108,47 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
     ],
   },
   {
-    id: "financial",
+    id: "health",
     number: "02",
+    title: "Emergency & Successor Orientation",
+    color: "#F43F5E",
+    checkpoints: [
+      {
+        id: "es_named_successor",
+        label: "A named successor knows the role is theirs",
+        impact:
+          "In an emergency, everyone waits because no one was ever formally handed the job.",
+        fix: "Name the person directly and tell them in plain terms what they're responsible for.",
+        effort: "quick",
+      },
+      {
+        id: "es_starting_point",
+        label: "The successor knows exactly where to start",
+        impact:
+          "A fully documented life is worthless if nobody knows where the documents live.",
+        fix: "Point to one starting location, a folder, binder, or portal, and confirm the successor knows how to reach it.",
+        effort: "moderate",
+      },
+      {
+        id: "es_backup_named",
+        label: "A backup successor is named in case the first can't act",
+        impact:
+          "One person becomes unreachable and the whole plan stalls with them.",
+        fix: "Name a second person and write down how authority passes if the first can't step in.",
+        effort: "quick",
+      },
+      {
+        id: "es_first_moves",
+        label: "The first moves in an emergency are written down",
+        impact: "The first hours get spent guessing instead of acting.",
+        fix: "Write the ordered first steps: who to call, what to secure, and what can wait.",
+        effort: "quick",
+      },
+    ],
+  },
+  {
+    id: "financial",
+    number: "03",
     title: "Financial & Assets",
     color: "#D4AF37",
     checkpoints: [
@@ -153,7 +194,7 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
   },
   {
     id: "household",
-    number: "03",
+    number: "04",
     title: "Household Operations",
     color: "#10B981",
     checkpoints: [
@@ -193,45 +234,6 @@ export const BLUEPRINT_PILLARS: BlueprintPillar[] = [
         impact:
           "The animals nobody planned for become an emergency of their own.",
         fix: "Name the short-term caretaker and write one page of feeding, vet, and routine notes.",
-        effort: "quick",
-      },
-    ],
-  },
-  {
-    id: "health",
-    number: "04",
-    title: "Emergency & Successor Orientation",
-    color: "#F43F5E",
-    checkpoints: [
-      {
-        id: "es_named_successor",
-        label: "A named successor knows the role is theirs",
-        impact:
-          "In an emergency, everyone waits because no one was ever formally handed the job.",
-        fix: "Name the person directly and tell them in plain terms what they're responsible for.",
-        effort: "quick",
-      },
-      {
-        id: "es_starting_point",
-        label: "The successor knows exactly where to start",
-        impact:
-          "A fully documented life is worthless if nobody knows where the documents live.",
-        fix: "Point to one starting location, a folder, binder, or portal, and confirm the successor knows how to reach it.",
-        effort: "moderate",
-      },
-      {
-        id: "es_backup_named",
-        label: "A backup successor is named in case the first can't act",
-        impact:
-          "One person becomes unreachable and the whole plan stalls with them.",
-        fix: "Name a second person and write down how authority passes if the first can't step in.",
-        effort: "quick",
-      },
-      {
-        id: "es_first_moves",
-        label: "The first moves in an emergency are written down",
-        impact: "The first hours get spent guessing instead of acting.",
-        fix: "Write the ordered first steps: who to call, what to secure, and what can wait.",
         effort: "quick",
       },
     ],

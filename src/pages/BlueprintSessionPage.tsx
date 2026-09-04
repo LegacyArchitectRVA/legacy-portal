@@ -15,7 +15,7 @@ import {
 } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import { GapMapVisual, gapMapToPng } from "../components/GapMapVisual";
+import { GapMapBars, gapMapToPng } from "../components/GapMapBars";
 import {
   BLUEPRINT_PILLARS,
   type CheckStatus,
@@ -35,7 +35,7 @@ import { downloadBlob, renderToPdfLib } from "../lib/documentConverter";
 // runtime: Tailwind's build-time scanner can't see inside a template
 // literal, so an interpolated class string here would just never get
 // generated. These hex values must stay in sync with STATUS_COLORS in
-// GapMapVisual.tsx by hand, that's the same palette the Gap Map itself
+// lib/gapMapStatus.ts by hand, that's the same palette the Gap Map itself
 // uses, so a checkpoint marked exposed here is the same red as an exposed
 // pillar on the map, not a separately-chosen color that happens to be close.
 const STATUS_CHIP: Record<CheckStatus, string> = {
@@ -78,7 +78,7 @@ export default function BlueprintSessionPage() {
     [session?.assessments],
   );
   const readiness = useMemo(() => overallReadiness(scores), [scores]);
-  const gapMapRef = useRef<HTMLCanvasElement>(null);
+  const gapMapRef = useRef<HTMLDivElement>(null);
   const totalExposed = scores.reduce((s, p) => s + p.exposed, 0);
   const totalAssessed = scores.reduce((s, p) => s + p.assessed, 0);
   const totalCheckpoints = BLUEPRINT_PILLARS.reduce(
@@ -226,7 +226,7 @@ export default function BlueprintSessionPage() {
             {totalAssessed}/{totalCheckpoints} assessed
             {" · "}
             {/* Colors match the Gap Map / checkpoint chip palette exactly
-                (STATUS_COLORS in GapMapVisual.tsx) rather than generic
+                (STATUS_COLORS in lib/gapMapStatus.ts) rather than generic
                 Tailwind rose/emerald. */}
             <span
               className={totalExposed > 0 ? "text-[#e8938c]" : "text-[#7ed1ac]"}
@@ -292,12 +292,12 @@ export default function BlueprintSessionPage() {
 
       {/* Desktop: map pinned left, work column right. Mobile: stacked. */}
       <div className="lg:grid lg:grid-cols-[400px_minmax(0,1fr)] lg:gap-6 lg:items-start space-y-6 lg:space-y-0">
-        {/* Gap Map */}
-        <div className="bg-[#0f0c08] border border-gold-border rounded-xl p-4 space-y-2 lg:sticky lg:top-6">
-          <p className="font-heading text-xs text-gold-primary uppercase tracking-widest">
-            Gap Map
-          </p>
-          <GapMapVisual ref={gapMapRef} scores={scores} readiness={readiness} />
+        {/* Gap Map: GapMapBars renders its own card chrome (background,
+            border, "Gap Map" heading with emblem), so this wrapper only
+            handles the sticky desktop positioning and the caption below
+            it, not a second border/label around the component's own. */}
+        <div className="space-y-2 lg:sticky lg:top-6">
+          <GapMapBars ref={gapMapRef} scores={scores} readiness={readiness} />
           <p className="text-[10px] text-[#f2ede2]/50 text-center">
             Updates live as checkpoints are assessed. This map prints into the
             PDF deliverable.
