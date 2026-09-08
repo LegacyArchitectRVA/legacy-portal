@@ -119,7 +119,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
                   </div>
 
                   <div
-                    className="w-[32.5px] h-[32.5px] rounded-full border-2 overflow-hidden shrink-0 bg-black"
+                    className="w-[42.25px] h-[42.25px] rounded-full border-2 overflow-hidden shrink-0 bg-black"
                     style={{
                       borderColor: color,
                       boxShadow: `0 0 6px ${color}60`,
