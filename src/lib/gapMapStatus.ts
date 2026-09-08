@@ -34,11 +34,11 @@ export function statusWord(s: PillarScore): string {
 // title moving to "Emergency & Successor Orientation"), it's the title and
 // icon that moved, not the id.
 export const PILLAR_ICON_SRC: Partial<Record<string, string>> = {
-  digital: "/g_digital-e.webp",
-  legal: "/g_vital-e.webp",
-  financial: "/g_financial-e.webp",
-  household: "/g_household-e.webp",
-  health: "/g_emergency-e.webp",
-  business: "/g_business-e.webp",
-  legacy: "/g_legacy-e.webp",
+  digital: "/pillar-digital-v2.webp",
+  legal: "/pillar-vital-v2.webp",
+  financial: "/pillar-financial-v2.webp",
+  household: "/pillar-household-v2.webp",
+  health: "/pillar-emergency-v2.webp",
+  business: "/pillar-business-v2.webp",
+  legacy: "/pillar-legacy-v2.webp",
 };
