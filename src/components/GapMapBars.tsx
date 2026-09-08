@@ -33,7 +33,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
     return (
       <div
         ref={containerRef}
-        className="relative rounded-lg border border-gold-border overflow-hidden"
+        className="relative w-full max-w-[1180px] mx-auto rounded-lg border border-gold-border overflow-hidden"
       >
         <div
           className="absolute inset-0"
@@ -50,7 +50,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
               "linear-gradient(160deg, rgba(8,7,6,0.88) 0%, rgba(10,9,7,0.82) 45%, rgba(10,9,7,0.90) 100%)",
           }}
         />
-        <div className="relative p-4 md:p-5">
+        <div className="relative p-4 md:p-6">
           <div className="flex items-center gap-2.5 mb-4">
             <img
               src="/logo.png"
@@ -64,7 +64,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
             </h2>
           </div>
 
-          <div className="grid grid-cols-7 gap-1.5 md:gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-5 sm:gap-6 lg:gap-3 place-items-center">
             {scores.map(s => {
               const color = nodeColor(s);
               const handledPct = s.assessed === 0 ? 0 : 100 - s.riskPct;
@@ -73,10 +73,10 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
               return (
                 <div
                   key={s.pillarId}
-                  className="flex flex-col items-center gap-2"
+                  className="flex w-full max-w-[125px] flex-col items-center gap-2"
                 >
                   <div
-                    className="relative w-8 md:w-9 h-28 md:h-32 rounded-md border overflow-hidden"
+                    className="relative w-9 md:w-11 h-32 md:h-40 rounded-md border overflow-hidden"
                     style={{
                       borderColor: `${color}40`,
                       background: "rgba(0,0,0,0.4)",
@@ -119,7 +119,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
                   </div>
 
                   <div
-                    className="w-[42.25px] h-[42.25px] rounded-full border-2 overflow-hidden shrink-0 bg-black"
+                    className="w-[55px] h-[55px] md:w-[60px] md:h-[60px] rounded-full border-2 overflow-hidden shrink-0 bg-black"
                     style={{
                       borderColor: color,
                       boxShadow: `0 0 6px ${color}60`,
@@ -134,12 +134,17 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
                     )}
                   </div>
 
-                  <span className="text-[9px] md:text-[10px] text-[#c9c3b6] font-heading text-center leading-tight w-[58px] md:w-[62px]">
+                  <span className="text-[10px] md:text-[11px] text-[#c9c3b6] font-heading text-center leading-tight w-full max-w-[120px] break-words">
                     {s.title}
                   </span>
                 </div>
               );
             })}
+          </div>
+          <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 mt-6 pt-4 border-t border-gold-border text-[10px] md:text-xs text-[#c9c3b6]">
+            <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{background: STATUS_COLORS.strong}}/>Green: Strong</span>
+            <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{background: STATUS_COLORS.watch}}/>Yellow: Watch</span>
+            <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{background: STATUS_COLORS.exposed}}/>Red: Exposed</span>
           </div>
         </div>
       </div>
