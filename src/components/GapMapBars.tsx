@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import type { PillarScore } from "../lib/blueprintDeliverable";
-import { nodeColor, PILLAR_ICON_SRC } from "../lib/gapMapStatus";
+import { nodeColor, statusWord, STATUS_COLORS, PILLAR_ICON_SRC } from "../lib/gapMapStatus";
 
 /**
  * The Gap Map: seven status bars, one per Blueprint pillar, using the exact
@@ -64,7 +64,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-5 sm:gap-6 lg:gap-3 place-items-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-6 sm:gap-7 lg:gap-4 place-items-center w-full">
             {scores.map(s => {
               const color = nodeColor(s);
               const handledPct = s.assessed === 0 ? 0 : 100 - s.riskPct;
@@ -73,17 +73,15 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
               return (
                 <div
                   key={s.pillarId}
-                  className="flex w-full max-w-[125px] flex-col items-center gap-2"
+                  className="flex w-full min-w-0 max-w-[145px] flex-col items-center gap-2"
                 >
                   <div
-                    className="relative w-9 md:w-11 h-32 md:h-40 rounded-md border overflow-hidden"
+                    className="relative w-10 md:w-12 h-36 md:h-44 rounded-md border overflow-hidden"
                     style={{
                       borderColor: `${color}40`,
                       background: "rgba(0,0,0,0.4)",
                     }}
-                    title={`${s.title}: ${
-                      s.assessed === 0 ? "not assessed" : `${handledPct}%`
-                    }`}
+                    title={`${s.title}: ${statusWord(s)}${s.assessed === 0 ? "" : ` (${handledPct}%)`}`}
                   >
                     {handledPct > 0 && (
                       <div
@@ -119,7 +117,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
                   </div>
 
                   <div
-                    className="w-[55px] h-[55px] md:w-[60px] md:h-[60px] rounded-full border-2 overflow-hidden shrink-0 bg-black"
+                    className="w-[62px] h-[62px] md:w-[68px] md:h-[68px] rounded-full border-2 overflow-hidden shrink-0 bg-black"
                     style={{
                       borderColor: color,
                       boxShadow: `0 0 6px ${color}60`,
@@ -134,7 +132,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
                     )}
                   </div>
 
-                  <span className="text-[10px] md:text-[11px] text-[#c9c3b6] font-heading text-center leading-tight w-full max-w-[120px] break-words">
+                  <span className="text-[10px] md:text-[11px] text-[#c9c3b6] font-heading text-center leading-[1.2] w-full max-w-[140px] break-words overflow-wrap-anywhere">
                     {s.title}
                   </span>
                 </div>
