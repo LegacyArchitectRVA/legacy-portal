@@ -38,7 +38,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: "url(/videos/hero-compass-poster.jpg)",
+            backgroundImage: "none",
             backgroundSize: "cover",
             backgroundPosition: "70% 30%",
           }}
@@ -64,7 +64,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-6 sm:gap-7 lg:gap-4 place-items-center w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-6 lg:gap-3 place-items-center w-full">
             {scores.map(s => {
               const color = nodeColor(s);
               const handledPct = s.assessed === 0 ? 0 : 100 - s.riskPct;
@@ -73,10 +73,10 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
               return (
                 <div
                   key={s.pillarId}
-                  className="flex w-full min-w-0 max-w-[145px] flex-col items-center gap-2"
+                  className="flex w-full min-w-0 max-w-[150px] flex-col items-center gap-2"
                 >
                   <div
-                    className="relative w-10 md:w-12 h-36 md:h-44 rounded-md border overflow-hidden"
+                    className="relative w-[52px] h-[180px] rounded-md border-2 overflow-hidden"
                     style={{
                       borderColor: `${color}40`,
                       background: "rgba(0,0,0,0.4)",
@@ -117,7 +117,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
                   </div>
 
                   <div
-                    className="w-[62px] h-[62px] md:w-[68px] md:h-[68px] rounded-full border-2 overflow-hidden shrink-0 bg-black"
+                    className="w-[76px] h-[76px] rounded-full border-2 overflow-hidden shrink-0 bg-black"
                     style={{
                       borderColor: color,
                       boxShadow: `0 0 6px ${color}60`,
@@ -132,7 +132,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
                     )}
                   </div>
 
-                  <span className="text-[10px] md:text-[11px] text-[#c9c3b6] font-heading text-center leading-[1.2] w-full max-w-[140px] break-words overflow-wrap-anywhere">
+                  <span className="text-[11px] text-[#c9c3b6] font-heading text-center leading-[1.15] w-full max-w-[140px] break-words overflow-wrap-anywhere">
                     {s.title}
                   </span>
                 </div>
