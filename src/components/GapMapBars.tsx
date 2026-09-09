@@ -1,106 +1,175 @@
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import type { PillarScore } from "../lib/blueprintDeliverable";
-import { nodeColor, statusWord, STATUS_COLORS, PILLAR_ICON_SRC } from "../lib/gapMapStatus";
+import { nodeColor, PILLAR_ICON_SRC } from "../lib/gapMapStatus";
 
 /**
- * The Gap Map: seven status bars, one per Blueprint pillar, using the exact
- * same bar/fill/glow markup as the Dashboard's chapter progress bars so the
- * two feel like one visual language across the portal instead of two.
+ * The Gap Map: one row per Blueprint pillar (icon, title, exposure bar,
+ * percentage), laid out as a single portrait page rather than a wide
+ * horizontal strip. Matches the page-1 sample on the marketing site
+ * (legacyarchitectrva.com/services) exactly, same row order, same logo
+ * and legend treatment, so a client sees the same design language whether
+ * they're looking at the site or their own results.
  *
- * Replaces the earlier lit 3D gem scene. That version looked sharp on a
- * desktop monitor but read as illegible noise at phone scale, which is how
- * Craig and every client actually look at it, so it's retired in favor of
- * this. Colored by live exposure level via nodeColor(), same as before.
+ * Previously a 7-column grid of bars-over-circles at a fixed 1600:470
+ * ratio. That worked as a dashboard graphic but didn't read as "a page"
+ * the way every other piece of the deliverable does, and it was too wide
+ * to sit naturally as page 1 of a portrait PDF. This is a straight
+ * redesign, not a patch: same live data, same nodeColor()/riskPct math,
+ * new layout.
  *
- * Renders as plain DOM (no canvas), so capturing it for the PDF deliverable
- * goes through html2canvas (see gapMapToPng below) instead of a direct
- * WebGL buffer read.
+ * Renders as plain DOM (no canvas), so capturing it for the PDF
+ * deliverable goes through html2canvas (see gapMapToPng below).
  */
 
 interface GapMapBarsProps {
   scores: PillarScore[];
   /** Overall readiness 0-100 (already computed from the scores). Accepted
    * for API parity with the retired component; not currently rendered here,
-   * there's no readiness dial in the bar layout. */
+   * there's no readiness dial in the row layout. */
   readiness: number;
 }
+
+const PILLAR_ORDER = [
+  "digital",
+  "health",
+  "financial",
+  "household",
+  "legal",
+  "legacy",
+  "business",
+];
+
+const LEGEND = [
+  { color: "#3da977", label: "Handled — under 30% risk" },
+  { color: "#d9a441", label: "Watch — 30–59% risk" },
+  { color: "#b3413a", label: "Exposed — 60%+ risk" },
+  { color: "#6b675e", label: "Not assessed yet" },
+];
 
 export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
   ({ scores }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
 
-    const order = ["digital","health","financial","household","legal","legacy","business"];
-    const ordered = order.map(id => scores.find(s => s.pillarId === id)).filter(Boolean) as PillarScore[];
+    const ordered = PILLAR_ORDER.map((id) =>
+      scores.find((s) => s.pillarId === id),
+    ).filter(Boolean) as PillarScore[];
 
     return (
-      <div ref={containerRef} className="w-full max-w-[1600px] mx-auto overflow-x-auto">
+      <div ref={containerRef} className="w-full max-w-[900px] mx-auto">
         <div
-          className="relative mx-auto w-full min-w-[760px] max-w-[1600px] overflow-hidden rounded-[10px] border"
-          style={{ aspectRatio: "1600 / 470", background: "#090806", borderColor: "#6d5b2b" }}
+          className="relative w-full rounded-[14px] border px-[6%] pb-[5%] pt-[5.5%]"
+          style={{ background: "#090806", borderColor: "#6d5b2b" }}
         >
-          <div className="absolute left-[3.75%] top-[10.2%] text-[clamp(14px,1.7vw,27px)] font-serif text-[#d4b661]">
-            Gap Map
+          {/* header: logo + title */}
+          <div className="flex items-center gap-4">
+            <img
+              src="https://legacyarchitectrva.com/assets/favicon-180.png"
+              alt=""
+              className="h-[46px] w-[46px] shrink-0"
+            />
+            <div
+              className="font-serif text-[clamp(20px,2.6vw,28px)]"
+              style={{ color: "#d4b661" }}
+            >
+              Gap Map
+            </div>
           </div>
+          <div
+            className="mt-[3%] border-t"
+            style={{ borderColor: "rgba(109,91,43,.5)" }}
+          />
 
-          <div className="absolute left-[8.73%] right-[8.73%] top-[20.2%] bottom-[8%] grid grid-cols-7 gap-[1.25%]">
+          {/* seven rows: icon, title, bar, percentage */}
+          <div className="mt-[3%] flex flex-col gap-[2.6%]">
             {ordered.map((s) => {
               const color = nodeColor(s);
-              const handledPct = s.assessed === 0 ? 0 : Math.max(0, Math.min(100, 100 - s.riskPct));
+              const handledPct =
+                s.assessed === 0
+                  ? 0
+                  : Math.max(0, Math.min(100, 100 - s.riskPct));
               const icon = PILLAR_ICON_SRC[s.pillarId];
 
               return (
-                <div key={s.pillarId} className="min-w-0 flex h-full flex-col items-center">
+                <div key={s.pillarId} className="flex items-center gap-4">
                   <div
-                    className="mb-[4%] flex h-[8%] min-h-[18px] items-center justify-center text-center font-sans font-bold"
-                    style={{ color, fontSize: "clamp(7px,0.75vw,12px)" }}
-                  >
-                    {statusWord(s)}
-                  </div>
-
-                  <div
-                    className="relative w-[32%] min-w-[28px] flex-1 max-h-[170px] rounded-[8px] border-2 overflow-hidden"
-                    style={{ borderColor: color, background: "rgba(0,0,0,.5)" }}
-                  >
-                    <div
-                      className="absolute inset-x-0 bottom-0"
-                      style={{ height: `${handledPct}%`, background: color, opacity: .9 }}
-                    />
-                    <span
-                      className="absolute inset-0 flex items-center justify-center font-sans font-bold"
-                      style={{ color: handledPct >= 50 ? "#111" : "#f2ede2", fontSize: "clamp(7px,0.75vw,12px)" }}
-                    >
-                      {s.assessed === 0 ? "—" : `${handledPct}%`}
-                    </span>
-                  </div>
-
-                  <div
-                    className="mt-[4%] aspect-square w-[52%] max-w-[84px] overflow-hidden rounded-full border-[3px] bg-[#050505]"
+                    className="h-[58px] w-[58px] shrink-0 overflow-hidden rounded-full border-[2.5px] bg-[#050505]"
                     style={{ borderColor: color }}
                   >
-                    {icon && <img src={icon} alt={s.title} className="h-full w-full object-cover" loading="lazy" />}
+                    {icon && (
+                      <img
+                        src={icon}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    )}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div
+                      className="mb-[6px] truncate font-serif text-[clamp(12px,1.5vw,17px)]"
+                      style={{ color: "#f2ede2" }}
+                    >
+                      {s.title}
+                    </div>
+                    <div
+                      className="relative h-[14px] w-full overflow-hidden rounded-full border"
+                      style={{
+                        background: "rgba(0,0,0,.5)",
+                        borderColor: color,
+                        borderOpacity: 0.55,
+                      }}
+                    >
+                      {s.assessed !== 0 && (
+                        <div
+                          className="absolute inset-y-0 left-0 rounded-full"
+                          style={{
+                            width: `${handledPct}%`,
+                            background: color,
+                            opacity: 0.9,
+                          }}
+                        />
+                      )}
+                    </div>
                   </div>
 
                   <div
-                    className="mt-[2%] min-h-[30px] w-full text-center font-serif leading-[1.08] text-[#c9c3b6]"
-                    style={{ fontSize: "clamp(7px,0.7vw,11px)" }}
+                    className="w-[52px] shrink-0 text-right font-sans text-[clamp(12px,1.4vw,16px)] font-bold"
+                    style={{ color }}
                   >
-                    {s.title}
+                    {s.assessed === 0 ? "—" : `${handledPct}%`}
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="absolute bottom-[2.5%] left-0 right-0 flex justify-center gap-[3%] text-center font-sans" style={{ fontSize: "clamp(6px,0.65vw,10px)", color: "#c9c3b6" }}>
-            <span className="inline-flex items-center gap-1"><i className="h-2 w-2 rounded-full" style={{background:STATUS_COLORS.strong}} />Green: Strong</span>
-            <span className="inline-flex items-center gap-1"><i className="h-2 w-2 rounded-full" style={{background:STATUS_COLORS.watch}} />Yellow: Watch</span>
-            <span className="inline-flex items-center gap-1"><i className="h-2 w-2 rounded-full" style={{background:STATUS_COLORS.exposed}} />Red: Exposed</span>
+          {/* legend / information key */}
+          <div
+            className="mt-[4%] border-t pt-[4%]"
+            style={{ borderColor: "rgba(109,91,43,.5)" }}
+          >
+            <div className="flex flex-col gap-[10px]">
+              {LEGEND.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-[10px] font-serif text-[clamp(10px,1.2vw,15px)]"
+                  style={{ color: "#c9c3b6" }}
+                >
+                  <span
+                    className="h-[10px] w-[10px] shrink-0 rounded-full"
+                    style={{ background: item.color }}
+                  />
+                  {item.label}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     );
-  }
+  },
 );
 GapMapBars.displayName = "GapMapBars";
 
