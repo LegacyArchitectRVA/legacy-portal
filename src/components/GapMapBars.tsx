@@ -118,7 +118,6 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
                       style={{
                         background: "rgba(0,0,0,.5)",
                         borderColor: color,
-                        borderOpacity: 0.55,
                       }}
                     >
                       {s.assessed !== 0 && (
