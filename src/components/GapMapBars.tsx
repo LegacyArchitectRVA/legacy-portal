@@ -30,137 +30,80 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
     const containerRef = useRef<HTMLDivElement>(null);
     useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
 
+    const order = ["digital","health","financial","household","legal","legacy","business"];
+    const ordered = order.map(id => scores.find(s => s.pillarId === id)).filter(Boolean) as PillarScore[];
+
     return (
-      <div
-        ref={containerRef}
-        className="relative w-full max-w-[1180px] mx-auto rounded-lg border border-gold-border overflow-hidden"
-      >
+      <div ref={containerRef} className="w-full max-w-[1600px] mx-auto overflow-x-auto">
         <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "none",
-            backgroundSize: "cover",
-            backgroundPosition: "70% 30%",
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(160deg, rgba(8,7,6,0.88) 0%, rgba(10,9,7,0.82) 45%, rgba(10,9,7,0.90) 100%)",
-          }}
-        />
-        <div className="relative p-4 md:p-6">
-          <div className="flex items-center gap-2.5 mb-4">
-            <img
-              src="/logo.png"
-              alt="Legacy Architect RVA emblem"
-              width={44}
-              height={44}
-              className="w-11 h-11 rounded object-contain shrink-0"
-            />
-            <h2 className="font-heading text-lg text-gold-primary">
-              Gap Map
-            </h2>
+          className="relative mx-auto w-full min-w-[760px] max-w-[1600px] overflow-hidden rounded-[10px] border"
+          style={{ aspectRatio: "1600 / 470", background: "#090806", borderColor: "#6d5b2b" }}
+        >
+          <div className="absolute left-[3.75%] top-[10.2%] text-[clamp(14px,1.7vw,27px)] font-serif text-[#d4b661]">
+            Gap Map
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-6 lg:gap-3 place-items-center w-full">
-            {scores.map(s => {
+          <div className="absolute left-[8.73%] right-[8.73%] top-[20.2%] bottom-[8%] grid grid-cols-7 gap-[1.25%]">
+            {ordered.map((s) => {
               const color = nodeColor(s);
-              const handledPct = s.assessed === 0 ? 0 : 100 - s.riskPct;
-              const iconSrc = PILLAR_ICON_SRC[s.pillarId];
+              const handledPct = s.assessed === 0 ? 0 : Math.max(0, Math.min(100, 100 - s.riskPct));
+              const icon = PILLAR_ICON_SRC[s.pillarId];
 
               return (
-                <div
-                  key={s.pillarId}
-                  className="flex w-full min-w-0 max-w-[150px] flex-col items-center gap-2"
-                >
+                <div key={s.pillarId} className="min-w-0 flex h-full flex-col items-center">
                   <div
-                    className="relative w-[52px] h-[180px] rounded-md border-2 overflow-hidden"
-                    style={{
-                      borderColor: `${color}40`,
-                      background: "rgba(0,0,0,0.4)",
-                    }}
-                    title={`${s.title}: ${statusWord(s)}${s.assessed === 0 ? "" : ` (${handledPct}%)`}`}
+                    className="mb-[4%] flex h-[8%] min-h-[18px] items-center justify-center text-center font-sans font-bold"
+                    style={{ color, fontSize: "clamp(7px,0.75vw,12px)" }}
                   >
-                    {handledPct > 0 && (
-                      <div
-                        className="absolute bottom-0 left-0 right-0 rounded-b-sm"
-                        style={{
-                          height: `${handledPct}%`,
-                          background: `linear-gradient(to top, ${color}, ${color}88)`,
-                          boxShadow: `0 0 8px ${color}50, 0 -2px 12px ${color}30, inset 0 0 10px ${color}20`,
-                        }}
-                      />
-                    )}
+                    {statusWord(s)}
+                  </div>
+
+                  <div
+                    className="relative w-[32%] min-w-[28px] flex-1 max-h-[170px] rounded-[8px] border-2 overflow-hidden"
+                    style={{ borderColor: color, background: "rgba(0,0,0,.5)" }}
+                  >
                     <div
-                      className="absolute inset-0 pointer-events-none"
-                      style={{
-                        // Plain rgba gradient, not a Tailwind opacity-slash
-                        // utility: Tailwind v4 compiles those to
-                        // color-mix(in oklab, ...), which html2canvas can't
-                        // parse and throws during gapMapToPng's rasterize.
-                        background:
-                          "linear-gradient(to right, rgba(255,255,255,0.03), transparent)",
-                      }}
+                      className="absolute inset-x-0 bottom-0"
+                      style={{ height: `${handledPct}%`, background: color, opacity: .9 }}
                     />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span
-                        className="text-[9px] md:text-[10px] font-heading font-bold drop-shadow-lg"
-                        style={{
-                          color: handledPct > 40 ? "#000" : "#f2ede2",
-                        }}
-                      >
-                        {s.assessed === 0 ? "\u2014" : `${handledPct}%`}
-                      </span>
-                    </div>
+                    <span
+                      className="absolute inset-0 flex items-center justify-center font-sans font-bold"
+                      style={{ color: handledPct >= 50 ? "#111" : "#f2ede2", fontSize: "clamp(7px,0.75vw,12px)" }}
+                    >
+                      {s.assessed === 0 ? "—" : `${handledPct}%`}
+                    </span>
                   </div>
 
                   <div
-                    className="w-[76px] h-[76px] rounded-full border-2 overflow-hidden shrink-0 bg-black"
-                    style={{
-                      borderColor: color,
-                      boxShadow: `0 0 6px ${color}60`,
-                    }}
+                    className="mt-[4%] aspect-square w-[52%] max-w-[84px] overflow-hidden rounded-full border-[3px] bg-[#050505]"
+                    style={{ borderColor: color }}
                   >
-                    {iconSrc && (
-                      <img
-                        src={iconSrc}
-                        alt={s.title}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
+                    {icon && <img src={icon} alt={s.title} className="h-full w-full object-cover" loading="lazy" />}
                   </div>
 
-                  <span className="text-[11px] text-[#c9c3b6] font-heading text-center leading-[1.15] w-full max-w-[140px] break-words overflow-wrap-anywhere">
+                  <div
+                    className="mt-[2%] min-h-[30px] w-full text-center font-serif leading-[1.08] text-[#c9c3b6]"
+                    style={{ fontSize: "clamp(7px,0.7vw,11px)" }}
+                  >
                     {s.title}
-                  </span>
+                  </div>
                 </div>
               );
             })}
           </div>
-          <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 mt-6 pt-4 border-t border-gold-border text-[10px] md:text-xs text-[#c9c3b6]">
-            <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{background: STATUS_COLORS.strong}}/>Green: Strong</span>
-            <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{background: STATUS_COLORS.watch}}/>Yellow: Watch</span>
-            <span className="inline-flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{background: STATUS_COLORS.exposed}}/>Red: Exposed</span>
+
+          <div className="absolute bottom-[2.5%] left-0 right-0 flex justify-center gap-[3%] text-center font-sans" style={{ fontSize: "clamp(6px,0.65vw,10px)", color: "#c9c3b6" }}>
+            <span className="inline-flex items-center gap-1"><i className="h-2 w-2 rounded-full" style={{background:STATUS_COLORS.strong}} />Green: Strong</span>
+            <span className="inline-flex items-center gap-1"><i className="h-2 w-2 rounded-full" style={{background:STATUS_COLORS.watch}} />Yellow: Watch</span>
+            <span className="inline-flex items-center gap-1"><i className="h-2 w-2 rounded-full" style={{background:STATUS_COLORS.exposed}} />Red: Exposed</span>
           </div>
         </div>
       </div>
     );
-  },
+  }
 );
-
 GapMapBars.displayName = "GapMapBars";
 
-/**
- * Captures the rendered Gap Map card as a PNG data URI, ready to drop into
- * the PDF deliverable as an image block. This is plain DOM now instead of a
- * WebGL canvas, so the capture goes through html2canvas rather than a
- * direct canvas buffer read (see the old gapMapToPng in the retired
- * GapMapVisual.tsx for that version). Loaded dynamically, same as the
- * document converter's own html2canvas usage, to keep it out of the main
- * bundle for anyone who never opens a Blueprint Session.
- */
 export async function gapMapToPng(
   el: HTMLDivElement,
 ): Promise<{ src: string; width: number; height: number }> {
