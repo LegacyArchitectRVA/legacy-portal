@@ -282,15 +282,25 @@ export function buildDeliverable(
     });
   }
 
+  // Last column reads "% handled", same frame as the Gap Map graphic
+  // directly above it and the legend under that (Handled/Watch/Exposed
+  // are all defined in terms of % handled). It used to be "% exposure"
+  // here, riskPct instead of the complement, which meant the same
+  // pillar showed two different-sounding numbers one page apart: the
+  // graphic said 83% for Digital Life, the table said 17% for the same
+  // row. Both were correct, but nothing tied the two framings together,
+  // so it read as if the document disagreed with itself.
   blocks.push({
     type: "table",
-    headers: ["Area", "Handled", "Partial", "Exposed", "Exposure"],
+    headers: ["Area", "Handled", "Partial", "Exposed", "% Handled"],
     rows: tableScores.map(s => [
       `${s.number} ${s.title}`,
       s.assessed === 0 ? "-" : String(s.handled),
       s.assessed === 0 ? "-" : String(s.partial),
       s.assessed === 0 ? "-" : String(s.exposed),
-      s.assessed === 0 ? "Not assessed" : `${s.riskPct}%`,
+      s.assessed === 0
+        ? "Not assessed"
+        : `${Math.max(0, Math.min(100, 100 - s.riskPct))}%`,
     ]),
   });
 
