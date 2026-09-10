@@ -34,16 +34,19 @@ export function statusWord(s: PillarScore): string {
 // title moving to "Emergency & Successor Orientation"), it's the title and
 // icon that moved, not the id.
 //
-// These point at the marketing site's copy of the pillar photography
-// (legacyarchitectrva.com/assets/pillar-*-v2.webp), the same files used on
-// /pillars there. They were previously root-relative ("/pillar-digital-v2.webp"),
-// which resolved against the portal's own domain, where no such file exists.
+// Served from the portal's own /public folder (same origin as the app),
+// not fetched from legacyarchitectrva.com. That cross-origin version
+// looked fine in every manual check because the marketing site marks its
+// images Cross-Origin-Resource-Policy: same-origin, which silently blocks
+// any *other* origin (including this portal's own subdomain) from
+// embedding them as <img> tags, no CSP setting can override that. Keeping
+// local copies here sidesteps the whole mechanism instead of fighting it.
 export const PILLAR_ICON_SRC: Partial<Record<string, string>> = {
-  digital: "https://legacyarchitectrva.com/assets/pillar-digital-v2.webp",
-  legal: "https://legacyarchitectrva.com/assets/pillar-vital-v2.webp",
-  financial: "https://legacyarchitectrva.com/assets/pillar-financial-v2.webp",
-  household: "https://legacyarchitectrva.com/assets/pillar-household-v2.webp",
-  health: "https://legacyarchitectrva.com/assets/pillar-emergency-v2.webp",
-  business: "https://legacyarchitectrva.com/assets/pillar-business-v2.webp",
-  legacy: "https://legacyarchitectrva.com/assets/pillar-legacy-v2.webp",
+  digital: "/pillar-digital-v2.webp",
+  legal: "/pillar-vital-v2.webp",
+  financial: "/pillar-financial-v2.webp",
+  household: "/pillar-household-v2.webp",
+  health: "/pillar-emergency-v2.webp",
+  business: "/pillar-business-v2.webp",
+  legacy: "/pillar-legacy-v2.webp",
 };
