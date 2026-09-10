@@ -255,9 +255,21 @@ export function buildDeliverable(
 
   // ---- Part 1: Gap Map ----
   blocks.push({ type: "heading", level: 1, text: "The Gap Map" });
+  // Business Continuity drops out of the table (and the pillar count in
+  // the intro line) when nothing in it was assessed, same rule as the
+  // Gap Map visual. Every other pillar keeps its "Not assessed" row even
+  // when empty, that's still meaningful (Craig didn't get to it); an
+  // untouched Business Continuity means "doesn't apply," not "skipped."
+  const businessAssessed =
+    scores.find(s => s.pillarId === "business")?.assessed ?? 0;
+  const tableScores = scores.filter(
+    s => s.pillarId !== "business" || businessAssessed > 0,
+  );
+  const areaWord = tableScores.length === 6 ? "Six" : "Seven";
+
   blocks.push({
     type: "paragraph",
-    text: "Seven areas, assessed together, one sitting. Handled means a successor could act on it today. Partial means the information exists but is scattered or stale. Exposed means it lives in one person's head.",
+    text: `${areaWord} areas, assessed together, one sitting. Handled means a successor could act on it today. Partial means the information exists but is scattered or stale. Exposed means it lives in one person's head.`,
   });
 
   if (gapMapImage) {
@@ -273,7 +285,7 @@ export function buildDeliverable(
   blocks.push({
     type: "table",
     headers: ["Area", "Handled", "Partial", "Exposed", "Exposure"],
-    rows: scores.map(s => [
+    rows: tableScores.map(s => [
       `${s.number} ${s.title}`,
       s.assessed === 0 ? "-" : String(s.handled),
       s.assessed === 0 ? "-" : String(s.partial),

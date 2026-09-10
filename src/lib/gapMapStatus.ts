@@ -7,11 +7,16 @@ import type { PillarScore } from "./blueprintDeliverable";
  * Gap Map bars, and anywhere else that needs "what color is this pillar"
  * all read from the same place instead of three copies drifting apart.
  */
+// Deliberately not the default green/amber/red traffic-light palette.
+// These pull from the same aged-metal family as the site's brand
+// gradients (bronze/gold/silver) instead of a generic dashboard look,
+// and "watch" is a copper tone rather than gold specifically so it
+// never competes with the brand's own gold headings and CTAs.
 export const STATUS_COLORS = {
-  strong: "#3da977",
-  watch: "#d9a441",
-  exposed: "#b3413a",
-  unassessed: "#6b675e",
+  strong: "#5f8f6a",
+  watch: "#b6752f",
+  exposed: "#8a3a3a",
+  unassessed: "#6b6558",
 } as const;
 
 export function nodeColor(s: PillarScore): string {
