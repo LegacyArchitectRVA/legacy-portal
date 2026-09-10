@@ -108,7 +108,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
 
                   <div className="min-w-0 flex-1">
                     <div
-                      className="mb-[6px] truncate font-serif text-[clamp(12px,1.5vw,17px)]"
+                      className="mb-[6px] font-serif leading-[1.15] text-[clamp(12px,1.5vw,17px)]"
                       style={{ color: "#f2ede2" }}
                     >
                       {s.title}
