@@ -64,7 +64,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
           {/* header: logo + title */}
           <div className="flex items-center gap-4">
             <img
-              src="https://legacyarchitectrva.com/assets/favicon-180.png"
+              src="/favicon-180.png"
               alt=""
               className="h-[46px] w-[46px] shrink-0"
             />
