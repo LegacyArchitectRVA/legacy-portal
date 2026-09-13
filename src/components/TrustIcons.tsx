@@ -3,7 +3,7 @@ import type { ComponentType } from "react";
 import {
   LockPassword as LockKey,
   ShieldCheck as ShieldCheckIcon,
-  Ghost as ZeroKnowledgeGlyph,
+  EyeSlash as ZeroKnowledgeGlyph,
 } from "reicon-react";
 
 /**
