@@ -144,7 +144,9 @@ export default function LandingPage() {
           className="absolute text-center text-xs md:text-sm tracking-[0.22em] uppercase text-[#e8c869]/90 bg-black px-8"
           style={{ fontFamily: "Cinzel, serif" }}
         >
-          Your life is planned. Your absence isn't.
+          Your life is planned.
+          <br />
+          Your absence isn't.
         </p>
       </div>
 

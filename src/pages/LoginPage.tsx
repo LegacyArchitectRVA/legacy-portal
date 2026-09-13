@@ -19,6 +19,46 @@ function getProvider(email: string): string {
 
 type Mode = "signin" | "forgot-request" | "forgot-verify";
 
+const RESET_STATE_KEY = "la_reset_flow";
+const RESET_STATE_MAX_AGE_MS = 15 * 60 * 1000; // matches the 15-minute OTP window server-side
+
+function loadPersistedResetState(): { mode: Mode; email: string } | null {
+  try {
+    const raw = sessionStorage.getItem(RESET_STATE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as {
+      mode: Mode;
+      email: string;
+      savedAt: number;
+    };
+    if (Date.now() - parsed.savedAt > RESET_STATE_MAX_AGE_MS) {
+      sessionStorage.removeItem(RESET_STATE_KEY);
+      return null;
+    }
+    if (parsed.mode !== "forgot-verify") return null;
+    return { mode: parsed.mode, email: parsed.email };
+  } catch {
+    return null;
+  }
+}
+
+function persistResetState(mode: Mode, email: string) {
+  try {
+    if (mode === "forgot-verify") {
+      sessionStorage.setItem(
+        RESET_STATE_KEY,
+        JSON.stringify({ mode, email, savedAt: Date.now() }),
+      );
+    } else {
+      sessionStorage.removeItem(RESET_STATE_KEY);
+    }
+  } catch {
+    // sessionStorage unavailable (e.g. private browsing) — the reset flow
+    // still works within a single unloaded tab, it just won't survive a
+    // background reload. Nothing to recover from here.
+  }
+}
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const { signIn } = useAuthActions();
@@ -26,15 +66,20 @@ export default function LoginPage() {
     api.webauthnNode.getAuthenticationOptions,
   );
   const verifyAuthentication = useAction(api.webauthnNode.verifyAuthentication);
-  const [mode, setMode] = useState<Mode>("signin");
-  const [email, setEmail] = useState("");
+  const persistedReset = loadPersistedResetState();
+  const [mode, setMode] = useState<Mode>(persistedReset?.mode ?? "signin");
+  const [email, setEmail] = useState(persistedReset?.email ?? "");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
+  const [info, setInfo] = useState(
+    persistedReset
+      ? `We sent a code to ${persistedReset.email}. Check your inbox.`
+      : "",
+  );
   const [passkeySupported, setPasskeySupported] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const registeredPasskeys = useQuery(api.webauthn.listMyCredentials);
@@ -123,6 +168,7 @@ export default function LoginPage() {
       await signIn("password", { email, flow: "reset" });
       setInfo(`We sent a code to ${email}. Check your inbox.`);
       setMode("forgot-verify");
+      persistResetState("forgot-verify", email);
     } catch {
       setError("Could not send a reset code. Check the email and try again.");
     } finally {
@@ -141,6 +187,7 @@ export default function LoginPage() {
         newPassword,
         flow: "reset-verification",
       });
+      persistResetState("signin", email);
       navigate("/dashboard");
     } catch {
       setError("That code didn't work. Check it and try again.");
@@ -155,6 +202,7 @@ export default function LoginPage() {
     setInfo("");
     setCode("");
     setNewPassword("");
+    persistResetState("signin", email);
   };
 
   return (
