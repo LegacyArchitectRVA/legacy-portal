@@ -272,10 +272,11 @@ export default function UpgradePage() {
                   <button
                     type="button"
                     onClick={() => navigate(`/payment?tier=${tier.id}`)}
-                    className="w-full flex items-center justify-center gap-2 text-[#0f0c08] font-heading text-sm font-semibold py-3 rounded-full hover:opacity-90 transition-all duration-300"
+                    className="w-full flex items-center justify-center gap-2 text-[#0f0c08] font-heading text-[11px] font-semibold uppercase tracking-[0.16em] py-3 rounded-[2px] transition-all duration-300 hover:-translate-y-px"
                     style={{
-                      background: `linear-gradient(135deg, ${colors.accent}, ${colors.accent}cc)`,
-                      boxShadow: `0 0 20px rgba(${colors.accentRgb}, 0.2)`,
+                      background: `linear-gradient(180deg, ${colors.accent}, ${colors.accent}cc)`,
+                      border: `1px solid ${colors.accent}99`,
+                      boxShadow: `0 1px 0 rgba(255,255,255,0.35) inset, 0 8px 20px rgba(${colors.accentRgb}, 0.25)`,
                     }}
                   >
                     <EditableText cmsKey="upgrade_cta_prefix" as="span" />{" "}

@@ -169,7 +169,7 @@ export default function ManualImportPage() {
         <button
           onClick={() => fileRef.current?.click()}
           disabled={!clientUserId || parsing}
-          className="w-full sm:w-auto justify-center flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold px-5 py-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-40"
+          className="w-full sm:w-auto justify-center flex items-center gap-2 relative overflow-hidden border border-[rgba(216,199,154,0.6)] bg-[linear-gradient(180deg,#d4c294_0%,#d4b661_55%,#b3a074_100%)] text-[#1a1509] shadow-[0_1px_0_rgba(255,248,230,0.4)_inset,0_4px_12px_rgba(0,0,0,0.28)] font-heading text-sm font-semibold px-5 py-3 rounded-[2px] hover:brightness-105 hover:-translate-y-px transition-opacity disabled:opacity-40"
         >
           {parsing ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -208,7 +208,7 @@ export default function ManualImportPage() {
             <button
               onClick={handleCommit}
               disabled={committing || includedReady.length === 0}
-              className="flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-40"
+              className="flex items-center gap-2 relative overflow-hidden border border-[rgba(216,199,154,0.6)] bg-[linear-gradient(180deg,#d4c294_0%,#d4b661_55%,#b3a074_100%)] text-[#1a1509] shadow-[0_1px_0_rgba(255,248,230,0.4)_inset,0_4px_12px_rgba(0,0,0,0.28)] font-heading text-sm font-semibold px-5 py-2.5 rounded-[2px] hover:brightness-105 hover:-translate-y-px transition-opacity disabled:opacity-40"
             >
               {committing ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

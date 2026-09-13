@@ -158,28 +158,28 @@ export default function AdminPage() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => navigate("/admin/prospects")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 relative overflow-hidden border border-[rgba(216,199,154,0.6)] bg-[linear-gradient(180deg,#d4c294_0%,#d4b661_55%,#b3a074_100%)] text-[#1a1509] shadow-[0_1px_0_rgba(255,248,230,0.4)_inset,0_4px_12px_rgba(0,0,0,0.28)] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-[2px] hover:brightness-105 hover:-translate-y-px transition-opacity"
           >
             <Users className="w-4 h-4" />
             Prospects
           </button>
           <button
             onClick={() => navigate("/generate")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 relative overflow-hidden border border-[rgba(216,199,154,0.6)] bg-[linear-gradient(180deg,#d4c294_0%,#d4b661_55%,#b3a074_100%)] text-[#1a1509] shadow-[0_1px_0_rgba(255,248,230,0.4)_inset,0_4px_12px_rgba(0,0,0,0.28)] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-[2px] hover:brightness-105 hover:-translate-y-px transition-opacity"
           >
             <BookOpen className="w-4 h-4" />
             Generate Manual
           </button>
           <button
             onClick={() => navigate("/admin/visual-editor")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 relative overflow-hidden border border-[rgba(216,199,154,0.6)] bg-[linear-gradient(180deg,#d4c294_0%,#d4b661_55%,#b3a074_100%)] text-[#1a1509] shadow-[0_1px_0_rgba(255,248,230,0.4)_inset,0_4px_12px_rgba(0,0,0,0.28)] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-[2px] hover:brightness-105 hover:-translate-y-px transition-opacity"
           >
             <Paintbrush className="w-4 h-4" />
             Visual Editor
           </button>
           <button
             onClick={() => navigate("/admin/hubspot")}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-full hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 relative overflow-hidden border border-[rgba(216,199,154,0.6)] bg-[linear-gradient(180deg,#d4c294_0%,#d4b661_55%,#b3a074_100%)] text-[#1a1509] shadow-[0_1px_0_rgba(255,248,230,0.4)_inset,0_4px_12px_rgba(0,0,0,0.28)] font-heading text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-[2px] hover:brightness-105 hover:-translate-y-px transition-opacity"
           >
             <Settings className="w-4 h-4" />
             HubSpot

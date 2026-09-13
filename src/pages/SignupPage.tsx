@@ -204,7 +204,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full relative overflow-hidden border border-[rgba(216,199,154,0.6)] bg-[linear-gradient(180deg,#d4c294_0%,#d4b661_55%,#b3a074_100%)] text-[#1a1509] shadow-[0_1px_0_rgba(255,248,230,0.4)_inset,0_4px_12px_rgba(0,0,0,0.28)] font-heading text-sm font-semibold py-2.5 rounded-[2px] hover:brightness-105 hover:-translate-y-px transition-opacity disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin mx-auto" />
@@ -252,7 +252,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading || code.length < 6}
-              className="w-full bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] font-heading text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full relative overflow-hidden border border-[rgba(216,199,154,0.6)] bg-[linear-gradient(180deg,#d4c294_0%,#d4b661_55%,#b3a074_100%)] text-[#1a1509] shadow-[0_1px_0_rgba(255,248,230,0.4)_inset,0_4px_12px_rgba(0,0,0,0.28)] font-heading text-sm font-semibold py-2.5 rounded-[2px] hover:brightness-105 hover:-translate-y-px transition-opacity disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin mx-auto" />

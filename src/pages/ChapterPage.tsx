@@ -560,7 +560,7 @@ function SectionAccordion({
                   <div className="flex gap-2 pt-1">
                     <button
                       onClick={handleAddRow}
-                      className="flex items-center gap-1 text-xs bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] px-3 py-1.5 rounded-lg font-heading font-medium hover:opacity-90 transition"
+                      className="flex items-center gap-1 text-xs relative overflow-hidden border border-[rgba(216,199,154,0.6)] bg-[linear-gradient(180deg,#d4c294_0%,#d4b661_55%,#b3a074_100%)] text-[#1a1509] shadow-[0_1px_0_rgba(255,248,230,0.4)_inset,0_4px_12px_rgba(0,0,0,0.28)] px-3 py-1.5 rounded-[2px] font-heading font-medium hover:brightness-105 hover:-translate-y-px transition"
                     >
                       <Save className="w-3 h-3" /> Save
                     </button>
@@ -620,7 +620,7 @@ function SectionAccordion({
                           <div className="flex gap-2 pt-1">
                             <button
                               onClick={() => handleUpdateRow(row.rowId)}
-                              className="flex items-center gap-1 text-xs bg-gradient-to-r from-[#d4b661] to-[#7D6224] text-[#0f0c08] px-3 py-1.5 rounded-lg font-heading font-medium"
+                              className="flex items-center gap-1 text-xs relative overflow-hidden border border-[rgba(216,199,154,0.6)] bg-[linear-gradient(180deg,#d4c294_0%,#d4b661_55%,#b3a074_100%)] text-[#1a1509] shadow-[0_1px_0_rgba(255,248,230,0.4)_inset,0_4px_12px_rgba(0,0,0,0.28)] px-3 py-1.5 rounded-[2px] font-heading font-medium"
                             >
                               <Check className="w-3 h-3" /> Update
                             </button>
