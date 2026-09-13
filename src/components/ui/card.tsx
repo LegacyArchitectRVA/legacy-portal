@@ -4,14 +4,15 @@ import type * as React from "react";
 import { cn } from "@/lib/utils";
 
 const cardVariants = cva(
-  "bg-card text-card-foreground flex flex-col rounded-2xl border",
+  "bg-card text-card-foreground flex flex-col rounded-[6px] border border-gold-border",
   {
     variants: {
       variant: {
         default: "",
-        elevated: "shadow-lg border-0 bg-gradient-to-br from-card to-muted/30",
+        elevated:
+          "border-gold-border bg-gradient-to-b from-card to-[#0f0c08] shadow-[0_8px_28px_rgba(0,0,0,0.35)]",
         interactive:
-          "transition-all hover:shadow-lg hover:border-foreground/10",
+          "transition-all duration-200 hover:border-gold-primary/35 hover:shadow-[0_8px_24px_rgba(0,0,0,0.3)]",
         ghost: "border-0 shadow-none bg-transparent",
       },
       padding: {
@@ -59,7 +60,10 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
+      className={cn(
+        "font-heading text-lg font-medium leading-tight text-foreground",
+        className,
+      )}
       {...props}
     />
   );
