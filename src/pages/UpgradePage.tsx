@@ -39,7 +39,7 @@ const tierColors: Record<
 
 const tierImages: Record<string, string> = {
   personal: "/g_legacy-e.webp",
-  business: "/g_business-e.webp",
+  business: "/pillar-business-v2.webp",
 };
 
 function normalizeTier(tier?: string) {

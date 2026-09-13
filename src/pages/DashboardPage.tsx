@@ -212,7 +212,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="relative z-10 flex items-center gap-3 rounded-lg border border-gold-border bg-black/50 p-3 md:p-4">
+        <div className="relative z-10 flex items-center gap-3 rounded-lg border border-gold-border bg-card/50 p-3 md:p-4">
           <div className="size-10 rounded-lg bg-gold-dark/10 border border-gold-border flex items-center justify-center shrink-0">
             <LucideIcon
               name="ShieldCheck"
@@ -257,12 +257,11 @@ export default function DashboardPage() {
                   title={`Ch. ${ch.chapterNumber}: ${ch.shortTitle}: ${ch.pct}%`}
                 >
                   <div
-                    className="relative w-8 md:w-10 h-24 md:h-32 rounded-md border overflow-hidden"
+                    className="relative w-8 md:w-10 h-24 md:h-32 rounded-md border overflow-hidden bg-card/60"
                     style={{
                       borderColor: accessible
                         ? `${ch.color}40`
                         : `${ch.color}20`,
-                      background: "rgba(0,0,0,0.3)",
                     }}
                   >
                     <div
