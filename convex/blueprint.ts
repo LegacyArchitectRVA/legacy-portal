@@ -31,6 +31,8 @@ const actionValidator = v.object({
   done: v.boolean(),
 });
 
+const editionValidator = v.union(v.literal("personal"), v.literal("business"));
+
 export const listSessions = query({
   args: {},
   handler: async ctx => {
@@ -45,6 +47,7 @@ export const listSessions = query({
       prospectName: s.prospectName,
       prospectEmail: s.prospectEmail,
       sessionDate: s.sessionDate,
+      edition: s.edition ?? "personal",
       status: s.status,
       updatedAt: s.updatedAt,
       exposedCount: s.assessments.filter(a => a.status === "exposed").length,
@@ -67,6 +70,7 @@ export const createSession = mutation({
     prospectName: v.string(),
     prospectEmail: v.optional(v.string()),
     sessionDate: v.optional(v.number()),
+    edition: editionValidator,
   },
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
@@ -75,6 +79,7 @@ export const createSession = mutation({
       prospectName: args.prospectName.trim(),
       prospectEmail: args.prospectEmail?.trim() || undefined,
       sessionDate: args.sessionDate ?? now,
+      edition: args.edition,
       status: "draft",
       notes: undefined,
       assessments: [],
@@ -91,6 +96,7 @@ export const updateSessionMeta = mutation({
     prospectName: v.optional(v.string()),
     prospectEmail: v.optional(v.string()),
     sessionDate: v.optional(v.number()),
+    edition: v.optional(editionValidator),
     status: v.optional(
       v.union(
         v.literal("draft"),

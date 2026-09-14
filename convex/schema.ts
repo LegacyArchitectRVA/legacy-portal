@@ -174,6 +174,11 @@ const schema = defineSchema({
     prospectName: v.string(),
     prospectEmail: v.optional(v.string()),
     sessionDate: v.number(),
+    // Which edition this prospect is being blueprinted toward. Drives the
+    // "Personal Edition" / "Business Edition" line under the Gap Map
+    // heading. Optional so sessions created before this field existed
+    // don't break; the UI treats a missing value as "personal".
+    edition: v.optional(v.union(v.literal("personal"), v.literal("business"))),
     status: v.union(
       v.literal("draft"),
       v.literal("completed"),
