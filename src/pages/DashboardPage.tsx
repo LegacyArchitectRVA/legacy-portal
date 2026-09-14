@@ -5,7 +5,7 @@ import {
 import { useQuery } from "convex/react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowRight, Lock } from "reicon-react";
+import { ArrowRight, EyeSlash, Lock } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { ChapterIcon } from "../components/ChapterIcons";
@@ -256,11 +256,7 @@ export default function DashboardPage() {
 
         <div className="relative z-10 flex items-center gap-3 rounded-lg border border-gold-border bg-card/50 p-3 md:p-4">
           <div className="size-10 rounded-lg bg-gold-dark/10 border border-gold-border flex items-center justify-center shrink-0">
-            <LucideIcon
-              name="ShieldCheck"
-              size={20}
-              className="text-gold-primary"
-            />
+            <EyeSlash size={20} className="text-gold-primary" />
           </div>
           <div className="flex-1">
             <p className="font-semibold text-sm text-gold-primary font-heading">
