@@ -24,11 +24,14 @@ const tierColors: Record<string, { accent: string; label: string }> = {
   business: { accent: "#e8c869", label: "Business" },
 };
 
-// Same images UpgradePage.tsx uses for each tier, so the tier mark is
-// consistent everywhere a client sees it, not a plain letter here and a
-// real image there.
+// Only Business has a photographic tier image that actually fits (the
+// folio + skyline mark). Personal never had a real equivalent -- the
+// closest asset was the Legacy & Wishes chapter's candle photo, which
+// reads as borrowed rather than as its own mark. Personal gets a clean
+// line-art compass star instead, in the same stroke-icon language as
+// ChapterIcon and echoing the compass in the site's own header emblem,
+// rather than forcing a mismatched photo just to avoid a plain shape.
 const tierImages: Record<string, string> = {
-  personal: "/g_legacy-e.webp",
   business: "/pillar-business-v2.webp",
 };
 
@@ -184,14 +187,15 @@ export default function DashboardPage() {
                     }}
                   />
                 ) : null}
+                {/* Personal mark: compass star, echoing the header emblem --
+                    not a letter, not a borrowed chapter photo. */}
                 <svg
-                  width="22"
-                  height="22"
+                  width="26"
+                  height="26"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
+                  strokeWidth="1.3"
                   strokeLinejoin="round"
                   style={{
                     display: tierImages[tier] ? "none" : "flex",
@@ -199,11 +203,8 @@ export default function DashboardPage() {
                   }}
                   aria-hidden={!!tierImages[tier]}
                 >
-                  <path d="M3 21h18" />
-                  <path d="M5 21V7l7-4 7 4v14" />
-                  <path d="M9 21v-6h6v6" />
-                  <path d="M10 9h4" />
-                  <path d="M10 13h4" />
+                  <polygon points="12,2 14.47,9.53 22,12 14.47,14.47 12,22 9.53,14.47 2,12 9.53,9.53" />
+                  <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
                 </svg>
               </div>
               <div className="flex-1">

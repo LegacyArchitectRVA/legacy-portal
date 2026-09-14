@@ -164,13 +164,18 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     setInfo("");
+    // Persist before calling signIn, not after -- initiating a reset flips
+    // Convex's isAuthenticated state as a side effect, and PublicOnlyRoute
+    // reacts to that instantly. Setting the flag first means the guard
+    // never sees the auth flip without also seeing "reset in progress".
+    persistResetState("forgot-verify", email);
     try {
       await signIn("password", { email, flow: "reset" });
       setInfo(`We sent a code to ${email}. Check your inbox.`);
       setMode("forgot-verify");
-      persistResetState("forgot-verify", email);
     } catch {
       setError("Could not send a reset code. Check the email and try again.");
+      persistResetState("signin", email);
     } finally {
       setLoading(false);
     }

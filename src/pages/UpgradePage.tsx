@@ -38,7 +38,6 @@ const tierColors: Record<
 };
 
 const tierImages: Record<string, string> = {
-  personal: "/g_legacy-e.webp",
   business: "/pillar-business-v2.webp",
 };
 
@@ -182,23 +181,47 @@ export default function UpgradePage() {
                     }}
                     aria-hidden={!!tierImages[tier.id]}
                   >
-                    {/* Business continuity building mark — not a letter */}
-                    <svg
-                      width="36"
-                      height="36"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M3 21h18" />
-                      <path d="M5 21V7l7-4 7 4v14" />
-                      <path d="M9 21v-6h6v6" />
-                      <path d="M10 9h4" />
-                      <path d="M10 13h4" />
-                    </svg>
+                    {tier.id === "personal" ? (
+                      // Personal mark: compass star, echoing the header
+                      // emblem -- not a letter, not a borrowed chapter photo.
+                      <svg
+                        width="34"
+                        height="34"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.2"
+                        strokeLinejoin="round"
+                      >
+                        <polygon points="12,2 14.47,9.53 22,12 14.47,14.47 12,22 9.53,14.47 2,12 9.53,9.53" />
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="1.6"
+                          fill="currentColor"
+                          stroke="none"
+                        />
+                      </svg>
+                    ) : (
+                      // Business continuity building mark -- true fallback
+                      // only, shown if the real photo above fails to load.
+                      <svg
+                        width="36"
+                        height="36"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M3 21h18" />
+                        <path d="M5 21V7l7-4 7 4v14" />
+                        <path d="M9 21v-6h6v6" />
+                        <path d="M10 9h4" />
+                        <path d="M10 13h4" />
+                      </svg>
+                    )}
                   </div>
                 </div>
 

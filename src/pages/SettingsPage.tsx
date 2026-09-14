@@ -198,13 +198,16 @@ export default function SettingsPage() {
     setPwLoading(true);
     setPwError("");
     setPwInfo("");
+    // Persist before calling signIn, not after -- see passwordReset.ts for
+    // why this ordering is what actually closes the race with ProtectedRoute.
+    persistPwMode("code-sent");
     try {
       await signIn("password", { email: profile.email, flow: "reset" });
       setPwInfo(`We sent a code to ${profile.email}.`);
       setPwMode("code-sent");
-      persistPwMode("code-sent");
     } catch {
       setPwError("Could not send a code. Try again in a moment.");
+      persistPwMode("idle");
     } finally {
       setPwLoading(false);
     }
