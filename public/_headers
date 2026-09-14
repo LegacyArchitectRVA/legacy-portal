@@ -13,3 +13,14 @@
 
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# index.html has no content hash in its filename (it's what points at the
+# hashed asset URLs above), so if it's ever served stale, the browser can
+# keep loading an old bundle indefinitely even after a correct new deploy.
+# Force it to always revalidate with the server instead of trusting any
+# cached copy, so a fresh deploy is guaranteed to take effect on next load.
+/index.html
+  Cache-Control: no-cache, must-revalidate
+
+/
+  Cache-Control: no-cache, must-revalidate
