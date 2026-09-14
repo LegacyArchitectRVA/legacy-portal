@@ -176,7 +176,7 @@ export default function DashboardPage() {
                   <img
                     src={tierImages[tier]}
                     alt={tierInfo.name}
-                    className="w-9 h-9 object-contain drop-shadow"
+                    className="w-12 h-12 object-contain drop-shadow"
                     onError={e => {
                       const el = e.currentTarget;
                       el.style.display = "none";
