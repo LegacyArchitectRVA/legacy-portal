@@ -12,8 +12,14 @@ export default function LandingPage() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Top Navigation Bar */}
-      <nav className="sticky top-0 z-50 bg-black border-b border-[#e8c869]/15">
+      {/* Top Navigation Bar. Was bg-black (flat #000000); the main site's
+          own nav is never flat black, it's rgba(15,12,8,.97) — the site's
+          actual near-black background tone, translucent — plus a blur, so
+          content scrolling underneath softens rather than hard-cuts. Pure
+          black here read as a slightly different, colder tone than every
+          card and section below it, same family of bug as the tagline box
+          below. */}
+      <nav className="sticky top-0 z-50 bg-[rgba(15,12,8,0.97)] backdrop-blur-[10px] border-b border-[#e8c869]/15">
         <div className="container flex items-center justify-between h-16 px-6 max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
             <img
@@ -137,11 +143,22 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Divider with tagline */}
+      {/* Divider with tagline. The "box" Craig flagged: this <p> sits
+          centered on top of the divider line, and needs a solid backing
+          behind it so the line appears to have a gap cut in it rather
+          than running straight through the text. That part's correct
+          and stays. What was wrong is the color of that backing: bg-black
+          is flat #000000, but the page it's actually sitting on is
+          #0f0c08 (--background in index.css, and the same value the main
+          site itself uses for --bg). Two near-black tones that close still
+          show a visible seam, which is the "black box" — swapped to the
+          real page background color instead of literal black. This exact
+          class (bg-[#0f0c08]) already has a light-theme override in
+          index.css, so light mode is unaffected. */}
       <div className="relative flex items-center justify-center py-8">
         <div className="w-full max-w-2xl h-px bg-gradient-to-r from-transparent via-[#e8c869]/20 to-transparent" />
         <p
-          className="absolute text-center text-xs md:text-sm tracking-[0.22em] uppercase text-[#e8c869]/90 bg-black px-8"
+          className="absolute text-center text-xs md:text-sm tracking-[0.22em] uppercase text-[#e8c869]/90 bg-[#0f0c08] px-8"
           style={{ fontFamily: "Cinzel, serif" }}
         >
           Your life is planned.
