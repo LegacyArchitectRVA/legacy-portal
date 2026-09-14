@@ -24,14 +24,13 @@ const tierColors: Record<string, { accent: string; label: string }> = {
   business: { accent: "#e8c869", label: "Business" },
 };
 
-// Only Business has a photographic tier image that actually fits (the
-// folio + skyline mark). Personal never had a real equivalent -- the
-// closest asset was the Legacy & Wishes chapter's candle photo, which
-// reads as borrowed rather than as its own mark. Personal gets a clean
-// line-art compass star instead, in the same stroke-icon language as
-// ChapterIcon and echoing the compass in the site's own header emblem,
-// rather than forcing a mismatched photo just to avoid a plain shape.
+// Personal now has its own real image, supplied by Craig, matching
+// Business's visual weight -- a photographic mark instead of a plain
+// letter or a borrowed chapter photo. The compass star icon further down
+// stays in place as the true fallback if this ever fails to load, same
+// as the building mark already does for Business.
 const tierImages: Record<string, string> = {
+  personal: "/pillar-personal-v2.webp",
   business: "/pillar-business-v2.webp",
 };
 
@@ -187,8 +186,8 @@ export default function DashboardPage() {
                     }}
                   />
                 ) : null}
-                {/* Personal mark: compass star, echoing the header emblem --
-                    not a letter, not a borrowed chapter photo. */}
+                {/* Compass star: true fallback only, shown if the real
+                    photo above fails to load. */}
                 <svg
                   width="26"
                   height="26"

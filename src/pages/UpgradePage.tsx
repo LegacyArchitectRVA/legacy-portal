@@ -38,6 +38,7 @@ const tierColors: Record<
 };
 
 const tierImages: Record<string, string> = {
+  personal: "/pillar-personal-v2.webp",
   business: "/pillar-business-v2.webp",
 };
 
@@ -182,8 +183,8 @@ export default function UpgradePage() {
                     aria-hidden={!!tierImages[tier.id]}
                   >
                     {tier.id === "personal" ? (
-                      // Personal mark: compass star, echoing the header
-                      // emblem -- not a letter, not a borrowed chapter photo.
+                      // Compass star: true fallback only, shown if the
+                      // real photo above fails to load.
                       <svg
                         width="34"
                         height="34"
