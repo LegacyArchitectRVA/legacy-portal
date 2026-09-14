@@ -24,6 +24,14 @@ const tierColors: Record<string, { accent: string; label: string }> = {
   business: { accent: "#e8c869", label: "Business" },
 };
 
+// Same images UpgradePage.tsx uses for each tier, so the tier mark is
+// consistent everywhere a client sees it, not a plain letter here and a
+// real image there.
+const tierImages: Record<string, string> = {
+  personal: "/g_legacy-e.webp",
+  business: "/pillar-business-v2.webp",
+};
+
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -156,14 +164,47 @@ export default function DashboardPage() {
           tierInfo && (
             <div className="relative z-10 flex items-center gap-4 rounded-lg border border-[#e8c869]/20 bg-gradient-to-r from-[#e8c869]/[0.06] to-transparent p-3 md:p-4">
               <div
-                className="w-14 h-14 rounded-lg border flex items-center justify-center shrink-0 font-heading text-lg"
+                className="relative w-14 h-14 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden"
                 style={{
-                  color: tierColors[tier]?.accent || tierColors.personal.accent,
                   borderColor: `${tierColors[tier]?.accent || tierColors.personal.accent}40`,
                   backgroundColor: `${tierColors[tier]?.accent || tierColors.personal.accent}14`,
                 }}
               >
-                {tierInfo.name.charAt(0)}
+                {tierImages[tier] ? (
+                  <img
+                    src={tierImages[tier]}
+                    alt={tierInfo.name}
+                    className="w-9 h-9 object-contain drop-shadow"
+                    onError={e => {
+                      const el = e.currentTarget;
+                      el.style.display = "none";
+                      const fallback =
+                        el.nextElementSibling as HTMLElement | null;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                  />
+                ) : null}
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    display: tierImages[tier] ? "none" : "flex",
+                    color: tierColors[tier]?.accent || tierColors.personal.accent,
+                  }}
+                  aria-hidden={!!tierImages[tier]}
+                >
+                  <path d="M3 21h18" />
+                  <path d="M5 21V7l7-4 7 4v14" />
+                  <path d="M9 21v-6h6v6" />
+                  <path d="M10 9h4" />
+                  <path d="M10 13h4" />
+                </svg>
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-sm text-[#e8c869] font-heading">
