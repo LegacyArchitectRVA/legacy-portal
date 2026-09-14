@@ -236,6 +236,19 @@ export default function BlueprintSessionPage() {
           </p>
         </div>
         <select
+          value={session.edition ?? "personal"}
+          onChange={e =>
+            updateMeta({
+              sessionId: session._id,
+              edition: e.target.value as "personal" | "business",
+            })
+          }
+          className="bg-[#171208] border border-gold-border/40 rounded-lg px-2 py-1.5 text-xs text-[#f2ede2] focus:outline-none shrink-0"
+        >
+          <option value="personal">Personal</option>
+          <option value="business">Business</option>
+        </select>
+        <select
           value={session.status}
           onChange={e =>
             updateMeta({
@@ -297,7 +310,12 @@ export default function BlueprintSessionPage() {
             handles the sticky desktop positioning and the caption below
             it, not a second border/label around the component's own. */}
         <div className="space-y-2 lg:sticky lg:top-6">
-          <GapMapBars ref={gapMapRef} scores={scores} readiness={readiness} />
+          <GapMapBars
+            ref={gapMapRef}
+            scores={scores}
+            readiness={readiness}
+            edition={session.edition ?? "personal"}
+          />
           <p className="text-[10px] text-[#f2ede2]/50 text-center">
             Updates live as checkpoints are assessed. This map prints into the
             PDF deliverable.

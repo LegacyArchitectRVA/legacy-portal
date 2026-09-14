@@ -26,6 +26,14 @@ const STATUS_BADGE: Record<string, { label: string; cls: string; Icon: any }> =
     },
   };
 
+// Small text tag only, not a full badge like STATUS_BADGE: edition isn't a
+// workflow state the way status is, it's a fixed attribute of the session,
+// so it doesn't need an icon or the same visual weight.
+const EDITION_LABEL: Record<string, string> = {
+  personal: "Personal",
+  business: "Business",
+};
+
 export default function BlueprintListPage() {
   const navigate = useNavigate();
   const isAdmin = useQuery(api.admin.isAdmin);
@@ -36,6 +44,7 @@ export default function BlueprintListPage() {
   const [showNew, setShowNew] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [edition, setEdition] = useState<"personal" | "business">("personal");
   const [creating, setCreating] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
@@ -55,6 +64,7 @@ export default function BlueprintListPage() {
       const id = await createSession({
         prospectName: name.trim(),
         prospectEmail: email.trim() || undefined,
+        edition,
       });
       navigate(`/admin/blueprint/${id}`);
     } finally {
@@ -118,6 +128,8 @@ export default function BlueprintListPage() {
                         day: "numeric",
                         year: "numeric",
                       })}
+                      {" · "}
+                      {EDITION_LABEL[s.edition] ?? "Personal"}
                       {" · "}
                       {s.assessedCount} assessed{" · "}
                       {/* Colored to match the Gap Map / checkpoint chip palette
@@ -197,6 +209,27 @@ export default function BlueprintListPage() {
                   className="w-full bg-[#171208] border border-gold-border/40 rounded-lg px-3 py-2.5 text-sm text-[#f2ede2] focus:border-gold-primary/50 focus:outline-none"
                   placeholder="their@email.com"
                 />
+              </div>
+              <div>
+                <label className="text-xs text-[#f2ede2]/75 uppercase tracking-wider font-heading block mb-1">
+                  Edition
+                </label>
+                <div className="flex gap-2">
+                  {(["personal", "business"] as const).map(opt => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setEdition(opt)}
+                      className={`flex-1 text-xs font-heading px-3 py-2.5 rounded-lg border transition-colors ${
+                        edition === opt
+                          ? "bg-gold-dark/20 border-gold-primary/50 text-gold-primary"
+                          : "bg-[#171208] border-gold-border/40 text-[#f2ede2]/75 hover:border-gold-border"
+                      }`}
+                    >
+                      {EDITION_LABEL[opt]}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="flex gap-2 justify-end pt-1">
