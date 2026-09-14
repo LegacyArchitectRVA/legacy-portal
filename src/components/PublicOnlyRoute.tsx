@@ -1,5 +1,6 @@
 import { useConvexAuth } from "convex/react";
 import { Navigate, Outlet } from "react-router-dom";
+import { isPasswordResetActive } from "../lib/passwordReset";
 import {
   Card,
   CardContent,
@@ -48,7 +49,7 @@ export function PublicOnlyRoute() {
     return <AuthFormSkeleton />;
   }
 
-  if (isAuthenticated) {
+  if (isAuthenticated && !isPasswordResetActive()) {
     return <Navigate to="/dashboard" replace />;
   }
 

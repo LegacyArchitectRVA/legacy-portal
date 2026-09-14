@@ -1,5 +1,6 @@
 import { useConvexAuth } from "convex/react";
 import { Navigate, Outlet } from "react-router-dom";
+import { isPasswordResetActive } from "../lib/passwordReset";
 import {
   Sidebar,
   SidebarContent,
@@ -70,7 +71,7 @@ export function ProtectedRoute() {
     return <AppSkeleton />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !isPasswordResetActive()) {
     return <Navigate to="/login" replace />;
   }
 
