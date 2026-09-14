@@ -170,10 +170,10 @@ function Thread({
   onDelete: (id: string) => void;
 }) {
   const [text, setText] = useState("");
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+    bottomRef.current?.scrollIntoView({ block: "end" });
   }, []);
 
   const handleSend = () => {
@@ -199,12 +199,9 @@ function Thread({
 
   return (
     <>
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto space-y-2 pr-2 pb-4"
-      >
+      <div className="min-h-[42vh] space-y-2 pb-4">
         {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full text-[#f2ede2]/80 text-sm">
+          <div className="flex items-center justify-center min-h-[42vh] text-[#f2ede2]/80 text-sm text-center px-6">
             No messages yet. Send a message to get started.
           </div>
         )}
@@ -221,40 +218,43 @@ function Thread({
             />
           ),
         )}
+        <div ref={bottomRef} />
       </div>
 
-      <div className="flex items-center gap-2 pt-2">
-        <button
-          type="button"
-          onClick={() =>
-            onSend(
-              `Here's a link to book a time that works for you: https://cal.com/legacyarchitectrva/discovery-call`,
-            )
-          }
-          className="flex items-center gap-1.5 text-xs text-gold-muted hover:text-gold-primary bg-black/40 px-3 py-1.5 rounded-full transition-colors"
-        >
-          <Calendar className="w-3.5 h-3.5" />
-          Send Meeting Link
-        </button>
-      </div>
+      <div className="sticky bottom-3 z-10 mt-2 bg-background/95 backdrop-blur-sm border border-gold-border rounded-xl p-3 space-y-2 shadow-lg">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              onSend(
+                `Here's a link to book a time that works for you: https://cal.com/legacyarchitectrva/discovery-call`,
+              )
+            }
+            className="flex items-center gap-1.5 text-xs text-gold-muted hover:text-gold-primary bg-black/40 px-3 py-1.5 rounded-full transition-colors"
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            Send Meeting Link
+          </button>
+        </div>
 
-      <div className="flex items-center gap-2 pt-3 border-t border-[rgba(212, 182, 97,0.08)]">
-        <input
-          type="text"
-          value={text}
-          onChange={e => setText(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && handleSend()}
-          placeholder="Type a message..."
-          className="flex-1 bg-[#171208] border border-[rgba(212, 182, 97,0.1)] rounded-xl px-4 py-3 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:outline-none focus:border-[#d4b661]/30"
-        />
-        <button
-          type="button"
-          onClick={handleSend}
-          disabled={!text.trim()}
-          className="btn-gold w-10 h-10 flex items-center justify-center disabled:opacity-30 shrink-0"
-        >
-          <Send className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleSend()}
+            placeholder="Type a message..."
+            className="flex-1 bg-[#171208] border border-[rgba(212, 182, 97,0.1)] rounded-xl px-4 py-3 text-sm text-[#f2ede2] placeholder:text-[#f2ede2]/80 focus:outline-none focus:border-[#d4b661]/30"
+          />
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={!text.trim()}
+            className="btn-gold w-10 h-10 flex items-center justify-center disabled:opacity-30 shrink-0"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </>
   );
@@ -458,7 +458,7 @@ export default function MessagesPage() {
       conversations?.find(c => c.clientUserId === selectedClient) ||
       messageableUsers?.find(u => u.userId === selectedClient);
     return (
-      <div className="flex flex-col h-[calc(100dvh-4rem)] max-w-4xl mx-auto p-6 animate-fade-in">
+      <div className="flex flex-col max-w-4xl mx-auto p-6 pb-2 animate-fade-in">
         <div className="mb-4 flex items-center gap-3">
           <button
             onClick={() => setSelectedClient(null)}
@@ -493,7 +493,7 @@ export default function MessagesPage() {
 
   // --- Client: single thread with Legacy Architect RVA ---
   return (
-    <div className="flex flex-col h-[calc(100dvh-4rem)] max-w-4xl mx-auto p-6 animate-fade-in">
+    <div className="flex flex-col max-w-4xl mx-auto p-6 pb-2 animate-fade-in">
       <div className="mb-4">
         <h1 className="font-heading text-2xl font-bold text-[#f2ede2]">
           <EditableText cmsKey="messages_title" as="span" />

@@ -42,6 +42,46 @@ function timeAgo(ms: number): string {
   return `${days}d ago`;
 }
 
+// Mobile browsers can kill and reload a backgrounded tab while the user
+// switches to their email app to grab the reset code. That reload wipes
+// React state, so without this the "enter your code" step silently drops
+// back to the account settings screen with no way back in. Persisting the
+// step to sessionStorage lets us restore it on remount. 15 minutes matches
+// the server's OTP expiry window.
+const PW_RESET_STORAGE_KEY = "settings_pw_reset_state";
+const PW_RESET_MAX_AGE_MS = 15 * 60 * 1000;
+
+function loadPersistedPwMode(): "idle" | "code-sent" {
+  try {
+    const raw = sessionStorage.getItem(PW_RESET_STORAGE_KEY);
+    if (!raw) return "idle";
+    const { mode, savedAt } = JSON.parse(raw);
+    if (typeof savedAt !== "number" || Date.now() - savedAt > PW_RESET_MAX_AGE_MS) {
+      sessionStorage.removeItem(PW_RESET_STORAGE_KEY);
+      return "idle";
+    }
+    return mode === "code-sent" ? "code-sent" : "idle";
+  } catch {
+    return "idle";
+  }
+}
+
+function persistPwMode(mode: "idle" | "code-sent") {
+  try {
+    if (mode === "idle") {
+      sessionStorage.removeItem(PW_RESET_STORAGE_KEY);
+    } else {
+      sessionStorage.setItem(
+        PW_RESET_STORAGE_KEY,
+        JSON.stringify({ mode, savedAt: Date.now() }),
+      );
+    }
+  } catch {
+    // sessionStorage unavailable (private browsing, etc). Not fatal --
+    // the flow just won't survive a background/reload in that case.
+  }
+}
+
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
@@ -67,10 +107,16 @@ export default function SettingsPage() {
   const [signingOutOthers, setSigningOutOthers] = useState(false);
   const [signOutResult, setSignOutResult] = useState<string | null>(null);
 
-  const [pwMode, setPwMode] = useState<"idle" | "code-sent">("idle");
+  const [pwMode, setPwMode] = useState<"idle" | "code-sent">(
+    loadPersistedPwMode,
+  );
   const [pwLoading, setPwLoading] = useState(false);
   const [pwError, setPwError] = useState("");
-  const [pwInfo, setPwInfo] = useState("");
+  const [pwInfo, setPwInfo] = useState(() =>
+    loadPersistedPwMode() === "code-sent"
+      ? "We sent you a code. Check your email."
+      : "",
+  );
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -156,6 +202,7 @@ export default function SettingsPage() {
       await signIn("password", { email: profile.email, flow: "reset" });
       setPwInfo(`We sent a code to ${profile.email}.`);
       setPwMode("code-sent");
+      persistPwMode("code-sent");
     } catch {
       setPwError("Could not send a code. Try again in a moment.");
     } finally {
@@ -179,6 +226,7 @@ export default function SettingsPage() {
       setPwMode("idle");
       setCode("");
       setNewPassword("");
+      persistPwMode("idle");
     } catch {
       setPwError("That code didn't work. Check it and try again.");
     } finally {
@@ -479,6 +527,7 @@ export default function SettingsPage() {
                       setPwError("");
                       setCode("");
                       setNewPassword("");
+                      persistPwMode("idle");
                     }}
                     className="text-xs text-[#f2ede2]/75 hover:text-[#f2ede2] px-4 py-2"
                   >
