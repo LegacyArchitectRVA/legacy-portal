@@ -30,6 +30,7 @@ import { api } from "../../convex/_generated/api";
 import { EditableText } from "../components/EditableText";
 import { Switch } from "../components/ui/switch";
 import { useTheme } from "../contexts/ThemeContext";
+import { setPasswordResetInProgress } from "../lib/passwordReset";
 
 function timeAgo(ms: number): string {
   const diff = Date.now() - ms;
@@ -198,8 +199,12 @@ export default function SettingsPage() {
     setPwLoading(true);
     setPwError("");
     setPwInfo("");
-    // Persist before calling signIn, not after -- see passwordReset.ts for
-    // why this ordering is what actually closes the race with ProtectedRoute.
+    // Set both before calling signIn, not after -- the in-memory flag is
+    // what actually closes the race with ProtectedRoute (it can't be
+    // blocked by browser storage restrictions the way sessionStorage can
+    // be); sessionStorage is a separate layer for surviving a
+    // backgrounded-tab reload. See passwordReset.ts.
+    setPasswordResetInProgress(true);
     persistPwMode("code-sent");
     try {
       await signIn("password", { email: profile.email, flow: "reset" });
@@ -207,6 +212,7 @@ export default function SettingsPage() {
       setPwMode("code-sent");
     } catch {
       setPwError("Could not send a code. Try again in a moment.");
+      setPasswordResetInProgress(false);
       persistPwMode("idle");
     } finally {
       setPwLoading(false);
@@ -229,6 +235,7 @@ export default function SettingsPage() {
       setPwMode("idle");
       setCode("");
       setNewPassword("");
+      setPasswordResetInProgress(false);
       persistPwMode("idle");
     } catch {
       setPwError("That code didn't work. Check it and try again.");
@@ -530,6 +537,7 @@ export default function SettingsPage() {
                       setPwError("");
                       setCode("");
                       setNewPassword("");
+                      setPasswordResetInProgress(false);
                       persistPwMode("idle");
                     }}
                     className="text-xs text-[#f2ede2]/75 hover:text-[#f2ede2] px-4 py-2"

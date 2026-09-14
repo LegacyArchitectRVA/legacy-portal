@@ -12,6 +12,7 @@ import { Eye, EyeOff as EyeSlash, Fingerprint } from "reicon-react";
 import { api } from "../../convex/_generated/api";
 import { EditableInput } from "../components/EditableInput";
 import { EditableText } from "../components/EditableText";
+import { setPasswordResetInProgress } from "../lib/passwordReset";
 
 function getProvider(email: string): string {
   return email.endsWith("@test.local") ? "test" : "password";
@@ -164,10 +165,14 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     setInfo("");
-    // Persist before calling signIn, not after -- initiating a reset flips
-    // Convex's isAuthenticated state as a side effect, and PublicOnlyRoute
-    // reacts to that instantly. Setting the flag first means the guard
-    // never sees the auth flip without also seeing "reset in progress".
+    // Set both before calling signIn, not after -- initiating a reset
+    // flips Convex's isAuthenticated state as a side effect, and
+    // PublicOnlyRoute reacts to that instantly. Setting the flags first
+    // means the guard never sees the auth flip without also seeing
+    // "reset in progress". The in-memory flag is what actually closes
+    // the race; sessionStorage is a separate layer for surviving a
+    // backgrounded-tab reload (see passwordReset.ts).
+    setPasswordResetInProgress(true);
     persistResetState("forgot-verify", email);
     try {
       await signIn("password", { email, flow: "reset" });
@@ -175,6 +180,7 @@ export default function LoginPage() {
       setMode("forgot-verify");
     } catch {
       setError("Could not send a reset code. Check the email and try again.");
+      setPasswordResetInProgress(false);
       persistResetState("signin", email);
     } finally {
       setLoading(false);
@@ -192,6 +198,7 @@ export default function LoginPage() {
         newPassword,
         flow: "reset-verification",
       });
+      setPasswordResetInProgress(false);
       persistResetState("signin", email);
       navigate("/dashboard");
     } catch {
@@ -205,6 +212,7 @@ export default function LoginPage() {
     setMode("signin");
     setError("");
     setInfo("");
+    setPasswordResetInProgress(false);
     setCode("");
     setNewPassword("");
     persistResetState("signin", email);
