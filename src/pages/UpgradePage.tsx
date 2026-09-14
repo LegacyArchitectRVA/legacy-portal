@@ -38,7 +38,7 @@ const tierColors: Record<
 };
 
 const tierImages: Record<string, string> = {
-  personal: "/pillar-personal-v2.webp",
+  personal: "/pillar-personal-v3.webp",
   business: "/pillar-business-v2.webp",
 };
 

@@ -30,7 +30,7 @@ const tierColors: Record<string, { accent: string; label: string }> = {
 // stays in place as the true fallback if this ever fails to load, same
 // as the building mark already does for Business.
 const tierImages: Record<string, string> = {
-  personal: "/pillar-personal-v2.webp",
+  personal: "/pillar-personal-v3.webp",
   business: "/pillar-business-v2.webp",
 };
 
