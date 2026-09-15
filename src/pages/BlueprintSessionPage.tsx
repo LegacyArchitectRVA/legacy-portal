@@ -81,7 +81,19 @@ export default function BlueprintSessionPage() {
   const gapMapRef = useRef<HTMLDivElement>(null);
   const totalExposed = scores.reduce((s, p) => s + p.exposed, 0);
   const totalAssessed = scores.reduce((s, p) => s + p.assessed, 0);
-  const totalCheckpoints = BLUEPRINT_PILLARS.reduce(
+  // Business Continuity isn't part of the Personal edition's pillar set,
+  // same edition-based visibility rule as the Gap Map (GapMapBars.tsx):
+  // Business edition sessions work through all seven pillars, Personal
+  // sessions work through six and never see Business Continuity in the
+  // accordion below at all. The "X/Y assessed" total in the header is
+  // built off whichever set actually applies, not unconditionally all
+  // seven, so the denominator stays reachable for a Personal session.
+  const visiblePillars = BLUEPRINT_PILLARS.filter(
+    pillar =>
+      pillar.id !== "business" ||
+      (session?.edition ?? "personal") === "business",
+  );
+  const totalCheckpoints = visiblePillars.reduce(
     (s, p) => s + p.checkpoints.length,
     0,
   );
@@ -329,9 +341,13 @@ export default function BlueprintSessionPage() {
         </div>
 
         <div className="space-y-6">
-          {/* Assessment pillars */}
-          <div className="space-y-2">
-            {BLUEPRINT_PILLARS.map(pillar => {
+          {/* Assessment pillars. Mapped from visiblePillars, not
+              BLUEPRINT_PILLARS directly, so Business Continuity only
+              shows up for a Business edition session, same rule as the
+              Gap Map. space-y-3 (was space-y-2) for clearer separation
+              between one pillar's title row and the next. */}
+          <div className="space-y-3">
+            {visiblePillars.map(pillar => {
               const open = openPillar === pillar.id;
               const score = scores.find(s => s.pillarId === pillar.id)!;
               return (
