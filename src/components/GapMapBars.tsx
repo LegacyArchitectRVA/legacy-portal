@@ -10,19 +10,22 @@ import { nodeColor, PILLAR_ICON_SRC } from "../lib/gapMapStatus";
  * were tried and rejected as a generic AI-dashboard tell, a phone battery
  * indicator rather than an instrument gauge, and that verdict stands.
  *
- * Eleventh pass, one fix, specific to a state nobody had actually seen
- * render until the tenth pass fixed Business Continuity's visibility:
+ * Twelfth pass, correcting a wrong diagnosis from the eleventh:
  *
- *   - The gap between columns was a flat 2%, same at six columns or
- *     seven. Fine at six, columns have room to spare. At seven the
- *     columns are already narrower (flex-1 splitting less total width
- *     across one more item), and that same 2% wasn't enough dead space
- *     to keep one column's wrapped, centered title text from reading as
- *     touching its neighbor's. Craig's call: widen the gap, don't
- *     shrink the text. Gap is now conditional on ordered.length, 4% at
- *     seven columns, unchanged at 2% for six, so the Personal edition
- *     view (already confirmed correct) isn't affected at all, only the
- *     Business edition seven-column state that was actually cramped.
+ *   - The eleventh pass widened the gap between columns at seven-column
+ *     width, on the theory that not enough dead space between columns
+ *     was letting neighboring titles touch. That gap change is real and
+ *     live, but it didn't fix anything, because it was the wrong lever.
+ *     The pillar title div had no explicit width, so under this column's
+ *     items-center alignment it was sizing itself to its own content
+ *     rather than being held to its column's share of the row, and
+ *     escaping past its column's edges regardless of how much space sat
+ *     between columns. The eleventh pass's gap widening is left in
+ *     place, harmless and arguably still worth having, but the actual
+ *     fix is w-full on the title div: it's now forced to its column's
+ *     real width and has to wrap its text inside that, rather than
+ *     floating past it. Font size untouched, same as the eleventh pass,
+ *     this still isn't a shrink-the-text fix.
  *
  * Tenth pass, still in effect, unchanged here:
  *
@@ -171,8 +174,14 @@ function Column({ s }: { s: PillarScore }) {
           />
         )}
       </div>
+      {/* w-full is the actual fix here: without it, this div has no
+          width of its own under the column's items-center alignment,
+          so it sizes to its own text instead of its column's share of
+          the row, and can spill past its column's edges into the next
+          one. With it, the div is held to the column's real width and
+          the text has to wrap inside that. */}
       <div
-        className="mt-[7px] text-center font-serif leading-[1.4] text-[10.5px]"
+        className="mt-[7px] w-full text-center font-serif leading-[1.4] text-[10.5px]"
         style={{ color: "#f2ede2" }}
       >
         {title}
@@ -203,12 +212,11 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
       return true;
     });
 
-    // Wider gap at seven columns than at six. Columns are already
-    // narrower with one more of them sharing the same total width, and
-    // the flat 2% gap that reads fine at six wasn't enough dead space
-    // to stop wrapped, centered titles in neighboring seven-column
-    // layouts from visually touching. Six columns (Personal) keeps the
-    // original, already-correct 2%.
+    // Wider gap at seven columns than at six, from the eleventh pass.
+    // Didn't turn out to be what fixed the label overflow (see the
+    // top-of-file note, that was the title div's missing w-full), but
+    // it's harmless extra breathing room between columns, left in
+    // place. Six columns (Personal) keeps the original 2%.
     const columnGap = ordered.length === 7 ? "gap-[4%]" : "gap-[2%]";
 
     return (
