@@ -10,38 +10,44 @@ import { nodeColor, PILLAR_ICON_SRC } from "../lib/gapMapStatus";
  * were tried and rejected as a generic AI-dashboard tell, a phone battery
  * indicator rather than an instrument gauge, and that verdict stands.
  *
- * Ninth design of this component, still a spacing/sizing pass, not
- * another look at the visual language:
+ * Tenth pass, one correctness fix:
+ *
+ *   - Business Continuity's visibility was keyed to whether anything in
+ *     that pillar had been assessed yet, not to which edition the
+ *     session was set to. On a fresh session (nothing assessed anywhere)
+ *     that meant the column never showed up, Personal or Business, so
+ *     switching a session to Business edition appeared to do nothing on
+ *     the Gap Map. Now it's keyed to edition directly: always present
+ *     for a Business edition session (as an empty dash column, same as
+ *     any other unassessed pillar, until it's actually assessed), never
+ *     present for Personal, since it isn't part of that edition's
+ *     structure at all.
+ *
+ * Ninth pass, still in effect, unchanged here:
  *
  *   - The badge behind each pillar icon (a photographic crystal/gem
  *     texture, not flat vector art) had a colored ring drawn around it
  *     by CSS, border-[2px] with borderColor set to the pillar's status
- *     color. Craig wants that ring gone. The circular crop itself
- *     (rounded-full, overflow-hidden, the dark backing fill) stays,
- *     since the source images are square photos with soft edges, not
- *     already-circular medallions, removing the crop too would turn
- *     each icon into a square tile rather than a clean circle with no
- *     outline. Just the border and its color are dropped.
+ *     color. That ring's gone. The circular crop itself (rounded-full,
+ *     overflow-hidden, the dark backing fill) stays, since the source
+ *     images are square photos with soft edges, not already-circular
+ *     medallions, removing the crop too would turn each icon into a
+ *     square tile rather than a clean circle with no outline.
  *   - Icon wrapper sized up from 60% of the column width to 70%.
- *   - Pillar title line-height loosened from 1.15 to 1.4. Multi-word
+ *   - Pillar title line-height loosened from 1.15 to 1.4, so multi-word
  *     titles that wrap ("Emergency & Successor," "Financial & Assets")
- *     were stacking their two lines close enough to read as one dense
- *     block instead of two legible lines.
+ *     read as two legible lines instead of a dense stacked block.
  *   - The shield emblem next to the "Gap Map" heading (favicon-180.png)
- *     sized up from 40px to 50px, matching a same-image size bump made
- *     to the nav logo elsewhere in the app. Both source files are plain
- *     square PNGs with the artwork already reaching the canvas edges;
- *     neither was ever stretched or cropped oddly, they were just
- *     rendered small.
+ *     sized up from 40px to 50px, matching the nav logo elsewhere.
  *
  * Earlier fixes (columns flex-1 instead of fixed-width so six vs seven
  * columns both fill the row cleanly; card widened to max-w-[760px]; bar
  * height 130px; shortened display title for the one long pillar name)
- * are unchanged from the eighth pass, not revisited here.
- *
- * Same live data, same nodeColor()/riskPct math as every version before
- * it. Business Continuity still drops out entirely when nothing in it
- * was assessed, that rule doesn't change with the layout.
+ * are unchanged, not revisited here. The flex-1 column sizing matters
+ * more than ever now that six-vs-seven columns is driven by edition
+ * rather than assessment state, since a Personal session will always be
+ * six and a Business session always seven, not something that shifts as
+ * the same session gets assessed.
  *
  * Renders as plain DOM (no canvas), so capturing it for the PDF
  * deliverable goes through html2canvas (see gapMapToPng below). Font
@@ -60,7 +66,8 @@ interface GapMapBarsProps {
    * here, there's no readiness dial in the bar layout. */
   readiness: number;
   /** Which edition this prospect is being blueprinted toward. Renders as
-   * a small line under the "Gap Map" heading. */
+   * a small line under the "Gap Map" heading, and now also decides
+   * whether the Business Continuity column appears at all. */
   edition: "personal" | "business";
 }
 
@@ -153,9 +160,9 @@ function Column({ s }: { s: PillarScore }) {
       </div>
       {/* Sized off the column, not the (narrower) bar, tuned to land at
           roughly the same icon-to-bar ratio the wider bars had. No
-          border here anymore, just the circular crop and dark backing;
-          the ring that used to trace this circle in the pillar's status
-          color is gone. */}
+          border here, just the circular crop and dark backing; the ring
+          that used to trace this circle in the pillar's status color is
+          gone. */}
       <div
         className="mx-auto mt-[10px] aspect-square w-[70%] shrink-0 overflow-hidden rounded-full bg-[#050505]"
       >
@@ -183,16 +190,20 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
     const containerRef = useRef<HTMLDivElement>(null);
     useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
 
-    // Business Continuity drops out entirely when nothing in it was
-    // assessed, rather than showing as a seventh empty column. Specific
-    // to this one pillar, the other six always apply. Columns are flex-1
-    // below, so whichever count renders (six or seven) fills the row
-    // evenly, no fixed-width leftover gap either way.
+    // Business Continuity's presence is keyed to edition, not to
+    // whether it's been assessed. A Business edition session always
+    // gets all seven columns, the same as the other six pillars it
+    // shows an empty dash bar until something's actually assessed in
+    // it. A Personal edition session never gets this column at all,
+    // it isn't part of that edition's structure. Columns are flex-1
+    // below, so whichever count renders (six for Personal, seven for
+    // Business) fills the row evenly, no fixed-width leftover gap
+    // either way.
     const ordered = PILLAR_ORDER.map((id) =>
       scores.find((s) => s.pillarId === id),
     ).filter((s): s is PillarScore => {
       if (!s) return false;
-      if (s.pillarId === "business" && s.assessed === 0) return false;
+      if (s.pillarId === "business" && edition !== "business") return false;
       return true;
     });
 
