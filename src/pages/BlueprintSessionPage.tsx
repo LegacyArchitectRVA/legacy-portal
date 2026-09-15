@@ -204,71 +204,77 @@ export default function BlueprintSessionPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6 animate-fade-in pb-24">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => navigate("/admin/blueprint")}
-          className="text-[#f2ede2]/75 hover:text-gold-primary transition-colors shrink-0"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <div className="flex-1 min-w-0">
-          <h1 className="font-heading text-xl font-bold text-[#f2ede2] truncate">
-            {session.prospectName}
-          </h1>
-          <p className="text-xs text-[#f2ede2]/75">
-            {new Date(session.sessionDate).toLocaleDateString("en-US", {
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            })}
-            {" · "}
-            {totalAssessed}/{totalCheckpoints} assessed
-            {" · "}
-            {/* Colors match the Gap Map / checkpoint chip palette exactly
-                (STATUS_COLORS in lib/gapMapStatus.ts) rather than generic
-                Tailwind rose/emerald. */}
-            <span
-              className={totalExposed > 0 ? "text-[#e8938c]" : "text-[#7ed1ac]"}
-            >
-              {totalExposed} exposed
-            </span>
-          </p>
+      {/* Header. Two flex children (name group, controls group) stack on
+          mobile and sit in one row on sm+, since name + date + both
+          dropdowns + delete button never fit on a phone width. */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={() => navigate("/admin/blueprint")}
+            className="text-[#f2ede2]/75 hover:text-gold-primary transition-colors shrink-0"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <h1 className="font-heading text-xl font-bold text-[#f2ede2] truncate">
+              {session.prospectName}
+            </h1>
+            <p className="text-xs text-[#f2ede2]/75 truncate">
+              {new Date(session.sessionDate).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+              {" · "}
+              {totalAssessed}/{totalCheckpoints} assessed
+              {" · "}
+              {/* Colors match the Gap Map / checkpoint chip palette exactly
+                  (STATUS_COLORS in lib/gapMapStatus.ts) rather than generic
+                  Tailwind rose/emerald. */}
+              <span
+                className={totalExposed > 0 ? "text-[#e8938c]" : "text-[#7ed1ac]"}
+              >
+                {totalExposed} exposed
+              </span>
+            </p>
+          </div>
         </div>
-        <select
-          value={session.edition ?? "personal"}
-          onChange={e =>
-            updateMeta({
-              sessionId: session._id,
-              edition: e.target.value as "personal" | "business",
-            })
-          }
-          className="bg-[#171208] border border-gold-border/40 rounded-lg px-2 py-1.5 text-xs text-[#f2ede2] focus:outline-none shrink-0"
-        >
-          <option value="personal">Personal</option>
-          <option value="business">Business</option>
-        </select>
-        <select
-          value={session.status}
-          onChange={e =>
-            updateMeta({
-              sessionId: session._id,
-              status: e.target.value as any,
-            })
-          }
-          className="bg-[#171208] border border-gold-border/40 rounded-lg px-2 py-1.5 text-xs text-[#f2ede2] focus:outline-none shrink-0"
-        >
-          <option value="draft">Draft</option>
-          <option value="completed">Completed</option>
-          <option value="delivered">Delivered</option>
-        </select>
-        <button
-          onClick={() => setConfirmDelete(true)}
-          title="Delete session"
-          className="text-[#f2ede2]/60 hover:text-red-400 p-2 shrink-0"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2 shrink-0 sm:ml-auto">
+          <select
+            value={session.edition ?? "personal"}
+            onChange={e =>
+              updateMeta({
+                sessionId: session._id,
+                edition: e.target.value as "personal" | "business",
+              })
+            }
+            className="bg-[#171208] border border-gold-border/40 rounded-lg px-2 py-1.5 text-xs text-[#f2ede2] focus:outline-none shrink-0"
+          >
+            <option value="personal">Personal</option>
+            <option value="business">Business</option>
+          </select>
+          <select
+            value={session.status}
+            onChange={e =>
+              updateMeta({
+                sessionId: session._id,
+                status: e.target.value as any,
+              })
+            }
+            className="bg-[#171208] border border-gold-border/40 rounded-lg px-2 py-1.5 text-xs text-[#f2ede2] focus:outline-none shrink-0"
+          >
+            <option value="draft">Draft</option>
+            <option value="completed">Completed</option>
+            <option value="delivered">Delivered</option>
+          </select>
+          <button
+            onClick={() => setConfirmDelete(true)}
+            title="Delete session"
+            className="text-[#f2ede2]/60 hover:text-red-400 p-2 shrink-0"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {confirmDelete && (
