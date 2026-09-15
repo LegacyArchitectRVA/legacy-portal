@@ -10,44 +10,40 @@ import { nodeColor, PILLAR_ICON_SRC } from "../lib/gapMapStatus";
  * were tried and rejected as a generic AI-dashboard tell, a phone battery
  * indicator rather than an instrument gauge, and that verdict stands.
  *
- * Tenth pass, one correctness fix:
+ * Eleventh pass, one fix, specific to a state nobody had actually seen
+ * render until the tenth pass fixed Business Continuity's visibility:
  *
- *   - Business Continuity's visibility was keyed to whether anything in
- *     that pillar had been assessed yet, not to which edition the
- *     session was set to. On a fresh session (nothing assessed anywhere)
- *     that meant the column never showed up, Personal or Business, so
- *     switching a session to Business edition appeared to do nothing on
- *     the Gap Map. Now it's keyed to edition directly: always present
- *     for a Business edition session (as an empty dash column, same as
- *     any other unassessed pillar, until it's actually assessed), never
- *     present for Personal, since it isn't part of that edition's
- *     structure at all.
+ *   - The gap between columns was a flat 2%, same at six columns or
+ *     seven. Fine at six, columns have room to spare. At seven the
+ *     columns are already narrower (flex-1 splitting less total width
+ *     across one more item), and that same 2% wasn't enough dead space
+ *     to keep one column's wrapped, centered title text from reading as
+ *     touching its neighbor's. Craig's call: widen the gap, don't
+ *     shrink the text. Gap is now conditional on ordered.length, 4% at
+ *     seven columns, unchanged at 2% for six, so the Personal edition
+ *     view (already confirmed correct) isn't affected at all, only the
+ *     Business edition seven-column state that was actually cramped.
+ *
+ * Tenth pass, still in effect, unchanged here:
+ *
+ *   - Business Continuity's visibility is keyed to edition, not to
+ *     whether it's been assessed. Always present for Business edition
+ *     (as an empty dash column until it's actually assessed, same as
+ *     any other pillar), never present for Personal.
  *
  * Ninth pass, still in effect, unchanged here:
  *
- *   - The badge behind each pillar icon (a photographic crystal/gem
- *     texture, not flat vector art) had a colored ring drawn around it
- *     by CSS, border-[2px] with borderColor set to the pillar's status
- *     color. That ring's gone. The circular crop itself (rounded-full,
- *     overflow-hidden, the dark backing fill) stays, since the source
- *     images are square photos with soft edges, not already-circular
- *     medallions, removing the crop too would turn each icon into a
- *     square tile rather than a clean circle with no outline.
- *   - Icon wrapper sized up from 60% of the column width to 70%.
- *   - Pillar title line-height loosened from 1.15 to 1.4, so multi-word
- *     titles that wrap ("Emergency & Successor," "Financial & Assets")
- *     read as two legible lines instead of a dense stacked block.
- *   - The shield emblem next to the "Gap Map" heading (favicon-180.png)
- *     sized up from 40px to 50px, matching the nav logo elsewhere.
+ *   - No ring around the pillar icons (border and its status color
+ *     dropped; the circular crop itself stays, the source images are
+ *     square photos, not already-circular medallions).
+ *   - Icon wrapper at 70% of column width, was 60%.
+ *   - Pillar title line-height at 1.4, was 1.15.
+ *   - Shield emblem next to the "Gap Map" heading at 50px, was 40px.
  *
  * Earlier fixes (columns flex-1 instead of fixed-width so six vs seven
  * columns both fill the row cleanly; card widened to max-w-[760px]; bar
  * height 130px; shortened display title for the one long pillar name)
- * are unchanged, not revisited here. The flex-1 column sizing matters
- * more than ever now that six-vs-seven columns is driven by edition
- * rather than assessment state, since a Personal session will always be
- * six and a Business session always seven, not something that shifts as
- * the same session gets assessed.
+ * are unchanged, not revisited here.
  *
  * Renders as plain DOM (no canvas), so capturing it for the PDF
  * deliverable goes through html2canvas (see gapMapToPng below). Font
@@ -66,8 +62,8 @@ interface GapMapBarsProps {
    * here, there's no readiness dial in the bar layout. */
   readiness: number;
   /** Which edition this prospect is being blueprinted toward. Renders as
-   * a small line under the "Gap Map" heading, and now also decides
-   * whether the Business Continuity column appears at all. */
+   * a small line under the "Gap Map" heading, and also decides whether
+   * the Business Continuity column appears at all. */
   edition: "personal" | "business";
 }
 
@@ -207,6 +203,14 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
       return true;
     });
 
+    // Wider gap at seven columns than at six. Columns are already
+    // narrower with one more of them sharing the same total width, and
+    // the flat 2% gap that reads fine at six wasn't enough dead space
+    // to stop wrapped, centered titles in neighboring seven-column
+    // layouts from visually touching. Six columns (Personal) keeps the
+    // original, already-correct 2%.
+    const columnGap = ordered.length === 7 ? "gap-[4%]" : "gap-[2%]";
+
     return (
       <div ref={containerRef} className="w-full max-w-[760px] mx-auto">
         <div
@@ -240,7 +244,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
             </div>
             <div className="mt-[3%] border-t" style={{ borderColor: "rgba(109,91,43,.5)" }} />
 
-            <div className="mt-[6%] flex items-start gap-[2%]">
+            <div className={`mt-[6%] flex items-start ${columnGap}`}>
               {ordered.map((s) => (
                 <Column key={s.pillarId} s={s} />
               ))}
