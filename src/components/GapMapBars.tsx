@@ -3,36 +3,57 @@ import type { PillarScore } from "../lib/blueprintDeliverable";
 import { nodeColor, PILLAR_ICON_SRC } from "../lib/gapMapStatus";
 
 /**
- * The Gap Map: seven vertical exposure bars in a row, icon and title
- * beneath each, over a compass-and-map background photo with a dark
- * overlay. Same thermometer-bar visual language as the seventh design,
- * per Craig that part isn't changing again: the pill/stadium bar ends
- * were tried and rejected as a generic AI-dashboard tell, a phone battery
- * indicator rather than an instrument gauge, and that verdict stands.
+ * The Gap Map: seven vertical exposure bars in a row, icon and chapter
+ * number beneath each, over a compass-and-map background photo with a
+ * dark overlay. Same thermometer-bar visual language as the seventh
+ * design, per Craig that part isn't changing again: the pill/stadium bar
+ * ends were tried and rejected as a generic AI-dashboard tell, a phone
+ * battery indicator rather than an instrument gauge, and that verdict
+ * stands.
  *
- * Twelfth pass, correcting a wrong diagnosis from the eleventh:
+ * Thirteenth pass, and the one that actually resolves the label
+ * overlap after three failed attempts at it:
  *
- *   - The eleventh pass widened the gap between columns at seven-column
- *     width, on the theory that not enough dead space between columns
- *     was letting neighboring titles touch. That gap change is real and
- *     live, but it didn't fix anything, because it was the wrong lever.
- *     The pillar title div had no explicit width, so under this column's
- *     items-center alignment it was sizing itself to its own content
- *     rather than being held to its column's share of the row, and
- *     escaping past its column's edges regardless of how much space sat
- *     between columns. The eleventh pass's gap widening is left in
- *     place, harmless and arguably still worth having, but the actual
- *     fix is w-full on the title div: it's now forced to its column's
- *     real width and has to wrap its text inside that, rather than
- *     floating past it. Font size untouched, same as the eleventh pass,
- *     this still isn't a shrink-the-text fix.
+ *   - The column labels are chapter numbers now ("Ch. 1" through
+ *     "Ch. 7"), not pillar titles, in BOTH editions. The overlap was
+ *     never a spacing or width bug, it was arithmetic: at seven
+ *     columns on a phone each column is roughly 37px wide, and
+ *     "Operations" / "Household" / "Continuity" need more than that at
+ *     10.5px. No amount of gap or width fixes text that's physically
+ *     wider than its box, which is why the eleventh pass (wider gap)
+ *     and twelfth pass (w-full on the label) both changed real things
+ *     and fixed nothing. Craig ruled out shrinking the text, so the
+ *     label itself had to get shorter. "Ch. N" fits at any column
+ *     count with room to spare.
+ *   - Numbering follows the Life Manual's chapters, and the
+ *     Introduction is not a chapter, so Digital Life is Ch. 1 and the
+ *     map runs Ch. 1 through Ch. 7. This ordering is already what
+ *     PILLAR_ORDER encodes, so the number is just the index.
+ *   - The eleventh pass's conditional wider gap at seven columns is
+ *     reverted to a flat 2%. It was introduced to fight the overlap,
+ *     didn't, and actively made it worse by narrowing the columns it
+ *     was trying to give room to. With short labels there's no reason
+ *     to keep it.
+ *   - The twelfth pass's w-full on the label div stays. It didn't fix
+ *     the overlap on its own, but holding the label to its column's
+ *     real width is correct regardless, and it's what keeps a
+ *     centered "Ch. N" centered on its own column rather than on its
+ *     own text box.
+ *   - SHORT_TITLE is gone, it existed only to trim "Emergency &
+ *     Successor Orientation" down for this layout, and nothing here
+ *     renders a title anymore. Full pillar titles are untouched in
+ *     blueprintPillars.ts and still render in full in the assessment
+ *     accordion and the PDF deliverable, which is where a client
+ *     actually reads what each chapter covers. On the map the icon
+ *     plus the chapter number carry it.
  *
  * Tenth pass, still in effect, unchanged here:
  *
  *   - Business Continuity's visibility is keyed to edition, not to
  *     whether it's been assessed. Always present for Business edition
  *     (as an empty dash column until it's actually assessed, same as
- *     any other pillar), never present for Personal.
+ *     any other pillar), never present for Personal. So Personal runs
+ *     Ch. 1 through Ch. 6 and Business runs Ch. 1 through Ch. 7.
  *
  * Ninth pass, still in effect, unchanged here:
  *
@@ -40,13 +61,12 @@ import { nodeColor, PILLAR_ICON_SRC } from "../lib/gapMapStatus";
  *     dropped; the circular crop itself stays, the source images are
  *     square photos, not already-circular medallions).
  *   - Icon wrapper at 70% of column width, was 60%.
- *   - Pillar title line-height at 1.4, was 1.15.
+ *   - Label line-height at 1.4, was 1.15.
  *   - Shield emblem next to the "Gap Map" heading at 50px, was 40px.
  *
  * Earlier fixes (columns flex-1 instead of fixed-width so six vs seven
  * columns both fill the row cleanly; card widened to max-w-[760px]; bar
- * height 130px; shortened display title for the one long pillar name)
- * are unchanged, not revisited here.
+ * height 130px) are unchanged, not revisited here.
  *
  * Renders as plain DOM (no canvas), so capturing it for the PDF
  * deliverable goes through html2canvas (see gapMapToPng below). Font
@@ -66,10 +86,13 @@ interface GapMapBarsProps {
   readiness: number;
   /** Which edition this prospect is being blueprinted toward. Renders as
    * a small line under the "Gap Map" heading, and also decides whether
-   * the Business Continuity column appears at all. */
+   * the Business Continuity column (Ch. 7) appears at all. */
   edition: "personal" | "business";
 }
 
+// Also the chapter numbering: index 0 is Ch. 1. The Life Manual's
+// Introduction is not a chapter, so Digital Life is Ch. 1 and this list
+// maps one-to-one onto Ch. 1 through Ch. 7.
 const PILLAR_ORDER = [
   "digital",
   "health",
@@ -79,15 +102,6 @@ const PILLAR_ORDER = [
   "legacy",
   "business",
 ];
-
-// Display-only shortening for this narrow-column layout. Everywhere else
-// in the app (the pillar accordion on this same page, the PDF
-// deliverable) still uses the full title from blueprintPillars.ts; this
-// map is not a replacement for that data, just a rendering accommodation
-// for the one title that's meaningfully longer than the other six.
-const SHORT_TITLE: Partial<Record<string, string>> = {
-  health: "Emergency & Successor",
-};
 
 const EDITION_LABEL: Record<"personal" | "business", string> = {
   personal: "Personal Edition",
@@ -114,13 +128,12 @@ const FILL_GRADIENT: Record<string, [string, string]> = {
   "#8a3a3a": ["#6d2c26", "#b8443a"], // exposed / oxblood
 };
 
-function Column({ s }: { s: PillarScore }) {
+function Column({ s, chapter }: { s: PillarScore; chapter: number }) {
   const color = nodeColor(s);
   const handledPct =
     s.assessed === 0 ? 0 : Math.max(0, Math.min(100, 100 - s.riskPct));
   const icon = PILLAR_ICON_SRC[s.pillarId];
   const gradient = FILL_GRADIENT[color] ?? [color, color];
-  const title = SHORT_TITLE[s.pillarId] ?? s.title;
 
   return (
     <div className="flex flex-1 min-w-0 flex-col items-center">
@@ -174,17 +187,13 @@ function Column({ s }: { s: PillarScore }) {
           />
         )}
       </div>
-      {/* w-full is the actual fix here: without it, this div has no
-          width of its own under the column's items-center alignment,
-          so it sizes to its own text instead of its column's share of
-          the row, and can spill past its column's edges into the next
-          one. With it, the div is held to the column's real width and
-          the text has to wrap inside that. */}
+      {/* w-full holds this to the column's real width so "Ch. N" centers
+          on the column rather than on its own text box. */}
       <div
         className="mt-[7px] w-full text-center font-serif leading-[1.4] text-[10.5px]"
         style={{ color: "#f2ede2" }}
       >
-        {title}
+        Ch. {chapter}
       </div>
     </div>
   );
@@ -200,24 +209,24 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
     // gets all seven columns, the same as the other six pillars it
     // shows an empty dash bar until something's actually assessed in
     // it. A Personal edition session never gets this column at all,
-    // it isn't part of that edition's structure. Columns are flex-1
-    // below, so whichever count renders (six for Personal, seven for
-    // Business) fills the row evenly, no fixed-width leftover gap
-    // either way.
-    const ordered = PILLAR_ORDER.map((id) =>
-      scores.find((s) => s.pillarId === id),
-    ).filter((s): s is PillarScore => {
-      if (!s) return false;
-      if (s.pillarId === "business" && edition !== "business") return false;
+    // it isn't part of that edition's structure.
+    //
+    // The chapter number comes from the pillar's position in
+    // PILLAR_ORDER, captured before filtering, so it's the pillar's
+    // own fixed chapter number rather than its position in whatever
+    // subset renders. That distinction doesn't bite today (Business
+    // Continuity is last, so dropping it just truncates at Ch. 6), but
+    // it keeps the numbers stable if a pillar is ever hidden from the
+    // middle of the list.
+    const ordered = PILLAR_ORDER.map((id, i) => {
+      const s = scores.find((sc) => sc.pillarId === id);
+      return s ? { score: s, chapter: i + 1 } : null;
+    }).filter((entry): entry is { score: PillarScore; chapter: number } => {
+      if (!entry) return false;
+      if (entry.score.pillarId === "business" && edition !== "business")
+        return false;
       return true;
     });
-
-    // Wider gap at seven columns than at six, from the eleventh pass.
-    // Didn't turn out to be what fixed the label overflow (see the
-    // top-of-file note, that was the title div's missing w-full), but
-    // it's harmless extra breathing room between columns, left in
-    // place. Six columns (Personal) keeps the original 2%.
-    const columnGap = ordered.length === 7 ? "gap-[4%]" : "gap-[2%]";
 
     return (
       <div ref={containerRef} className="w-full max-w-[760px] mx-auto">
@@ -252,9 +261,9 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
             </div>
             <div className="mt-[3%] border-t" style={{ borderColor: "rgba(109,91,43,.5)" }} />
 
-            <div className={`mt-[6%] flex items-start ${columnGap}`}>
-              {ordered.map((s) => (
-                <Column key={s.pillarId} s={s} />
+            <div className="mt-[6%] flex items-start gap-[2%]">
+              {ordered.map(({ score, chapter }) => (
+                <Column key={score.pillarId} s={score} chapter={chapter} />
               ))}
             </div>
 
