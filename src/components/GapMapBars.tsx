@@ -10,46 +10,34 @@ import { nodeColor, PILLAR_ICON_SRC } from "../lib/gapMapStatus";
  * were tried and rejected as a generic AI-dashboard tell, a phone battery
  * indicator rather than an instrument gauge, and that verdict stands.
  *
- * Eighth design of this component, and it's a spacing fix, not another
- * pass at the visual language. Two concrete bugs, both about layout math,
- * not aesthetics:
+ * Ninth design of this component, still a spacing/sizing pass, not
+ * another look at the visual language:
  *
- *   - Each column was a fixed 13% width with the row set to
- *     justify-between. That's fine at all seven columns, but Business
- *     Continuity is conditionally hidden when nothing in it was assessed
- *     (a rule that isn't changing), which drops the row to six columns.
- *     Fixed-width children under justify-between don't grow to fill the
- *     freed-up space, that space becomes extra gap between columns
- *     instead, so the six-column state reads sparser and less deliberate
- *     than the seven-column one it was tuned against. Columns are now
- *     flex-1 (equal share of the full row) so the layout self-adjusts
- *     cleanly at either count, no leftover dead space either way.
- *   - The card was capped at max-w-[520px], which at 13% put each column
- *     at roughly 67px. Fine for "Vital Records," not for "Emergency &
- *     Successor Orientation," which wrapped four-plus lines and read as
- *     cramped. The card is wider now (max-w-[760px]) so a normal-length
- *     title fits in two lines without help, and the one outlier
- *     ("Emergency & Successor Orientation," at 32 characters nearly half
- *     again the length of the next-longest title) gets a shortened
- *     display form local to this component, dropping "Orientation." Nothing
- *     else needed shortening. This doesn't touch the title stored in
- *     blueprintPillars.ts, that's still the full name everywhere else
- *     (the pillar list on this same page, the PDF deliverable); it's a
- *     display-only accommodation for a column this narrow.
+ *   - The badge behind each pillar icon (a photographic crystal/gem
+ *     texture, not flat vector art) had a colored ring drawn around it
+ *     by CSS, border-[2px] with borderColor set to the pillar's status
+ *     color. Craig wants that ring gone. The circular crop itself
+ *     (rounded-full, overflow-hidden, the dark backing fill) stays,
+ *     since the source images are square photos with soft edges, not
+ *     already-circular medallions, removing the crop too would turn
+ *     each icon into a square tile rather than a clean circle with no
+ *     outline. Just the border and its color are dropped.
+ *   - Icon wrapper sized up from 60% of the column width to 70%.
+ *   - Pillar title line-height loosened from 1.15 to 1.4. Multi-word
+ *     titles that wrap ("Emergency & Successor," "Financial & Assets")
+ *     were stacking their two lines close enough to read as one dense
+ *     block instead of two legible lines.
+ *   - The shield emblem next to the "Gap Map" heading (favicon-180.png)
+ *     sized up from 40px to 50px, matching a same-image size bump made
+ *     to the nav logo elsewhere in the app. Both source files are plain
+ *     square PNGs with the artwork already reaching the canvas edges;
+ *     neither was ever stretched or cropped oddly, they were just
+ *     rendered small.
  *
- * Also trimmed the bar's max height slightly (150px to 130px). Mostly
- * matters on a fresh, nothing-assessed-yet session: a fully-unassessed
- * bar is just a centered dash in an otherwise empty tube, and at 150px
- * tall times six or seven columns that's a lot of empty card before any
- * real content. Still tall enough to read clearly once a pillar's
- * actually been assessed and has a fill.
- *
- * New this version: an edition line under the "Gap Map" heading,
- * "Personal Edition" or "Business Edition" depending on which edition
- * the prospect is being blueprinted toward (BlueprintSessionPage passes
- * session.edition through). Small, uppercase, letter-spaced, same muted
- * treatment as other small-caps labels elsewhere in the app rather than
- * competing with the heading itself.
+ * Earlier fixes (columns flex-1 instead of fixed-width so six vs seven
+ * columns both fill the row cleanly; card widened to max-w-[760px]; bar
+ * height 130px; shortened display title for the one long pillar name)
+ * are unchanged from the eighth pass, not revisited here.
  *
  * Same live data, same nodeColor()/riskPct math as every version before
  * it. Business Continuity still drops out entirely when nothing in it
@@ -164,10 +152,12 @@ function Column({ s }: { s: PillarScore }) {
         )}
       </div>
       {/* Sized off the column, not the (narrower) bar, tuned to land at
-          roughly the same icon-to-bar ratio the wider bars had. */}
+          roughly the same icon-to-bar ratio the wider bars had. No
+          border here anymore, just the circular crop and dark backing;
+          the ring that used to trace this circle in the pillar's status
+          color is gone. */}
       <div
-        className="mx-auto mt-[10px] aspect-square w-[60%] shrink-0 overflow-hidden rounded-full border-[2px] bg-[#050505]"
-        style={{ borderColor: color }}
+        className="mx-auto mt-[10px] aspect-square w-[70%] shrink-0 overflow-hidden rounded-full bg-[#050505]"
       >
         {icon && (
           <img
@@ -179,7 +169,7 @@ function Column({ s }: { s: PillarScore }) {
         )}
       </div>
       <div
-        className="mt-[7px] text-center font-serif leading-[1.15] text-[10.5px]"
+        className="mt-[7px] text-center font-serif leading-[1.4] text-[10.5px]"
         style={{ color: "#f2ede2" }}
       >
         {title}
@@ -224,7 +214,7 @@ export const GapMapBars = forwardRef<HTMLDivElement, GapMapBarsProps>(
 
           <div className="relative px-[4%] pb-[5%] pt-[5.5%]">
             <div className="flex items-center gap-4">
-              <img src="/favicon-180.png" alt="" className="h-[40px] w-[40px] shrink-0" />
+              <img src="/favicon-180.png" alt="" className="h-[50px] w-[50px] shrink-0" />
               <div>
                 <div className="font-serif text-[22px] leading-tight" style={{ color: "#d4b661" }}>
                   Gap Map
